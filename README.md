@@ -1,3 +1,17 @@
+# roloslider
+
+npm install electron-window-state-manager
+npm install electron-json-config
+
+
+Suppress questions for integrating in your linux system:
+* mkdir -p $HOME/.local/share/appimagekit/
+* touch $HOME/.local/share/appimagekit/no_desktopintegration
+
+
+
+
+
 # electron-react-boilerplate
 
 ### A Boilerplate for Scalable Cross-Platform Desktop Apps
