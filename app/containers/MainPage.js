@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import SplitPane from 'react-split-pane';
 import * as cssConstants from '../cssConstants';
+import DetailPane from './DetailPane';
+import NaviPane from './NaviPane';
+import ImagePane from './ImagePane';
 
 // export default class MainPage extends Component {
 //   render() {
@@ -35,11 +38,8 @@ class MainPage extends Component {
           minSize={150}
           defaultSize={200}
           allowResize="true"
-          className="pt-fill"
         >
-          <div>
-            <button className={cssConstants.CSS_BUTTON}>Button</button>
-          </div>
+          <NaviPane />
 
           <SplitPane
             split="vertical"
@@ -48,10 +48,8 @@ class MainPage extends Component {
             allowResize="true"
             primary="second"
           >
-            <div>Main content</div>
-            <div>
-              <button className={cssConstants.CSS_BUTTON}>Button</button>
-            </div>
+            <ImagePane />
+            <DetailPane />
           </SplitPane>
         </SplitPane>
       </div>
