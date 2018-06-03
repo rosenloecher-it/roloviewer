@@ -85,9 +85,28 @@ function createMenu() {
         role: 'reload',
         accelerator: 'CmdOrCtrl+R'
       },
+      /* ........................................... */
+      { type: 'separator' },
       {
-        type: 'separator'
+        label: 'Toggle navigation pane',
+        click() {
+          app.quit();
+        }
       },
+      {
+        label: 'Toggle details pane',
+        click() {
+          app.quit();
+        }
+      },
+      {
+        label: 'Toggle thumbnails pane',
+        click() {
+          app.quit();
+        }
+      },
+      /* ........................................... */
+      { type: 'separator' },
       {
         role: 'togglefullscreen',
         accelerator: 'F11'
