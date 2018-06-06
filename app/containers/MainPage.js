@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import SplitterLayout from 'react-splitter-layout';
-import * as cssConstants from '../cssConstants';
+import * as cssConstants from '../style/cssConstants';
 import DetailPane from './DetailPane';
 import ImagePane from './ImagePane';
 import ThumbPane from './ThumbPane';

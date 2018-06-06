@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactCSSTransitionReplace from 'react-css-transition-replace';
 import {connect} from "react-redux";
-import * as cssConstants from '../cssConstants';
+import * as cssConstants from '../style/cssConstants';
 import * as action from "../actions/actionImagePane";
 
 class ImagePane extends Component {

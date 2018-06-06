@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import * as cssConstants from '../cssConstants';
+import * as cssConstants from '../style/cssConstants';
 
 type Props = {
   children: React.Node

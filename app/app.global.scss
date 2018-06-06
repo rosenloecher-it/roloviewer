@@ -23,7 +23,7 @@ body {
 //$resizer-color: rgba(0, 0, 0, 0.5);
 $resizer-color: $black;
 
-@import "./resizer.scss";
+@import "style/resizer";
 
 .image-pane {
   display: block;

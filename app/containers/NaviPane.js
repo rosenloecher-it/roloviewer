@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import * as cssConstants from '../cssConstants';
+import * as cssConstants from '../style/cssConstants';
 
 export default class NaviPane extends Component {
   render() {
