@@ -69,6 +69,21 @@ function createMenu() {
     label: 'File',
     submenu: [
       {
+        label: 'Open directory',
+        accelerator: 'CmdOrCtrl+O',
+        click: () => {
+          console.log('open directory clicked');
+        }
+      },
+      {
+        label: 'Open playlist ',
+        accelerator: 'Shift+CmdOrCtrl+O',
+        click: () => {
+          console.log('open playlist clicked');
+        }
+      },
+      { type: 'separator' },
+      {
         label: 'Exit',
         accelerator: 'ESC',
         click() {
@@ -85,28 +100,6 @@ function createMenu() {
         role: 'reload',
         accelerator: 'CmdOrCtrl+R'
       },
-      /* ........................................... */
-      { type: 'separator' },
-      {
-        label: 'Toggle navigation pane',
-        click() {
-          app.quit();
-        }
-      },
-      {
-        label: 'Toggle details pane',
-        click() {
-          app.quit();
-        }
-      },
-      {
-        label: 'Toggle thumbnails pane',
-        click() {
-          app.quit();
-        }
-      },
-      /* ........................................... */
-      { type: 'separator' },
       {
         role: 'togglefullscreen',
         accelerator: 'F11'
@@ -132,14 +125,19 @@ function createMenu() {
     label: 'Help',
     submenu: [
       {
+        label: 'Show help',
+        accelerator: 'F1',
+        click() {
+          console.log('help clicked');
+        }
+      },
+      {
         label: 'Learn More',
         click() {
           shell.openExternal('https://electronjs.org');
         }
       },
-      {
-        type: 'separator'
-      },
+      { type: 'separator' },
       {
         label: 'About ...',
         click: () => {

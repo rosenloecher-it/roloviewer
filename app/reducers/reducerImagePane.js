@@ -2,7 +2,10 @@
 import * as actionType from '../actions/actionTypes';
 
 const defaultState = {
-  showIndex: 0
+  autoPlay: false,
+  autoFile: false,
+  showIndex: -1,
+  mediaList: []
 };
 
 export default (state = defaultState, action) => {
