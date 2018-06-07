@@ -20,10 +20,7 @@ body {
   background-color: $app-background;
 };
 
-//$resizer-color: rgba(0, 0, 0, 0.5);
-$resizer-color: $black;
-
-@import "style/resizer";
+//------------------------------------------------------------------------------
 
 .image-pane {
   display: block;
@@ -36,16 +33,18 @@ $resizer-color: $black;
   //max-height: 100vh;
   margin: auto;
   //overflow:hidden;
-
-
 }
 
-.image-slide {
-  background-color: $app-background;
-  transition: opacity 1s ease-in-out;
+.main-pane {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
-
+//------------------------------------------------------------------------------
 
 .cross-fade-leave {
   opacity: 1;
@@ -66,3 +65,5 @@ $resizer-color: $black;
 .cross-fade-height {
   transition: height .9s ease-in-out;
 }
+
+
