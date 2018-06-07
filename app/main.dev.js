@@ -13,7 +13,7 @@
 import { app, BrowserWindow, crashReporter, Menu, shell } from 'electron';
 import WindowStateManager from 'electron-window-state-manager';
 import settings from 'electron-json-config';
-import * as mainConstants from './mainConstants';
+import * as appConstants from './appConstants';
 
 // ----------------------------------------------------------------------------------
 
@@ -26,9 +26,9 @@ let mainWindow = null;
 
 function startCrashReporter() {
   crashReporter.start({
-    productName: mainConstants.APP_NAME,
-    companyName: mainConstants.COMPANY_NAME,
-    submitURL: mainConstants.URL_CRASH_REPORT,
+    productName: appConstants.APP_NAME,
+    companyName: appConstants.COMPANY_NAME,
+    submitURL: appConstants.URL_CRASH_REPORT,
     uploadToServer: false
   });
 }
@@ -37,7 +37,7 @@ function startCrashReporter() {
 
 function toogleDevTools() {
   if (mainWindow && isDevelopment) {
-    let devToolsOpen = settings.get(mainConstants.SETTING_DEVTOOLS_STATE);
+    let devToolsOpen = settings.get(appConstants.SETTING_DEVTOOLS_STATE);
 
     if (devToolsOpen === 1) {
       devToolsOpen = 0;
@@ -47,7 +47,7 @@ function toogleDevTools() {
       mainWindow.webContents.openDevTools();
     }
 
-    settings.set(mainConstants.SETTING_DEVTOOLS_STATE, devToolsOpen);
+    settings.set(appConstants.SETTING_DEVTOOLS_STATE, devToolsOpen);
   }
 }
 
@@ -55,7 +55,7 @@ function toogleDevTools() {
 
 function restoreDevTools() {
   if (mainWindow && isDevelopment) {
-    const devToolsOpen = settings.get(mainConstants.SETTING_DEVTOOLS_STATE, 0);
+    const devToolsOpen = settings.get(appConstants.SETTING_DEVTOOLS_STATE, 0);
     if (devToolsOpen === 1) {
       mainWindow.webContents.openDevTools();
     }
@@ -181,8 +181,8 @@ function createMainWindow() {
     height: mainWindowState.height,
     x: mainWindowState.x,
     y: mainWindowState.y,
-    minWidth: mainConstants.SIZE_WIDTH_MIN,
-    minHeight: mainConstants.SIZE_HEIGHT_MIN,
+    minWidth: appConstants.SIZE_WIDTH_MIN,
+    minHeight: appConstants.SIZE_HEIGHT_MIN,
     show: false
   });
 
@@ -193,7 +193,7 @@ function createMainWindow() {
   mainWindow.webContents.on('did-finish-load', () => {
     if (!mainWindow) throw new Error('"mainWindow" is not defined');
 
-    mainWindow.setTitle(mainConstants.APP_NAME);
+    mainWindow.setTitle(appConstants.APP_NAME);
     mainWindow.show();
 
     if (wasMainWindowMaximized) mainWindow.maximize();
@@ -250,8 +250,8 @@ const installExtensions = async () => {
 startCrashReporter();
 
 const mainWindowState = new WindowStateManager('mainWindow', {
-  defaultWidth: mainConstants.SIZE_WIDTH_DEF,
-  defaultHeight: mainConstants.SIZE_HEIGHT_DEF
+  defaultWidth: appConstants.SIZE_WIDTH_DEF,
+  defaultHeight: appConstants.SIZE_HEIGHT_DEF
 });
 
 createMenu();
