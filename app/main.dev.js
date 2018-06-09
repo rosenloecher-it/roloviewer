@@ -14,13 +14,16 @@ import { app, BrowserWindow, crashReporter, Menu, shell } from 'electron';
 import WindowStateManager from 'electron-window-state-manager';
 import settings from 'electron-json-config';
 import * as appConstants from './appConstants';
+import { default as configMain } from './main/configMain';
 
 // ----------------------------------------------------------------------------------
 
-const isDevelopment =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+export const isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+export const isProduction = process.env.NODE_ENV === 'production';
+export const isTest = process.env.NODE_ENV === 'test';
 
 let mainWindow = null;
+let mainWindowState = null;
 
 // ----------------------------------------------------------------------------------
 
@@ -80,6 +83,13 @@ function createMenu() {
         accelerator: 'Shift+CmdOrCtrl+O',
         click: () => {
           console.log('open playlist clicked');
+        }
+      },
+      {
+        label: 'Auto-select',
+        accelerator: 'CmdOrCtrl+A',
+        click: () => {
+          console.log('auto-select clicked');
         }
       },
       { type: 'separator' },
@@ -166,7 +176,8 @@ function allWindowsClosed() {
 // ----------------------------------------------------------------------------------
 
 function closeMainWindow() {
-  mainWindowState.saveState(mainWindow);
+  if (mainWindowState)
+    mainWindowState.saveState(mainWindow);
 }
 
 // ----------------------------------------------------------------------------------
@@ -196,6 +207,8 @@ function createMainWindow() {
 
     if (wasMainWindowMaximized) mainWindow.maximize();
 
+    // BrowserWindow.setFullScreen(true)
+
     mainWindow.on('close', closeMainWindow);
 
     if (isDevelopment) {
@@ -223,54 +236,67 @@ function createMainWindow() {
 }
 // ----------------------------------------------------------------------------------
 
-if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
-}
-
-if (isDevelopment) {
-  require('electron-debug')();
-  const path = require('path');
-  const p = path.join(__dirname, '..', 'app', 'node_modules');
-  require('module').globalPaths.push(p);
-}
-
-const installExtensions = async () => {
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
-
-  return Promise.all(
-    extensions.map(name => installer.default(installer[name], forceDownload))
-  ).catch(console.log);
-};
-
-startCrashReporter();
-
-const mainWindowState = new WindowStateManager('mainWindow', {
-  defaultWidth: appConstants.SIZE_WIDTH_DEF,
-  defaultHeight: appConstants.SIZE_HEIGHT_DEF
-});
-
-createMenu();
+configMain.parseCli();
 
 // ----------------------------------------------------------------------------------
 
-/**
- * Add event listeners...
- */
+if (!configMain.shouldExit()) {
 
-app.on('window-all-closed', allWindowsClosed);
+  configMain.mergeConfigFiles();
 
-app.on('ready', async () => {
-  if (isDevelopment) {
-    await installExtensions();
+  if (process.env.NODE_ENV === 'production') {
+    const sourceMapSupport = require('source-map-support');
+    sourceMapSupport.install();
   }
 
-  createMainWindow();
-});
+  if (isDevelopment) {
+    require('electron-debug')();
+    const path = require('path');
+    const p = path.join(__dirname, '..', 'app', 'node_modules');
+    require('module').globalPaths.push(p);
+  }
+
+  const installExtensions = async () => {
+    const installer = require('electron-devtools-installer');
+    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+    const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+
+    return Promise.all(
+      extensions.map(name => installer.default(installer[name], forceDownload))
+    ).catch(console.log);
+  };
+
+  startCrashReporter();
+
+  mainWindowState = new WindowStateManager('mainWindow', {
+    defaultWidth: appConstants.SIZE_WIDTH_DEF,
+    defaultHeight: appConstants.SIZE_HEIGHT_DEF
+  });
+
+  createMenu();
+
+  // ----------------------------------------------------------------------------------
+
+  /**
+   * Add event listeners...
+   */
+
+  app.on('window-all-closed', allWindowsClosed);
+
+  app.on('ready', async () => {
+    if (isDevelopment) {
+      await installExtensions();
+    }
+
+    createMainWindow();
+  });
+} else {
+  if (isDevelopment) {
+    // else do nothing
+    console.log("exit by app!");
+  } else
+     process.exit(configMain.getExitCode());
+}
 
 // ----------------------------------------------------------------------------------
 
-console.log('__dirname: ', __dirname);
-console.log('process.argv: ', process.argv);
