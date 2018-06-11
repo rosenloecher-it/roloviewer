@@ -1,9 +1,10 @@
 
-export const APP_NAME = 'RoloSlider';
+export const APP_TITLE = 'RoloSlider';
+export const APP_NAME = 'roloslider';
 export const COMPANY_NAME = 'Rosenlöcher IT';
 
-export const CONFIG_SLIDESHOW = 'slideshow.ini';
-export const CONFIG_DATABSE = 'slideshow.ini';
+export const CONFIG_STANDARD = 'roloslider.ini';
+export const CONFIG_WINDOW = 'window.ini';
 
 export const URL_CRASH_REPORT = 'https://your-domain.com/url-to-submit';
 
@@ -20,7 +21,6 @@ export const DEFCONF_SCREENSAVER = false;
 export const DEFCONF_DETAILS = true;
 export const DEFCONF_TRANSITION = 2000;
 export const DEFCONF_AWAKE = 30;
-export const DEFCONF_LOGLEVEL = 'info';
 export const DEFCONF_DBNAME = 'crawler.db';
 
-export const DEBUG_ARGS = ""; //"-r -o fff -a 12 -t 12"
+export const DEBUG_ARGS = ""; // "-r -o fff -a 12 -t 12"

@@ -11,10 +11,10 @@
  * @flow
  */
 import { app, BrowserWindow, crashReporter, Menu, shell } from 'electron';
-import WindowStateManager from 'electron-window-state-manager';
+import log from 'electron-log';
 import settings from 'electron-json-config';
 import * as appConstants from './appConstants';
-import { default as configMain } from './main/configMain';
+import configMain from './main/configMain';
 
 // ----------------------------------------------------------------------------------
 
@@ -23,17 +23,35 @@ export const isProduction = process.env.NODE_ENV === 'production';
 export const isTest = process.env.NODE_ENV === 'test';
 
 let mainWindow = null;
-let mainWindowState = null;
 
 // ----------------------------------------------------------------------------------
 
 function startCrashReporter() {
   crashReporter.start({
-    productName: appConstants.APP_NAME,
+    productName: appConstants.APP_TITLE,
     companyName: appConstants.COMPANY_NAME,
     submitURL: appConstants.URL_CRASH_REPORT,
     uploadToServer: false
   });
+}
+
+// ----------------------------------------------------------------------------------
+
+function logAppSteps(msg) {
+  log.debug(msg);
+}
+
+// ----------------------------------------------------------------------------------
+
+function toogleFullscreen() {
+  log.debug("toggle fullscreen");
+
+  if (mainWindow) {
+    const isFullScreen = mainWindow.isFullScreen();
+    if (!isFullScreen)
+      configMain.setWindowState(mainWindow);
+    mainWindow.setFullScreen(!isFullScreen);
+  }
 }
 
 // ----------------------------------------------------------------------------------
@@ -111,8 +129,11 @@ function createMenu() {
         accelerator: 'CmdOrCtrl+R'
       },
       {
-        role: 'togglefullscreen',
-        accelerator: 'F11'
+        label: 'Toogkle fullscreen',
+        accelerator: 'F11',
+        click: () => {
+          toogleFullscreen();
+        }
       }
     ]
   };
@@ -176,20 +197,31 @@ function allWindowsClosed() {
 // ----------------------------------------------------------------------------------
 
 function closeMainWindow() {
-  if (mainWindowState)
-    mainWindowState.saveState(mainWindow);
+  configMain.saveConfig()
+}
+
+// ----------------------------------------------------------------------------------
+
+function storeMainWindowState() {
+  if (mainWindow)
+    configMain.setWindowState(mainWindow);
 }
 
 // ----------------------------------------------------------------------------------
 
 function createMainWindow() {
-  const wasMainWindowMaximized = mainWindowState.maximized;
+
+  logAppSteps("main.createMainWindow - in");
+
+  configMain.initWindowConfig();
+
+  const windowState = configMain.getWindowState();
 
   mainWindow = new BrowserWindow({
-    width: mainWindowState.width,
-    height: mainWindowState.height,
-    x: mainWindowState.x,
-    y: mainWindowState.y,
+    width: windowState.width,
+    height: windowState.height,
+    x: windowState.x,
+    y: windowState.y,
     minWidth: appConstants.SIZE_WIDTH_MIN,
     minHeight: appConstants.SIZE_HEIGHT_MIN,
     show: false
@@ -202,10 +234,10 @@ function createMainWindow() {
   mainWindow.webContents.on('did-finish-load', () => {
     if (!mainWindow) throw new Error('"mainWindow" is not defined');
 
-    mainWindow.setTitle(appConstants.APP_NAME);
+    mainWindow.setTitle(appConstants.APP_TITLE);
     mainWindow.show();
 
-    if (wasMainWindowMaximized) mainWindow.maximize();
+    if (windowState.maximized) mainWindow.maximize();
 
     // BrowserWindow.setFullScreen(true)
 
@@ -233,6 +265,11 @@ function createMainWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  mainWindow.on('resize', storeMainWindowState);
+  mainWindow.on('move', storeMainWindowState);
+
+  logAppSteps("main.createMainWindow - out");
 }
 // ----------------------------------------------------------------------------------
 
@@ -268,11 +305,6 @@ if (!configMain.shouldExit()) {
 
   startCrashReporter();
 
-  mainWindowState = new WindowStateManager('mainWindow', {
-    defaultWidth: appConstants.SIZE_WIDTH_DEF,
-    defaultHeight: appConstants.SIZE_HEIGHT_DEF
-  });
-
   createMenu();
 
   // ----------------------------------------------------------------------------------
@@ -291,11 +323,13 @@ if (!configMain.shouldExit()) {
     createMainWindow();
   });
 } else {
+
   if (isDevelopment) {
     // else do nothing
     console.log("exit by app!");
   } else
      process.exit(configMain.getExitCode());
+
 }
 
 // ----------------------------------------------------------------------------------

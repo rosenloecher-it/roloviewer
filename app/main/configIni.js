@@ -1,4 +1,5 @@
 import { app } from 'electron';
+import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import ini from 'configurable-ini';
@@ -6,48 +7,30 @@ import * as appConstants from '../appConstants';
 
 //----------------------------------------------------------------------------
 
-function mkDirByPathSync(targetDir, {isRelativeToScript = false} = {}) {
-  const sep = path.sep;
-  const initDir = path.isAbsolute(targetDir) ? sep : '';
-  const baseDir = isRelativeToScript ? __dirname : '.';
-
-  targetDir.split(sep).reduce((parentDir, childDir) => {
-    const curDir = path.resolve(baseDir, parentDir, childDir);
-    try {
-      if (!fs.existsSync(curDir)) {
-        fs.mkdirSync(curDir);
-        console.log(`Directory ${curDir} created!`);
-      }
-    } catch (err) {
-      if (err.code !== 'EEXIST') {
-        throw err;
-      }
-
-      console.log(`Directory ${curDir} already exists!`);
-    }
-
-    return curDir;
-  }, initDir);
+export function getConfigPath() {
+  return path.join(app.getPath('userData'), '..', appConstants.APP_NAME);
 }
 
 //----------------------------------------------------------------------------
 
-export function getDefaultConfigPath() {
-    return path.join(app.getPath('userData'), '..', appConstants.APP_NAME);
+export function getDefaultConfigPathStd() {
+  const configPath = getConfigPath();
+  const configFile = path.join(configPath, appConstants.CONFIG_STANDARD);
+  return configFile;
 }
 
 //----------------------------------------------------------------------------
 
-export function getDefaultSlideShowConfig() {
-  const configPath = getDefaultConfigPath();
-  const configFile = path.join(configPath, appConstants.CONFIG_SLIDESHOW);
+export function getDefaultConfigPathWin() {
+  const configPath = getConfigPath();
+  const configFile = path.join(configPath, appConstants.CONFIG_WINDOW);
   return configFile;
 }
 
 //----------------------------------------------------------------------------
 
 export function getDefaultCachePath() {
-  return path.join(app.getPath('userData'), '..', appConstants.APP_NAME);
+  return path.join(app.getPath('userData'), '..', appConstants.APP_TITLE);
 }
 
 //----------------------------------------------------------------------------
@@ -60,25 +43,44 @@ export function getDefaultCreawlerDb() {
 
 //----------------------------------------------------------------------------
 
-export function loadConfigFile(configFile) {
-
-  if (fs.existsSync(configFile)) {
-    const config = ini.parse(fs.readFileSync(configFile, 'utf-8'));
-    return config;
-  } else {
+export function loadIniFile(file) {
+  if (!file) {
+    log.info('configIni.loadIniFile: invalid configFile');
     return null;
+  }
+
+  if (!fs.existsSync(file)) {
+    log.info(`configIni.loadIniFile: file does not exists (${file})`);
+    return null;
+  }
+
+  const config = ini.parse(fs.readFileSync(file, 'utf-8'));
+  // if (config) log.debug('configIni.loadIniFile: ', config);
+  return config;
+}
+
+//----------------------------------------------------------------------------
+
+export function saveIniFile(file, data) {
+  if (!file) {
+    log.error('configIni.saveIniFile: invalid configFile');
+    return;
+  }
+
+  if (data) {
+    // log.debug('configIni.saveIniFile: ', data);
+    fs.writeFileSync(file, ini.stringify(data));
   }
 }
 
 //----------------------------------------------------------------------------
 
-export function createDummyConfigFile() {
-}
+export function createDummyConfigFile() {}
 
 //----------------------------------------------------------------------------
 
 // export function test1() {
-//   const configPath = getDefaultConfigPath();
+//   const configPath = getConfigPath();
 //   console.log("test1: ", configPath);
 //
 //   mkDirByPathSync(configPath);
@@ -120,4 +122,3 @@ export function createDummyConfigFile() {
 // }
 
 //----------------------------------------------------------------------------
-
