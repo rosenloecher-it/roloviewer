@@ -1,9 +1,9 @@
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import {createHashHistory} from "history";
 import {routerMiddleware} from "react-router-redux";
 import {createLogger} from "redux-logger";
-import rootReducer from "../reducers/index";
+import rootReducer from "../reducers/reducerRoot";
 
 const history = createHashHistory();
 
@@ -58,10 +58,10 @@ const configureStore = (initialState?: counterStateType) => {
   }
 
   if (isProduction && module.hot) {
-    module.hot.accept(
-      '../reducers',
-      () => store.replaceReducer(require('../reducers/index')) // eslint-disable-line global-require
-    );
+    module.hot.accept('../reducers/reducerRoot', () => {
+      const nextReducer = combineReducers(require('../reducers/reducerRoot'));
+      store.replaceReducer(nextReducer);
+    });
   }
 
   return store;
