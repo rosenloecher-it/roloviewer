@@ -3,7 +3,7 @@ import electron from 'electron';
 import log from 'electron-log';
 import * as configCli from "./configCli";
 import * as configIni from "./configIni";
-import * as appConstants from '../common/appConstants';
+import * as appConstants from '../../common/appConstants';
 import * as configWin from "./configWin";
 import * as configUtils from "./configUtils";
 import configMain from "./configMain";

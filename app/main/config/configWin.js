@@ -1,6 +1,6 @@
 import log from 'electron-log';
 import * as configIni from "./configIni";
-import * as appConstants from "../common/appConstants";
+import * as appConstants from "../../common/appConstants";
 import * as configUtils from "./configUtils";
 
 // TODO - check features electron-window-state-manager

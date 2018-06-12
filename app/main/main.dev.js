@@ -13,11 +13,11 @@
 import { app } from 'electron';
 import log from 'electron-log';
 import path from 'path';
-import configMain from './configMain';
+import configMain from './config/configMain';
 import * as operations from './operations';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
-import * as ipc from './ipc';
+import * as ipc from './ipc/ipc';
 
 // ----------------------------------------------------------------------------------
 

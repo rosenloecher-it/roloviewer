@@ -1,5 +1,5 @@
 import { crashReporter, shell } from 'electron';
-import configMain from "./configMain";
+import configMain from "./config/configMain";
 import * as appConstants from "../common/appConstants";
 import * as windows from './windows';
 

@@ -1,6 +1,6 @@
 import { app, Menu } from 'electron';
 import * as operations from "./operations";
-import configMain from "./configMain";
+import configMain from "./config/configMain";
 
 // --------------------------------------------------------------------------------
 

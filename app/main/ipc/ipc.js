@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import log from 'electron-log';
-import * as ipcKeys from "../common/ipcKeys";
+import * as ipcKeys from "../../common/ipcKeys";
 
 // ----------------------------------------------------------------------------------
 

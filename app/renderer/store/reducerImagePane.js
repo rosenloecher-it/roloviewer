@@ -1,5 +1,5 @@
 
-import * as actionType from '../actions/actionTypes';
+import * as actionType from './actionTypes';
 
 const defaultState = {
   autoPlay: false,
