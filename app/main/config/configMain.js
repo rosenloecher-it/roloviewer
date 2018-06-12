@@ -1,7 +1,7 @@
 import fs from 'fs';
 import electron from 'electron';
 import log from 'electron-log';
-import * as configCli from "./configCli";
+import { default as parseCliArgs } from "./configCli";
 import * as configIni from "./configIni";
 import * as appConstants from '../../common/appConstants';
 import * as configWin from "./configWin";
@@ -47,7 +47,7 @@ export class ConfigMain {
 
   // ........................................................
 
-  parseCli() {
+  parseArgs() {
 
     let args;
 
@@ -57,18 +57,18 @@ export class ConfigMain {
       // const argsString = '-r -o fff -a 12 -t 12'.split(' ');
       const argsString = appConstants.DEBUG_ARGS;
 
-      if (!argsString && argsString.trim.length > 0)
-        args = (argsString).split(' ');
+      if (argsString && argsString.trim().length > 0)
+        args = argsString.split(' ');
     }
 
     try {
       if (args) {
-        console.log("parseCli - args:", args);
-        this.dataCli = configCli.parseCli(args);
+        log.debug("configmain.parseArgs:", args);
+        this.dataCli = parseCliArgs(args);
       } else
         this.dataCli = {};
     } catch (err) {
-      console.log("ERROR ConfigMain.parseCli: ", err)
+      console.log("ERROR ConfigMain.parseArgs: ", err)
     } finally {
       if (!this.dataCli)
         this.dataCli = {};
@@ -94,23 +94,27 @@ export class ConfigMain {
 
     data.system.exiftool = configUtils.findExifTool(dataFromFile.system.exiftool);
 
-
     // TODO data.system.logfile;
 
-    let defaultLogLevel = "warn";
-    if (!this.data.context.isProduction)
-      defaultLogLevel = "debug";
-
-    data.system.loglevel = configUtils.mergeConfigItem(defaultLogLevel,
+    data.system.loglevel_file = configUtils.mergeConfigItem(
+      !this.data.context.isProduction ? "debug" : appConstants.DEFCONF_LOGLEVEL_CONSOLE,
       null,
-      configUtils.validateLogLevel(dataFromFile.system.loglevel));
+      configUtils.validateLogLevel(dataFromFile.system.loglevel_file));
 
-    data.system.log_delete_on_start = configUtils.mergeConfigItem(false,
+    data.system.loglevel_console = configUtils.mergeConfigItem(appConstants.DEFCONF_LOGLEVEL_FILE,
+      null,
+      configUtils.validateLogLevel(dataFromFile.system.loglevel_console));
+
+
+    data.system.log_delete_on_start = configUtils.mergeConfigItem(appConstants.DEFCONF_LOG_DELETE_ON_START,
       null,
       configUtils.validateBoolean(dataFromFile.system.log_delete_on_start));
 
-
-
+    data.system.logfile = null;
+    if (dataFromFile.system.logfile === ".")
+      data.system.logfile = configUtils.getDefaultLogFile();
+    else if (!data.system.logfile)
+      data.system.logfile = dataFromFile.system.logfile;
 
     data.slideshow.fullscreen = configUtils.mergeConfigItem(appConstants.DEFCONF_FULLSCREEN,
       dataFromCli.fullscreen,
@@ -142,7 +146,7 @@ export class ConfigMain {
     if (!fs.existsSync(this.data.slideshow.open))
       this.data.slideshow.open = null;
 
-    data.crawler.database = configUtils.mergeConfigItem(configIni.getDefaultCreawlerDb(),
+    data.crawler.database = configUtils.mergeConfigItem(configUtils.getDefaultCrawlerDb(),
       null,
       dataFromFile.crawler.database);
 
@@ -158,7 +162,7 @@ export class ConfigMain {
   // ........................................................
 
   initWindowConfig() {
-    const fileConfig = configIni.getDefaultConfigPathWin();
+    const fileConfig = configUtils.getDefaultConfigPathWin();
 
     const screenSize = electron.screen.getPrimaryDisplay().size;
     // log.debug("initWindowConfig - screenSize: w=", screenSize.width + ", h=" + screenSize.height);
@@ -174,7 +178,7 @@ export class ConfigMain {
   // ........................................................
 
   saveWindowConfig() {
-    const fileConfig = configIni.getDefaultConfigPathWin();
+    const fileConfig = configUtils.getDefaultConfigPathWin();
 
     configWin.saveConfigWindow(fileConfig, this.data.window);
 
@@ -193,7 +197,7 @@ export class ConfigMain {
     }
 
     if (!this.data.config)
-      this.data.system.configStd = configIni.getDefaultConfigPathStd();
+      this.data.system.configStd = configUtils.getDefaultConfigPathStd();
 
     let dataFromFile;
     try {
@@ -234,6 +238,21 @@ export class ConfigMain {
   isProduction() { return this.data.context.isProduction; }
   isTest() { return this.data.context.isTest; }
   showDevTools() { return this.data.context.showDevTools; }
+
+  // ........................................................
+
+  getLogConfig() {
+    if (!this.data || !this.data.system)
+      return {};
+
+    const source = this.data.system;
+    return {
+      loglevel_file: source.loglevel_file,
+      loglevel_console: source.loglevel_console,
+      logfile: source.logfile,
+      log_delete_on_start: source.log_delete_on_start
+    }
+  }
 
   // ........................................................
 

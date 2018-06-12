@@ -1,7 +1,53 @@
+import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
+import * as appConstants from "../../common/appConstants";
 
 // ----------------------------------------------------------------------------------
+
+export function getConfigPath() {
+  return path.join(app.getPath('userData'), '..', appConstants.CONFIG_NAME);
+}
+
+//----------------------------------------------------------------------------
+
+export function getDefaultConfigPathStd() {
+  const configPath = getConfigPath();
+  const configFile = path.join(configPath, appConstants.CONFIG_STANDARD);
+  return configFile;
+}
+
+//----------------------------------------------------------------------------
+
+export function getDefaultConfigPathWin() {
+  const configPath = getConfigPath();
+  const configFile = path.join(configPath, appConstants.CONFIG_WINDOW);
+  return configFile;
+}
+
+//----------------------------------------------------------------------------
+
+export function getDefaultCachePath() {
+  return path.join(app.getPath('userData'), '..', appConstants.CONFIG_NAME);
+}
+
+//----------------------------------------------------------------------------
+
+export function getDefaultCrawlerDb() {
+  const configPath = getDefaultCachePath();
+  const configFile = path.join(configPath, appConstants.DEFCONF_DBNAME);
+  return configFile;
+}
+
+//----------------------------------------------------------------------------
+
+export function getDefaultLogFile() {
+  const configPath = getDefaultCachePath();
+  const configFile = path.join(configPath, appConstants.DEFCONF_LOGNAME);
+  return configFile;
+}
+
+//----------------------------------------------------------------------------
 
 export function validateInt(input) {
 
@@ -44,7 +90,7 @@ export function validateLogLevel(input) {
 
   const output = input.trim().toLowerCase();
 
-  if (logLevels.indexOf("turtles") > -1)
+  if (logLevels.indexOf(output) > -1)
     return output;
 
   return defaultLogLevel;

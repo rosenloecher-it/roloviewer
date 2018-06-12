@@ -1,46 +1,9 @@
-import { app } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import ini from 'configurable-ini';
 import * as appConstants from '../../common/appConstants';
 import { mkDirByPathSync } from './configUtils';
-
-//----------------------------------------------------------------------------
-
-export function getConfigPath() {
-  return path.join(app.getPath('userData'), '..', appConstants.CONFIG_NAME);
-}
-
-//----------------------------------------------------------------------------
-
-export function getDefaultConfigPathStd() {
-  const configPath = getConfigPath();
-  const configFile = path.join(configPath, appConstants.CONFIG_STANDARD);
-  return configFile;
-}
-
-//----------------------------------------------------------------------------
-
-export function getDefaultConfigPathWin() {
-  const configPath = getConfigPath();
-  const configFile = path.join(configPath, appConstants.CONFIG_WINDOW);
-  return configFile;
-}
-
-//----------------------------------------------------------------------------
-
-export function getDefaultCachePath() {
-  return path.join(app.getPath('userData'), '..', appConstants.CONFIG_NAME);
-}
-
-//----------------------------------------------------------------------------
-
-export function getDefaultCreawlerDb() {
-  const configPath = getDefaultCachePath();
-  const configFile = path.join(configPath, appConstants.DEFCONF_DBNAME);
-  return configFile;
-}
 
 //----------------------------------------------------------------------------
 
@@ -56,7 +19,7 @@ export function loadIniFile(file) {
   }
 
   const config = ini.parse(fs.readFileSync(file, 'utf-8'));
-  // if (config) log.debug('configIni.loadIniFile: ', config);
+  //if (config) log.debug('configIni.loadIniFile: ', config);
   return config;
 }
 

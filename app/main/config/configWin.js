@@ -13,7 +13,6 @@ export function loadConfigWindow(fileConfig) {
 
   let dataFromFile = null;
   try {
-    log.verbose("configWin.loadConfigWindow: going to load windows config: " + fileConfig);
     dataFromFile = configIni.loadIniFile(fileConfig);
   } catch (err) {
     log.error("configWin.loadConfigWindow: (" + fileConfig + "): ", err)
@@ -43,8 +42,6 @@ export function loadConfigWindow(fileConfig) {
 export function saveConfigWindow(fileConfig, dataApp) {
 
   try {
-    log.verbose("configWin.saveConfigWindow: going to save windows config: " + fileConfig);
-
     const dataIni = { };
     dataIni.mainwindow = dataApp;
 

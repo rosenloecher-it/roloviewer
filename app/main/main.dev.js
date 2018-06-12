@@ -17,13 +17,14 @@ import configMain from './config/configMain';
 import * as operations from './operations';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
-import * as ipc from './ipc/ipc';
+import * as mainIpc from './ipc/mainIpc';
+import * as appConstants from "../common/appConstants";
 
 // ----------------------------------------------------------------------------------
 
 function allWindowsClosed() {
 
-  ipc.unregisterListener();
+  mainIpc.unregisterListener();
 
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
@@ -35,7 +36,8 @@ function allWindowsClosed() {
 // ----------------------------------------------------------------------------------
 
 configMain.initContext(process.env.NODE_ENV, process.env.DEBUG_PROD);
-configMain.parseCli();
+
+configMain.parseArgs();
 
 // ----------------------------------------------------------------------------------
 
@@ -54,6 +56,9 @@ if (!configMain.shouldExit()) {
     require('module').globalPaths.push(p);
   }
 
+  operations.startCrashReporter();
+  operations.configLogger();
+
   let installExtensions;
 
   if (configMain.showDevTools()) {
@@ -68,8 +73,6 @@ if (!configMain.shouldExit()) {
     };
   }
 
-  operations.startCrashReporter();
-
   mainMenu.createMenu();
 
   app.on('window-all-closed', allWindowsClosed);
@@ -79,11 +82,11 @@ if (!configMain.shouldExit()) {
       await installExtensions();
     }
 
-    windows.createWorkerWindow();
+    //windows.createWorkerWindow();
 
     windows.createMainWindow();
 
-    ipc.registerListener();
+    mainIpc.registerListener();
   });
 } else {
 

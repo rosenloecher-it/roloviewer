@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import path from 'path';
 import log from 'electron-log';
 import * as operations from "./operations";
@@ -17,7 +17,7 @@ export function getMainWindow() {
 // ----------------------------------------------------------------------------------
 
 function closeMainWindow() {
-  configMain.saveConfig()
+  configMain.saveConfig();
 }
 
 // ----------------------------------------------------------------------------------
@@ -50,7 +50,6 @@ export function createMainWindow() {
   });
 
   const htmlPath = path.join(__dirname, '..', 'renderer', 'app.html');
-  log.debug("createMainWindow: ", htmlPath);
   mainWindow.loadURL(`file://${htmlPath}`);
 
   // @TODO: Use 'ready-to-show' event
@@ -101,6 +100,12 @@ export function getWorkerWindow() {
 
 // ----------------------------------------------------------------------------------
 
+function closeWorkerWindow() {
+  log.debug("closeWorkerWindow");
+}
+
+// ----------------------------------------------------------------------------------
+
 export function createWorkerWindow() {
 
   if (workerWindow)
@@ -108,10 +113,34 @@ export function createWorkerWindow() {
 
   const htmlPath = path.join(__dirname, '..', 'worker', 'worker.html');
 
-  workerWindow = new BrowserWindow({ width: 100, height: 100, show: false })
+  workerWindow = new BrowserWindow({
+    width: 600,
+    height: 400,
+    show: false,
+    webPreferences: {
+      nodeIntegrationInWorker: true
+    }
+  });
 
+  log.debug("workerWindow.loadURL", htmlPath);
   workerWindow.loadURL(`file://${htmlPath}`);
 
+  workerWindow.webContents.on('did-finish-load', () => {
+    if (!workerWindow)
+      throw new Error('"windows" is not defined');
+
+    log.debug("createWorkerWindow - did-finish-load");
+
+    workerWindow.webContents.openDevTools();
+    workerWindow.show();
+
+  });
+
+  workerWindow.on('close', closeWorkerWindow);
+
+  workerWindow.on('closed', () => {
+    workerWindow = null;
+  });
   // workerWindow.webContents.on('did-finish-load', function () {
   //   const input = 100;
   //   workerWindow.webContents.send('compute-factorial', input);

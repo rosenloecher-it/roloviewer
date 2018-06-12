@@ -1,7 +1,7 @@
 import { app } from 'electron';
 import argly from 'argly';
 import * as appConstants from '../../common/appConstants';
-import * as fileConfig from './configIni';
+import * as configUtils from './configUtils';
 import { isProduction } from '../main.dev';
 
 // https://github.com/patrick-steele-idem/argly
@@ -19,7 +19,7 @@ function storeCliExitCode(exitCode) {
 // ----------------------------------------------------------------------------------
 
 function createCliParser() {
-  const defaultSlideshowConfig = fileConfig.getConfigPathShow();
+  const defaultSlideshowConfig = configUtils.getDefaultConfigPathStd();
 
   return argly
     .createParser({
@@ -61,7 +61,7 @@ function createCliParser() {
         description: 'Transition time in milliseconds'
       }
     })
-    .usage(`${appConstants.APP_TITLE} v(${app.getVersion()})`)
+    .usage(`${appConstants.APP_TITLE} v(${appConstants.APP_VERSION})`)
     .validate(function arglyValidate(result) {
       if (!validateHelp(this, result)) return;
       if (!validateOpenAuto(this, result)) return;
@@ -138,7 +138,7 @@ function validateTransition(parser, result) {
 
 // ----------------------------------------------------------------------------------
 
-export default function parseCli(args) {
+export default function parseArgs(args) {
   const parser = createCliParser();
 
   cliExitCode = null;
@@ -150,7 +150,8 @@ export default function parseCli(args) {
     result = { exit_code: 99 };
   }
 
-  if (!isProduction) console.log('\ncli', result, '\n');
+  if (!isProduction)
+    console.log('\ncli', result, '\n');
 
   return result;
 }
