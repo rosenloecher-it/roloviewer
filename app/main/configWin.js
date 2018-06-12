@@ -2,7 +2,6 @@ import log from 'electron-log';
 import * as configIni from "./configIni";
 import * as appConstants from "../common/appConstants";
 import * as configUtils from "./configUtils";
-import {validateInt} from "./configUtils";
 
 // TODO - check features electron-window-state-manager
 //https://github.com/Sethorax/electron-window-state-manager

@@ -13,16 +13,10 @@ class Slideshow extends Component {
 
   render() {
 
-    const cssClasses = "layout-pane layout-pane-primary splitter-layout"
-
     return (
-
-      // https://github.com/zesik/react-splitter-layout
-          <div className={cssConstants.CSS_MAINPANE}>
-
-            <ImagePane />
-
-          </div>
+      <div className={cssConstants.CSS_MAINPANE}>
+        <ImagePane />
+      </div>
     );
   }
 }

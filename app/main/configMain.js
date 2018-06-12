@@ -1,11 +1,12 @@
 import fs from 'fs';
 import electron from 'electron';
+import log from 'electron-log';
 import * as configCli from "./configCli";
 import * as configIni from "./configIni";
 import * as appConstants from '../common/appConstants';
-import {isProduction} from "./main.dev";
 import * as configWin from "./configWin";
 import * as configUtils from "./configUtils";
+import configMain from "./configMain";
 
 // ----------------------------------------------------------------------------------
 
@@ -25,6 +26,7 @@ export class ConfigMain {
 
   static createDefaultData() {
     const data = {
+      context: {},
       window: {},
       system: {},
       slideshow: {},
@@ -36,11 +38,20 @@ export class ConfigMain {
 
   // ........................................................
 
+  initContext(NODE_ENV, DEBUG_PROD) {
+    this.data.context.isDevelopment = NODE_ENV === 'development' || DEBUG_PROD === 'true';
+    this.data.context.isProduction = NODE_ENV === 'production';
+    this.data.context.isTest = NODE_ENV === 'test';
+    this.data.context.showDevTools = !this.data.context.isProduction || DEBUG_PROD === 'true' || appConstants.DEBUG_DEVTOOLS_PROD;
+  }
+
+  // ........................................................
+
   parseCli() {
 
     let args;
 
-    if (isProduction)
+    if (configMain.isProduction())
       args = process.argv;
     else {
       // const argsString = '-r -o fff -a 12 -t 12'.split(' ');
@@ -67,13 +78,13 @@ export class ConfigMain {
 
   // ........................................................
 
-  mergeData(data, dataFromCli, dataFromFile) {
+  mergeData(dataIn, dataFromCliIn, dataFromFileIn) {
 
-    if (!dataFromCli)
-      dataFromCli = {};
+    // Assignment to function parameter - no-param-reassign
+    const data = dataIn;
+    const dataFromCli = dataFromCliIn || {};
+    const dataFromFile = dataFromFileIn || {} ;
 
-    if (!dataFromFile)
-      dataFromFile = {};
     if (!dataFromFile.system)
       dataFromFile.system = {};
     if (!dataFromFile.slideshow)
@@ -84,10 +95,10 @@ export class ConfigMain {
     data.system.exiftool = configUtils.findExifTool(dataFromFile.system.exiftool);
 
 
-    //TODO data.system.logfile;
+    // TODO data.system.logfile;
 
     let defaultLogLevel = "warn";
-    if (!isProduction)
+    if (!this.data.context.isProduction)
       defaultLogLevel = "debug";
 
     data.system.loglevel = configUtils.mergeConfigItem(defaultLogLevel,
@@ -150,7 +161,7 @@ export class ConfigMain {
     const fileConfig = configIni.getDefaultConfigPathWin();
 
     const screenSize = electron.screen.getPrimaryDisplay().size;
-    //log.debug("initWindowConfig - screenSize: w=", screenSize.width + ", h=" + screenSize.height);
+    // log.debug("initWindowConfig - screenSize: w=", screenSize.width + ", h=" + screenSize.height);
 
     let data = configWin.loadConfigWindow(fileConfig);
     if (data && !configWin.checkConfigWin(data, screenSize)) {
@@ -177,7 +188,7 @@ export class ConfigMain {
       if (fs.existsSync(this.dataCli.config))
         this.data.system.configStd = this.dataCli.config;
       else {
-        console.log("ConfigMain.mergeConfigFiles: use default config - not exists: " + this.dataCli.config);
+        console.log(`ConfigMain.mergeConfigFiles: use default config - not exists ${this.dataCli.config}`);
       }
     }
 
@@ -192,11 +203,11 @@ export class ConfigMain {
       dataFromFile = null;
     }
 
-    //console.log("mergeConfigFiles - dataFromFile", dataFromFile);
+    // console.log("mergeConfigFiles - dataFromFile", dataFromFile);
 
     this.mergeData(this.data, this.dataCli, dataFromFile);
 
-    //console.log("mergeConfigFiles", this.data);
+    // console.log("mergeConfigFiles", this.data);
   }
 
   // ........................................................
@@ -219,6 +230,13 @@ export class ConfigMain {
 
   // ........................................................
 
+  isDevelopment() { return this.data.context.isDevelopment; }
+  isProduction() { return this.data.context.isProduction; }
+  isTest() { return this.data.context.isTest; }
+  showDevTools() { return this.data.context.showDevTools; }
+
+  // ........................................................
+
   shouldExit() {
     return (this.dataCli && this.dataCli.exit_code);
   }
@@ -228,8 +246,8 @@ export class ConfigMain {
   getExitCode() {
     if (this.dataCli)
       return this.dataCli.exit_code;
-    else
-      return null;
+
+    return null;
   }
 
   // ........................................................
@@ -264,19 +282,10 @@ export class ConfigMain {
 
   // ........................................................
 
-  window() {
-
-  }
-  // width: mainWindowState.width,
-  // height: mainWindowState.height,
-  // x: mainWindowState.x,
-  // y: mainWindowState.y,
 
 }
 
 // ----------------------------------------------------------------------------------
-
-
 
 const instanceConfigMain = new ConfigMain();
 
