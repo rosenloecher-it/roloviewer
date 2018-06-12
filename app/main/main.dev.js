@@ -17,10 +17,14 @@ import configMain from './configMain';
 import * as operations from './operations';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
+import * as ipc from './ipc';
 
 // ----------------------------------------------------------------------------------
 
 function allWindowsClosed() {
+
+  ipc.unregisterListener();
+
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== 'darwin') {
@@ -75,7 +79,11 @@ if (!configMain.shouldExit()) {
       await installExtensions();
     }
 
+    windows.createWorkerWindow();
+
     windows.createMainWindow();
+
+    ipc.registerListener();
   });
 } else {
 

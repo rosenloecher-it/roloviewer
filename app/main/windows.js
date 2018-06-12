@@ -6,6 +6,7 @@ import configMain from "./configMain";
 import * as appConstants from "../common/appConstants";
 
 let mainWindow = null;
+let workerWindow = null;
 
 // ----------------------------------------------------------------------------------
 
@@ -29,6 +30,9 @@ function storeMainWindowState() {
 // ----------------------------------------------------------------------------------
 
 export function createMainWindow() {
+
+  if (mainWindow)
+    return;
 
   configMain.initWindowConfig();
 
@@ -87,6 +91,36 @@ export function createMainWindow() {
 
   mainWindow.on('resize', storeMainWindowState);
   mainWindow.on('move', storeMainWindowState);
+}
+
+// ----------------------------------------------------------------------------------
+
+export function getWorkerWindow() {
+  return workerWindow;
+}
+
+// ----------------------------------------------------------------------------------
+
+export function createWorkerWindow() {
+
+  if (workerWindow)
+    return;
+
+  const htmlPath = path.join(__dirname, '..', 'worker', 'worker.html');
+
+  workerWindow = new BrowserWindow({ width: 100, height: 100, show: false })
+
+  workerWindow.loadURL(`file://${htmlPath}`);
+
+  // workerWindow.webContents.on('did-finish-load', function () {
+  //   const input = 100;
+  //   workerWindow.webContents.send('compute-factorial', input);
+  // })
+
+  // ipcMain.on('factorial-computed', function (event, input, output) {
+  //   const message = `The factorial of ${input} is ${output}`
+  //   console.log(message);
+  // })
 }
 
 // ----------------------------------------------------------------------------------
