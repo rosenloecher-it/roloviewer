@@ -1,4 +1,3 @@
-import { app } from 'electron';
 import argly from 'argly';
 import * as appConstants from '../../common/appConstants';
 import * as configUtils from './configUtils';

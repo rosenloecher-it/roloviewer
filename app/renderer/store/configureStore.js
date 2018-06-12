@@ -59,7 +59,7 @@ const configureStore = (initialState?: counterStateType) => {
 
   if (isProduction && module.hot) {
     module.hot.accept('./reducerRoot', () => {
-      const nextReducer = combineReducers(require('./reducerRoot'));
+      const nextReducer = combineReducers(rootReducer);
       store.replaceReducer(nextReducer);
     });
   }

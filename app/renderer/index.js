@@ -5,6 +5,7 @@ import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
 import './style/app.global.scss';
 import * as rendererIpc from './ipc/rendererIpc';
+
 const store = configureStore();
 
 render(

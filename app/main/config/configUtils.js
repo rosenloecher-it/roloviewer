@@ -53,10 +53,10 @@ export function validateInt(input) {
 
   const num = parseInt(input, 10);
 
-  if (isNaN(num))
+  if (Number.isNaN(num))
     return null;
-  else
-    return num;
+
+  return num;
 }
 
 // ----------------------------------------------------------------------------------
@@ -103,16 +103,14 @@ export function validateStringArray(input) {
   if (!Array.isArray(input))
     return [];
 
-  let output = [];
+  const output = [];
 
   for (let text of input) {
-
-    if (typeof(text) !== typeof("str"))
-      continue;
-
-    const value = text.trim().toLowerCase();
-    if (!output.includes(value))
-      output.push(value);
+    if (typeof(text) === typeof("str")) {
+      const value = text.trim().toLowerCase();
+      if (!output.includes(value))
+        output.push(value);
+    }
   }
 
   return output;
@@ -125,7 +123,7 @@ export function validatePathArray(input) {
   if (!Array.isArray(input))
     return [];
 
-  let output = [];
+  const output = [];
 
   for (let text of input) {
 

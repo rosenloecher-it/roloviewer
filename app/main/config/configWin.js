@@ -3,9 +3,13 @@ import * as configIni from "./configIni";
 import * as appConstants from "../../common/appConstants";
 import * as configUtils from "./configUtils";
 
+// ----------------------------------------------------------------------------------
+
 // TODO - check features electron-window-state-manager
 //https://github.com/Sethorax/electron-window-state-manager
 //https://github.com/Sethorax/electron-window-state-manager/blob/master/src/lib/windowState.js
+
+const logKey = "configWin-";
 
 // ----------------------------------------------------------------------------------
 
@@ -15,26 +19,25 @@ export function loadConfigWindow(fileConfig) {
   try {
     dataFromFile = configIni.loadIniFile(fileConfig);
   } catch (err) {
-    log.error("configWin.loadConfigWindow: (" + fileConfig + "): ", err)
+    log.error(`${logKey}loadConfigWindow (${fileConfig}):`, err);
     dataFromFile = null;
   }
 
-  if (dataFromFile && dataFromFile.mainwindow) {
-    const config = {};
-
-    config.x = configUtils.validateInt(dataFromFile.mainwindow.x);
-    config.y = configUtils.validateInt(dataFromFile.mainwindow.y);
-    config.height = configUtils.validateInt(dataFromFile.mainwindow.height);
-    config.width = configUtils.validateInt(dataFromFile.mainwindow.width);
-
-    config.maximized = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.maximized), null);
-    config.fullscreen = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.fullscreen), null);
-    config.activeDevTools = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.activeDevTools), null);
-
-    return config;
-  } else {
+  if (!dataFromFile || !dataFromFile.mainwindow)
     return null;
-  }
+
+  const config = {};
+
+  config.x = configUtils.validateInt(dataFromFile.mainwindow.x);
+  config.y = configUtils.validateInt(dataFromFile.mainwindow.y);
+  config.height = configUtils.validateInt(dataFromFile.mainwindow.height);
+  config.width = configUtils.validateInt(dataFromFile.mainwindow.width);
+
+  config.maximized = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.maximized), null);
+  config.fullscreen = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.fullscreen), null);
+  config.activeDevTools = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.activeDevTools), null);
+
+  return config;
 }
 
 // ----------------------------------------------------------------------------------
@@ -47,7 +50,7 @@ export function saveConfigWindow(fileConfig, dataApp) {
 
     configIni.saveIniFile(fileConfig, dataIni);
   } catch (err) {
-    log.error("configWin.saveConfigWindow: (" + fileConfig + "): ", err)
+    log.error(`${logKey}saveConfigWindow (${fileConfig}):`, err);
   }
 }
 
@@ -95,7 +98,9 @@ export function getDefaultConfigWin(screenSize)
 
 // ----------------------------------------------------------------------------------
 
-export function setWindowState(config, window) {
+export function setWindowState(configIn, window) {
+
+  const config = configIn; // change by reference
 
   if (!window || window.isMinimized())
     return;

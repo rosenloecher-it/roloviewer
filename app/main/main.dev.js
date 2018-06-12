@@ -18,7 +18,6 @@ import * as operations from './operations';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
 import * as mainIpc from './ipc/mainIpc';
-import * as appConstants from "../common/appConstants";
 
 // ----------------------------------------------------------------------------------
 

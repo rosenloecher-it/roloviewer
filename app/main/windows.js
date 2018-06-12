@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { BrowserWindow, Menu } from 'electron';
 import path from 'path';
 import log from 'electron-log';
 import * as operations from "./operations";

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import electron from 'electron';
 import log from 'electron-log';
-import { default as parseCliArgs } from "./configCli";
+import parseCliArgs from "./configCli";
 import * as configIni from "./configIni";
 import * as appConstants from '../../common/appConstants';
 import * as configWin from "./configWin";
