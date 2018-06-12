@@ -2,8 +2,8 @@ import fs from 'fs';
 import electron from 'electron';
 import * as configCli from "./configCli";
 import * as configIni from "./configIni";
-import * as appConstants from '../appConstants';
-import {isProduction} from "../main.dev";
+import * as appConstants from '../common/appConstants';
+import {isProduction} from "./main.dev";
 import * as configWin from "./configWin";
 import * as configUtils from "./configUtils";
 

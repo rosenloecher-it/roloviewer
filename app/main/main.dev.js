@@ -13,12 +13,13 @@
 import { app, BrowserWindow, crashReporter, Menu, shell } from 'electron';
 import log from 'electron-log';
 import settings from 'electron-json-config';
-import * as appConstants from './appConstants';
-import configMain from './main/configMain';
+import path from 'path';
+import * as appConstants from '../common/appConstants';
+import configMain from './configMain';
 
 // ----------------------------------------------------------------------------------
 
-export const isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+export const isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true' || appConstants.DEBUG_DEVTOOLS_PROD;
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isTest = process.env.NODE_ENV === 'test';
 
@@ -227,7 +228,9 @@ function createMainWindow() {
     show: false
   });
 
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
+  const htmlPath = path.join(__dirname, '..', 'renderer', 'app.html');
+  log.debug("createMainWindow: ", htmlPath);
+  mainWindow.loadURL(`file://${htmlPath}`);
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
@@ -288,7 +291,6 @@ if (!configMain.shouldExit()) {
 
   if (isDevelopment) {
     require('electron-debug')();
-    const path = require('path');
     const p = path.join(__dirname, '..', 'app', 'node_modules');
     require('module').globalPaths.push(p);
   }

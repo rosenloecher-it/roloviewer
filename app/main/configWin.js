@@ -1,6 +1,6 @@
 import log from 'electron-log';
 import * as configIni from "./configIni";
-import * as appConstants from "../appConstants";
+import * as appConstants from "../common/appConstants";
 import * as configUtils from "./configUtils";
 import {validateInt} from "./configUtils";
 

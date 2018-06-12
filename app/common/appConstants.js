@@ -24,3 +24,4 @@ export const DEFCONF_AWAKE = 30;
 export const DEFCONF_DBNAME = 'crawler.db';
 
 export const DEBUG_ARGS = ""; // "-r -o fff -a 12 -t 12"
+export const DEBUG_DEVTOOLS_PROD = false;

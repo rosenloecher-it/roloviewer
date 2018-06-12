@@ -3,7 +3,7 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import ini from 'configurable-ini';
-import * as appConstants from '../appConstants';
+import * as appConstants from '../common/appConstants';
 
 //----------------------------------------------------------------------------
 

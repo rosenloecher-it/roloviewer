@@ -1,8 +1,8 @@
 import { app } from 'electron';
 import argly from 'argly';
-import * as appConstants from '../appConstants';
+import * as appConstants from '../common/appConstants';
 import * as fileConfig from './configIni';
-import { isProduction } from '../main.dev';
+import { isProduction } from './main.dev';
 
 // https://github.com/patrick-steele-idem/argly
 
