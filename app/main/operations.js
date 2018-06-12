@@ -1,7 +1,7 @@
 import { crashReporter, shell } from 'electron';
 import configMain from "./configMain";
 import * as appConstants from "../common/appConstants";
-import * as mainWindow from './mainWindow';
+import * as windows from './windows';
 
 // ----------------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ export function startCrashReporter() {
 
 export function toogleFullscreen() {
 
-  const window = mainWindow.getRef();
+  const window = windows.getMainWindow();
 
   if (window) {
     const isFullScreen = window.isFullScreen();
@@ -31,7 +31,7 @@ export function toogleFullscreen() {
 // ----------------------------------------------------------------------------------
 
 export function toogleDevTools() {
-  const window = mainWindow.getRef();
+  const window = windows.getMainWindow();
 
   if (window && configMain.showDevTools()) {
     const activeDevTools = configMain.activeDevTools();
@@ -47,7 +47,7 @@ export function toogleDevTools() {
 // ----------------------------------------------------------------------------------
 
 export function restoreDevTools() {
-  const window = mainWindow.getRef();
+  const window = windows.getMainWindow();
 
   if (window && configMain.showDevTools()) {
     if (configMain.activeDevTools()) {

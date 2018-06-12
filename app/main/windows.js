@@ -9,7 +9,7 @@ let mainWindow = null;
 
 // ----------------------------------------------------------------------------------
 
-export function getRef() {
+export function getMainWindow() {
   return mainWindow;
 }
 
@@ -52,7 +52,7 @@ export function createMainWindow() {
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
   mainWindow.webContents.on('did-finish-load', () => {
-    if (!mainWindow) throw new Error('"mainWindow" is not defined');
+    if (!mainWindow) throw new Error('"windows" is not defined');
 
     mainWindow.setTitle(appConstants.APP_TITLE);
     mainWindow.show();

@@ -222,7 +222,7 @@ export class ConfigMain {
 
   saveConfig() {
     // if (mainWindowState)
-    //   mainWindowState.saveState(mainWindow);
+    //   mainWindowState.saveState(windows);
 
     this.saveWindowConfig();
 

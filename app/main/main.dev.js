@@ -16,7 +16,7 @@ import path from 'path';
 import configMain from './configMain';
 import * as operations from './operations';
 import * as mainMenu from './mainMenu';
-import * as mainWindow from './mainWindow';
+import * as windows from './windows';
 
 // ----------------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ if (!configMain.shouldExit()) {
       await installExtensions();
     }
 
-    mainWindow.createMainWindow();
+    windows.createMainWindow();
   });
 } else {
 
