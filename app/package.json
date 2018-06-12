@@ -1,6 +1,6 @@
 {
   "name": "roloslider",
-  "productName": "Roloslider",
+  "productName": "RoloSlider",
   "version": "0.0.1",
   "description": "Image slideshow viewer",
   "main": "./main/main.prod.js",

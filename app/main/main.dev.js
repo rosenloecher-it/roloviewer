@@ -12,7 +12,6 @@
  */
 import { app, BrowserWindow, crashReporter, Menu, shell } from 'electron';
 import log from 'electron-log';
-import settings from 'electron-json-config';
 import path from 'path';
 import * as appConstants from '../common/appConstants';
 import configMain from './configMain';
@@ -22,6 +21,7 @@ import configMain from './configMain';
 export const isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true' || appConstants.DEBUG_DEVTOOLS_PROD;
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isTest = process.env.NODE_ENV === 'test';
+export const showDevTools = !isProduction  || process.env.DEBUG_PROD === 'true' || appConstants.DEBUG_DEVTOOLS_PROD;
 
 let mainWindow = null;
 
@@ -58,27 +58,23 @@ function toogleFullscreen() {
 // ----------------------------------------------------------------------------------
 
 function toogleDevTools() {
-  if (mainWindow && isDevelopment) {
-    let devToolsOpen = settings.get(appConstants.SETTING_DEVTOOLS_STATE);
+  if (mainWindow && showDevTools) {
 
-    if (devToolsOpen === 1) {
-      devToolsOpen = 0;
+    const activeDevTools = configMain.activeDevTools();
+    configMain.setActiveDevTools(!activeDevTools);
+
+    if (activeDevTools)
       mainWindow.webContents.closeDevTools();
-    } else {
-      devToolsOpen = 1;
+    else
       mainWindow.webContents.openDevTools();
-    }
-
-    settings.set(appConstants.SETTING_DEVTOOLS_STATE, devToolsOpen);
   }
 }
 
 // ----------------------------------------------------------------------------------
 
 function restoreDevTools() {
-  if (mainWindow && isDevelopment) {
-    const devToolsOpen = settings.get(appConstants.SETTING_DEVTOOLS_STATE, 0);
-    if (devToolsOpen === 1) {
+  if (mainWindow && showDevTools) {
+    if (configMain.activeDevTools()) {
       mainWindow.webContents.openDevTools();
     }
   }
@@ -139,7 +135,7 @@ function createMenu() {
     ]
   };
 
-  if (isDevelopment) {
+  if (showDevTools) {
     menuSectionView.submenu.push({ type: 'separator' });
 
     menuSectionView.submenu.push({
@@ -246,7 +242,7 @@ function createMainWindow() {
 
     mainWindow.on('close', closeMainWindow);
 
-    if (isDevelopment) {
+    if (showDevTools) {
       restoreDevTools();
 
       // add inspect element on right click menu

@@ -29,9 +29,9 @@ export function loadConfigWindow(fileConfig) {
     config.height = configUtils.validateInt(dataFromFile.mainwindow.height);
     config.width = configUtils.validateInt(dataFromFile.mainwindow.width);
 
-
     config.maximized = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.maximized), null);
     config.fullscreen = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.fullscreen), null);
+    config.activeDevTools = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.activeDevTools), null);
 
     return config;
   } else {
@@ -92,6 +92,7 @@ export function getDefaultConfigWin(screenSize)
 
   config.maximized = false;
   config.fullscreen = false;
+  config.activeDevTools = false;
 
   return config;
 }

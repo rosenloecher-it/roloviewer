@@ -1,6 +1,6 @@
 {
   "name": "roloslider",
-  "productName": "Roloslider",
+  "productName": "RoloSlider",
   "version": "0.0.1",
   "description": "Image slideshow viewer",
   "scripts": {
@@ -199,7 +199,6 @@
     "configurable-ini": "^1.6.1",
     "devtron": "^1.4.0",
     "electron-debug": "^1.5.0",
-    "electron-json-config": "^1.5.3",
     "electron-log": "^2.2.14",
     "font-awesome": "^4.7.0",
     "history": "^4.7.2",

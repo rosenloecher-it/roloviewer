@@ -4,11 +4,12 @@ import path from 'path';
 import fs from 'fs';
 import ini from 'configurable-ini';
 import * as appConstants from '../common/appConstants';
+import { mkDirByPathSync } from './configUtils';
 
 //----------------------------------------------------------------------------
 
 export function getConfigPath() {
-  return path.join(app.getPath('userData'), '..', appConstants.APP_NAME);
+  return path.join(app.getPath('userData'), '..', appConstants.CONFIG_NAME);
 }
 
 //----------------------------------------------------------------------------
@@ -30,7 +31,7 @@ export function getDefaultConfigPathWin() {
 //----------------------------------------------------------------------------
 
 export function getDefaultCachePath() {
-  return path.join(app.getPath('userData'), '..', appConstants.APP_TITLE);
+  return path.join(app.getPath('userData'), '..', appConstants.CONFIG_NAME);
 }
 
 //----------------------------------------------------------------------------
@@ -67,15 +68,16 @@ export function saveIniFile(file, data) {
     return;
   }
 
+  const parentDir = path.dirname(file);
+  if (!fs.existsSync(parentDir)) {
+    mkDirByPathSync(parentDir);
+  }
+
   if (data) {
     // log.debug('configIni.saveIniFile: ', data);
     fs.writeFileSync(file, ini.stringify(data));
   }
 }
-
-//----------------------------------------------------------------------------
-
-export function createDummyConfigFile() {}
 
 //----------------------------------------------------------------------------
 

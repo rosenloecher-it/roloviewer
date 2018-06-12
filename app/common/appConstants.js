@@ -1,8 +1,8 @@
 
 export const APP_TITLE = 'RoloSlider';
-export const APP_NAME = 'roloslider';
 export const COMPANY_NAME = 'Rosenlöcher IT';
 
+export const CONFIG_NAME = 'RoloSlider';
 export const CONFIG_STANDARD = 'roloslider.ini';
 export const CONFIG_WINDOW = 'window.ini';
 

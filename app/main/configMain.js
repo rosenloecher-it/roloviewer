@@ -242,18 +242,24 @@ export class ConfigMain {
   // ........................................................
 
   getWindowState() {
-    var clone = Object.assign({}, this.data.window);
+    const clone = Object.assign({}, this.data.window);
     return clone;
   }
 
+  // ........................................................
 
+  activeDevTools() {
+    if (this.data.window)
+      return !!this.data.window.activeDevTools;
 
+    return false;
+  }
 
-  isMaximized() {
-    if (this.data.window && config.maximized === true)
-      return true;
-    else
-      return false;
+  // ........................................................
+
+  setActiveDevTools(activeDevTools) {
+    if (this.data.window)
+      this.data.window.activeDevTools = !!activeDevTools;
   }
 
   // ........................................................
