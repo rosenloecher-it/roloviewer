@@ -1,8 +1,8 @@
 
 // channels
 export const IPC_TGT_MAIN = 'IPC_TGT_MAIN';
-export const IPC_TGT_RENDERER = 'IPC_TGT_REND';
-export const IPC_TGT_WORKER = 'IPC_TGT_WORK';
+export const IPC_TGT_RENDERER = 'IPC_TGT_RENDERER';
+export const IPC_TGT_WORKER = 'IPC_TGT_WORKER';
 
 
 export const IPC_SRC_MAIN = 'IPC_SRC_MAIN';

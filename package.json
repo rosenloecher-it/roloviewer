@@ -47,6 +47,7 @@
       "dist/",
       "node_modules/",
       "renderer/app.html",
+      "worker/worker.html",
       "main/main.prod.js",
       "main/main.prod.js.map",
       "package.json"

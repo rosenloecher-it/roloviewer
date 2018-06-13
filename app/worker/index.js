@@ -1,13 +1,9 @@
 import log from 'electron-log';
+import * as workerIpc from './workerIpc';
 
+log.info("worker/index.js - loaded");
 
-console.log("con - worker.js - loaded");
-//alert("Hello! I am an alert box!!");
+workerIpc.registerListener();
 
-//const log = require('electron-log');
-log.info("log - worker.js - loaded");
-
-//import log from 'electron-log';
-//log.info("worker.js - loaded");
 
 

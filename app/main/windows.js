@@ -18,6 +18,7 @@ export function getMainWindow() {
 
 function closeMainWindow() {
   configMain.saveConfig();
+  log.debug("closeMainWindow");
 }
 
 // ----------------------------------------------------------------------------------
@@ -129,10 +130,10 @@ export function createWorkerWindow() {
     if (!workerWindow)
       throw new Error('"windows" is not defined');
 
-    log.debug("createWorkerWindow - did-finish-load");
-
-    workerWindow.webContents.openDevTools();
-    workerWindow.show();
+    if (appConstants.DEBUG_SHOW_WORKER) {
+      workerWindow.webContents.openDevTools();
+      workerWindow.show();
+    }
 
   });
 

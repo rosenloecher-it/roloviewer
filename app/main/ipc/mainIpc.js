@@ -10,16 +10,15 @@ const logKey = "mainIpc-";
 // ----------------------------------------------------------------------------------
 
 export function registerListener() {
+  //log.debug(`${logKey}registerListener`);
   ipcMain.on(ipcKeys.IPC_TGT_MAIN, listenMainChannel);
-  log.debug(`${logKey}registerListener`);
-
 }
 
 // ----------------------------------------------------------------------------------
 
 export function unregisterListener() {
+  //log.debug(`${logKey}unregisterListener`);
   ipcMain.removeAllListeners(ipcKeys.IPC_TGT_MAIN);
-  log.debug(`${logKey}unregisterListener`);
 }
 
 // ----------------------------------------------------------------------------------
@@ -28,8 +27,12 @@ function listenMainChannel(event, input, output) {
   //log.debug("listenMainChannel: event=", event, "; input=", input, "; output=", output);
   log.debug(`${logKey}listenMainChannel: input=`, input);
 
-  if (input.type === ipcKeys.IPC_STATE_READY)
+  if (input.type === ipcKeys.IPC_STATE_READY && input.payload === "from_renderer")
     sendToRenderer(ipcKeys.IPC_STATE_READY, "from_main");
+
+  if (input.type === ipcKeys.IPC_STATE_READY && input.payload === "from_worker")
+    sendToWorker(ipcKeys.IPC_STATE_READY, "from_main");
+
 }
 
 // ----------------------------------------------------------------------------------
@@ -39,7 +42,9 @@ export function sendToWorker(ipcType, payload) {
     type: ipcType,
     payload: payload
   }
-  ipcMain.send(ipcKeys.IPC_TGT_RENDERER, data);
+  const window = windows.getWorkerWindow();
+  if (window)
+    window.webContents.send(ipcKeys.IPC_TGT_WORKER, data);
 }
 
 // ----------------------------------------------------------------------------------

@@ -1,18 +1,18 @@
 import log from 'electron-log';
 import {ipcRenderer} from 'electron';
-import * as ipcKeys from "../../common/ipcKeys";
+import * as ipcKeys from "../common/ipcKeys";
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "rendererIpc-";
+const logKey = "workerIpc-";
 
 // ----------------------------------------------------------------------------------
 
 export function registerListener() {
   //log.debug(`${logKey}registerListener`);
-  ipcRenderer.on(ipcKeys.IPC_TGT_RENDERER, listenRendererChannel);
+  ipcRenderer.on(ipcKeys.IPC_TGT_WORKER, listenWorkerChannel);
 
-  sendToMain(ipcKeys.IPC_STATE_READY, "from_renderer");
+  sendToMain(ipcKeys.IPC_STATE_READY, "from_worker");
 }
 
 // ----------------------------------------------------------------------------------
@@ -24,11 +24,10 @@ export function unregisterListener() {
 
 // ----------------------------------------------------------------------------------
 
-function listenRendererChannel(event, input, output) {
+function listenWorkerChannel(event, input, output) {
   //log.debug("listenRendererChannel: event=", event, "; input=", input, "; output=", output);
-  log.debug(`${logKey}listenRendererChannel: input=`, input);
+  log.debug(`${logKey}listenWorkerChannel: input=`, input);
 
-  //sendToMain(ipcKeys.IPC_STATE_READY, "listenRendererChannel");
 }
 
 // ----------------------------------------------------------------------------------

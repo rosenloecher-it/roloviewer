@@ -29,4 +29,5 @@ export const DEFCONF_LOGLEVEL_CONSOLE = 'warn';
 export const DEFCONF_LOG_DELETE_ON_START = true;
 
 export const DEBUG_ARGS =  ""; // "-r -o fff -a 12 -t 12"
-export const DEBUG_DEVTOOLS_PROD = false;
+export const DEBUG_DEVTOOLS_PROD = true;
+export const DEBUG_SHOW_WORKER = true;

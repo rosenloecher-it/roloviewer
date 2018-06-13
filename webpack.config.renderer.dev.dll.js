@@ -32,9 +32,8 @@ export default merge.smart(baseConfig, {
   module: require('./webpack.config.renderer.dev').module,
 
   entry: {
-    renderer: Object.keys(dependencies || {}).filter(
-      dependency => dependency !== 'font-awesome'
-    )
+    renderer: Object.keys(dependencies || {}).filter(dependency => dependency !== 'font-awesome'),
+    worker: Object.keys(dependencies || {}).filter(dependency => dependency !== 'font-awesome')
   },
 
   output: {

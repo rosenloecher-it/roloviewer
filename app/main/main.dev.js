@@ -81,7 +81,7 @@ if (!configMain.shouldExit()) {
       await installExtensions();
     }
 
-    //windows.createWorkerWindow();
+    windows.createWorkerWindow();
 
     windows.createMainWindow();
 

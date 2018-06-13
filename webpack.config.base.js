@@ -51,6 +51,7 @@ export default {
 
   output: {
     path: path.join(__dirname, 'app'),
+    filename: '[name].prod.js',
     // https://github.com/webpack/webpack/issues/1114
     libraryTarget: 'commonjs2'
   },
