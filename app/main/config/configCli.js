@@ -1,5 +1,5 @@
 import argly from 'argly';
-import * as appConstants from '../../common/appConstants';
+import * as constants from '../../common/constants';
 import * as configUtils from './configUtils';
 import { isProduction } from '../main.dev';
 
@@ -60,7 +60,7 @@ function createCliParser() {
         description: 'Transition time in milliseconds'
       }
     })
-    .usage(`${appConstants.APP_TITLE} v(${appConstants.APP_VERSION})`)
+    .usage(`${constants.APP_TITLE} v(${constants.APP_VERSION})`)
     .validate(function arglyValidate(result) {
       if (!validateHelp(this, result)) return;
       if (!validateOpenAuto(this, result)) return;

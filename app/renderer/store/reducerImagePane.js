@@ -1,4 +1,4 @@
-import * as appConstants from '../../common/appConstants';
+import * as constants from '../../common/constants';
 
 const defaultState = {
   autoPlay: false,
@@ -10,7 +10,7 @@ const defaultState = {
 export default (state = defaultState, action) => {
 
   switch (action.type) {
-    case appConstants.ACTION_NEXT_OBJECT:
+    case constants.ACTION_NEXT_OBJECT:
       return {
         ...state,
         showIndex: state.showIndex + 1

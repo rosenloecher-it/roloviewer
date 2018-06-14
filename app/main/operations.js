@@ -3,17 +3,18 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import configMain from "./config/configMain";
-import * as appConstants from "../common/appConstants";
+import * as constants from "../common/constants";
 import * as windows from './windows';
 import {mkDirByPathSync} from "./config/configUtils";
+import * as mainIpc from './ipc/mainIpc';
 
 // ----------------------------------------------------------------------------------
 
 export function startCrashReporter() {
   crashReporter.start({
     productName: app.getName(),
-    companyName: appConstants.COMPANY_NAME,
-    submitURL: appConstants.URL_CRASH_REPORT,
+    companyName: constants.COMPANY_NAME,
+    submitURL: constants.URL_CRASH_REPORT,
     uploadToServer: false
   });
 }
@@ -47,7 +48,7 @@ export function configLogger() {
     log.transports.file.maxSize = 5 * 1024 * 1024;
   }
 
-  log.info(`${appConstants.APP_TITLE} (v${appConstants.APP_VERSION}) started`);
+  log.info(`${constants.APP_TITLE} (v${constants.APP_VERSION}) started`);
 
 }
 
@@ -91,6 +92,13 @@ export function restoreDevTools() {
       window.webContents.openDevTools();
     }
   }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function initChild(ipcDest) {
+  const data = configMain.exportConfig();
+  mainIpc.sendIpc(ipcDest, constants.ACTION_SETTINGS_TO_CHILD, data);
 }
 
 // ----------------------------------------------------------------------------------

@@ -3,7 +3,7 @@ import electron from 'electron';
 import log from 'electron-log';
 import parseCliArgs from "./configCli";
 import * as configIni from "./configIni";
-import * as appConstants from '../../common/appConstants';
+import * as constants from '../../common/constants';
 import * as configWin from "./configWin";
 import * as configUtils from "./configUtils";
 import configMain from "./configMain";
@@ -42,7 +42,7 @@ export class ConfigMain {
     this.data.context.isDevelopment = NODE_ENV === 'development' || DEBUG_PROD === 'true';
     this.data.context.isProduction = NODE_ENV === 'production';
     this.data.context.isTest = NODE_ENV === 'test';
-    this.data.context.showDevTools = !this.data.context.isProduction || DEBUG_PROD === 'true' || appConstants.DEBUG_DEVTOOLS_PROD;
+    this.data.context.showDevTools = !this.data.context.isProduction || DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
   }
 
   // ........................................................
@@ -55,7 +55,7 @@ export class ConfigMain {
       args = process.argv;
     else {
       // const argsString = '-r -o fff -a 12 -t 12'.split(' ');
-      const argsString = appConstants.DEBUG_ARGS;
+      const argsString = constants.DEBUG_ARGS;
 
       if (argsString && argsString.trim().length > 0)
         args = argsString.split(' ');
@@ -97,16 +97,16 @@ export class ConfigMain {
     // TODO data.system.logfile;
 
     data.system.loglevel_file = configUtils.mergeConfigItem(
-      !this.data.context.isProduction ? "debug" : appConstants.DEFCONF_LOGLEVEL_CONSOLE,
+      !this.data.context.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL_CONSOLE,
       null,
       configUtils.validateLogLevel(dataFromFile.system.loglevel_file));
 
-    data.system.loglevel_console = configUtils.mergeConfigItem(appConstants.DEFCONF_LOGLEVEL_FILE,
+    data.system.loglevel_console = configUtils.mergeConfigItem(constants.DEFCONF_LOGLEVEL_FILE,
       null,
       configUtils.validateLogLevel(dataFromFile.system.loglevel_console));
 
 
-    data.system.log_delete_on_start = configUtils.mergeConfigItem(appConstants.DEFCONF_LOG_DELETE_ON_START,
+    data.system.log_delete_on_start = configUtils.mergeConfigItem(constants.DEFCONF_LOG_DELETE_ON_START,
       null,
       configUtils.validateBoolean(dataFromFile.system.log_delete_on_start));
 
@@ -116,27 +116,27 @@ export class ConfigMain {
     else if (!data.system.logfile)
       data.system.logfile = dataFromFile.system.logfile;
 
-    data.slideshow.fullscreen = configUtils.mergeConfigItem(appConstants.DEFCONF_FULLSCREEN,
+    data.slideshow.fullscreen = configUtils.mergeConfigItem(constants.DEFCONF_FULLSCREEN,
       dataFromCli.fullscreen,
       dataFromFile.slideshow.fullscreen);
 
-    data.slideshow.transition = configUtils.mergeConfigItem(appConstants.DEFCONF_TRANSITION,
+    data.slideshow.transition = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION,
       configUtils.validateInt(dataFromCli.transition),
       configUtils.validateInt(dataFromFile.slideshow.transition));
 
-    data.slideshow.random = configUtils.mergeConfigItem(appConstants.DEFCONF_RANDOM,
+    data.slideshow.random = configUtils.mergeConfigItem(constants.DEFCONF_RANDOM,
       dataFromCli.random,
       dataFromFile.slideshow.random);
 
-    data.slideshow.awake = configUtils.mergeConfigItem(appConstants.DEFCONF_AWAKE,
+    data.slideshow.awake = configUtils.mergeConfigItem(constants.DEFCONF_AWAKE,
       configUtils.validateInt(dataFromCli.awake),
       configUtils.validateInt(dataFromFile.slideshow.awake));
 
-    data.slideshow.screensaver = configUtils.mergeConfigItem(appConstants.DEFCONF_SCREENSAVER,
+    data.slideshow.screensaver = configUtils.mergeConfigItem(constants.DEFCONF_SCREENSAVER,
       dataFromCli.screensaver,
       null);
 
-    data.slideshow.details = configUtils.mergeConfigItem(appConstants.DEFCONF_DETAILS,
+    data.slideshow.details = configUtils.mergeConfigItem(constants.DEFCONF_DETAILS,
       dataFromCli.details,
       dataFromFile.slideshow.details);
 
@@ -220,6 +220,12 @@ export class ConfigMain {
 
     this.mergeConfigFileStandard();
 
+  }
+
+  // ........................................................
+
+  exportConfig() {
+    return null;
   }
 
   // ........................................................

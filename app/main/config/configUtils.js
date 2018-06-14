@@ -1,19 +1,19 @@
 import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
-import * as appConstants from "../../common/appConstants";
+import * as constants from "../../common/constants";
 
 // ----------------------------------------------------------------------------------
 
 export function getConfigPath() {
-  return path.join(app.getPath('userData'), '..', appConstants.CONFIG_NAME);
+  return path.join(app.getPath('userData'), '..', constants.CONFIG_NAME);
 }
 
 //----------------------------------------------------------------------------
 
 export function getDefaultConfigPathStd() {
   const configPath = getConfigPath();
-  const configFile = path.join(configPath, appConstants.CONFIG_STANDARD);
+  const configFile = path.join(configPath, constants.CONFIG_STANDARD);
   return configFile;
 }
 
@@ -21,21 +21,21 @@ export function getDefaultConfigPathStd() {
 
 export function getDefaultConfigPathWin() {
   const configPath = getConfigPath();
-  const configFile = path.join(configPath, appConstants.CONFIG_WINDOW);
+  const configFile = path.join(configPath, constants.CONFIG_WINDOW);
   return configFile;
 }
 
 //----------------------------------------------------------------------------
 
 export function getDefaultCachePath() {
-  return path.join(app.getPath('userData'), '..', appConstants.CONFIG_NAME);
+  return path.join(app.getPath('userData'), '..', constants.CONFIG_NAME);
 }
 
 //----------------------------------------------------------------------------
 
 export function getDefaultCrawlerDb() {
   const configPath = getDefaultCachePath();
-  const configFile = path.join(configPath, appConstants.DEFCONF_DBNAME);
+  const configFile = path.join(configPath, constants.DEFCONF_DBNAME);
   return configFile;
 }
 
@@ -43,7 +43,7 @@ export function getDefaultCrawlerDb() {
 
 export function getDefaultLogFile() {
   const configPath = getDefaultCachePath();
-  const configFile = path.join(configPath, appConstants.DEFCONF_LOGNAME);
+  const configFile = path.join(configPath, constants.DEFCONF_LOGNAME);
   return configFile;
 }
 

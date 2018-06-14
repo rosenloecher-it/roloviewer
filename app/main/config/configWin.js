@@ -1,6 +1,6 @@
 import log from 'electron-log';
 import * as configIni from "./configIni";
-import * as appConstants from "../../common/appConstants";
+import * as constants from "../../common/constants";
 import * as configUtils from "./configUtils";
 
 // ----------------------------------------------------------------------------------
@@ -65,9 +65,9 @@ export function checkConfigWin(config, screenSize) {
       break;
     if (!config.y || config.y < 0 || config.y >= screenSize.height - space)
       break;
-    if (!config.height || config.height < appConstants.DEFCONF_HEIGHT_DEF || config.height > screenSize.height)
+    if (!config.height || config.height < constants.DEFCONF_HEIGHT_DEF || config.height > screenSize.height)
       break;
-    if (!config.width || config.width < appConstants.DEFCONF_WIDTH_DEF || config.width > screenSize.width)
+    if (!config.width || config.width < constants.DEFCONF_WIDTH_DEF || config.width > screenSize.width)
       break;
 
     return true;
@@ -83,8 +83,8 @@ export function getDefaultConfigWin(screenSize)
 {
   const config = {};
 
-  config.height = screenSize.height < appConstants.DEFCONF_HEIGHT_DEF ? screenSize.height : appConstants.DEFCONF_HEIGHT_DEF;
-  config.width = screenSize.width < appConstants.DEFCONF_WIDTH_DEF ? screenSize.width : appConstants.DEFCONF_WIDTH_DEF;
+  config.height = screenSize.height < constants.DEFCONF_HEIGHT_DEF ? screenSize.height : constants.DEFCONF_HEIGHT_DEF;
+  config.width = screenSize.width < constants.DEFCONF_WIDTH_DEF ? screenSize.width : constants.DEFCONF_WIDTH_DEF;
 
   config.x = (screenSize.width - config.width) / 2;
   config.y = (screenSize.height - config.height) / 2;

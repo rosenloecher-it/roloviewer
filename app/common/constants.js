@@ -56,6 +56,12 @@ export const IPC_WORKER = 'IPC_WORKER';
 export const ACTION_HANDSHAKE_REQUEST = 'ACTION_HANDSHAKE_REQUEST';
 export const ACTION_HANDSHAKE_ANSWER = 'ACTION_HANDSHAKE_ANSWER';
 
+export const ACTION_READY = 'ACTION_READY'; // worker, renderer to main
+
+export const ACTION_SETTINGS_TO_CHILD = 'ACTION_SETTINGS_TO_CHILD';
+
+export const ACTION_SHOW_MESSAGE = 'ACTION_SHOW_MESSAGE'; // error, warning, info
+
 
 // export const IPC_MSG_START = 'IPC_MSG_START';
 // export const IPC_STATE_STOPPED = 'IPC_STATE_STOPPED';

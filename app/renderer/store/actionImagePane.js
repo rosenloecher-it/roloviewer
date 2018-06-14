@@ -1,11 +1,11 @@
-import * as appConstants from '../../common/appConstants';
+import * as constants from '../../common/constants';
 
 export const nextObject = () => ({
-  type: appConstants.ACTION_NEXT_OBJECT
+  type: constants.ACTION_NEXT_OBJECT
 })
 
 export const prevObject = () => ({
-  type: appConstants.ACTION_PREV_OBJECT
+  type: constants.ACTION_PREV_OBJECT
 })
 
 

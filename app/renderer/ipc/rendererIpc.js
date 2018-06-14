@@ -1,11 +1,11 @@
 import log from 'electron-log';
 import {ipcRenderer} from 'electron';
-import * as appConstants from "../../common/appConstants";
+import * as constants from "../../common/constants";
 
 // ----------------------------------------------------------------------------------
 
 const logKey = "rendererIpc";
-const ipcMyself = appConstants.IPC_RENDERER;
+const ipcMyself = constants.IPC_RENDERER;
 
 // ----------------------------------------------------------------------------------
 
@@ -13,7 +13,10 @@ export function registerListener() {
   //log.debug(`${logKey}registerListener`);
   ipcRenderer.on(ipcMyself, listenRendererChannel);
 
-  testHandshakes();
+  if (constants.DEBUG_IPC_HANDSHAKE)
+    testHandshakes();
+
+  sendIpc(constants.IPC_MAIN, constants.ACTION_READY, null);
 }
 
 // ----------------------------------------------------------------------------------
@@ -25,32 +28,24 @@ export function unregisterListener() {
 
 // ----------------------------------------------------------------------------------
 
-function listenRendererChannel(event, input, output) {
+function listenRendererChannel(event, data, output) {
   const func = ".listenRendererChannel";
 
   try {
     //log.debug("listenMainChannel: event=", event, "; input=", input, "; output=", output);
     //log.debug(`${logKey}.listenMainChannel: input=`, input);
 
-    if (!input || !input.destination || !input.type) {
-      log.error(`${logKey}${func} - invalid payload: `, input);
+    if (!data || !data.destination || !data.type) {
+      log.error(`${logKey}${func} - invalid payload: `, data);
       return;
     }
 
-    if (input.destination !== ipcMyself) {
-      log.error(`${logKey}${func} - invalid destination: `, input);
+    if (data.destination !== ipcMyself) {
+      log.error(`${logKey}${func} - invalid destination: `, data);
       return;
     }
 
-    switch (input.type) {
-      case appConstants.ACTION_HANDSHAKE_ANSWER:
-        ipcHandshakeAnswer(input); break;
-      case appConstants.ACTION_HANDSHAKE_REQUEST:
-        ipcHandshakeRequest(input); break;
-      default:
-        log.error(`${logKey}${func} - invalid type: `, input);
-        break;
-    }
+    dispatchRendererActions(data);
 
   } catch (err) {
     log.debug(`${logKey}${func} exception:`, err);
@@ -59,20 +54,34 @@ function listenRendererChannel(event, input, output) {
 
 // ----------------------------------------------------------------------------------
 
-let isHandshakeStarted = false;
+function dispatchRendererActions(data) {
+  const func = ".dispatchRendererActions";
+
+  switch (data.type) {
+    case constants.ACTION_HANDSHAKE_ANSWER:
+      ipcHandshakeAnswer(data); break;
+    case constants.ACTION_HANDSHAKE_REQUEST:
+      ipcHandshakeRequest(data); break;
+
+    case constants.ACTION_SETTINGS_TO_CHILD:
+      // TODO
+      break;
+
+    default:
+      log.error(`${logKey}${func} - invalid type: `, data);
+      break;
+  }
+}
+
+// ----------------------------------------------------------------------------------
 
 function testHandshakes() {
-
-  if (isHandshakeStarted || !appConstants.DEBUG_IPC_HANDSHAKE)
-    return;
-  isHandshakeStarted = true;
-
   const func = ".startHandshake";
 
   setTimeout(() => {
-    for (const ipcTarget of [ appConstants.IPC_MAIN, appConstants.IPC_WORKER ]) {
+    for (const ipcTarget of [ constants.IPC_MAIN, constants.IPC_WORKER ]) {
       const payload = Math.floor(1000 * Math.random());
-      sendIpc(ipcTarget, appConstants.ACTION_HANDSHAKE_REQUEST, payload);
+      sendIpc(ipcTarget, constants.ACTION_HANDSHAKE_REQUEST, payload);
       log.debug(`${logKey}${func} - destination=${ipcTarget}; data=`, payload);
     }
   }, 2000)
@@ -95,7 +104,7 @@ function ipcHandshakeRequest(data) {
   const func = ".ipcHandshakeRequest";
 
   log.debug(`${logKey}${func} - destination=${data.destination}; source=${data.source}; data=`, data.payload);
-  sendIpc(data.source, appConstants.ACTION_HANDSHAKE_ANSWER, data.payload);
+  sendIpc(data.source, constants.ACTION_HANDSHAKE_ANSWER, data.payload);
 }
 
 // ----------------------------------------------------------------------------------
@@ -108,7 +117,7 @@ function sendIpcRaw(data) {
     return;
   }
 
-  ipcRenderer.send(appConstants.IPC_MAIN, data);
+  ipcRenderer.send(constants.IPC_MAIN, data);
 }
 
 // ----------------------------------------------------------------------------------

@@ -3,7 +3,7 @@ import path from 'path';
 import log from 'electron-log';
 import * as operations from "./operations";
 import configMain from "./config/configMain";
-import * as appConstants from "../common/appConstants";
+import * as constants from "../common/constants";
 
 let mainWindow = null;
 let workerWindow = null;
@@ -45,8 +45,8 @@ export function createMainWindow() {
     height: windowState.height,
     x: windowState.x,
     y: windowState.y,
-    minWidth: appConstants.DEFCONF_WIDTH_MIN,
-    minHeight: appConstants.DEFCONF_HEIGHT_MIN,
+    minWidth: constants.DEFCONF_WIDTH_MIN,
+    minHeight: constants.DEFCONF_HEIGHT_MIN,
     backgroundColor: '#202b33', // has to match style!
     show: false
   });
@@ -59,7 +59,7 @@ export function createMainWindow() {
   mainWindow.webContents.on('did-finish-load', () => {
     if (!mainWindow) throw new Error('"windows" is not defined');
 
-    mainWindow.setTitle(appConstants.APP_TITLE);
+    mainWindow.setTitle(constants.APP_TITLE);
     mainWindow.show();
 
     if (windowState.maximized) mainWindow.maximize();
@@ -132,7 +132,7 @@ export function createWorkerWindow() {
     if (!workerWindow)
       throw new Error('"windows" is not defined');
 
-    if (appConstants.DEBUG_SHOW_WORKER_WINDOW) {
+    if (constants.DEBUG_SHOW_WORKER_WINDOW) {
       workerWindow.webContents.openDevTools();
       workerWindow.show();
     }
