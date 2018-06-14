@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import electron from 'electron';
 import log from 'electron-log';
 import deepmerge from 'deepmerge';
@@ -170,7 +171,7 @@ export class ConfigMain {
       dataFromFile = {};
     }
 
-    // log.debug("mergeConfigFiles - dataFromFile", dataFromFile);
+     log.debug("mergeConfigFiles - dataFromFile", dataFromFile);
 
     configMerge.mergeDataStart(this.data, this.dataCli, dataFromFile);
     configMerge.mergeDataSystem(this.data, this.dataCli, dataFromFile);
@@ -178,7 +179,7 @@ export class ConfigMain {
     configMerge.mergeDataCrawler(this.data, this.dataCli, dataFromFile);
     configMerge.mergeDataMainWindow(this.data, this.dataCli, dataFromFile);
 
-    // log.debug("mergeConfigFiles", this.data);
+     log.debug("mergeConfigFiles", this.data);
   }
 
   // ........................................................
@@ -266,6 +267,34 @@ export class ConfigMain {
   }
 
   // ........................................................
+
+  getLastPath() {
+
+    let lastPath = this.data.start.lastPath;
+    if (lastPath && fs.existsSync(lastPath))
+      return lastPath;
+
+    const lastContainer = this.data.start.lastContainer;
+    if (lastContainer && fs.existsSync(lastContainer)) {
+      if (fs.lstatSync(lastContainer).isDirectory())
+        return lastContainer;
+
+      if (fs.lstatSync(lastContainer).isFile()) {
+        lastPath = path.dirname(lastContainer);
+        return lastPath;
+      }
+    }
+
+    lastPath = electron.app.getPath('userData');
+    return lastPath;
+  }
+
+  setLastPath(lastPath) {
+    this.data.start.lastPath = lastPath;
+  }
+
+  // ........................................................
+
 
   lastContainer
 

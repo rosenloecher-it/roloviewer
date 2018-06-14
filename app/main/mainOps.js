@@ -1,4 +1,4 @@
-import { app, crashReporter, shell } from 'electron';
+import { app, crashReporter, shell, dialog } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
@@ -45,7 +45,7 @@ export function configLogger() {
     if (logConfig.logDeleteOnStart && fs.existsSync(logConfig.logfile)) {
       fs.unlinkSync(logConfig.logfile);
       if (fs.existsSync(logConfig.logfile))
-        console.log(`ERROR: cannot delete file ${logConfig.logfile}!`);
+        log.error(`ERROR: cannot delete file ${logConfig.logfile}!`);
     }
 
     log.transports.file.file = logConfig.logfile;
@@ -132,8 +132,46 @@ export function initChild(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
+export function openDialog(isDirectory) {
+  const func = ".openDialog";
+
+  const lastPath = config.getLastPath();
+  //log.debug(`${logKey}${func} - lastPath:`, lastPath);
+
+  const dialogType = isDirectory ? 'openDirectory' : 'openFile';
+
+  const files = dialog.showOpenDialog(
+    {
+      defaultPath: lastPath,
+      properties: [ dialogType ]
+    });
+
+  if (files && Array.isArray(files) && files.length === 1) {
+    const selection = files[0];
+    log.debug(`${logKey}${func} - selection:`, selection);
+
+    if (fs.lstatSync(selection).isDirectory())
+      config.setLastPath(selection);
+    else {
+      const lastPath = path.dirname(selection);
+      config.setLastPath(lastPath);
+    }
+
+    return selection;
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
 export function openDirectory() {
+
   console.log('open directory clicked');
+
+  const folder = openDialog(true);
+  if (folder)
+    ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container: folder });
+
+  console.log('open directory clicked - out ');
 }
 
 // ----------------------------------------------------------------------------------

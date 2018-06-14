@@ -56,7 +56,7 @@ export function mergeDataSystem(dataIn, dataFromCli, dataFromFileIn) {
     configUtils.validateBoolean(dataFromFile.system.logDeleteOnStart));
 
   data.system.logfile = null;
-  if (dataFromFile.system.logfile === ".")
+  if (dataFromFile.system.logfile && dataFromFile.system.logfile.trim() === ".")
     data.system.logfile = configUtils.getDefaultLogFile();
   else if (!data.system.logfile)
     data.system.logfile = dataFromFile.system.logfile;

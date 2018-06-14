@@ -14,7 +14,7 @@ import { app } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import config from './config/mainConfig';
-import * as operations from './mainOps';
+import * as ops from './mainOps';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
 import * as mainIpc from './mainIpc';
@@ -32,7 +32,7 @@ function allWindowsClosed() {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== 'darwin') {
-    operations.quitApp();
+    ops.quitApp();
   }
 }
 
@@ -67,8 +67,8 @@ if (!config.shouldExit()) {
     require('module').globalPaths.push(p);
   }
 
-  operations.startCrashReporter();
-  operations.configLogger();
+  ops.startCrashReporter();
+  ops.configLogger();
 
   let installExtensions;
 

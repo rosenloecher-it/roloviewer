@@ -63,7 +63,6 @@ function openFolder(folder) {
 
 // ----------------------------------------------------------------------------------
 
-
 function openAutoSelect() {
   // TODO
   showMessage(constants.MSG_TYPE_ERROR, constants.ERROR_NOT_IMPLEMENTED);
