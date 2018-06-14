@@ -28,8 +28,10 @@ function allWindowsClosed() {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== 'darwin') {
-    app.quit();
+    operations.quitApp();
   }
+
+  configMain.saveConfig();
 }
 
 // ----------------------------------------------------------------------------------
@@ -81,11 +83,12 @@ if (!configMain.shouldExit()) {
       await installExtensions();
     }
 
+    mainIpc.registerListener();
+
     windows.createWorkerWindow();
 
     windows.createMainWindow();
 
-    mainIpc.registerListener();
   });
 } else {
 

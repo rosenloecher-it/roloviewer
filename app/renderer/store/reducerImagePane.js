@@ -1,5 +1,4 @@
-
-import * as actionType from './actionTypes';
+import * as appConstants from '../../common/appConstants';
 
 const defaultState = {
   autoPlay: false,
@@ -11,7 +10,7 @@ const defaultState = {
 export default (state = defaultState, action) => {
 
   switch (action.type) {
-    case actionType.IMAGEPANE_NEXT_OBJECT:
+    case appConstants.ACTION_NEXT_OBJECT:
       return {
         ...state,
         showIndex: state.showIndex + 1

@@ -17,8 +17,9 @@ export function getMainWindow() {
 // ----------------------------------------------------------------------------------
 
 function closeMainWindow() {
-  configMain.saveConfig();
+
   log.debug("closeMainWindow");
+  operations.quitApp();
 }
 
 // ----------------------------------------------------------------------------------
@@ -44,8 +45,8 @@ export function createMainWindow() {
     height: windowState.height,
     x: windowState.x,
     y: windowState.y,
-    minWidth: appConstants.SIZE_WIDTH_MIN,
-    minHeight: appConstants.SIZE_HEIGHT_MIN,
+    minWidth: appConstants.DEFCONF_WIDTH_MIN,
+    minHeight: appConstants.DEFCONF_HEIGHT_MIN,
     backgroundColor: '#202b33', // has to match style!
     show: false
   });
@@ -103,6 +104,7 @@ export function getWorkerWindow() {
 
 function closeWorkerWindow() {
   log.debug("closeWorkerWindow");
+  operations.quitApp();
 }
 
 // ----------------------------------------------------------------------------------
@@ -123,14 +125,14 @@ export function createWorkerWindow() {
     }
   });
 
-  log.debug("workerWindow.loadURL", htmlPath);
+  //log.debug("workerWindow.loadURL", htmlPath);
   workerWindow.loadURL(`file://${htmlPath}`);
 
   workerWindow.webContents.on('did-finish-load', () => {
     if (!workerWindow)
       throw new Error('"windows" is not defined');
 
-    if (appConstants.DEBUG_SHOW_WORKER) {
+    if (appConstants.DEBUG_SHOW_WORKER_WINDOW) {
       workerWindow.webContents.openDevTools();
       workerWindow.show();
     }
@@ -142,15 +144,6 @@ export function createWorkerWindow() {
   workerWindow.on('closed', () => {
     workerWindow = null;
   });
-  // workerWindow.webContents.on('did-finish-load', function () {
-  //   const input = 100;
-  //   workerWindow.webContents.send('compute-factorial', input);
-  // })
-
-  // ipcMain.on('factorial-computed', function (event, input, output) {
-  //   const message = `The factorial of ${input} is ${output}`
-  //   console.log(message);
-  // })
 }
 
 // ----------------------------------------------------------------------------------

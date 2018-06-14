@@ -1,63 +1,146 @@
-import { event, ipcMain } from 'electron';
+import { ipcMain } from 'electron';
 import log from 'electron-log';
-import * as ipcKeys from "../../common/ipcKeys";
+import * as appConstants from "../../common/appConstants";
 import * as windows from '../windows';
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "mainIpc-";
+const logKey = "mainIpc";
+const ipcMyself = appConstants.IPC_MAIN;
 
 // ----------------------------------------------------------------------------------
 
 export function registerListener() {
   //log.debug(`${logKey}registerListener`);
-  ipcMain.on(ipcKeys.IPC_TGT_MAIN, listenMainChannel);
+  ipcMain.on(ipcMyself, listenMainChannel);
+
+  testHandshakes();
 }
 
 // ----------------------------------------------------------------------------------
 
 export function unregisterListener() {
   //log.debug(`${logKey}unregisterListener`);
-  ipcMain.removeAllListeners(ipcKeys.IPC_TGT_MAIN);
+  ipcMain.removeAllListeners(ipcMyself);
 }
 
 // ----------------------------------------------------------------------------------
 
 function listenMainChannel(event, input, output) {
-  //log.debug("listenMainChannel: event=", event, "; input=", input, "; output=", output);
-  log.debug(`${logKey}listenMainChannel: input=`, input);
+  const func = ".listenMainChannel";
 
-  if (input.type === ipcKeys.IPC_STATE_READY && input.payload === "from_renderer")
-    sendToRenderer(ipcKeys.IPC_STATE_READY, "from_main");
+  try {
+    //log.debug("listenMainChannel: event=", event, "; input=", input, "; output=", output);
+    //log.debug(`${logKey}.listenMainChannel: input=`, input);
 
-  if (input.type === ipcKeys.IPC_STATE_READY && input.payload === "from_worker")
-    sendToWorker(ipcKeys.IPC_STATE_READY, "from_main");
+    if (!input || !input.destination || !input.type) {
+      log.error(`${logKey}${func} - invalid payload: `, input);
+      return;
+    }
 
+    if (input.destination === appConstants.IPC_WORKER || input.destination === appConstants.IPC_RENDERER) {
+      sendIpcRaw(input);
+      return;
+    }
+
+    if (input.destination !== ipcMyself) {
+      log.error(`${logKey}${func} - invalid destination: `, input);
+      return;
+    }
+
+    switch (input.type) {
+      case appConstants.ACTION_HANDSHAKE_ANSWER:
+        ipcHandshakeAnswer(input); break;
+      case appConstants.ACTION_HANDSHAKE_REQUEST:
+        ipcHandshakeRequest(input); break;
+      default:
+        log.error(`${logKey}${func} - invalid type: `, input);
+        break;
+    }
+
+  } catch (err) {
+    log.debug(`${logKey}${func} exception:`, err);
+  }
 }
 
 // ----------------------------------------------------------------------------------
 
-export function sendToWorker(ipcType, payload) {
-  const data = {
-    type: ipcType,
-    payload: payload
-  }
-  const window = windows.getWorkerWindow();
-  if (window)
-    window.webContents.send(ipcKeys.IPC_TGT_WORKER, data);
+let isHandshakeStarted = false;
+
+function testHandshakes() {
+
+  if (isHandshakeStarted || !appConstants.DEBUG_IPC_HANDSHAKE)
+    return;
+  isHandshakeStarted = true;
+
+  const func = ".startHandshake";
+
+  setTimeout(() => {
+    for (const ipcTarget of [ appConstants.IPC_RENDERER, appConstants.IPC_WORKER ]) {
+      const payload = Math.floor(1000 * Math.random());
+      sendIpc(ipcTarget, appConstants.ACTION_HANDSHAKE_REQUEST, payload);
+      log.debug(`${logKey}${func} - destination=${ipcTarget}; data=`, payload);
+    }
+  }, 2000)
 }
 
 // ----------------------------------------------------------------------------------
 
-export function sendToRenderer(ipcType, payload) {
-  const data = {
-    type: ipcType,
-    payload: payload
+function ipcHandshakeAnswer(data) {
+  const func = ".ipcHandshakeAnswer";
+
+  if (data.source !== ipcMyself)
+    log.debug(`${logKey}${func} - destination=${data.destination}; source=${data.source}; data=`, data.payload);
+  else
+    log.error(`${logKey}${func} - wrong source - destination=${data.destination}; source=${data.source}; data=`, data.payload);
+}
+
+// ----------------------------------------------------------------------------------
+
+function ipcHandshakeRequest(data) {
+  const func = ".ipcHandshakeRequest";
+
+  log.debug(`${logKey}${func} - destination=${data.destination}; source=${data.source}; data=`, data.payload);
+  sendIpc(data.source, appConstants.ACTION_HANDSHAKE_ANSWER, data.payload);
+}
+
+// ----------------------------------------------------------------------------------
+
+function sendIpcRaw(data) {
+  const func = ".sendIpcRaw";
+
+  if (!data) {
+    log.error(`${logKey}${func} - invalid payload: `);
+    return;
   }
 
-  const window = windows.getMainWindow();
-  if (window)
-    window.webContents.send(ipcKeys.IPC_TGT_RENDERER, data);
+  let window = null;
+  if (data.destination === appConstants.IPC_WORKER)
+    window = windows.getWorkerWindow();
+  else if (data.destination === appConstants.IPC_RENDERER)
+    window = windows.getMainWindow();
+
+  if (!window) {
+    log.error(`${logKey}${func} - invalid destination - `, data);
+    return;
+  }
+
+  window.webContents.send(data.destination, data);
+}
+
+// ----------------------------------------------------------------------------------
+
+function sendIpc(ipcTarget, ipcType, payload) {
+  const func = ".sendIpcRaw";
+
+  const data = {
+    type: ipcType,
+    source: ipcMyself,
+    destination: ipcTarget,
+    payload: payload
+  };
+
+  sendIpcRaw(data);
 }
 
 // ----------------------------------------------------------------------------------

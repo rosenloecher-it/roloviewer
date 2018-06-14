@@ -47,7 +47,7 @@ export function configLogger() {
     log.transports.file.maxSize = 5 * 1024 * 1024;
   }
 
-  log.info(`${appConstants.APP_TITLE} v(${appConstants.APP_VERSION}) started`);
+  log.info(`${appConstants.APP_TITLE} (v${appConstants.APP_VERSION}) started`);
 
 }
 
@@ -109,6 +109,18 @@ export function openPlayList() {
 
 export function autoSelect() {
   console.log('auto-select clicked');
+}
+
+// ----------------------------------------------------------------------------------
+
+let isAppAlreadyQuitted = false;
+
+export function quitApp() {
+
+  if (!isAppAlreadyQuitted) {
+    isAppAlreadyQuitted = true;
+    app.quit();
+  }
 }
 
 // ----------------------------------------------------------------------------------

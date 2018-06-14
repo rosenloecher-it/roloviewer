@@ -1,11 +1,11 @@
-import * as actionType from './actionTypes';
+import * as appConstants from '../../common/appConstants';
 
 export const nextObject = () => ({
-  type: actionType.IMAGEPANE_NEXT_OBJECT
+  type: appConstants.ACTION_NEXT_OBJECT
 })
 
 export const prevObject = () => ({
-  type: actionType.IMAGEPANE_PREV_OBJECT
+  type: appConstants.ACTION_PREV_OBJECT
 })
 
 
