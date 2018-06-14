@@ -8,4 +8,7 @@ export const prevObject = () => ({
   type: constants.ACTION_PREV_OBJECT
 })
 
+export const showFiles = () => ({
+  type: constants.ACTION_SHOW_FILES
+})
 

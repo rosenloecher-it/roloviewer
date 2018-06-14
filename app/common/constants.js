@@ -76,3 +76,13 @@ export const ACTION_SHOW_MESSAGE = 'ACTION_SHOW_MESSAGE'; // error, warning, inf
 
 export const ACTION_NEXT_OBJECT = 'ACTION_NEXT_OBJECT';
 export const ACTION_PREV_OBJECT = 'ACTION_PREV_OBJECT';
+
+// --------------------------------------------------------------------------
+// messages
+
+export const MSG_TYPE_INFO = 1;
+export const MSG_TYPE_ERROR = 2;
+export const MSG_TYPE_WARNING = 3;
+
+
+export const ERROR_NOT_IMPLEMENTED = "ERROR: Not implemented!";

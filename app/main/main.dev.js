@@ -13,7 +13,7 @@
 import { app } from 'electron';
 import log from 'electron-log';
 import path from 'path';
-import configMain from './config/mainConfig';
+import config from './config/mainConfig';
 import * as operations from './mainOps';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
@@ -31,27 +31,27 @@ function allWindowsClosed() {
     operations.quitApp();
   }
 
-  configMain.saveConfig();
+  config.saveConfig();
 }
 
 // ----------------------------------------------------------------------------------
 
-configMain.initContext(process.env.NODE_ENV, process.env.DEBUG_PROD);
+config.initContext(process.env.NODE_ENV, process.env.DEBUG_PROD);
 
-configMain.parseArgs();
+config.parseArgs();
 
 // ----------------------------------------------------------------------------------
 
-if (!configMain.shouldExit()) {
+if (!config.shouldExit()) {
 
-  configMain.mergeConfigFiles();
+  config.mergeConfigFiles();
 
-  if (configMain.isProduction()) {
+  if (config.isProduction()) {
     const sourceMapSupport = require('source-map-support');
     sourceMapSupport.install();
   }
 
-  if (configMain.isDevelopment()) {
+  if (config.isDevelopment()) {
     require('electron-debug')();
     const p = path.join(__dirname, '..', 'app', 'node_modules');
     require('module').globalPaths.push(p);
@@ -62,7 +62,7 @@ if (!configMain.shouldExit()) {
 
   let installExtensions;
 
-  if (configMain.showDevTools()) {
+  if (config.showDevTools()) {
     installExtensions = async () => {
       const installer = require('electron-devtools-installer');
       const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -79,7 +79,7 @@ if (!configMain.shouldExit()) {
   app.on('window-all-closed', allWindowsClosed);
 
   app.on('ready', async () => {
-    if (configMain.showDevTools()) {
+    if (config.showDevTools()) {
       await installExtensions();
     }
 
@@ -92,11 +92,11 @@ if (!configMain.shouldExit()) {
   });
 } else {
 
-  if (configMain.isDevelopment()) {
+  if (config.isDevelopment()) {
     // else do nothing
     console.log("exit by app!");
   } else
-     process.exit(configMain.getExitCode());
+     process.exit(config.getExitCode());
 
 }
 

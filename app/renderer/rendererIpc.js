@@ -1,11 +1,12 @@
 import log from 'electron-log';
 import {ipcRenderer} from 'electron';
 import * as constants from "../common/constants";
-import configRenderer from './rendererConfig';
+import config from './rendererConfig';
+import * as ops from "./rendererOps";
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "ipc";
+const logKey = "rendererIpc";
 const ipcMyself = constants.IPC_RENDERER;
 
 // ----------------------------------------------------------------------------------
@@ -29,24 +30,23 @@ export function unregisterListener() {
 
 // ----------------------------------------------------------------------------------
 
-function listenRendererChannel(event, data, output) {
+function listenRendererChannel(event, ipcMsg, output) {
   const func = ".listenRendererChannel";
 
   try {
-    //log.debug("listenMainChannel: event=", event, "; input=", input, "; output=", output);
-    //log.debug(`${logKey}.listenMainChannel: input=`, input);
+    //log.debug(`${logKey}.listenRendererChannel: data=`, ipcMsg.payload);
 
-    if (!data || !data.destination || !data.type) {
-      log.error(`${logKey}${func} - invalid payload: `, data);
+    if (!ipcMsg || !ipcMsg.destination || !ipcMsg.type) {
+      log.error(`${logKey}${func} - invalid payload: `, ipcMsg);
       return;
     }
 
-    if (data.destination !== ipcMyself) {
-      log.error(`${logKey}${func} - invalid destination: `, data);
+    if (ipcMsg.destination !== ipcMyself) {
+      log.error(`${logKey}${func} - invalid destination: `, ipcMsg);
       return;
     }
 
-    dispatchRendererActions(data);
+    dispatchRendererActions(ipcMsg);
 
   } catch (err) {
     log.debug(`${logKey}${func} exception:`, err);
@@ -55,21 +55,26 @@ function listenRendererChannel(event, data, output) {
 
 // ----------------------------------------------------------------------------------
 
-function dispatchRendererActions(data) {
+function dispatchRendererActions(ipcMsg) {
   const func = ".dispatchRendererActions";
 
-  switch (data.type) {
+  switch (ipcMsg.type) {
     case constants.ACTION_HANDSHAKE_ANSWER:
-      ipcHandshakeAnswer(data); break;
+      ipcHandshakeAnswer(ipcMsg); break;
     case constants.ACTION_HANDSHAKE_REQUEST:
-      ipcHandshakeRequest(data); break;
+      ipcHandshakeRequest(ipcMsg); break;
 
     case constants.ACTION_PUSH_MAIN_CONFIG:
-      configRenderer.importData(data.payload);
+      config.importData(ipcMsg.payload);
       break;
 
+    case constants.ACTION_SHOW_MESSAGE:
+      ops.showMessage(ipcMsg); break;
+    case constants.ACTION_SHOW_FILES:
+      ops.showFiles(ipcMsg); break;
+
     default:
-      log.error(`${logKey}${func} - invalid type: `, data);
+      log.error(`${logKey}${func} - invalid type: `, ipcMsg);
       break;
   }
 }
@@ -90,48 +95,48 @@ function testHandshakes() {
 
 // ----------------------------------------------------------------------------------
 
-function ipcHandshakeAnswer(data) {
+function ipcHandshakeAnswer(ipcMsg) {
   const func = ".ipcHandshakeAnswer";
 
-  if (data.source !== ipcMyself)
-    log.debug(`${logKey}${func} - destination=${data.destination}; source=${data.source}; data=`, data.payload);
+  if (ipcMsg.source !== ipcMyself)
+    log.debug(`${logKey}${func} - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
   else
-    log.error(`${logKey}${func} - wrong source - destination=${data.destination}; source=${data.source}; data=`, data.payload);
+    log.error(`${logKey}${func} - wrong source - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
 }
 
 // ----------------------------------------------------------------------------------
 
-function ipcHandshakeRequest(data) {
+function ipcHandshakeRequest(ipcMsg) {
   const func = ".ipcHandshakeRequest";
 
-  log.debug(`${logKey}${func} - destination=${data.destination}; source=${data.source}; data=`, data.payload);
-  send(data.source, constants.ACTION_HANDSHAKE_ANSWER, data.payload);
+  log.debug(`${logKey}${func} - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
+  send(ipcMsg.source, constants.ACTION_HANDSHAKE_ANSWER, ipcMsg.payload);
 }
 
 // ----------------------------------------------------------------------------------
 
-function sendRaw(data) {
+function sendRaw(ipcMsg) {
   const func = ".sendRaw";
 
-  if (!data) {
+  if (!ipcMsg) {
     log.error(`${logKey}${func} - invalid payload: `);
     return;
   }
 
-  ipcRenderer.send(constants.IPC_MAIN, data);
+  ipcRenderer.send(constants.IPC_MAIN, ipcMsg);
 }
 
 // ----------------------------------------------------------------------------------
 
 function send(ipcTarget, ipcType, payload) {
-  const data = {
+  const ipcMsg = {
     type: ipcType,
     source: ipcMyself,
     destination: ipcTarget,
     payload: payload
   };
 
-  sendRaw(data);
+  sendRaw(ipcMsg);
 }
 
 // ----------------------------------------------------------------------------------

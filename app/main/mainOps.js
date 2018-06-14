@@ -2,11 +2,15 @@ import { app, crashReporter, shell } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
-import configMain from "./config/mainConfig";
+import config from "./config/mainConfig";
 import * as constants from "../common/constants";
 import * as windows from './windows';
 import {mkDirByPathSync} from "./config/configUtils";
 import * as ipc from './mainIpc';
+
+// ----------------------------------------------------------------------------------
+
+const logKey = "mainOps";
 
 // ----------------------------------------------------------------------------------
 
@@ -24,7 +28,7 @@ export function startCrashReporter() {
 export function configLogger() {
   // https://www.npmjs.com/package/electron-log
 
-  const logConfig = configMain.getLogConfig();
+  const logConfig = config.getLogConfig();
 
   if (logConfig.loglevel_file)
     log.transports.console.level = logConfig.loglevel_file;
@@ -61,7 +65,7 @@ export function toogleFullscreen() {
   if (window) {
     const isFullScreen = window.isFullScreen();
     if (!isFullScreen)
-      configMain.setMainWindowState(window);
+      config.setMainWindowState(window);
     window.setFullScreen(!isFullScreen);
   }
 }
@@ -71,9 +75,9 @@ export function toogleFullscreen() {
 export function toogleDevTools() {
   const window = windows.getMainWindow();
 
-  if (window && configMain.showDevTools()) {
-    const activeDevTools = configMain.activeDevTools();
-    configMain.setActiveDevTools(!activeDevTools);
+  if (window && config.showDevTools()) {
+    const activeDevTools = config.activeDevTools();
+    config.setActiveDevTools(!activeDevTools);
 
     if (activeDevTools)
       window.webContents.closeDevTools();
@@ -87,8 +91,8 @@ export function toogleDevTools() {
 export function restoreDevTools() {
   const window = windows.getMainWindow();
 
-  if (window && configMain.showDevTools()) {
-    if (configMain.activeDevTools()) {
+  if (window && config.showDevTools()) {
+    if (config.activeDevTools()) {
       window.webContents.openDevTools();
     }
   }
@@ -101,12 +105,14 @@ const flagRenderer = 2;
 const flagSendStart = 4;
 let statusChildsState = flagWorker | flagRenderer | flagSendStart;
 
-export function initChild(ipcDest) {
-  const data = configMain.exportConfig();
+export function initChild(ipcMsg) {
+
+  const ipcDest = ipcMsg.source;
+
+  const data = config.exportConfig();
   ipc.send(ipcDest, constants.ACTION_PUSH_MAIN_CONFIG, data);
 
-  // waiting for 2 children - don't know which one comes last => send last opened diror slideshow
-
+  // waiting for 2 children - don't know which one comes last => send last opened dir or slideshow
   if (constants.IPC_RENDERER === ipcDest)
     statusChildsState &= ~flagRenderer;
   if (constants.IPC_WORKER === ipcDest)
@@ -114,11 +120,10 @@ export function initChild(ipcDest) {
 
   if (statusChildsState === flagSendStart) {
     statusChildsState = 0;
-
-    const lastContainer = configMain.getLastContainer();
+    const container = config.getLastContainer();
 
     setTimeout(() => {
-      ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { lastContainer });
+      ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container });
     }, 100)
 
   }
@@ -172,6 +177,29 @@ export function showAbout() {
 export function learnMore() {
   console.log('learnMore');
   shell.openExternal('https://electronjs.org');
+}
+
+// ----------------------------------------------------------------------------------
+
+export function showMessage(msgType, msgText) {
+
+  const payload = { msgType, msgText };
+
+  // TODO
+  // ipc.send(constants.IPC_RENDERER, constants.ACTION_SHOW_MESSAGE, payload);
+}
+
+// ----------------------------------------------------------------------------------
+
+export function forwardShowFiles(ipcMsg) {
+
+  log.debug(`${logKey}.forwardShowFiles: ${ipcMsg.payload.container}`);
+
+  config.setLastContainer(ipcMsg.payload.container);
+
+  ipc.send(constants.IPC_RENDERER, constants.ACTION_SHOW_FILES, ipcMsg.payload);
+
+
 }
 
 // ----------------------------------------------------------------------------------
