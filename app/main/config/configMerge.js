@@ -120,9 +120,11 @@ export function mergeDataMainWindow(dataIn, dataFromCli, dataFromFileIn) {
   if (!dataFromFile.mainwindow)
     dataFromFile.mainwindow = {};
 
+  data.system.saveConfigWin = true;
+
   if (dataFromCli.fullscreen && typeof(dataFromCli.fullscreen) === typeof(true)) {
     data.mainwindow.fullscreen = true;
-    data.system.saveConfigWin = true;
+    data.system.saveConfigWin = false;
   }
   // TODO only one config file
   // data.slideshow.fullscreen = configUtils.mergeConfigItem(constants.DEFCONF_FULLSCREEN,

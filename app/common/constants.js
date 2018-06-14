@@ -74,8 +74,8 @@ export const ACTION_SHOW_MESSAGE = 'ACTION_SHOW_MESSAGE'; // error, warning, inf
 // export const IPC_CMD_RE_INIT = 'IPC_MR_INIT';
 
 
-export const ACTION_NEXT_OBJECT = 'ACTION_NEXT_OBJECT';
-export const ACTION_PREV_OBJECT = 'ACTION_PREV_OBJECT';
+export const ACTION_GO_NEXT = 'ACTION_GO_NEXT';
+export const ACTION_GO_BACK = 'ACTION_GO_BACK';
 
 // --------------------------------------------------------------------------
 // messages

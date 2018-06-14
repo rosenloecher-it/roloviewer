@@ -102,6 +102,7 @@ export class ConfigMain {
   // ........................................................
 
   saveConfig() {
+
     if (this.data.system.saveConfigWin) {
       const fileConfig = configUtils.getDefaultConfigPathWin();
       configWin.saveConfigWindow(fileConfig, this.data.mainwindow);

@@ -3,11 +3,14 @@ import thunk from 'redux-thunk';
 import {createHashHistory} from "history";
 import {routerMiddleware} from "react-router-redux";
 import {createLogger} from "redux-logger";
+import log from 'electron-log';
 import rootReducer from "./reducerRoot";
 
 const history = createHashHistory();
 
-const configureStore = (initialState?: counterStateType) => {
+const store = configureStore();
+
+function configureStore(initialState?: counterStateType) {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
@@ -67,7 +70,7 @@ const configureStore = (initialState?: counterStateType) => {
   return store;
 };
 
-export default { configureStore, history };
+export default { store, history };
 
 
 

@@ -21,16 +21,26 @@ import * as mainIpc from './mainIpc';
 
 // ----------------------------------------------------------------------------------
 
+const logKey = "main";
+
+// ----------------------------------------------------------------------------------
+
 function allWindowsClosed() {
 
-  mainIpc.unregisterListener();
+  log.debug(`${logKey}.allWindowsClosed`);
 
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== 'darwin') {
     operations.quitApp();
   }
+}
 
+// ----------------------------------------------------------------------------------
+
+function onAppWillQuit() {
+  log.debug(`${logKey}.onAppWillQuit`);
+  mainIpc.unregisterListener();
   config.saveConfig();
 }
 
@@ -77,6 +87,8 @@ if (!config.shouldExit()) {
   mainMenu.createMenu();
 
   app.on('window-all-closed', allWindowsClosed);
+  app.on('will-quit', onAppWillQuit);
+
 
   app.on('ready', async () => {
     if (config.showDevTools()) {

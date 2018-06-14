@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
 import ReactCSSTransitionReplace from 'react-css-transition-replace';
 import {connect} from "react-redux";
+import log from 'electron-log';
 import * as cssConstants from '../style/cssConstants';
-import * as action from "../store/actionImagePane";
+import * as actions from "../store/actionsImagePane";
+
+// ----------------------------------------------------------------------------------
+
+const logKey = "imapePane";
+
+// ----------------------------------------------------------------------------------
 
 class ImagePane extends Component {
 
@@ -11,41 +18,43 @@ class ImagePane extends Component {
 
     this.onNextObject = this.onNextObject.bind(this);
     this.onMouseWheel = this.onMouseWheel.bind(this);
-
   }
 
   componentDidMount() {
-    console.log("componentDidMount");
-    return window.addEventListener('scroll', this.onScroll);
+    window.addEventListener('scroll', this.onScroll);
   }
 
   componentWillUnmount() {
-    console.log("componentWillUnmount");
-    return window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('scroll', this.onScroll);
   }
 
   onNextObject() {
-    console.log("onNextObject", this.props.showIndex);
-    this.props.dispatch(action.nextObject());
+    this.props.dispatch(actions.goNext());
   }
 
   onMouseWheel(event) {
-    console.log("onMouseWheel", event.deltaY);
-    this.props.dispatch(action.nextObject());
-    // if(event.deltaY > 0) {
-    //   console.log("onMouseWheel ++");
-    // } else if(event.deltaY < 0) {
-    //   console.log("onMouseWheel --");
-    // }
+    if (event.deltaY > 0) {
+      //log.debug(`${logKey}.onMouseWheel: goNext`, event.deltaY);
+      this.props.dispatch(actions.goNext());
+    } else if (event.deltaY < 0) {
+      //log.debug(`${logKey}.onMouseWheel: goBack`, event.deltaY);
+      this.props.dispatch(actions.goBack());
+    }
   }
 
   render() {
-    const imagePath1 = "file:///home/data/projects/electron/images/20151011-1053-5674.jpg";
-    const imagePath2 = "file:/home/data/projects/electron/images/20180520-1505-2947d.jpg";
 
-    const imagePath = this.props.showIndex % 2 === 0 ? imagePath1 : imagePath2 ;
+    //log.debug(`${logKey}.render size:`, window.innerWidth, window.innerHeight);
 
-      console.log("imagePath", imagePath);
+    const length = this.props.items.length;
+
+    let imagePath = null;
+    if (this.props.showIndex >= 0 && this.props.showIndex < length) {
+      const item = this.props.items[this.props.showIndex];
+      imagePath = item.file;
+    }
+    const imageKey = (!imagePath ? "undefined" : imagePath);
+    log.debug(`${logKey}.render:`, imagePath);
 
 
     return (
@@ -59,10 +68,8 @@ class ImagePane extends Component {
         <img
           className={cssConstants.CSS_IMAGEPANE}
           src={imagePath}
-          key={imagePath}
-          onClick={() => {
-           this.onNextObject();
-          }}
+          key={imageKey}
+          onClick={() => { this.onNextObject(); }}
           onWheel={this.onMouseWheel}
           onScroll={this.onScroll}
         />
@@ -75,6 +82,9 @@ class ImagePane extends Component {
 
 const mapStateToProps = state => ({
   showIndex: state.imagePane.showIndex,
+  items: state.imagePane.items,
+  container: state.imagePane.container
+
 });
 
 export default connect( mapStateToProps )(ImagePane);
