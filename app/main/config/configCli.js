@@ -18,7 +18,7 @@ function storeCliExitCode(exitCode) {
 // ----------------------------------------------------------------------------------
 
 function createCliParser() {
-  const defaultSlideshowConfig = configUtils.getDefaultConfigPathStd();
+  const defaultSlideshowConfig = configUtils.getDefaultConfigPath();
 
   return argly
     .createParser({

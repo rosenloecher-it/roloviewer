@@ -36,7 +36,7 @@ export function createMainWindow() {
   if (mainWindow)
     return;
 
-  config.initWindowConfig();
+  config.checkMainWindowBounds();
 
   const windowState = config.getMainWindowState();
 

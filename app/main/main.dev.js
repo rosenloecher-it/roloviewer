@@ -54,7 +54,7 @@ config.parseArgs();
 
 if (!config.shouldExit()) {
 
-  config.mergeConfigFiles();
+  config.mergeConfig();
 
   if (config.isProduction()) {
     const sourceMapSupport = require('source-map-support');

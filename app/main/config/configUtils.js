@@ -11,17 +11,9 @@ export function getConfigPath() {
 
 //----------------------------------------------------------------------------
 
-export function getDefaultConfigPathStd() {
+export function getDefaultConfigPath() {
   const configPath = getConfigPath();
   const configFile = path.join(configPath, constants.CONFIG_STANDARD);
-  return configFile;
-}
-
-//----------------------------------------------------------------------------
-
-export function getDefaultConfigPathWin() {
-  const configPath = getConfigPath();
-  const configFile = path.join(configPath, constants.CONFIG_WINDOW);
   return configFile;
 }
 
@@ -189,12 +181,39 @@ export function mergeStringItem(valueDef, valuePrio1, valuePrio2) {
 
 // ----------------------------------------------------------------------------------
 
+export function setWindowState(configIn, window) {
+
+  const config = configIn; // change by reference
+
+  if (!window || window.isMinimized())
+    return;
+
+  config.fullscreen = window.isFullScreen();
+
+  if (!config.fullscreen) {
+
+    config.maximized = window.isMaximized();
+
+    if (!config.maximized) {
+      const bounds = window.getBounds();
+      config.height = bounds.height;
+      config.width = bounds.width;
+      config.x = bounds.x;
+      config.y = bounds.y;
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
 export function findExifTool(dataFromFile) {
 
   if (dataFromFile)
     return dataFromFile;
   else
-    return "todo-search-fs";
+    return null;
+
+  // TODO
 }
 
 // ----------------------------------------------------------------------------------
@@ -224,3 +243,4 @@ export function mkDirByPathSync(targetDir, {isRelativeToScript = false} = {}) {
 }
 
 // ----------------------------------------------------------------------------------
+

@@ -30,19 +30,19 @@ export function configLogger() {
 
   const logConfig = config.getLogConfig();
 
-  if (logConfig.loglevel_file)
-    log.transports.console.level = logConfig.loglevel_file;
+  if (logConfig.logLevelFile)
+    log.transports.console.level = logConfig.logLevelFile;
 
   if (logConfig.logfile) {
-    if (logConfig.loglevel_console)
-      log.transports.file.level = logConfig.loglevel_console;
+    if (logConfig.logLevelConsole)
+      log.transports.file.level = logConfig.logLevelConsole;
 
     const parentDir = path.dirname(logConfig.logfile);
     if (!fs.existsSync(parentDir)) {
       mkDirByPathSync(parentDir);
     }
 
-    if (logConfig.log_delete_on_start && fs.existsSync(logConfig.logfile)) {
+    if (logConfig.logDeleteOnStart && fs.existsSync(logConfig.logfile)) {
       fs.unlinkSync(logConfig.logfile);
       if (fs.existsSync(logConfig.logfile))
         console.log(`ERROR: cannot delete file ${logConfig.logfile}!`);

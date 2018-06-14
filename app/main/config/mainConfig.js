@@ -5,7 +5,6 @@ import deepmerge from 'deepmerge';
 import parseCliArgs from "./configCli";
 import * as configIni from "./configIni";
 import * as constants from '../../common/constants';
-import * as configWin from "./configWin";
 import * as configUtils from "./configUtils";
 import * as configMerge from "./configMerge";
 import configMain from "./mainConfig";
@@ -25,7 +24,6 @@ export class ConfigMain {
 
     this.dataCli = {};
     this.data = ConfigMain.createDefaultData();
-
   }
 
   // ........................................................
@@ -33,11 +31,11 @@ export class ConfigMain {
   static createDefaultData() {
     const data = {
       context: {},
-      start: {},
+      crawler: {},
       mainwindow: {},
-      system: {},
       slideshow: {},
-      crawler: {}
+      start: {},
+      system: {}
     };
 
     return data;
@@ -46,10 +44,10 @@ export class ConfigMain {
   // ........................................................
 
   initContext(NODE_ENV, DEBUG_PROD) {
-    this.data.system.isDevelopment = NODE_ENV === 'development' || DEBUG_PROD === 'true';
-    this.data.system.isProduction = NODE_ENV === 'production';
-    this.data.system.isTest = NODE_ENV === 'test';
-    this.data.system.showDevTools = !this.data.system.isProduction || DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
+    this.data.context.isDevelopment = NODE_ENV === 'development' || DEBUG_PROD === 'true';
+    this.data.context.isProduction = NODE_ENV === 'production';
+    this.data.context.isTest = NODE_ENV === 'test';
+    this.data.context.showDevTools = !this.data.system.isProduction || DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
   }
 
   // ........................................................
@@ -75,7 +73,7 @@ export class ConfigMain {
       } else
         this.dataCli = {};
     } catch (err) {
-      console.log("ERROR ConfigMain.parseArgs: ", err)
+      log.error(`${logKey}.parseArgs - exception`, err);
     } finally {
       if (!this.dataCli)
         this.dataCli = {};
@@ -85,59 +83,94 @@ export class ConfigMain {
 
   // ........................................................
 
-    initWindowConfig() {
-    const fileConfig = configUtils.getDefaultConfigPathWin();
-
+  checkMainWindowBounds() {
     const screenSize = electron.screen.getPrimaryDisplay().size;
-    // log.debug("initWindowConfig - screenSize: w=", screenSize.width + ", h=" + screenSize.height);
 
-    let data = configWin.loadConfigWindow(fileConfig);
-    if (data && !configWin.checkConfigWin(data, screenSize)) {
-      data = configWin.getDefaultConfigWin(screenSize);
+    const config = this.data.mainwindow;
+
+    let resetBounds = true;
+    const space = 100;
+    do {
+      if (!config.x || config.x < 0 || config.x >= screenSize.width - space)
+        break;
+      if (!config.y || config.y < 0 || config.y >= screenSize.height - space)
+        break;
+      if (!config.height || config.height < constants.DEFCONF_HEIGHT_DEF || config.height > screenSize.height)
+        break;
+      if (!config.width || config.width < constants.DEFCONF_WIDTH_DEF || config.width > screenSize.width)
+        break;
+
+      resetBounds = false;
+
+    } while (false);
+
+    if (resetBounds) {
+      config.height = screenSize.height < constants.DEFCONF_HEIGHT_DEF ? screenSize.height : constants.DEFCONF_HEIGHT_DEF;
+      config.width = screenSize.width < constants.DEFCONF_WIDTH_DEF ? screenSize.width : constants.DEFCONF_WIDTH_DEF;
+
+      config.x = (screenSize.width - config.width) / 2;
+      config.y = (screenSize.height - config.height) / 2;
     }
 
-    this.data.mainwindow = Object.assign({}, data);
+    // don't reset: config.maximized + config.fullscreen + config.activeDevTools
+
   }
 
   // ........................................................
 
   saveConfig() {
 
-    if (this.data.system.saveConfigWin) {
-      const fileConfig = configUtils.getDefaultConfigPathWin();
-      configWin.saveConfigWindow(fileConfig, this.data.mainwindow);
-    }
-    if (this.data.system.saveConfigStd) {
-      // TODO save to: this.data.system.configStd
+    if (this.data.context.doSaveConfig) {
+      const fileConfig = configUtils.getDefaultConfigPath();
+
+      try {
+
+
+        const dataClone = this.exportConfig();
+
+        delete dataClone.context;
+
+        if (dataClone.system.logfile === configUtils.getDefaultLogFile())
+          dataClone.system.logfile = ".";
+
+        configIni.saveIniFile(fileConfig, dataClone);
+
+      } catch (err) {
+        log.error(`${logKey}.saveConfig (${fileConfig}):`, err);
+      }
     }
   }
 
   // ........................................................
 
-  mergeConfigFileStandard() {
+  mergeConfig() {
+    const func = ".mergeConfig";
 
-    if (this.dataCli.configStd) {
-      if (fs.existsSync(this.dataCli.config))
-        this.data.system.configStd = this.dataCli.config;
-      else {
-        console.log(`ConfigMain.mergeConfigFiles: use default config - not exists ${this.dataCli.config}`);
+    const setSys = this.data.system;
+
+    if (this.dataCli.config) {
+      if (fs.existsSync(this.dataCli.config)) {
+        setSys.config = this.dataCli.config;
+        this.data.context.doSaveConfig = true;
+      } else {
+        log.error(`${logKey}${func} - use default config - not exists ${this.dataCli.config}`);
       }
     }
 
-    if (!this.data.config) {
-      this.data.system.configStd = configUtils.getDefaultConfigPathStd();
-      this.data.system.saveConfigStd = true;
+    if (!setSys.config) {
+      setSys.config = configUtils.getDefaultConfigPath();
+      this.data.context.doSaveConfig = true;
     }
 
     let dataFromFile;
     try {
-      dataFromFile = configIni.loadIniFile(this.data.system.configStd);
+      dataFromFile = configIni.loadIniFile(setSys.config);
     } catch (err) {
-      console.log("ERROR ConfigMain.mergeConfigFiles (loadFile): ", err)
-      dataFromFile = null;
+      log.error(`${logKey}${func} loading ${this.dataCli.config} - exception: `, err);
+      dataFromFile = {};
     }
 
-    // console.log("mergeConfigFiles - dataFromFile", dataFromFile);
+    // log.debug("mergeConfigFiles - dataFromFile", dataFromFile);
 
     configMerge.mergeDataStart(this.data, this.dataCli, dataFromFile);
     configMerge.mergeDataSystem(this.data, this.dataCli, dataFromFile);
@@ -145,15 +178,7 @@ export class ConfigMain {
     configMerge.mergeDataCrawler(this.data, this.dataCli, dataFromFile);
     configMerge.mergeDataMainWindow(this.data, this.dataCli, dataFromFile);
 
-    // console.log("mergeConfigFiles", this.data);
-  }
-
-  // ........................................................
-
-  mergeConfigFiles() {
-
-    this.mergeConfigFileStandard();
-
+    // log.debug("mergeConfigFiles", this.data);
   }
 
   // ........................................................
@@ -165,10 +190,10 @@ export class ConfigMain {
 
   // ........................................................
 
-  isDevelopment() { return this.data.system.isDevelopment; }
-  isProduction() { return this.data.system.isProduction; }
-  isTest() { return this.data.system.isTest; }
-  showDevTools() { return this.data.system.showDevTools; }
+  isDevelopment() { return this.data.context.isDevelopment; }
+  isProduction() { return this.data.context.isProduction; }
+  isTest() { return this.data.context.isTest; }
+  showDevTools() { return this.data.context.showDevTools; }
 
   // ........................................................
 
@@ -178,10 +203,10 @@ export class ConfigMain {
 
     const source = this.data.system;
     return {
-      loglevel_file: source.loglevel_file,
-      loglevel_console: source.loglevel_console,
+      logLevelFile: source.logLevelFile,
+      logLevelConsole: source.logLevelConsole,
       logfile: source.logfile,
-      log_delete_on_start: source.log_delete_on_start
+      logDeleteOnStart: source.logDeleteOnStart
     }
   }
 
@@ -204,7 +229,7 @@ export class ConfigMain {
 
   setMainWindowState(window) {
     if (window)
-      configWin.setWindowState(this.data.mainwindow, window);
+      configUtils.setWindowState(this.data.mainwindow, window);
   }
 
   // ........................................................

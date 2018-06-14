@@ -19,8 +19,9 @@ export class ConfigWorker {
 
   static createDefaultData() {
     const data = {
-      system: {},
+      context: {},
       crawler: {},
+      system: {}
     };
 
     return data;
@@ -30,22 +31,23 @@ export class ConfigWorker {
 
   importData(dataUpdate) {
 
-    if (dataUpdate.system) {
-      this.data.system = deepmerge.all([ dataUpdate.system, {} ]);
-    }
+    if (dataUpdate.context)
+      this.data.context = deepmerge.all([ dataUpdate.context, {} ]);
 
-    if (dataUpdate.crawler) {
+    if (dataUpdate.system)
+      this.data.system = deepmerge.all([ dataUpdate.system, {} ]);
+
+    if (dataUpdate.crawler)
       this.data.crawler = deepmerge.all([ dataUpdate.crawler, {} ]);
-    }
 
   }
 
   // ........................................................
 
-  isDevelopment() { return this.data.system.isDevelopment; }
-  isProduction() { return this.data.system.isProduction; }
-  isTest() { return this.data.system.isTest; }
-  showDevTools() { return this.data.system.showDevTools; }
+  isDevelopment() { return this.data.context.isDevelopment; }
+  isProduction() { return this.data.context.isProduction; }
+  isTest() { return this.data.context.isTest; }
+  showDevTools() { return this.data.context.showDevTools; }
 
   // ........................................................
 

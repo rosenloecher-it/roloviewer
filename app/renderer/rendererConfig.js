@@ -19,8 +19,9 @@ export class ConfigRenderer {
 
   static createDefaultData() {
     const data = {
-      system: {},
-      slideshow: {}
+      context: {},
+      slideshow: {},
+      system: {}
     };
 
     return data;
@@ -30,22 +31,22 @@ export class ConfigRenderer {
 
   importData(dataUpdate) {
 
-    if (dataUpdate.system) {
-      this.data.system = deepmerge.all([ dataUpdate.system, {} ]);
-    }
+    if (dataUpdate.context)
+      this.data.context = deepmerge.all([ dataUpdate.context, {} ]);
 
-    if (dataUpdate.slideshow) {
+    if (dataUpdate.slideshow)
       this.data.slideshow = deepmerge.all([ dataUpdate.slideshow, {} ]);
-    }
 
+    if (dataUpdate.system)
+      this.data.system = deepmerge.all([ dataUpdate.system, {} ]);
   }
 
   // ........................................................
 
-  isDevelopment() { return this.data.system.isDevelopment; }
-  isProduction() { return this.data.system.isProduction; }
-  isTest() { return this.data.system.isTest; }
-  showDevTools() { return this.data.system.showDevTools; }
+  isDevelopment() { return this.data.context.isDevelopment; }
+  isProduction() { return this.data.context.isProduction; }
+  isTest() { return this.data.context.isTest; }
+  showDevTools() { return this.data.context.showDevTools; }
 
   // ........................................................
 
