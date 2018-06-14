@@ -1,6 +1,6 @@
-import * as workerIpc from './workerIpc';
+import * as ipc from './workerIpc';
 
-workerIpc.registerListener();
+ipc.registerListener();
 
 
 

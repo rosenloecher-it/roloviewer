@@ -1,11 +1,11 @@
 import log from 'electron-log';
 import {ipcRenderer} from 'electron';
 import * as constants from "../common/constants";
-import configWorker from './workerConfig';
+import config from './workerConfig';
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "workerIpc";
+const logKey = "ipc";
 const ipcMyself = constants.IPC_WORKER;
 
 // ----------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ function dispatchWorkerActions(data) {
       ipcHandshakeRequest(data); break;
 
     case constants.ACTION_PUSH_MAIN_CONFIG:
-      configWorker.importData(data.payload);
+      config.importData(data.payload);
       break;
 
     case constants.ACTION_OPEN:

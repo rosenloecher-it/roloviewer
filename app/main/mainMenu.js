@@ -1,6 +1,6 @@
 import { app, Menu } from 'electron';
-import * as operations from "./mainOperations";
-import configMain from "./config/mainConfig";
+import * as ops from "./mainOps";
+import config from "./config/mainConfig";
 
 // --------------------------------------------------------------------------------
 
@@ -11,23 +11,23 @@ export function createMenu() {
       {
         label: 'Open directory',
         accelerator: 'CmdOrCtrl+O',
-        click: () => { operations.openDirectory() }
+        click: () => { ops.openDirectory() }
       },
       {
         label: 'Open playlist ',
         accelerator: 'Shift+CmdOrCtrl+O',
-        click: () => { operations.openPlayList() }
+        click: () => { ops.openPlayList() }
       },
       {
         label: 'Auto-select',
         accelerator: 'CmdOrCtrl+A',
-        click: () => { operations.autoSelect() }
+        click: () => { ops.autoSelect() }
       },
       { type: 'separator' },
       {
         label: 'Exit',
         accelerator: 'ESC',
-        click() { operations.quitApp(); }
+        click() { ops.quitApp(); }
       }
     ]
   };
@@ -42,12 +42,12 @@ export function createMenu() {
       {
         label: 'Toogkle fullscreen',
         accelerator: 'F11',
-        click: () => { operations.toogleFullscreen(); }
+        click: () => { ops.toogleFullscreen(); }
       }
     ]
   };
 
-  if (configMain.showDevTools()) {
+  if (config.showDevTools()) {
     menuSectionView.submenu.push({ type: 'separator' });
 
     menuSectionView.submenu.push({
@@ -55,7 +55,7 @@ export function createMenu() {
       accelerator: 'F12',
       click(item, focusedWindow) {
         if (focusedWindow) {
-          operations.toogleDevTools();
+          ops.toogleDevTools();
         }
       }
     });
@@ -67,16 +67,16 @@ export function createMenu() {
       {
         label: 'Show help',
         accelerator: 'F1',
-        click() { operations.showHelp(); }
+        click() { ops.showHelp(); }
       },
       {
         label: 'Learn More',
-        click() { operations.learnMore(); }
+        click() { ops.learnMore(); }
       },
       { type: 'separator' },
       {
         label: 'About ...',
-        click() { operations.showAbout(); }
+        click() { ops.showAbout(); }
       }
     ]
   };

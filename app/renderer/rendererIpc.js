@@ -5,7 +5,7 @@ import configRenderer from './rendererConfig';
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "rendererIpc";
+const logKey = "ipc";
 const ipcMyself = constants.IPC_RENDERER;
 
 // ----------------------------------------------------------------------------------

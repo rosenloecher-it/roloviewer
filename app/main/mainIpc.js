@@ -2,11 +2,11 @@ import { ipcMain } from 'electron';
 import log from 'electron-log';
 import * as constants from "../common/constants";
 import * as windows from './windows';
-import * as operations from "./mainOperations";
+import * as operations from "./mainOps";
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "mainIpc";
+const logKey = "ipc";
 const ipcMyself = constants.IPC_MAIN;
 
 // ----------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ import { AppContainer } from 'react-hot-loader';
 import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
 import './style/app.global.scss';
-import * as rendererIpc from './rendererIpc';
+import * as ipc from './rendererIpc';
 
 const store = configureStore();
 
@@ -15,7 +15,7 @@ render(
   document.getElementById('root')
 );
 
-rendererIpc.registerListener();
+ipc.registerListener();
 
 if (module.hot) {
   module.hot.accept('./containers/Root', () => {

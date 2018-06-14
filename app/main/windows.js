@@ -1,8 +1,8 @@
 import { BrowserWindow, Menu } from 'electron';
 import path from 'path';
 import log from 'electron-log';
-import * as operations from "./mainOperations";
-import configMain from "./config/mainConfig";
+import * as ops from "./mainOps";
+import config from "./config/mainConfig";
 import * as constants from "../common/constants";
 
 let mainWindow = null;
@@ -19,14 +19,14 @@ export function getMainWindow() {
 function closeMainWindow() {
 
   log.debug("closeMainWindow");
-  operations.quitApp();
+  ops.quitApp();
 }
 
 // ----------------------------------------------------------------------------------
 
 function storeMainWindowState() {
   if (mainWindow)
-    configMain.setMainWindowState(mainWindow);
+    config.setMainWindowState(mainWindow);
 }
 
 // ----------------------------------------------------------------------------------
@@ -36,9 +36,9 @@ export function createMainWindow() {
   if (mainWindow)
     return;
 
-  configMain.initWindowConfig();
+  config.initWindowConfig();
 
-  const windowState = configMain.getMainWindowState();
+  const windowState = config.getMainWindowState();
 
   mainWindow = new BrowserWindow({
     width: windowState.width,
@@ -67,8 +67,8 @@ export function createMainWindow() {
 
     mainWindow.on('close', closeMainWindow);
 
-    if (configMain.showDevTools()) {
-      operations.restoreDevTools();
+    if (config.showDevTools()) {
+      ops.restoreDevTools();
 
       // add inspect element on right click mainMenu
       mainWindow.webContents.on('context-mainMenu', (e, props) => {
@@ -104,7 +104,7 @@ export function getWorkerWindow() {
 
 function closeWorkerWindow() {
   log.debug("closeWorkerWindow");
-  operations.quitApp();
+  ops.quitApp();
 }
 
 // ----------------------------------------------------------------------------------

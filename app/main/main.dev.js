@@ -14,7 +14,7 @@ import { app } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import configMain from './config/mainConfig';
-import * as operations from './mainOperations';
+import * as operations from './mainOps';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
 import * as mainIpc from './mainIpc';

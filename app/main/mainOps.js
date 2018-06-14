@@ -6,7 +6,7 @@ import configMain from "./config/mainConfig";
 import * as constants from "../common/constants";
 import * as windows from './windows';
 import {mkDirByPathSync} from "./config/configUtils";
-import * as mainIpc from './mainIpc';
+import * as ipc from './mainIpc';
 
 // ----------------------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ let statusChildsState = flagWorker | flagRenderer | flagSendStart;
 
 export function initChild(ipcDest) {
   const data = configMain.exportConfig();
-  mainIpc.send(ipcDest, constants.ACTION_PUSH_MAIN_CONFIG, data);
+  ipc.send(ipcDest, constants.ACTION_PUSH_MAIN_CONFIG, data);
 
   // waiting for 2 children - don't know which one comes last => send last opened diror slideshow
 
@@ -118,7 +118,7 @@ export function initChild(ipcDest) {
     const lastContainer = configMain.getLastContainer();
 
     setTimeout(() => {
-      mainIpc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { lastContainer });
+      ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { lastContainer });
     }, 100)
 
   }
