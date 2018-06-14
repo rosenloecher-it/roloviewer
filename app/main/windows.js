@@ -1,8 +1,8 @@
 import { BrowserWindow, Menu } from 'electron';
 import path from 'path';
 import log from 'electron-log';
-import * as operations from "./operations";
-import configMain from "./config/configMain";
+import * as operations from "./mainOperations";
+import configMain from "./config/mainConfig";
 import * as constants from "../common/constants";
 
 let mainWindow = null;
@@ -26,7 +26,7 @@ function closeMainWindow() {
 
 function storeMainWindowState() {
   if (mainWindow)
-    configMain.setWindowState(mainWindow);
+    configMain.setMainWindowState(mainWindow);
 }
 
 // ----------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ export function createMainWindow() {
 
   configMain.initWindowConfig();
 
-  const windowState = configMain.getWindowState();
+  const windowState = configMain.getMainWindowState();
 
   mainWindow = new BrowserWindow({
     width: windowState.width,

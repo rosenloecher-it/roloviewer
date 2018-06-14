@@ -1,6 +1,7 @@
 import log from 'electron-log';
 import {ipcRenderer} from 'electron';
 import * as constants from "../common/constants";
+import configWorker from './workerConfig';
 
 // ----------------------------------------------------------------------------------
 
@@ -16,7 +17,7 @@ export function registerListener() {
   if (constants.DEBUG_IPC_HANDSHAKE)
     testHandshakes();
 
-  sendIpc(constants.IPC_MAIN, constants.ACTION_READY, null);
+  send(constants.IPC_MAIN, constants.ACTION_READY, null);
 }
 
 // ----------------------------------------------------------------------------------
@@ -65,7 +66,11 @@ function dispatchWorkerActions(data) {
     case constants.ACTION_HANDSHAKE_REQUEST:
       ipcHandshakeRequest(data); break;
 
-    case constants.ACTION_SETTINGS_TO_CHILD:
+    case constants.ACTION_PUSH_MAIN_CONFIG:
+      configWorker.importData(data.payload);
+      break;
+
+    case constants.ACTION_OPEN:
       // TODO
       break;
 
@@ -83,7 +88,7 @@ function testHandshakes() {
   setTimeout(() => {
     for (const ipcTarget of [ constants.IPC_MAIN, constants.IPC_RENDERER ]) {
       const payload = Math.floor(1000 * Math.random());
-      sendIpc(ipcTarget, constants.ACTION_HANDSHAKE_REQUEST, payload);
+      send(ipcTarget, constants.ACTION_HANDSHAKE_REQUEST, payload);
       log.debug(`${logKey}${func} - destination=${ipcTarget}; data=`, payload);
     }
   }, 2000)
@@ -106,13 +111,13 @@ function ipcHandshakeRequest(data) {
   const func = ".ipcHandshakeRequest";
 
   log.debug(`${logKey}${func} - destination=${data.destination}; source=${data.source}; data=`, data.payload);
-  sendIpc(data.source, constants.ACTION_HANDSHAKE_ANSWER, data.payload);
+  send(data.source, constants.ACTION_HANDSHAKE_ANSWER, data.payload);
 }
 
 // ----------------------------------------------------------------------------------
 
-function sendIpcRaw(data) {
-  const func = ".sendIpcRaw";
+function sendRaw(data) {
+  const func = ".sendRaw";
 
   if (!data) {
     log.error(`${logKey}${func} - invalid payload: `);
@@ -124,7 +129,7 @@ function sendIpcRaw(data) {
 
 // ----------------------------------------------------------------------------------
 
-function sendIpc(ipcTarget, ipcType, payload) {
+function send(ipcTarget, ipcType, payload) {
   const data = {
     type: ipcType,
     source: ipcMyself,
@@ -132,7 +137,7 @@ function sendIpc(ipcTarget, ipcType, payload) {
     payload: payload
   };
 
-  sendIpcRaw(data);
+  sendRaw(data);
 }
 
 // ----------------------------------------------------------------------------------

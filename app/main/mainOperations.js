@@ -2,11 +2,11 @@ import { app, crashReporter, shell } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
-import configMain from "./config/configMain";
+import configMain from "./config/mainConfig";
 import * as constants from "../common/constants";
 import * as windows from './windows';
 import {mkDirByPathSync} from "./config/configUtils";
-import * as mainIpc from './ipc/mainIpc';
+import * as mainIpc from './mainIpc';
 
 // ----------------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ export function toogleFullscreen() {
   if (window) {
     const isFullScreen = window.isFullScreen();
     if (!isFullScreen)
-      configMain.setWindowState(window);
+      configMain.setMainWindowState(window);
     window.setFullScreen(!isFullScreen);
   }
 }
@@ -96,9 +96,33 @@ export function restoreDevTools() {
 
 // ----------------------------------------------------------------------------------
 
+const flagWorker = 1;
+const flagRenderer = 2;
+const flagSendStart = 4;
+let statusChildsState = flagWorker | flagRenderer | flagSendStart;
+
 export function initChild(ipcDest) {
   const data = configMain.exportConfig();
-  mainIpc.sendIpc(ipcDest, constants.ACTION_SETTINGS_TO_CHILD, data);
+  mainIpc.send(ipcDest, constants.ACTION_PUSH_MAIN_CONFIG, data);
+
+  // waiting for 2 children - don't know which one comes last => send last opened diror slideshow
+
+  if (constants.IPC_RENDERER === ipcDest)
+    statusChildsState &= ~flagRenderer;
+  if (constants.IPC_WORKER === ipcDest)
+    statusChildsState &= ~flagWorker;
+
+  if (statusChildsState === flagSendStart) {
+    statusChildsState = 0;
+
+    const lastContainer = configMain.getLastContainer();
+
+    setTimeout(() => {
+      mainIpc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { lastContainer });
+    }, 100)
+
+  }
+
 }
 
 // ----------------------------------------------------------------------------------

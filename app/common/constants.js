@@ -58,7 +58,12 @@ export const ACTION_HANDSHAKE_ANSWER = 'ACTION_HANDSHAKE_ANSWER';
 
 export const ACTION_READY = 'ACTION_READY'; // worker, renderer to main
 
-export const ACTION_SETTINGS_TO_CHILD = 'ACTION_SETTINGS_TO_CHILD';
+export const ACTION_PUSH_MAIN_CONFIG = 'ACTION_PUSH_MAIN_CONFIG';
+
+
+export const ACTION_OPEN = 'ACTION_OPEN'; // args: container: dir or file; when null "auto-mode"
+export const ACTION_SHOW_FILES = 'ACTION_SHOW_FILES'; // args: container: dir or file; when null "auto-mode" + items[]
+
 
 export const ACTION_SHOW_MESSAGE = 'ACTION_SHOW_MESSAGE'; // error, warning, info
 

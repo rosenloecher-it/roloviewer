@@ -177,6 +177,18 @@ export function mergeConfigItem(valueDef, valuePrio1, valuePrio2) {
 
 // ----------------------------------------------------------------------------------
 
+export function mergeStringItem(valueDef, valuePrio1, valuePrio2) {
+
+  if (typeof("str") === typeof(valuePrio1))
+    return valuePrio1;
+  if (typeof("str") === typeof(valuePrio2))
+    return valuePrio2;
+
+  return valueDef;
+}
+
+// ----------------------------------------------------------------------------------
+
 export function findExifTool(dataFromFile) {
 
   if (dataFromFile)
