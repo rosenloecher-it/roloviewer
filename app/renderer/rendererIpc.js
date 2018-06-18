@@ -64,9 +64,10 @@ function dispatchRendererActions(ipcMsg) {
     case constants.ACTION_HANDSHAKE_REQUEST:
       ipcHandshakeRequest(ipcMsg); break;
 
+    case constants.ACTION_SHUTDOWN:
+      ops.shutdown(ipcMsg); break;
     case constants.ACTION_PUSH_MAIN_CONFIG:
-      config.importData(ipcMsg.payload);
-      break;
+      ops.init(ipcMsg); break;
 
     case constants.ACTION_SHOW_MESSAGE:
       ops.showMessage(ipcMsg); break;

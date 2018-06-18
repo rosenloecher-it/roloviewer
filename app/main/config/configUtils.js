@@ -206,14 +206,18 @@ export function setWindowState(configIn, window) {
 
 // ----------------------------------------------------------------------------------
 
-export function findExifTool(dataFromFile) {
+export function findExifTool(pathFromFile) {
+  if (!pathFromFile && typeof(pathFromFile) === typeof("s"))
+    return pathFromFile;
 
-  if (dataFromFile)
-    return dataFromFile;
-  else
-    return null;
+  const defPath = '/usr/bin/exiftool';
 
   // TODO
+  if (fs.existsSync(defPath))
+    return defPath;
+
+  return null;
+
 }
 
 // ----------------------------------------------------------------------------------

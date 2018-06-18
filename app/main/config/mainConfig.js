@@ -171,7 +171,7 @@ export class ConfigMain {
       dataFromFile = {};
     }
 
-     log.debug("mergeConfigFiles - dataFromFile", dataFromFile);
+    // log.debug("mergeConfigFiles - dataFromFile", dataFromFile);
 
     configMerge.mergeDataStart(this.data, this.dataCli, dataFromFile);
     configMerge.mergeDataSystem(this.data, this.dataCli, dataFromFile);
@@ -179,7 +179,7 @@ export class ConfigMain {
     configMerge.mergeDataCrawler(this.data, this.dataCli, dataFromFile);
     configMerge.mergeDataMainWindow(this.data, this.dataCli, dataFromFile);
 
-     log.debug("mergeConfigFiles", this.data);
+    // log.debug("mergeConfigFiles", this.data);
   }
 
   // ........................................................

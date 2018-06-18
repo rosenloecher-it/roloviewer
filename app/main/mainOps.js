@@ -191,9 +191,13 @@ export function autoSelect() {
 let isAppAlreadyQuitted = false;
 
 export function quitApp() {
-
+  // closeMainWindow was called twice
   if (!isAppAlreadyQuitted) {
     isAppAlreadyQuitted = true;
+
+    ipc.send(constants.IPC_RENDERER, constants.ACTION_SHUTDOWN, null);
+    ipc.send(constants.IPC_WORKER, constants.ACTION_SHUTDOWN, null);
+
     app.quit();
   }
 }

@@ -11,6 +11,23 @@ const logKey = "rendererOps";
 
 // ----------------------------------------------------------------------------------
 
+export function init(ipcMsg) {
+  log.debug(`${logKey}.init`);
+
+  config.importData(ipcMsg.payload);
+}
+
+// ----------------------------------------------------------------------------------
+
+export function shutdown(ipcMsg) {
+  log.debug(`${logKey}.shutdown`);
+
+  ipc.unregisterListener();
+
+}
+
+// ----------------------------------------------------------------------------------
+
 export function showMessage(ipcMsg) {
 
   log.debug(`${logKey}.showMessage:`);

@@ -56,7 +56,8 @@ export const IPC_WORKER = 'IPC_WORKER';
 export const ACTION_HANDSHAKE_REQUEST = 'ACTION_HANDSHAKE_REQUEST';
 export const ACTION_HANDSHAKE_ANSWER = 'ACTION_HANDSHAKE_ANSWER';
 
-export const ACTION_READY = 'ACTION_READY'; // worker, renderer to main
+export const ACTION_READY = 'ACTION_READY'; // worker + renderer to main
+export const ACTION_SHUTDOWN = 'ACTION_SHUTDOWN'; // main to worker + renderer
 
 export const ACTION_PUSH_MAIN_CONFIG = 'ACTION_PUSH_MAIN_CONFIG';
 

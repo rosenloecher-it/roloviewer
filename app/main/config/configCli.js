@@ -140,6 +140,9 @@ function validateTransition(parser, result) {
 export default function parseArgs(args) {
   const parser = createCliParser();
 
+  // TODO
+  return {};
+
   cliExitCode = null;
   let result = parser.parse(args);
 

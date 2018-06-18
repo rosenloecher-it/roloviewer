@@ -202,6 +202,7 @@
     "devtron": "^1.4.0",
     "electron-debug": "^1.5.0",
     "electron-log": "^2.2.14",
+    "exifreader": "^2.5.0",
     "font-awesome": "^4.7.0",
     "history": "^4.7.2",
     "normalize.css": "^8.0.0",

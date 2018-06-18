@@ -17,8 +17,7 @@ export function getMainWindow() {
 // ----------------------------------------------------------------------------------
 
 function closeMainWindow() {
-
-  log.debug("closeMainWindow");
+  //log.debug("closeMainWindow");
   ops.quitApp();
 }
 
@@ -103,7 +102,7 @@ export function getWorkerWindow() {
 // ----------------------------------------------------------------------------------
 
 function closeWorkerWindow() {
-  log.debug("closeWorkerWindow");
+  //log.debug("closeWorkerWindow");
   ops.quitApp();
 }
 
