@@ -29,7 +29,7 @@ export class ConfigRenderer {
 
   // ........................................................
 
-  importData(dataUpdate) {
+  pushMainConfig(dataUpdate) {
 
     if (dataUpdate.context)
       this.data.context = deepmerge.all([ dataUpdate.context, {} ]);

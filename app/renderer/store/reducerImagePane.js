@@ -3,7 +3,8 @@ import * as constants from '../../common/constants';
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "reducerImapePane";
+const _logKey = "reducerImapePane";
+let _deliveryKey = 0;
 
 // ----------------------------------------------------------------------------------
 
@@ -19,31 +20,47 @@ const defaultState = {
 
 export default (state = defaultState, action) => {
 
-  switch (action.type) {
-    case constants.ACTION_GO_BACK:
-      return goBack(state);
-    case constants.ACTION_GO_NEXT:
-      return goNext(state);
-    case constants.ACTION_SHOW_FILES:
-      return showFiles(state, action);
+  try {
+    switch (action.type) {
+      case constants.ACTION_GO_BACK:
+        return goBack(state);
+      case constants.ACTION_GO_NEXT:
+        return goNext(state);
+      case constants.ACTION_SHOW_FILES:
+        return showFiles(state, action);
+       case constants.ACTION_ADD_FILES:
+         return addFiles(state, action);
 
-    default:
-      return state;
+      default:
+        return state;
+    }
+  } catch (err) {
+    log.error(`${_logKey}.default - failed -`, action);
+    throw (err);
   }
 };
 
 // ----------------------------------------------------------------------------------
 
-function showFiles(state, action) {
-  const length = action.items.length;
-  const newIndex = 0;
+export function setNewDeliveryKey(items) {
+  _deliveryKey++;
 
-  log.debug(`${logKey}.showFiles: ${length} => newIndex=${newIndex}` );
+  for (let i = 0; i < items.length; i++)
+    items[i].deliveryKey = _deliveryKey; // eslint-disable-line no-param-reassign
+}
+
+// ----------------------------------------------------------------------------------
+
+function showFiles(state, action) {
+
+  setNewDeliveryKey(action.items);
+
+  log.debug(`${_logKey}.showFiles:`, action);
 
   return {
     ...state,
     items: action.items,
-    showIndex: newIndex,
+    showIndex: 0,
     container: action.container
   };
 }
@@ -51,17 +68,31 @@ function showFiles(state, action) {
 // ----------------------------------------------------------------------------------
 
 function addFiles(state, action) {
-  const length = state.items.length;
-  let newIndex = -1;
-  if (length > 0) {
-    if (state.showIndex > 0)
-      newIndex = state.showIndex - 1
+
+  log.debug(`${_logKey}.addFiles:`, state);
+
+  setNewDeliveryKey(action.items);
+
+  if (state.container === null) {
+    log.debug(`${_logKey}.addFiles (add) -`, action);
+
+    // add items
+    return {
+      ...state,
+      items: state.items.concat(action.items)
+    }
+  } else {
+    log.debug(`${_logKey}.addFiles (replace) -`, action);
+
+    // replace old items
+    return {
+      ...state,
+      items: action.items,
+      showIndex: 0,
+      container: null
+    };
   }
-  return {
-    ...state,
-    showIndex: newIndex,
-    container: null
-  };
+
 }
 
 // ----------------------------------------------------------------------------------
@@ -81,9 +112,19 @@ function goBack(state) {
 
 function goNext(state) {
   const length = state.items.length;
-  let newIndex = -1;
-  if (length > 0)
-    newIndex = state.showIndex < length - 1 ? state.showIndex + 1 : length - 1;
+
+  if (length === 0)
+    return state; // do nothing
+
+  const newIndex = state.showIndex + 1;
+
+  // if ((state.container === null) && (newIndex + constants.DEFCONF_RENDERER_ITEM_RESERVE > length))
+  //   ops.requestNewFiles();
+
+  if (newIndex >= length) {
+    // do nothing
+    return state;
+  }
 
   return {
     ...state,

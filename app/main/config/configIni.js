@@ -6,15 +6,19 @@ import { mkDirByPathSync } from './configUtils';
 
 //----------------------------------------------------------------------------
 
+const _logKey = "configIni";
+
+// ----------------------------------------------------------------------------------
+
 export function loadIniFile(file) {
   if (!file) {
-    log.info('configIni.loadIniFile: invalid configFile');
-    return null;
+    log.error(`${_logKey}.loadIniFile: invalid configFile`);
+    return {};
   }
 
   if (!fs.existsSync(file)) {
-    log.info(`configIni.loadIniFile: file does not exists (${file})`);
-    return null;
+    log.info(`configIni.loadIniFile: file does not exists (${file})!`);
+    return {};
   }
 
   const config = ini.parse(fs.readFileSync(file, 'utf-8'));
@@ -26,7 +30,7 @@ export function loadIniFile(file) {
 
 export function saveIniFile(file, data) {
   if (!file) {
-    log.error('configIni.saveIniFile: invalid configFile');
+    log.error(`${_logKey}.saveIniFile: invalid configFile`);
     return;
   }
 

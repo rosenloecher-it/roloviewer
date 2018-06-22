@@ -1,5 +1,7 @@
 import log from 'electron-log';
 import deepmerge from 'deepmerge';
+import * as constants from "../common/constants";
+import * as vali from "../common/validate";
 
 // ----------------------------------------------------------------------------------
 
@@ -12,7 +14,6 @@ export class ConfigWorker {
   constructor() {
 
     this.data = ConfigWorker.createDefaultData();
-
   }
 
   // ........................................................
@@ -29,7 +30,13 @@ export class ConfigWorker {
 
   // ........................................................
 
-  importData(dataUpdate) {
+  init() {
+    this.data = ConfigWorker.createDefaultData();
+  }
+
+  // ........................................................
+
+  pushMainConfig(dataUpdate) {
 
     if (dataUpdate.context)
       this.data.context = deepmerge.all([ dataUpdate.context, {} ]);
@@ -51,9 +58,36 @@ export class ConfigWorker {
 
   // ........................................................
 
-  getExifToolPath() {
-    return this.data.system.exiftool;
-  }
+  get exiftoolPath() { return this.data.system.exiftool; }
+  set exiftoolPath(value){ this.data.system.exiftool = value;  }
+
+  // ........................................................
+
+  get crawlerDatabase() { return this.data.crawler.database; }
+  set crawlerDatabase(value){ this.data.crawler.database = value;  }
+
+  // ........................................................
+
+  get crawlerBatchCount() { return (this.data.crawler.batchCount || constants.DEFCONF_CRAWLER_BATCHCOUNT); }
+  set crawlerBatchCount(value){ this.data.crawler.batchCount = value;  }
+
+  // ........................................................
+
+  get crawlerFolderSource() { return this.data.crawler.folderSource; }
+  set crawlerFolderSource(value){ this.data.crawler.folderSource = value;  }
+
+  // ........................................................
+
+  get crawlerFolderBlacklist() { return this.data.crawler.folderBlacklist || []; }
+  set crawlerFolderBlacklist(value){ this.data.crawler.folderBlacklist = value;  }
+
+  // ........................................................
+
+  get crawlerFolderBlacklistSnippets() { return this.data.crawler.folderBlacklistSnippets || []; }
+  set crawlerFolderBlacklistSnippets(value){ this.data.crawler.folderBlacklistSnippets = value;  }
+
+  // ........................................................
+
 
 }
 

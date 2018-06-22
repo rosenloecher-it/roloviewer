@@ -35,7 +35,7 @@ export class ConfigMain {
       crawler: {},
       mainwindow: {},
       slideshow: {},
-      start: {},
+      lastItems: {},
       system: {}
     };
 
@@ -67,10 +67,12 @@ export class ConfigMain {
         args = argsString.split(' ');
     }
 
+    const defaultConfigFile = this.getDefaultConfigFile();
+
     try {
       if (args) {
-        log.debug("configmain.parseArgs:", args);
-        this.dataCli = parseCliArgs(args);
+        log.debug("configmain.parseArgs:", args, defaultConfigFile);
+        this.dataCli = parseCliArgs(args, defaultConfigFile);
       } else
         this.dataCli = {};
     } catch (err) {
@@ -122,7 +124,7 @@ export class ConfigMain {
   saveConfig() {
 
     if (this.data.context.doSaveConfig) {
-      const fileConfig = configUtils.getDefaultConfigPath();
+      const {configfile} = this.data.context;
 
       try {
 
@@ -132,12 +134,14 @@ export class ConfigMain {
         delete dataClone.context;
 
         if (dataClone.system.logfile === configUtils.getDefaultLogFile())
-          dataClone.system.logfile = ".";
+          dataClone.system.logfile = constants.DEFCONF_LOG;
+        else if (!dataClone.system.logfile)
+          delete dataClone.system.logfile;
 
-        configIni.saveIniFile(fileConfig, dataClone);
+        configIni.saveIniFile(configfile, dataClone);
 
       } catch (err) {
-        log.error(`${logKey}.saveConfig (${fileConfig}):`, err);
+        log.error(`${logKey}.saveConfig (${configfile}):`, err);
       }
     }
   }
@@ -147,25 +151,25 @@ export class ConfigMain {
   mergeConfig() {
     const func = ".mergeConfig";
 
-    const setSys = this.data.system;
+    const setCxt = this.data.context;
 
     if (this.dataCli.config) {
       if (fs.existsSync(this.dataCli.config)) {
-        setSys.config = this.dataCli.config;
-        this.data.context.doSaveConfig = true;
+        setCxt.configfile = this.dataCli.config;
+        setCxt.doSaveConfig = true;
       } else {
-        log.error(`${logKey}${func} - use default config - not exists ${this.dataCli.config}`);
+        log.error(`${logKey}${func} - use default config - ${this.dataCli.config} does not exists!`);
       }
     }
 
-    if (!setSys.config) {
-      setSys.config = configUtils.getDefaultConfigPath();
-      this.data.context.doSaveConfig = true;
+    if (!setCxt.configfile) {
+      setCxt.configfile = this.getDefaultConfigFile();
+      setCxt.doSaveConfig = true;
     }
 
     let dataFromFile;
     try {
-      dataFromFile = configIni.loadIniFile(setSys.config);
+      dataFromFile = configIni.loadIniFile(setCxt.configfile);
     } catch (err) {
       log.error(`${logKey}${func} loading ${this.dataCli.config} - exception: `, err);
       dataFromFile = {};
@@ -195,6 +199,12 @@ export class ConfigMain {
   isProduction() { return this.data.context.isProduction; }
   isTest() { return this.data.context.isTest; }
   showDevTools() { return this.data.context.showDevTools; }
+
+  // ........................................................
+
+  getDefaultConfigFile() {
+    return configUtils.getDefaultConfigFile(configMain.isProduction() ? "" : "_test");
+  }
 
   // ........................................................
 
@@ -259,38 +269,38 @@ export class ConfigMain {
   // ........................................................
 
   getLastContainer() {
-    return this.data.start.lastContainer;
+    return this.data.lastItems.container;
   }
 
-  setLastContainer(lastContainer) {
-    this.data.start.lastContainer = lastContainer;
+  setLastContainer(container) {
+    this.data.lastItems.container = container;
   }
 
   // ........................................................
 
-  getLastPath() {
+  getLastDialogFolder() {
 
-    let lastPath = this.data.start.lastPath;
-    if (lastPath && fs.existsSync(lastPath))
-      return lastPath;
+    let dialogFolder = this.data.lastItems.dialogFolder;
+    if (dialogFolder && fs.existsSync(dialogFolder))
+      return dialogFolder;
 
-    const lastContainer = this.data.start.lastContainer;
+    const lastContainer = this.data.lastItems.container;
     if (lastContainer && fs.existsSync(lastContainer)) {
       if (fs.lstatSync(lastContainer).isDirectory())
         return lastContainer;
 
       if (fs.lstatSync(lastContainer).isFile()) {
-        lastPath = path.dirname(lastContainer);
-        return lastPath;
+        dialogFolder = path.dirname(lastContainer);
+        return dialogFolder;
       }
     }
 
-    lastPath = electron.app.getPath('userData');
-    return lastPath;
+    dialogFolder = electron.app.getPath('userData');
+    return dialogFolder;
   }
 
-  setLastPath(lastPath) {
-    this.data.start.lastPath = lastPath;
+  setLastDialogFolder(dialogFolder) {
+    this.data.lastItems.dialogFolder = dialogFolder;
   }
 
   // ........................................................

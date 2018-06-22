@@ -1,0 +1,148 @@
+
+-------------------------------------------------------------------------
+Tasks
+
+(prio absteigend)
+
+sofort ausführen
+	open/autoSelect
+		clear obsolete deliverFileInfo
+		put new deliverFileInfo
+	shutdown
+
+
+
+
+deliverFileInfo
+	vergleiche Zeitstempel DB mit FS
+	lade von DB oder
+		lade von FS + speichere in DB
+	sende an Renderer
+
+
+loadOldState
+	init + check CrawleFolder
+
+crawleFile
+	compare FS und Meta
+
+evaluateDir
+	berechne Bewertung Dir anhand Kind-Elemente
+
+crawleDir
+	check within SourceFolder, outside BlackListFolder
+
+	merge DB + FS
+		=> viele crawleFile
+		=> childDirs am Anfang crawleDir-List einfügen
+		=> evaluateDir
+
+crawleInit
+	wenn alle Dir abgearbeitet sind
+	setzt lastComplete
+	scanne Root-Dirs und füge als crawleDir ein
+
+
+-------------------------------------------------------------------------
+
+TaskManager
+
+	getTask
+
+	pushTask(taskType, arg:fileOrFolder)
+		TASK
+		TASK_CRAWLE_FILE
+		TASK_EVAL_FOLDER
+		TASK_CRAWLE_FOLDER
+
+	clearTasks(taskType);
+
+-------------------------------------------------------------------------
+
+MetaReader
+	init (path exiftool)
+
+	load(file)
+
+
+-------------------------------------------------------------------------
+
+DB
+	loadFiles(folder)   		// compare, autoselect
+
+	loadFile()					// meta
+
+	saveFile(folder, name, stat, meta)
+
+
+	saveFolderEval(folder) 		//
+
+	loadFolderEval(maxResults)		// sortiert
+
+
+	saveCrawleFolders
+	loadCrawleFolders
+
+-------------------------------------------------------------------------
+
+
+Crawler
+
+	init ()
+
+	setTaskManager
+		for pushTask
+
+	setSourceList([]);
+	setBlackList([]);
+
+	runStep(xxxx)
+
+
+-------------------------------------------------------------------------
+
+MediaLoader
+
+	open
+		openFolder
+		openPlaylist
+
+	autoSelect(count)
+
+
+-------------------------------------------------------------------------
+
+Dispatcher === Processor === workerOps
+	init ()
+
+	setTaskManager
+
+	config
+		setSourceList([]);
+		setBlackList([]);
+
+		setRatingFilter
+		setTagFilter
+		setTagBlackList
+
+	run
+
+
+-------------------------------------------------------------------------
+
+OFFEN
+	TaskManager
+		TASK_OPEN
+		TASK_QUIT
+	save CrawlerState
+		saveToDb
+		loadFromToDb
+
+-------------------------------------------------------------------------
+
+IPC - stepCrawler
+
+
+
+
+-------------------------------------------------------------------------

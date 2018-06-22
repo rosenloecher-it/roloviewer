@@ -2,25 +2,30 @@ import log from 'electron-log';
 import * as constants from "../common/constants";
 import * as ipc from "./rendererIpc";
 import config from "./rendererConfig";
-import { store } from './store/configureStore';
+import { _store } from './store/configureStore';
 import * as actions from "./store/actionsImagePane";
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "rendererOps";
+const _logKey = "rendererOps";
 
 // ----------------------------------------------------------------------------------
 
 export function init(ipcMsg) {
-  log.debug(`${logKey}.init`);
+  const func = ".init"
+  log.debug(`${_logKey}${func}`);
 
-  config.importData(ipcMsg.payload);
+  config.pushMainConfig(ipcMsg.payload);
+
+  ipc.send(constants.IPC_MAIN, constants.ACTION_READY, null);
+
+  log.debug(`${_logKey}${func} - store=<${!_store ? "null" : "not null"}>`);
 }
 
 // ----------------------------------------------------------------------------------
 
 export function shutdown(ipcMsg) {
-  log.debug(`${logKey}.shutdown`);
+  log.debug(`${_logKey}.shutdown`);
 
   ipc.unregisterListener();
 
@@ -30,21 +35,48 @@ export function shutdown(ipcMsg) {
 
 export function showMessage(ipcMsg) {
 
-  log.debug(`${logKey}.showMessage:`);
+  log.debug(`${_logKey}.showMessage:`);
 
 }
 
 // ----------------------------------------------------------------------------------
 
-export function showFiles(ipcMsg) {
+export function newFiles(ipcMsg) {
+  const func = ".newFiles";
 
-  log.debug(`${logKey}.showFiles`);
+  try {
+    log.debug(`${_logKey}.newFiles: type=${ipcMsg.type}, container=${ipcMsg.payload.container}`);
 
-  const action = actions.showFiles(ipcMsg.payload);
+    const action = actions.newFiles({
+      type: ipcMsg.type,
+      container: ipcMsg.payload.container,
+      items: ipcMsg.payload.items
+    });
 
-  //log.debug(`${logKey}.showFiles`, action);
+    //log.debug(`${_logKey}.newFiles: action=`, action);
 
-  store.dispatch(action);
+    _store.dispatch(action);
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
 }
+
+// ----------------------------------------------------------------------------------
+
+// export function requestNewFiles() {
+//   const func = ".requestNewFiles";
+//
+//   try {
+//     log.debug(`${_logKey}.requestNewFiles`);
+//
+//     ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, null);
+//
+//   } catch (err) {
+//     log.error(`${_logKey}${func} - exception -`, err);
+//     // TODO show message
+//   }
+// }
 
 // ----------------------------------------------------------------------------------

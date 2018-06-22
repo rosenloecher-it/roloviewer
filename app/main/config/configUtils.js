@@ -11,9 +11,10 @@ export function getConfigPath() {
 
 //----------------------------------------------------------------------------
 
-export function getDefaultConfigPath() {
+export function getDefaultConfigFile(extra) {
   const configPath = getConfigPath();
-  const configFile = path.join(configPath, constants.CONFIG_STANDARD);
+  const name = constants.CONFIG_BASENAME + (extra || "") + constants.CONFIG_EXT
+  const configFile = path.join(configPath, name);
   return configFile;
 }
 
@@ -97,35 +98,13 @@ export function validateStringArray(input) {
 
   const output = [];
 
-  for (let text of input) {
-    if (typeof(text) === typeof("str")) {
+  for (let i = 0; i < input.length; i++) {
+    const text = input[i];
+    if (typeof(text) === typeof "str") {
       const value = text.trim().toLowerCase();
       if (!output.includes(value))
         output.push(value);
     }
-  }
-
-  return output;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function validatePathArray(input) {
-
-  if (!Array.isArray(input))
-    return [];
-
-  const output = [];
-
-  for (let text of input) {
-
-    if (typeof(text) !== typeof("str"))
-      continue;
-    if (!fs.existsSync(text))
-      continue;
-
-    if (!output.includes(text))
-      output.push(text);
   }
 
   return output;
@@ -139,11 +118,11 @@ export function validateRatingArray(input) {
 
   let output = [];
 
-  for (let text of input) {
-
+  for (let i = 0; i < input.length; i++) {
+    const text = input[i];
     const value = validateInt(text);
 
-    if (typeof(value) != typeof(1))
+    if (typeof(value) !== typeof(1))
       continue;
     if (value < 0 || value > 5)
       continue;

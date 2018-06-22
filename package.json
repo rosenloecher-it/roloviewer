@@ -30,7 +30,8 @@
     "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register ./internals/scripts/RunTests.js",
     "test-all": "npm run lint && npm run flow && npm run build && npm run test && npm run test-e2e",
     "test-e2e": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register ./internals/scripts/RunTests.js e2e",
-    "test-watch": "npm test -- --watch"
+    "test-watch": "npm test -- --watch",
+    "jest-all": "jest"
   },
   "browserslist": "electron 1.6",
   "lint-staged": {
@@ -116,10 +117,7 @@
     ],
     "transform": {
       "^.+\\.js$": "babel-jest"
-    },
-    "setupFiles": [
-      "./internals/scripts/CheckBuiltsExist.js"
-    ]
+    }
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
@@ -202,7 +200,6 @@
     "devtron": "^1.4.0",
     "electron-debug": "^1.5.0",
     "electron-log": "^2.2.14",
-    "exifreader": "^2.5.0",
     "font-awesome": "^4.7.0",
     "history": "^4.7.2",
     "normalize.css": "^8.0.0",

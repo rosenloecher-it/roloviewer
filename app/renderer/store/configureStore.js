@@ -6,14 +6,22 @@ import {createLogger} from "redux-logger";
 import log from 'electron-log';
 import rootReducer from "./reducerRoot";
 
-const history = createHashHistory();
+// ----------------------------------------------------------------------------------
 
-const store = configureStore();
+const _logKey = "configureStore";
+
+const _history = createHashHistory();
+
+const _store = configureStore();
+
+// ----------------------------------------------------------------------------------
 
 function configureStore(initialState?: counterStateType) {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
+
+  log.debug(`${_logKey} - in`);
 
   const isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
   const isProduction = process.env.NODE_ENV === 'production';
@@ -34,14 +42,14 @@ function configureStore(initialState?: counterStateType) {
   }
 
   // Router Middleware
-  const router = routerMiddleware(history);
+  const router = routerMiddleware(_history);
   middleware.push(router);
 
-  let store;
+  let localStore = null;
 
   if (!isDevelopment) {
     const enhancer = applyMiddleware(...middleware);
-    store = createStore(rootReducer, initialState, enhancer);
+    localStore = createStore(rootReducer, initialState, enhancer);
 
   } else {
     // Redux DevTools Configuration
@@ -57,20 +65,22 @@ function configureStore(initialState?: counterStateType) {
     const enhancer = composeEnhancers(...enhancers);
 
     // Create Store
-    store = createStore(rootReducer, initialState, enhancer);
+    localStore = createStore(rootReducer, initialState, enhancer);
   }
 
   if (isProduction && module.hot) {
     module.hot.accept('./reducerRoot', () => {
       const nextReducer = combineReducers(rootReducer);
-      store.replaceReducer(nextReducer);
+      localStore.replaceReducer(nextReducer);
     });
   }
 
-  return store;
+  log.debug(`${_logKey} - out - localStore=<${!localStore ? "null" : "not null"}>`, localStore);
+
+  return localStore;
 };
 
-export default { store, history };
+export default { _store, _history };
 
 
 

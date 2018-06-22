@@ -17,9 +17,7 @@ function storeCliExitCode(exitCode) {
 
 // ----------------------------------------------------------------------------------
 
-function createCliParser() {
-  const defaultSlideshowConfig = configUtils.getDefaultConfigPath();
-
+function createCliParser(defaultConfigFile) {
   return argly
     .createParser({
       '--help -h': {
@@ -40,7 +38,7 @@ function createCliParser() {
       },
       '--configfile -c': {
         type: 'string',
-        description: `Explicit config file (default: ${defaultSlideshowConfig})`
+        description: `Explicit config file (default: ${defaultConfigFile})`
       },
       '--screensaver -s': {
         type: 'boolean',
@@ -137,8 +135,8 @@ function validateTransition(parser, result) {
 
 // ----------------------------------------------------------------------------------
 
-export default function parseArgs(args) {
-  const parser = createCliParser();
+export default function parseArgs(args, defaultConfigFile) {
+  const parser = createCliParser(defaultConfigFile);
 
   // TODO
   return {};

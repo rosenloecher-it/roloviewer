@@ -12,7 +12,7 @@ const ipcMyself = constants.IPC_MAIN;
 // ----------------------------------------------------------------------------------
 
 export function registerListener() {
-  //log.debug(`${logKey}.registerListener`);
+  //log.debug(`${logKey}.initListener`);
   ipcMain.on(ipcMyself, listenMainChannel);
 
   if (constants.DEBUG_IPC_HANDSHAKE)
@@ -67,14 +67,17 @@ function dispatchMainActions(ipcMsg) {
     case constants.ACTION_HANDSHAKE_REQUEST:
       ipcHandshakeRequest(ipcMsg); break;
 
+    case constants.ACTION_REQUEST_CONFIG:
+      ops.initChildConfig(ipcMsg); break;
     case constants.ACTION_READY:
-      ops.initChild(ipcMsg); break;
+      ops.activateChild(ipcMsg); break;
+
 
     case constants.ACTION_SHOW_FILES:
       ops.forwardShowFiles(ipcMsg); break;
 
-
-
+    case constants.ACTION_DUMMY_TASK:
+      log.info(`${logKey}${func} - ${ipcMsg.type}`); break; // do nothing!
 
     default:
       log.error(`${logKey}${func} - invalid type: `, ipcMsg);

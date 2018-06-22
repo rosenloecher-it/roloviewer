@@ -1,6 +1,8 @@
 import fs from 'fs';
 import log from 'electron-log';
+import path from 'path';
 import * as constants from "../../common/constants";
+import * as vali from "../../common/validate";
 import * as configUtils from "./configUtils";
 
 // ----------------------------------------------------------------------------------
@@ -13,18 +15,18 @@ export function mergeDataStart(dataIn, dataFromCli, dataFromFileIn) {
 
   const data = dataIn;
   const dataFromFile = dataFromFileIn;
-  if (!dataFromFile.start)
-    dataFromFile.start = {};
+  if (!dataFromFile.lastItems)
+    dataFromFile.lastItems = {};
 
-  const set = data.start;
+  const set = data.lastItems;
 
-  set.lastContainer = configUtils.mergeStringItem(null,
+  set.container = configUtils.mergeStringItem(null,
     dataFromCli.open,
-    dataFromFile.start.lastContainer);
+    dataFromFile.lastItems.container);
 
-  if (set.lastContainer != null && !fs.existsSync(set.lastContainer)) {
-    log.info(`${logKey} - last file/dir doesn't exist any more (${set.lastContainer})!`);
-    set.lastContainer = null;
+  if (set.lastContainer != null && !fs.existsSync(set.container)) {
+    log.info(`${logKey} - last file/dir doesn't exist any more (${set.container})!`);
+    set.container = null;
   }
 }
 
@@ -56,7 +58,7 @@ export function mergeDataSystem(dataIn, dataFromCli, dataFromFileIn) {
     configUtils.validateBoolean(dataFromFile.system.logDeleteOnStart));
 
   data.system.logfile = null;
-  if (dataFromFile.system.logfile && dataFromFile.system.logfile.trim() === ".")
+  if (dataFromFile.system.logfile && dataFromFile.system.logfile.trim() === constants.DEFCONF_LOG)
     data.system.logfile = configUtils.getDefaultLogFile();
   else if (!data.system.logfile)
     data.system.logfile = dataFromFile.system.logfile;
@@ -93,7 +95,6 @@ export function mergeDataRenderer(dataIn, dataFromCli, dataFromFileIn) {
   set.details = configUtils.mergeConfigItem(constants.DEFCONF_DETAILS,
     dataFromCli.details,
     dataFromFile.slideshow.details);
-
 }
 
 // ----------------------------------------------------------------------------------
@@ -111,11 +112,17 @@ export function mergeDataCrawler(dataIn, dataFromCli, dataFromFileIn) {
     null,
     dataFromFile.crawler.database);
 
+  set.batchCount = configUtils.mergeConfigItem(constants.DEFCONF_CRAWLER_BATCHCOUNT, configUtils.validateInt(dataFromFile.crawler.batchCount), null);
   set.showRating = configUtils.validateRatingArray(dataFromFile.crawler.showRating);
   set.tagShow = configUtils.validateStringArray(dataFromFile.crawler.tagShow);
   set.tagBlacklist = configUtils.validateStringArray(dataFromFile.crawler.tagBlacklist);
-  set.pathShow = configUtils.validatePathArray(dataFromFile.crawler.pathShow);
-  set.pathBlacklist = configUtils.validatePathArray(dataFromFile.crawler.pathBlacklist);
+  set.folderSource = vali.validateFolderArray(dataFromFile.crawler.folderSource);
+  set.folderBlacklist = vali.validateFolderArray(dataFromFile.crawler.folderBlacklist);
+  set.folderBlacklistSnippets = vali.validateBlacklistSnippets(dataFromFile.crawler.folderBlacklistSnippets);
+
+  for (const i = 0; i < set.folderBlacklist.length; i++) {
+    set.folderBlacklist[i] = path.normalize(set.folderBlacklist[i]);
+  }
 }
 
 // ----------------------------------------------------------------------------------

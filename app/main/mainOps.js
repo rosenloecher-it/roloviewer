@@ -100,17 +100,28 @@ export function restoreDevTools() {
 
 // ----------------------------------------------------------------------------------
 
-const flagWorker = 1;
-const flagRenderer = 2;
-const flagSendStart = 4;
-let statusChildsState = flagWorker | flagRenderer | flagSendStart;
-
-export function initChild(ipcMsg) {
+export function initChildConfig(ipcMsg) {
+  const func = ".initChildConfig";
+  //log.debug(`${logKey}${func}`, ipcMsg);
 
   const ipcDest = ipcMsg.source;
 
   const data = config.exportConfig();
   ipc.send(ipcDest, constants.ACTION_PUSH_MAIN_CONFIG, data);
+
+}
+// ----------------------------------------------------------------------------------
+
+const flagWorker = 1;
+const flagRenderer = 2;
+const flagSendStart = 4;
+let statusChildsState = flagWorker | flagRenderer | flagSendStart;
+
+export function activateChild(ipcMsg) {
+  const func = ".activateChild";
+  //log.debug(`${logKey}${func}`, ipcMsg);
+
+  const ipcDest = ipcMsg.source;
 
   // waiting for 2 children - don't know which one comes last => send last opened dir or slideshow
   if (constants.IPC_RENDERER === ipcDest)
@@ -121,6 +132,8 @@ export function initChild(ipcMsg) {
   if (statusChildsState === flagSendStart) {
     statusChildsState = 0;
     const container = config.getLastContainer();
+
+    //log.debug(`${logKey}${func} - getLastContainer:`, container);
 
     setTimeout(() => {
       ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container });
@@ -135,7 +148,7 @@ export function initChild(ipcMsg) {
 export function openDialog(isDirectory) {
   const func = ".openDialog";
 
-  const lastPath = config.getLastPath();
+  const lastPath = config.getLastDialogFolder();
   //log.debug(`${logKey}${func} - lastPath:`, lastPath);
 
   const dialogType = isDirectory ? 'openDirectory' : 'openFile';
@@ -151,10 +164,10 @@ export function openDialog(isDirectory) {
     log.debug(`${logKey}${func} - selection:`, selection);
 
     if (fs.lstatSync(selection).isDirectory())
-      config.setLastPath(selection);
+      config.setLastDialogFolder(selection);
     else {
       const lastPath = path.dirname(selection);
-      config.setLastPath(lastPath);
+      config.setLastDialogFolder(lastPath);
     }
 
     return selection;
@@ -165,25 +178,28 @@ export function openDialog(isDirectory) {
 
 export function openDirectory() {
 
-  console.log('open directory clicked');
+  log.debug('open directory clicked');
 
   const folder = openDialog(true);
   if (folder)
     ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container: folder });
-
-  console.log('open directory clicked - out ');
 }
 
 // ----------------------------------------------------------------------------------
 
 export function openPlayList() {
-  console.log('open playlist clicked');
+  log.debug('open playlist clicked');
+
+  const playlist = openDialog(false);
+  if (playlist)
+    ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container: playlist });
 }
 
 // ----------------------------------------------------------------------------------
 
 export function autoSelect() {
-  console.log('auto-select clicked');
+  log.debug('auto-select clicked');
+  ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, null);
 }
 
 // ----------------------------------------------------------------------------------
@@ -205,19 +221,19 @@ export function quitApp() {
 // ----------------------------------------------------------------------------------
 
 export function showHelp() {
-  console.log('showHelp');
+  log.debug('showHelp');
 }
 
 // ----------------------------------------------------------------------------------
 
 export function showAbout() {
-  console.log('showAbout');
+  log.debug('showAbout');
 }
 
 // ----------------------------------------------------------------------------------
 
 export function learnMore() {
-  console.log('learnMore');
+  log.debug('learnMore');
   shell.openExternal('https://electronjs.org');
 }
 

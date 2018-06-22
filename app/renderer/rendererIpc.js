@@ -6,7 +6,7 @@ import * as ops from "./rendererOps";
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "rendererIpc";
+const _logKey = "rendererIpc";
 const ipcMyself = constants.IPC_RENDERER;
 
 // ----------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ export function registerListener() {
   if (constants.DEBUG_IPC_HANDSHAKE)
     testHandshakes();
 
-  send(constants.IPC_MAIN, constants.ACTION_READY, null);
+  send(constants.IPC_MAIN, constants.ACTION_REQUEST_CONFIG, null);
 }
 
 // ----------------------------------------------------------------------------------
@@ -37,19 +37,19 @@ function listenRendererChannel(event, ipcMsg, output) {
     //log.debug(`${logKey}.listenRendererChannel: data=`, ipcMsg.payload);
 
     if (!ipcMsg || !ipcMsg.destination || !ipcMsg.type) {
-      log.error(`${logKey}${func} - invalid payload: `, ipcMsg);
+      log.error(`${_logKey}${func} - invalid payload: `, ipcMsg);
       return;
     }
 
     if (ipcMsg.destination !== ipcMyself) {
-      log.error(`${logKey}${func} - invalid destination: `, ipcMsg);
+      log.error(`${_logKey}${func} - invalid destination: `, ipcMsg);
       return;
     }
 
     dispatchRendererActions(ipcMsg);
 
   } catch (err) {
-    log.debug(`${logKey}${func} exception:`, err);
+    log.debug(`${_logKey}${func} exception:`, err);
   }
 }
 
@@ -58,25 +58,31 @@ function listenRendererChannel(event, ipcMsg, output) {
 function dispatchRendererActions(ipcMsg) {
   const func = ".dispatchRendererActions";
 
-  switch (ipcMsg.type) {
-    case constants.ACTION_HANDSHAKE_ANSWER:
-      ipcHandshakeAnswer(ipcMsg); break;
-    case constants.ACTION_HANDSHAKE_REQUEST:
-      ipcHandshakeRequest(ipcMsg); break;
+  try {
+    switch (ipcMsg.type) {
+      case constants.ACTION_HANDSHAKE_ANSWER:
+        ipcHandshakeAnswer(ipcMsg); break;
+      case constants.ACTION_HANDSHAKE_REQUEST:
+        ipcHandshakeRequest(ipcMsg); break;
 
-    case constants.ACTION_SHUTDOWN:
-      ops.shutdown(ipcMsg); break;
-    case constants.ACTION_PUSH_MAIN_CONFIG:
-      ops.init(ipcMsg); break;
+      case constants.ACTION_SHUTDOWN:
+        ops.shutdown(ipcMsg); break;
+      case constants.ACTION_PUSH_MAIN_CONFIG:
+        ops.init(ipcMsg); break;
 
-    case constants.ACTION_SHOW_MESSAGE:
-      ops.showMessage(ipcMsg); break;
-    case constants.ACTION_SHOW_FILES:
-      ops.showFiles(ipcMsg); break;
+      case constants.ACTION_SHOW_MESSAGE:
+        ops.showMessage(ipcMsg); break;
+      case constants.ACTION_SHOW_FILES:
+      case constants.ACTION_ADD_FILES:
+        ops.newFiles(ipcMsg); break;
 
-    default:
-      log.error(`${logKey}${func} - invalid type: `, ipcMsg);
-      break;
+      default:
+        log.error(`${_logKey}${func} - invalid type: `, ipcMsg);
+        break;
+    }
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
   }
 }
 
@@ -89,7 +95,7 @@ function testHandshakes() {
     for (const ipcTarget of [ constants.IPC_MAIN, constants.IPC_WORKER ]) {
       const payload = Math.floor(1000 * Math.random());
       send(ipcTarget, constants.ACTION_HANDSHAKE_REQUEST, payload);
-      log.debug(`${logKey}${func} - destination=${ipcTarget}; data=`, payload);
+      log.debug(`${_logKey}${func} - destination=${ipcTarget}; data=`, payload);
     }
   }, 2000)
 }
@@ -100,9 +106,9 @@ function ipcHandshakeAnswer(ipcMsg) {
   const func = ".ipcHandshakeAnswer";
 
   if (ipcMsg.source !== ipcMyself)
-    log.debug(`${logKey}${func} - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
+    log.debug(`${_logKey}${func} - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
   else
-    log.error(`${logKey}${func} - wrong source - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
+    log.error(`${_logKey}${func} - wrong source - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
 }
 
 // ----------------------------------------------------------------------------------
@@ -110,7 +116,7 @@ function ipcHandshakeAnswer(ipcMsg) {
 function ipcHandshakeRequest(ipcMsg) {
   const func = ".ipcHandshakeRequest";
 
-  log.debug(`${logKey}${func} - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
+  log.debug(`${_logKey}${func} - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
   send(ipcMsg.source, constants.ACTION_HANDSHAKE_ANSWER, ipcMsg.payload);
 }
 
@@ -120,7 +126,7 @@ function sendRaw(ipcMsg) {
   const func = ".sendRaw";
 
   if (!ipcMsg) {
-    log.error(`${logKey}${func} - invalid payload: `);
+    log.error(`${_logKey}${func} - invalid payload: `);
     return;
   }
 
@@ -129,7 +135,7 @@ function sendRaw(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
-function send(ipcTarget, ipcType, payload) {
+export function send(ipcTarget, ipcType, payload) {
   const ipcMsg = {
     type: ipcType,
     source: ipcMyself,

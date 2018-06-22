@@ -8,8 +8,8 @@ export const goBack = () => ({
   type: constants.ACTION_GO_BACK
 })
 
-export const showFiles = ({ container, items }) => ({
-  type: constants.ACTION_SHOW_FILES,
+export const newFiles = ({ type, container, items }) => ({
+  type,
   container,
   items,
 })
