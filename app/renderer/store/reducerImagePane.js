@@ -52,10 +52,11 @@ export function setNewDeliveryKey(items) {
 // ----------------------------------------------------------------------------------
 
 function showFiles(state, action) {
+  const func = ".showFiles";
 
   setNewDeliveryKey(action.items);
 
-  log.debug(`${_logKey}.showFiles:`, action);
+  log.debug(`${_logKey}${func} - ${action.items.length} items`);
 
   return {
     ...state,
@@ -68,13 +69,13 @@ function showFiles(state, action) {
 // ----------------------------------------------------------------------------------
 
 function addFiles(state, action) {
-
-  log.debug(`${_logKey}.addFiles:`, state);
+  const func = ".addFiles";
+  //log.debug(`${_logKey}${func}:`, state);
 
   setNewDeliveryKey(action.items);
 
   if (state.container === null) {
-    log.debug(`${_logKey}.addFiles (add) -`, action);
+    log.debug(`${_logKey}${func} (add) - ${action.items.length} items`);
 
     // add items
     return {
@@ -82,7 +83,7 @@ function addFiles(state, action) {
       items: state.items.concat(action.items)
     }
   } else {
-    log.debug(`${_logKey}.addFiles (replace) -`, action);
+    log.debug(`${_logKey}${func} (replace) - ${action.items.length} items`);
 
     // replace old items
     return {
@@ -110,7 +111,25 @@ function goBack(state) {
 
 // ----------------------------------------------------------------------------------
 
+function sendRequest() {
+  const func = ".sendRequest";
+
+  const p = new Promise((resolve, reject) => {
+    const ops = require('../rendererOps');
+    ops.requestNewFiles();
+    resolve();
+  }).then(() => {
+    log.debug(`${_logKey}${func} - then`);
+  }).catch((error) => {
+    log.error(`${_logKey}${func} - catch -`, error);
+  })
+}
+
+// ----------------------------------------------------------------------------------
+
 function goNext(state) {
+  const func = ".goNext";
+
   const length = state.items.length;
 
   if (length === 0)
@@ -118,8 +137,10 @@ function goNext(state) {
 
   const newIndex = state.showIndex + 1;
 
-  // if ((state.container === null) && (newIndex + constants.DEFCONF_RENDERER_ITEM_RESERVE > length))
-  //   ops.requestNewFiles();
+  if ((state.container === null) && (newIndex + constants.DEFCONF_RENDERER_ITEM_RESERVE > length)) {
+    log.debug(`${_logKey}${func} - request new item: newIndex=${newIndex}, items.length=${length}`);
+    sendRequest();
+  }
 
   if (newIndex >= length) {
     // do nothing

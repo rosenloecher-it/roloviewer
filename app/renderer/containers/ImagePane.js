@@ -54,7 +54,7 @@ class ImagePane extends Component {
       imagePath = item.file;
     }
     const imageKey = (!imagePath ? "undefined" : imagePath);
-    log.debug(`${logKey}.render:`, imagePath);
+    log.debug(`${logKey}.render(${this.props.showIndex}):`, imagePath);
 
 
     return (

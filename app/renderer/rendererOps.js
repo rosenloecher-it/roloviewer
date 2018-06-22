@@ -65,18 +65,18 @@ export function newFiles(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
-// export function requestNewFiles() {
-//   const func = ".requestNewFiles";
-//
-//   try {
-//     log.debug(`${_logKey}.requestNewFiles`);
-//
-//     ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, null);
-//
-//   } catch (err) {
-//     log.error(`${_logKey}${func} - exception -`, err);
-//     // TODO show message
-//   }
-// }
+export function requestNewFiles() {
+  const func = ".requestNewFiles";
+
+  try {
+    log.debug(`${_logKey}.requestNewFiles`);
+
+    ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, null);
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
+}
 
 // ----------------------------------------------------------------------------------
