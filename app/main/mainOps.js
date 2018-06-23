@@ -163,12 +163,7 @@ export function openDialog(isDirectory) {
     const selection = files[0];
     log.debug(`${logKey}${func} - selection:`, selection);
 
-    if (fs.lstatSync(selection).isDirectory())
-      config.setLastDialogFolder(selection);
-    else {
-      const lastPath = path.dirname(selection);
-      config.setLastDialogFolder(lastPath);
-    }
+    config.setLastDialogFolder(path.dirname(selection));
 
     return selection;
   }
@@ -249,15 +244,12 @@ export function showMessage(msgType, msgText) {
 
 // ----------------------------------------------------------------------------------
 
-export function forwardShowFiles(ipcMsg) {
+export function setLastItem(ipcMsg) {
+  const func = ".setLastFiles";
 
-  log.debug(`${logKey}.forwardShowFiles: ${ipcMsg.payload.container}`);
+  //log.debug(`${logKey}${func}: -`, ipcMsg.payload);
 
-  config.setLastContainer(ipcMsg.payload.container);
-
-  ipc.send(constants.IPC_RENDERER, constants.ACTION_SHOW_FILES, ipcMsg.payload);
-
-
+  config.setLastItem(ipcMsg.payload.lastItemFile, ipcMsg.payload.lastContainer);
 }
 
 // ----------------------------------------------------------------------------------

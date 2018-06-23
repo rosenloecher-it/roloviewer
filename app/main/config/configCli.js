@@ -52,10 +52,6 @@ function createCliParser(defaultConfigFile) {
       '--awake -a': {
         type: 'integer',
         description: 'Suppress sleep mode for [n] minutes'
-      },
-      '--transition -t': {
-        type: 'integer',
-        description: 'Transition time in milliseconds'
       }
     })
     .usage(`${constants.APP_TITLE} v(${constants.APP_VERSION})`)
@@ -64,7 +60,6 @@ function createCliParser(defaultConfigFile) {
       if (!validateOpenAuto(this, result)) return;
 
       validateAwake(this, result);
-      validateTransition(this, result);
     })
     .onError(function arglyOnError(err) {
       this.printUsage();
@@ -108,24 +103,6 @@ function validateAwake(parser, result) {
     } else if (result.awake === true) {
       parser.printUsage();
       console.log('ERROR: missing parameter for awake!');
-      storeCliExitCode(1);
-    }
-  }
-
-  return true; // proceed checks
-}
-
-// ----------------------------------------------------------------------------------
-
-function validateTransition(parser, result) {
-  if (result.transition) {
-    if (Array.isArray(result.transition)) {
-      parser.printUsage();
-      console.log('ERROR: several occurences for transition!?');
-      storeCliExitCode(1);
-    } else if (result.transition === true) {
-      parser.printUsage();
-      console.log('ERROR: missing parameter for transiton!');
       storeCliExitCode(1);
     }
   }

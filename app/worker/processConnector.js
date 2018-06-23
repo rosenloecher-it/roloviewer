@@ -41,7 +41,7 @@ export class ProcessConnector {
     const func = ".init";
 
     const p = new Promise(function(resolve, reject) {
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
       resolve();
     });
 
@@ -57,7 +57,7 @@ export class ProcessConnector {
     const func = ".shutdown";
 
     const p = new Promise(function(resolve, reject) {
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
       resolve();
     });
 

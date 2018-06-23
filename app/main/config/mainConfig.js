@@ -272,8 +272,22 @@ export class ConfigMain {
     return this.data.lastItems.container;
   }
 
-  setLastContainer(container) {
-    this.data.lastItems.container = container;
+  setLastItem(lastItemFile, lastContainer) {
+
+    const {lastItems} = this.data;
+
+    if (typeof(lastContainer) === typeof("str")) {
+      lastItems.files = [lastItemFile];
+    } else {
+      if (!lastItems.files)
+        lastItems.files = [lastItemFile];
+      else {
+        lastItems.files.push(lastItemFile);
+        while (lastItems.files.length > constants.DEFCONF_CRAWLER_BATCHCOUNT)
+          lastItems.files.shift();
+      }
+    }
+    lastItems.container = lastContainer;
   }
 
   // ........................................................

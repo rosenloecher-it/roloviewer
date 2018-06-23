@@ -25,7 +25,7 @@ export function init(ipcMsg) {
 // ----------------------------------------------------------------------------------
 
 export function shutdown(ipcMsg) {
-  log.debug(`${_logKey}.shutdown`);
+  log.silly(`${_logKey}.shutdown`);
 
   ipc.unregisterListener();
 
@@ -65,13 +65,34 @@ export function newFiles(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
-export function requestNewFiles() {
-  const func = ".requestNewFiles";
+export function requestNewItems() {
+  const func = ".requestNewItems";
 
   try {
-    log.debug(`${_logKey}.requestNewFiles`);
-
     ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, null);
+    //log.debug(`${_logKey}${func}`);
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function publishLastItem(lastItemFile, lastContainer) {
+  const func = ".publishLastItem";
+
+  try {
+    //log.debug(`${_logKey}${func} - lastItem=${lastItemFile}, lastContainer=${lastContainer}`);
+
+    if (lastItemFile) {
+      const payload = {
+        lastItemFile,
+        lastContainer
+      }
+
+      ipc.send(constants.IPC_MAIN, constants.ACTION_SET_LAST_ITEM, payload);
+    }
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);

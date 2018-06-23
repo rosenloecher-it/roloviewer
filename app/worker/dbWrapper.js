@@ -45,7 +45,7 @@ export class DbWrapper {
     const func = ".init";
 
     const p = new Promise(function(resolve, reject) {
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
       resolve();
     });
 
@@ -58,7 +58,7 @@ export class DbWrapper {
     const func = ".shutdown";
 
     const p = new Promise(function(resolve, reject) {
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
       resolve();
     });
 

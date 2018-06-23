@@ -26,6 +26,7 @@ export const DEFCONF_RANDOM = false;
 export const DEFCONF_SCREENSAVER = false;
 export const DEFCONF_DETAILS = true;
 export const DEFCONF_TRANSITION = 2000;
+export const DEFCONF_TIMER = 7000;
 export const DEFCONF_AWAKE = 30;
 export const DEFCONF_DBNAME = 'crawler.db';
 
@@ -44,7 +45,7 @@ export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 2;
 
 export const DEBUG_ARGS =  ""; // "-r -o fff -a 12 -t 12"
 export const DEBUG_DEVTOOLS_PROD = true;
-export const DEBUG_SHOW_WORKER_WINDOW = true;
+export const DEBUG_SHOW_WORKER_WINDOW = false;
 export const DEBUG_IPC_HANDSHAKE = false;
 
 
@@ -68,12 +69,23 @@ export const ACTION_SHUTDOWN = 'ACTION_SHUTDOWN'; // main to worker + renderer
 
 export const ACTION_PUSH_MAIN_CONFIG = 'ACTION_PUSH_MAIN_CONFIG';
 
+// actions - destination - main
+
+export const ACTION_SET_LAST_ITEM = 'ACTION_SET_LAST_ITEM';
+
 // actions - destination - renderer
 
 export const ACTION_SHOW_MESSAGE = 'ACTION_SHOW_MESSAGE'; // error, warning, info
 
 export const ACTION_GO_NEXT = 'ACTION_GO_NEXT';
 export const ACTION_GO_BACK = 'ACTION_GO_BACK';
+export const ACTION_GO_PAGE_NEXT = 'ACTION_GO_PAGE_NEXT';
+export const ACTION_GO_PAGE_BACK = 'ACTION_GO_PAGE_BACK';
+export const ACTION_GO_POS1 = 'ACTION_GO_POS1';
+export const ACTION_GO_END = 'ACTION_GO_END';
+export const ACTION_TOGGLE_AUTOPLAY = 'ACTION_TOGGLE_AUTOPLAY';
+
+
 export const ACTION_SHOW_FILES = 'ACTION_SHOW_FILES';   // args: container: dir or file; when null "auto-mode" + items[]
 export const ACTION_ADD_FILES = 'ACTION_ADD_FILES';     // auto-select-mode
 export const ACTION_ADD_META = 'ACTION_ADD_META';     // add meta info for (one) file
@@ -86,7 +98,6 @@ export const ACTION_NEXT_TASK = "ACTION_NEXT_TASK";
 export const ACTION_DUMMY_TASK = "ACTION_DUMMY_TASK";
 
 export const ACTION_DELIVER_FILE_META = "ACTION_DELIVER_FILE_META";
-
 
 // action - destination - worker AND crawler only
 

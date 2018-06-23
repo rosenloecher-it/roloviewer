@@ -45,7 +45,7 @@ export class WorkerFactory {
   // ........................................................
 
   loadObjects(externalObjects) {
-    log.debug(`${_logKey}.loadObjects - in`);
+    log.silly(`${_logKey}.loadObjects - in`);
 
     this.createObjects(externalObjects);
     this.coupleObjects();
@@ -56,7 +56,7 @@ export class WorkerFactory {
   // ........................................................
 
   createObjects(externalObjectsIn) {
-    log.debug(`${_logKey}.createObjects`);
+    log.silly(`${_logKey}.createObjects`);
 
     const externalObjects = externalObjectsIn || {};
 
@@ -76,7 +76,7 @@ export class WorkerFactory {
   // ........................................................
 
   coupleObjects() {
-    log.debug(`${_logKey}.coupleObjects`);
+    log.silly(`${_logKey}.coupleObjects`);
 
     const {data} = this;
 
@@ -97,7 +97,7 @@ export class WorkerFactory {
 
   initObjects() {
     const func = ".initObjects"
-    log.debug(`${_logKey}${func} - in`);
+    log.silly(`${_logKey}${func} - in`);
 
     const {data} = this;
 
@@ -117,7 +117,7 @@ export class WorkerFactory {
     }).then(() => {
       return data.dispatcher.init();
     }).then(() => {
-      log.debug(`${_logKey}${func} - out`);
+      log.silly(`${_logKey}${func} - out`);
       return true;
     }).catch((error) => {
       log.error(`${_logKey}${func} - exception -`, error);
@@ -130,7 +130,7 @@ export class WorkerFactory {
 
   shutdownObjects() {
     const func = ".shutdownObjects"
-    log.debug(`${_logKey}${func} - in`);
+    log.silly(`${_logKey}${func} - in`);
 
     const instance = this;
     const {data} = instance;
@@ -152,7 +152,7 @@ export class WorkerFactory {
       return data.dbWrapper.shutdown();
     }).then(() => {
       instance.data = WorkerFactory.createDefaultData();
-      log.debug(`${_logKey}${func} - out`);
+      log.silly(`${_logKey}${func} - out`);
       return true;
     }).catch((error) => {
       log.error(`${_logKey}${func} - exception -`, error);

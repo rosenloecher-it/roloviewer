@@ -50,7 +50,7 @@ export class MediaLoader {
     const func = ".init";
 
     const p = new Promise(function(resolve, reject) {
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
       resolve();
     });
 
@@ -63,7 +63,7 @@ export class MediaLoader {
     const func = ".shutdown";
 
     const p = new Promise(function(resolve, reject) {
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
       resolve();
     });
 
@@ -84,7 +84,7 @@ export class MediaLoader {
       data = input;
 
     try {
-      log.debug(`${_logKey}.open -`, data);
+      //log.debug(`${_logKey}.open -`, data);
 
       if (data.container) {
 

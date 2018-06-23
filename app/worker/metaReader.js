@@ -57,7 +57,7 @@ export class MetaReader {
         return;
       }
 
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
 
       instance.data.exiftoolInitialized = true;
       instance.data.exiftoolFallback = false; //instance.data.config....exiftoolFallback;
@@ -93,7 +93,7 @@ export class MetaReader {
     const func = ".shutdown";
 
     const p = new Promise((resolve, reject) => {
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
       if (this.data.exiftool)
         this.data.exiftool.end();
       this.data.exiftool = null;

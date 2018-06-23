@@ -15,7 +15,7 @@ let _dispatcher = null;
 // ----------------------------------------------------------------------------------
 
 export function initListener() {
-  log.debug(`${_logKey}.initListener`);
+  log.silly(`${_logKey}.initListener`);
   ipcRenderer.on(_ipcMyself, listenWorkerChannel);
 
   if (constants.DEBUG_IPC_HANDSHAKE)

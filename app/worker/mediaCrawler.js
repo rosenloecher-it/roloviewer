@@ -28,7 +28,7 @@ export class MediaCrawler {
   // ........................................................
 
   coupleObjects({dbWrapper}) {
-    log.debug(`${_logKey}.coupleObjects`);
+    log.silly(`${_logKey}.coupleObjects`);
 
     this.data.dbWrapper = dbWrapper;
   }
@@ -39,7 +39,7 @@ export class MediaCrawler {
     const func = ".init";
 
     const p = new Promise(function(resolve, reject) {
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
       resolve();
       //reject("dummy");
     }).catch((error) => {
@@ -59,7 +59,7 @@ export class MediaCrawler {
     const func = ".shutdown";
 
     const p = new Promise(function(resolve, reject) {
-      log.debug(`${_logKey}${func}`);
+      log.silly(`${_logKey}${func}`);
       resolve();
     });
 

@@ -76,9 +76,13 @@ export function mergeDataRenderer(dataIn, dataFromCli, dataFromFileIn) {
 
   const set = data.slideshow;
 
-  set.transition = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION,
-    configUtils.validateInt(dataFromCli.transition),
-    configUtils.validateInt(dataFromFile.slideshow.transition));
+  set.transitionTime = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION,
+    null,
+    configUtils.validateInt(dataFromFile.slideshow.transitionTime));
+
+  set.timer = configUtils.mergeConfigItem(constants.DEFCONF_TIMER,
+    null,
+    configUtils.validateInt(dataFromFile.slideshow.timer));
 
   set.random = configUtils.mergeConfigItem(constants.DEFCONF_RANDOM,
     dataFromCli.random,

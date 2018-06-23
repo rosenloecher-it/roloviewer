@@ -75,6 +75,9 @@ function dispatchMainActions(ipcMsg) {
 
     case constants.ACTION_SHOW_FILES:
       ops.forwardShowFiles(ipcMsg); break;
+    case constants.ACTION_SET_LAST_ITEM:
+      ops.setLastItem(ipcMsg); break;
+
 
     case constants.ACTION_DUMMY_TASK:
       log.info(`${logKey}${func} - ${ipcMsg.type}`); break; // do nothing!

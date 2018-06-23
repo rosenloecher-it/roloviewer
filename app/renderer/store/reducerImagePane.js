@@ -23,13 +23,28 @@ export default (state = defaultState, action) => {
   try {
     switch (action.type) {
       case constants.ACTION_GO_BACK:
-        return goBack(state);
+        return goTo(state, state.showIndex - 1);
+        //return goBack(state, action);
       case constants.ACTION_GO_NEXT:
-        return goNext(state);
+        return goTo(state, state.showIndex + 1);
+        //return goNext(state, action);
+      case constants.ACTION_GO_PAGE_BACK:
+        return goPageBack(state, action);
+      case constants.ACTION_GO_PAGE_NEXT:
+        return goPageNext(state, action);
+      case constants.ACTION_GO_POS1:
+        return goTo(state, 0);
+        //return goPos1(state, action);
+      case constants.ACTION_GO_END:
+        return goEnd(state, action);
+        //return goEnd(state, action);
       case constants.ACTION_SHOW_FILES:
         return showFiles(state, action);
        case constants.ACTION_ADD_FILES:
          return addFiles(state, action);
+      case constants.ACTION_TOGGLE_AUTOPLAY:
+        return toggleAutoPlay(state, action);
+
 
       default:
         return state;
@@ -75,12 +90,21 @@ function addFiles(state, action) {
   setNewDeliveryKey(action.items);
 
   if (state.container === null) {
-    log.debug(`${_logKey}${func} (add) - ${action.items.length} items`);
+
+    const newItems = state.items.concat(action.items)
+    let newIndex = state.showIndex;
+
+    log.debug(`${_logKey}${func} (add) - ${action.items.length} items (sum = ${newItems.length})`);
+
+    if (newIndex < 0 && newItems.length > 0)
+      newIndex = 0;
 
     // add items
     return {
       ...state,
-      items: state.items.concat(action.items)
+      items: newItems,
+      showIndex: newIndex,
+      container: null
     }
   } else {
     log.debug(`${_logKey}${func} (replace) - ${action.items.length} items`);
@@ -98,54 +122,22 @@ function addFiles(state, action) {
 
 // ----------------------------------------------------------------------------------
 
-function goBack(state) {
-  let newIndex = -1;
-  if (state.items.length > 0)
-    newIndex = state.showIndex > 0 ? state.showIndex -1 : 0;
-
-  return {
-    ...state,
-    showIndex: newIndex
-  };
-}
-
-// ----------------------------------------------------------------------------------
-
-function sendRequest() {
-  const func = ".sendRequest";
-
-  const p = new Promise((resolve, reject) => {
-    const ops = require('../rendererOps');
-    ops.requestNewFiles();
-    resolve();
-  }).then(() => {
-    log.debug(`${_logKey}${func} - then`);
-  }).catch((error) => {
-    log.error(`${_logKey}${func} - catch -`, error);
-  })
-}
-
-// ----------------------------------------------------------------------------------
-
-function goNext(state) {
-  const func = ".goNext";
+function goTo(state, newIndexIn) {
+  const oldIndex = state.showIndex;
+  let newIndex = newIndexIn;
 
   const length = state.items.length;
 
-  if (length === 0)
-    return state; // do nothing
+  if (length > 0) {
+    if (newIndex >= length)
+      newIndex = length -1;
+    else if (newIndex < 0)
+      newIndex = 0;
+  } else
+    newIndex = -1;
 
-  const newIndex = state.showIndex + 1;
-
-  if ((state.container === null) && (newIndex + constants.DEFCONF_RENDERER_ITEM_RESERVE > length)) {
-    log.debug(`${_logKey}${func} - request new item: newIndex=${newIndex}, items.length=${length}`);
-    sendRequest();
-  }
-
-  if (newIndex >= length) {
-    // do nothing
-    return state;
-  }
+  if (oldIndex === newIndex)
+    return state; // no change
 
   return {
     ...state,
@@ -154,3 +146,43 @@ function goNext(state) {
 }
 
 // ----------------------------------------------------------------------------------
+
+function goPageBack(state, action) {
+  const func = ".goPageBack";
+
+  log.debug(`${_logKey}${func}`);
+
+  return state;
+}
+
+// ----------------------------------------------------------------------------------
+
+function goPageNext(state, action) {
+  const func = ".goPageNext";
+
+  log.debug(`${_logKey}${func}`);
+
+  return state;
+}
+
+// ----------------------------------------------------------------------------------
+
+function goEnd(state, action) {
+  if (state.container === null)
+    return goTo(state, state.showIndex + 1); // go next
+
+  return goTo(state, state.items.length - 1); // go really to end
+}
+
+// ----------------------------------------------------------------------------------
+
+function toggleAutoPlay(state, action) {
+  const newAutoPlay = !state.autoPlay;
+  return {
+    ...state,
+    autoPlay: newAutoPlay
+  };
+}
+
+// ----------------------------------------------------------------------------------
+

@@ -40,7 +40,7 @@ export class Dispatcher {
 
   coupleObjects(input) {
     const func = ".coupleObjects";
-    log.debug(`${_logKey}${func}`);
+    log.silly(`${_logKey}${func}`);
 
     this.data.config = input.config;
     this.data.mediaCrawler = input.mediaCrawler;
@@ -54,7 +54,7 @@ export class Dispatcher {
 
   init() {
     const func = ".init";
-    log.debug(`${_logKey}${func}`);
+    log.silly(`${_logKey}${func}`);
 
     this.sendMsg(constants.IPC_MAIN, constants.ACTION_READY, null);
 
@@ -66,7 +66,7 @@ export class Dispatcher {
 
   shutdown() {
     const func = ".shutdown";
-    log.debug(`${_logKey}${func}`);
+    log.silly(`${_logKey}${func}`);
 
     this.data = Dispatcher.createDefaultData();
 

@@ -50,6 +50,11 @@ export class ConfigRenderer {
 
   // ........................................................
 
+  get slideshowTimer() { return this.data.slideshow.timer; }
+  set slideshowTimer(value){ this.data.slideshow.timer = value;  }
+
+  // ........................................................
+
 }
 
 // ----------------------------------------------------------------------------------

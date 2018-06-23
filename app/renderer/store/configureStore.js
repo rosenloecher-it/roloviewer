@@ -21,8 +21,6 @@ function configureStore(initialState?: counterStateType) {
   const middleware = [];
   const enhancers = [];
 
-  log.debug(`${_logKey} - in`);
-
   const isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
   const isProduction = process.env.NODE_ENV === 'production';
   const isTest = process.env.NODE_ENV === 'test';
@@ -74,8 +72,6 @@ function configureStore(initialState?: counterStateType) {
       localStore.replaceReducer(nextReducer);
     });
   }
-
-  log.debug(`${_logKey} - out - localStore=<${!localStore ? "null" : "not null"}>`, localStore);
 
   return localStore;
 };
