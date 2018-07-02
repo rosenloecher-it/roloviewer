@@ -103,6 +103,8 @@ export class WorkerFactory {
 
     WorkerFactory.checkObjects(data);
 
+    /* eslint-disable arrow-body-style */
+
     // order crucial!
     return data.dbWrapper.init().then(() => {
       return data.taskManager.init();
@@ -123,6 +125,8 @@ export class WorkerFactory {
       log.error(`${_logKey}${func} - exception -`, error);
       throw new Error(`${_logKey}${func} - exception - `, error);
     });
+
+    /* eslint-enable arrow-body-style */
 
   }
 

@@ -19,10 +19,6 @@ deliverFileInfo
 		lade von FS + speichere in DB
 	sende an Renderer
 
-
-loadOldState
-	init + check CrawleFolder
-
 crawleFile
 	compare FS und Meta
 

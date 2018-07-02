@@ -3,12 +3,9 @@ import thunk from 'redux-thunk';
 import {createHashHistory} from "history";
 import {routerMiddleware} from "react-router-redux";
 import {createLogger} from "redux-logger";
-import log from 'electron-log';
 import rootReducer from "./reducerRoot";
 
 // ----------------------------------------------------------------------------------
-
-const _logKey = "configureStore";
 
 const _history = createHashHistory();
 

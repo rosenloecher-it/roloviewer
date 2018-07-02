@@ -4,8 +4,7 @@ describe('validate', () => {
 
   it('validateFolderArray', () => {
 
-
-    let output = vali.validateFolderArray(null);
+    const output = vali.validateFolderArray(null);
 
     expect(output).not.toBeNull();
     expect(Array.isArray(output)).toBe(true);

@@ -1,11 +1,5 @@
-import log from 'electron-log';
 import deepmerge from 'deepmerge';
 import * as constants from "../common/constants";
-import * as vali from "../common/validate";
-
-// ----------------------------------------------------------------------------------
-
-const logKey = "workerConfig";
 
 // ----------------------------------------------------------------------------------
 

@@ -24,6 +24,7 @@ describe('WorkerFactory', () => {
       return factory.shutdownObjects().then(() => {
         expect(factory.getDispatcher()).toBeNull();
         // shutdown successfully
+        return true;
       })
     });
   });

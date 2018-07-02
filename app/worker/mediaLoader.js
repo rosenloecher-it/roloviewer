@@ -2,7 +2,6 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import * as constants from "../common/constants";
-import {sendShowMessage} from "./workerIpc";
 
 // ----------------------------------------------------------------------------------
 

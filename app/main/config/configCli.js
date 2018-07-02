@@ -1,6 +1,5 @@
 import argly from 'argly';
 import * as constants from '../../common/constants';
-import * as configUtils from './configUtils';
 import { isProduction } from '../main.dev';
 
 // https://github.com/patrick-steele-idem/argly
@@ -118,19 +117,19 @@ export default function parseArgs(args, defaultConfigFile) {
   // TODO
   return {};
 
-  cliExitCode = null;
-  let result = parser.parse(args);
-
-  if (result) {
-    if (cliExitCode) result.exit_code = cliExitCode;
-  } else {
-    result = { exit_code: 99 };
-  }
-
-  if (!isProduction)
-    console.log('\ncli', result, '\n');
-
-  return result;
+  // cliExitCode = null;
+  // let result = parser.parse(args);
+  //
+  // if (result) {
+  //   if (cliExitCode) result.exit_code = cliExitCode;
+  // } else {
+  //   result = { exit_code: 99 };
+  // }
+  //
+  // if (!isProduction)
+  //   console.log('\ncli', result, '\n');
+  //
+  // return result;
 }
 
 // ----------------------------------------------------------------------------------

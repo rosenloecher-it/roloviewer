@@ -55,7 +55,7 @@ export class TaskManager {
   init() {
     const func = ".init";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function initPromise(resolve, reject) {
       log.debug(`${_logKey}${func}`);
       resolve();
     });
@@ -68,7 +68,7 @@ export class TaskManager {
   shutdown() {
     const func = ".shutdown";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function shutdownPromise(resolve, reject) {
       log.debug(`${_logKey}${func}`);
       resolve();
     });
@@ -125,7 +125,7 @@ export class TaskManager {
   restore() {
     const func = ".restore";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function restorePromise(resolve, reject) {
       log.debug(`${_logKey}${func}`);
       resolve();
     });
@@ -138,7 +138,7 @@ export class TaskManager {
   persist() {
     const func = ".persist";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function persistPromise(resolve, reject) {
       log.debug(`${_logKey}${func}`);
       resolve();
     });

@@ -44,7 +44,7 @@ export class DbWrapper {
   init() {
     const func = ".init";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function initPromise(resolve, reject) {
       log.silly(`${_logKey}${func}`);
       resolve();
     });
@@ -57,7 +57,7 @@ export class DbWrapper {
   shutdown() {
     const func = ".shutdown";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function shutdownPromise(resolve, reject) {
       log.silly(`${_logKey}${func}`);
       resolve();
     });
@@ -70,7 +70,7 @@ export class DbWrapper {
   open(dbfile) {
     const func = ".open";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function openPromise(resolve, reject) {
       log.debug(`${_logKey}${func} -`, dbfile);
       resolve();
     });
@@ -83,7 +83,7 @@ export class DbWrapper {
   close() {
     const func = ".close";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function closePromise(resolve, reject) {
       log.debug(`${_logKey}${func}`);
       resolve();
     });

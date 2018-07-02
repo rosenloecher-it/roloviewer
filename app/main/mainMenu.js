@@ -1,4 +1,4 @@
-import { app, Menu } from 'electron';
+import { Menu } from 'electron';
 import * as ops from "./mainOps";
 import config from "./config/mainConfig";
 

@@ -38,7 +38,7 @@ export class MediaCrawler {
   init() {
     const func = ".init";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function initPromise(resolve, reject) {
       log.silly(`${_logKey}${func}`);
       resolve();
       //reject("dummy");
@@ -48,9 +48,6 @@ export class MediaCrawler {
     });
 
     return p;
-
-    // return dummy promise
-    return new Promise(function(resolve) { resolve(); });
   }
 
   // ........................................................
@@ -58,7 +55,7 @@ export class MediaCrawler {
   shutdown() {
     const func = ".shutdown";
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function shutdownPromise(resolve, reject) {
       log.silly(`${_logKey}${func}`);
       resolve();
     });

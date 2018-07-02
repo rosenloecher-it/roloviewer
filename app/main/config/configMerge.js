@@ -124,7 +124,7 @@ export function mergeDataCrawler(dataIn, dataFromCli, dataFromFileIn) {
   set.folderBlacklist = vali.validateFolderArray(dataFromFile.crawler.folderBlacklist);
   set.folderBlacklistSnippets = vali.validateBlacklistSnippets(dataFromFile.crawler.folderBlacklistSnippets);
 
-  for (const i = 0; i < set.folderBlacklist.length; i++) {
+  for (let i = 0; i < set.folderBlacklist.length; i++) {
     set.folderBlacklist[i] = path.normalize(set.folderBlacklist[i]);
   }
 }

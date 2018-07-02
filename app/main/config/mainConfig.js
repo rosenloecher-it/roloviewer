@@ -320,7 +320,6 @@ export class ConfigMain {
   // ........................................................
 
 
-  lastContainer
 
 }
 

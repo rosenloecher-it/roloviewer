@@ -116,12 +116,14 @@ export function validateRatingArray(input) {
   if (!Array.isArray(input))
     return [];
 
-  let output = [];
+  const output = [];
 
   for (let i = 0; i < input.length; i++) {
     const text = input[i];
     const value = validateInt(text);
 
+    if (value === null) // make flow happy
+      continue;
     if (typeof(value) !== typeof(1))
       continue;
     if (value < 0 || value > 5)
@@ -201,10 +203,10 @@ export function findExifTool(pathFromFile) {
 
 // ----------------------------------------------------------------------------------
 
-export function mkDirByPathSync(targetDir, {isRelativeToScript = false} = {}) {
-  const sep = path.sep;
+export function mkDirByPathSync(targetDir) {
+  const {sep} = path;
   const initDir = path.isAbsolute(targetDir) ? sep : '';
-  const baseDir = isRelativeToScript ? __dirname : '.';
+  const baseDir = '.';
 
   targetDir.split(sep).reduce((parentDir, childDir) => {
     const curDir = path.resolve(baseDir, parentDir, childDir);

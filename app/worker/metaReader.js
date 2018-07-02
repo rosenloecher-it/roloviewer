@@ -50,7 +50,7 @@ export class MetaReader {
 
     const instance = this;
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function initPromise(resolve, reject) {
 
       if (instance.data.exiftoolInitialized || instance.data.exiftool) {
         resolve();
@@ -112,6 +112,7 @@ export class MetaReader {
 
     if (exiftoolPath && fs.existsSync(exiftoolPath)) {
 
+      /* eslint-disable no-void */
       const maxProcs = void(0);
       const maxTasksPerProcess = void(0);
       const spawnTimeoutMillis = void(0);
@@ -119,6 +120,8 @@ export class MetaReader {
       const onIdleIntervalMillis = void(0);
       const taskRetries = void(0);
       const batchClusterOpts = void(0);
+      /* eslint-enable no-void */
+
       //const exiftoolPath = '/usr/bin/exiftool';
 
       exiftool = new ExifTool(maxProcs, maxTasksPerProcess, spawnTimeoutMillis, taskTimeoutMillis, onIdleIntervalMillis, taskRetries, batchClusterOpts
@@ -141,7 +144,7 @@ export class MetaReader {
     if (!this.data.exiftool)
       return;
 
-    const p = new Promise(function(resolve, reject) {
+    const p = new Promise(function deliverMetaPromise(resolve, reject) {
       log.debug(`${_logKey}${func}: in - ${file}`);
 
       if (this.data.exiftool) {
