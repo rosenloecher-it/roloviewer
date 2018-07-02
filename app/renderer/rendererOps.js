@@ -35,8 +35,24 @@ export function shutdown(ipcMsg) {
 
 export function showMessage(ipcMsg) {
 
-  log.debug(`${_logKey}.showMessage:`);
+  log.silly(`${_logKey}.showMessage:`);
 
+}
+
+// ----------------------------------------------------------------------------------
+
+export function toogleHelp() {
+  const func = ".toogleHelp";
+
+  try {
+    log.silly(`${_logKey}${func} - invoked`);
+
+    _store.dispatch(actions.helpToogle());
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
 }
 
 // ----------------------------------------------------------------------------------

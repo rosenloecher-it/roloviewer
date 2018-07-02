@@ -216,7 +216,8 @@ export function quitApp() {
 // ----------------------------------------------------------------------------------
 
 export function showHelp() {
-  log.debug('showHelp');
+  log.silly('showHelp');
+  ipc.send(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE, null);
 }
 
 // ----------------------------------------------------------------------------------

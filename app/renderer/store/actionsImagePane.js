@@ -33,3 +33,15 @@ export const newFiles = ({ type, container, items }) => ({
   container,
   items,
 });
+
+export const helpOpen = () => ({
+  type: constants.ACTION_HELP_OPEN
+});
+
+export const helpClose = () => ({
+  type: constants.ACTION_HELP_CLOSE
+});
+
+export const helpToogle = () => ({
+  type: constants.ACTION_HELP_TOOGLE
+});

@@ -85,6 +85,9 @@ export const ACTION_GO_POS1 = 'ACTION_GO_POS1';
 export const ACTION_GO_END = 'ACTION_GO_END';
 export const ACTION_TOGGLE_AUTOPLAY = 'ACTION_TOGGLE_AUTOPLAY';
 
+export const ACTION_HELP_OPEN = 'ACTION_HELP_OPEN';
+export const ACTION_HELP_CLOSE = 'ACTION_HELP_CLOSE';
+export const ACTION_HELP_TOOGLE = 'ACTION_HELP_TOOGLE';
 
 export const ACTION_SHOW_FILES = 'ACTION_SHOW_FILES';   // args: container: dir or file; when null "auto-mode" + items[]
 export const ACTION_ADD_FILES = 'ACTION_ADD_FILES';     // auto-select-mode

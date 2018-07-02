@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as cssConstants from '../style/cssConstants';
-import ImagePane from './ImagePane';
-
+import ImagePane from './imagePane';
+import HelpDialog from './helpDialog';
 
 class Slideshow extends Component {
 
@@ -15,6 +15,7 @@ class Slideshow extends Component {
 
     return (
       <div className={cssConstants.CSS_MAINPANE}>
+        <HelpDialog />
         <ImagePane />
       </div>
     );

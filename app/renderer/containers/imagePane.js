@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ReactCSSTransitionReplace from 'react-css-transition-replace';
 import {connect} from "react-redux";
 import log from 'electron-log';
@@ -14,7 +14,7 @@ const _logKey = "imapePane";
 
 // ----------------------------------------------------------------------------------
 
-class ImagePane extends Component {
+class ImagePane extends React.Component {
 
   constructor(props) {
     super(props);
@@ -40,7 +40,7 @@ class ImagePane extends Component {
   // .......................................................
 
   componentDidMount() {
-    window.addEventListener("click", this.onClick);
+    //window.addEventListener("click", this.onClick);
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("wheel", this.onMouseWheel);
     window.addEventListener('scroll', this.onScroll);
@@ -53,7 +53,7 @@ class ImagePane extends Component {
     if (this.data.timerId)
       clearInterval(this.data.timerId);
 
-    window.removeEventListener("click", this.onClick);
+    //window.removeEventListener("click", this.onClick);
     window.removeEventListener("keydown", this.onKeyDown);
     window.removeEventListener("wheel", this.onMouseWheel);
     window.removeEventListener('scroll', this.onScroll);
@@ -85,6 +85,7 @@ class ImagePane extends Component {
   }
 
   goNext() {
+    log.debug(`${_logKey}.goNext`);
     this.props.dispatch(actions.goNext());
   }
 
@@ -92,7 +93,9 @@ class ImagePane extends Component {
   // .......................................................
 
   onClick() {
-    this.goNext();
+    log.debug(`${_logKey}.onClick`);
+    if (!this.props.showHelp)
+      this.goNext();
   }
 
   // .......................................................
@@ -155,8 +158,9 @@ class ImagePane extends Component {
     if (imagePath)
       this.sendNotifications(imagePath);
 
+    // https://github.com/marnusw/react-css-transition-replace
+
     return (
-      // https://github.com/marnusw/react-css-transition-replace
       <ReactCSSTransitionReplace
         className={cssConstants.CSS_IMAGEPANE}
         transitionName="cross-fade"
@@ -167,10 +171,10 @@ class ImagePane extends Component {
           className={cssConstants.CSS_IMAGEPANE}
           src={imagePath}
           key={imageKey}
+          onClick={this.onClick}
         />
 
       </ReactCSSTransitionReplace>
-
     );
   }
 
@@ -260,7 +264,8 @@ const mapStateToProps = state => ({
   showIndex: state.imagePane.showIndex,
   items: state.imagePane.items,
   container: state.imagePane.container,
-  autoPlay: state.imagePane.autoPlay
+  autoPlay: state.imagePane.autoPlay,
+  showHelp: state.imagePane.showHelp,
 });
 
 export default connect( mapStateToProps )(ImagePane);

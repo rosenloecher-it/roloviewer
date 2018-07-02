@@ -13,7 +13,8 @@ const defaultState = {
   autoFile: false,
   showIndex: -1,
   items: [],
-  container: null
+  container: null,
+  showHelp: false
 };
 
 // ----------------------------------------------------------------------------------
@@ -45,6 +46,12 @@ export default (state = defaultState, action) => {
       case constants.ACTION_TOGGLE_AUTOPLAY:
         return toggleAutoPlay(state, action);
 
+      case constants.ACTION_HELP_SHOW:
+        return helpShow(state, action);
+      case constants.ACTION_HELP_CLOSE:
+        return helpClose(state, action);
+      case constants.ACTION_HELP_TOOGLE:
+        return helpToogle(state, action);
 
       default:
         return state;
@@ -186,3 +193,30 @@ function toggleAutoPlay(state, action) {
 
 // ----------------------------------------------------------------------------------
 
+function helpShow(state) {
+  return {
+    ...state,
+    showHelp: true
+  };
+}
+
+// ----------------------------------------------------------------------------------
+
+function helpClose(state) {
+  return {
+    ...state,
+    showHelp: false
+  };
+}
+
+// ----------------------------------------------------------------------------------
+
+function helpToogle(state) {
+  const newShowHelp = !state.showHelp;
+  return {
+    ...state,
+    showHelp: newShowHelp
+  };
+}
+
+// ----------------------------------------------------------------------------------
