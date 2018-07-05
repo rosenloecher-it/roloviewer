@@ -70,8 +70,8 @@ function dispatchRendererActions(ipcMsg) {
       case constants.ACTION_PUSH_MAIN_CONFIG:
         ops.init(ipcMsg); break;
 
-      case constants.ACTION_SHOW_MESSAGE:
-        ops.showMessage(ipcMsg); break;
+      case constants.ACTION_MSG_ADD:
+        ops.addMessage(ipcMsg); break;
       case constants.ACTION_SHOW_FILES:
       case constants.ACTION_ADD_FILES:
         ops.newFiles(ipcMsg); break;

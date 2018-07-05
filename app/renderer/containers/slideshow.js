@@ -168,6 +168,7 @@ class Slideshow extends React.Component {
         <ImagePane />
         <DetailsOverlay />
         {helpOverlay}
+        <MessageDialog />
 
       </div>
     );

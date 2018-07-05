@@ -57,7 +57,7 @@ export const IPC_RENDERER = 'IPC_RENDERER';
 export const IPC_WORKER = 'IPC_WORKER';
 
 // --------------------------------------------------------------------------
-// actions - common
+// actionsSls - common
 
 export const ACTION_HANDSHAKE_REQUEST = 'ACTION_HANDSHAKE_REQUEST';
 export const ACTION_HANDSHAKE_ANSWER = 'ACTION_HANDSHAKE_ANSWER';
@@ -72,13 +72,16 @@ export const ACTION_PUSH_MAIN_CONFIG = 'ACTION_PUSH_MAIN_CONFIG';
 export const ACTION_ESC_CLOSING = 'ACTION_ESC_CLOSING';
 
 
-// actions - destination - main
+// actionsSls - destination - main
 
 export const ACTION_SET_LAST_ITEM = 'ACTION_SET_LAST_ITEM';
 
-// actions - destination - renderer
+// actionsSls - destination - renderer
 
-export const ACTION_SHOW_MESSAGE = 'ACTION_SHOW_MESSAGE'; // error, warning, info
+export const ACTION_MSG_ADD = 'ACTION_MSG_ADD'; // error, warning, info
+export const ACTION_MSG_REMOVE_FIRST = 'ACTION_MSG_REMOVE_FIRST';
+export const ACTION_MSG_REMOVE_ALL = 'ACTION_MSG_REMOVE_ALL';
+export const ACTION_MSG_CLOSE_DIALOG = 'ACTION_MSG_CLOSE_DIALOG';
 
 export const ACTION_GO_NEXT = 'ACTION_GO_NEXT';
 export const ACTION_GO_BACK = 'ACTION_GO_BACK';

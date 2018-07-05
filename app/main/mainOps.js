@@ -257,7 +257,7 @@ export function showMessage(msgType, msgText) {
   const payload = { msgType, msgText };
 
   // TODO
-  // ipc.send(constants.IPC_RENDERER, constants.ACTION_SHOW_MESSAGE, payload);
+  // ipc.send(constants.IPC_RENDERER, constants.ACTION_MSG_ADD, payload);
 }
 
 // ----------------------------------------------------------------------------------
@@ -273,24 +273,22 @@ export function setLastItem(ipcMsg) {
 // ----------------------------------------------------------------------------------
 
 export function debug1() {
-
-  log.silly('debug1');
-  ipc.send(constants.IPC_RENDERER, constants.ACTION_DETAILS_TOOGLE, null);
-
+  log.debug('debug1');
+  ipc.sendShowMessage(constants.MSG_TYPE_INFO, "msgText - info", "msgDetails");
 }
 
 // ----------------------------------------------------------------------------------
 
 export function debug2() {
-  log.silly('debug2');
-  ipc.send(constants.IPC_RENDERER, constants.ACTION_DETAILS_MOVE, null);
+  log.debug('debug2');
+  ipc.sendShowMessage(constants.MSG_TYPE_WARNING, "msgText - warn", "msgDetails");
 }
 
 // --------------------------------------------------------------------------------
 
 export function debug3() {
-  log.silly('debug3');
-  ipc.send(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE, null);
+  log.debug('debug3');
+  ipc.sendShowMessage(constants.MSG_TYPE_ERROR, "msgText - error", "msgDetails");
 }
 
 // --------------------------------------------------------------------------------

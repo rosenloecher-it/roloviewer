@@ -3,7 +3,8 @@ import * as constants from "../common/constants";
 import * as ipc from "./rendererIpc";
 import config from "./rendererConfig";
 import { _store } from './store/configureStore';
-import * as actions from "./store/actionsSlideshow";
+import * as actionsSls from "./store/actionsSlideshow";
+import * as actionsMsg from "./store/actionsMessages";
 
 // ----------------------------------------------------------------------------------
 
@@ -37,12 +38,11 @@ export function askQuitApp(ipcMsg) {
   const func = ".askQuitApp";
 
   try {
-    log.silly(`${_logKey}${func} - invoked`);
-
+    //log.silly(`${_logKey}${func} - invoked`);
     const {helpShow} = _store.getState().slideshow;
 
     if (helpShow)
-      _store.dispatch(actions.helpClose());
+      _store.dispatch(actionsSls.helpClose());
     else
       ipc.send(constants.IPC_MAIN, constants.ACTION_ESC_CLOSING, null);
 
@@ -54,10 +54,16 @@ export function askQuitApp(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
-export function showMessage(ipcMsg) {
+export function addMessage(ipcMsg) {
+  const func = ".addMessage";
 
-  log.silly(`${_logKey}.showMessage:`);
-
+  try {
+    //log.silly(`${_logKey}${func} - invoked`);
+    _store.dispatch(actionsMsg.add(ipcMsg.payload));
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
 }
 
 // ----------------------------------------------------------------------------------
@@ -68,7 +74,7 @@ export function helpToogle() {
   try {
     log.silly(`${_logKey}${func} - invoked`);
 
-    _store.dispatch(actions.helpToogle());
+    _store.dispatch(actionsSls.helpToogle());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
@@ -84,7 +90,7 @@ export function detailsToogle() {
   try {
     log.silly(`${_logKey}${func} - invoked`);
 
-    _store.dispatch(actions.detailsToogle());
+    _store.dispatch(actionsSls.detailsToogle());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
@@ -100,7 +106,7 @@ export function detailsMove() {
   try {
     log.silly(`${_logKey}${func} - invoked`);
 
-    _store.dispatch(actions.detailsMove());
+    _store.dispatch(actionsSls.detailsMove());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
@@ -116,7 +122,7 @@ export function newFiles(ipcMsg) {
   try {
     log.debug(`${_logKey}.newFiles: type=${ipcMsg.type}, container=${ipcMsg.payload.container}`);
 
-    const action = actions.newFiles({
+    const action = actionsSls.newFiles({
       type: ipcMsg.type,
       container: ipcMsg.payload.container,
       items: ipcMsg.payload.items

@@ -173,7 +173,7 @@ export function createIpcShowMessage(ipcSource, msgType, msgText, msgDetails) {
     msgDetails
   };
 
-  return createIpcMessage(ipcSource, constants.IPC_RENDERER, constants.ACTION_SHOW_MESSAGE, payload);
+  return createIpcMessage(ipcSource, constants.IPC_RENDERER, constants.ACTION_MSG_ADD, payload);
 }
 
 // ----------------------------------------------------------------------------------

@@ -1,8 +1,9 @@
 import React from 'react';
 import {connect} from "react-redux";
 import log from 'electron-log';
-import * as actions from "../store/actionsSlideshow";
-import { Button, Dialog, Intent } from '@blueprintjs/core';
+import { Button, Dialog, Intent, Icon} from '@blueprintjs/core';
+import * as actions from "../store/actionsMessages";
+import * as constants from "../../common/constants";
 
 // ----------------------------------------------------------------------------------
 
@@ -15,32 +16,83 @@ class MessageDialog extends React.Component {
   constructor(props) {
     super(props);
 
-    this.onClose = this.onClose.bind(this);
+    this.onCloseAll = this.onCloseAll.bind(this);
+    this.onNext = this.onNext.bind(this);
     this.render = this.render.bind(this);
   }
 
-  onClose() {
-    this.props.dispatch(actions.helpClose());
+  // .......................................................
+
+  onCloseAll() {
+    this.props.dispatch(actions.removeAll());
   }
 
-  render() {
-    return (
+  // .......................................................
 
+  onNext() {
+    this.props.dispatch(actions.removeFirst());
+  }
+
+  // .......................................................
+
+  render() {
+
+    const {props} = this;
+
+    const cssTableClass = "popover-table";
+
+    let message = null;
+    if (props.messages.length > 0)
+      message = props.messages[0];
+    else
+      message = {};
+
+    const text = `type=${message.msgType}, text=${message.msgText}, details=${message.msgDetails}`;
+
+    const showMore = (props.messages.length > 1);
+
+    let title, icon;
+    switch (message.msgType) {
+      case constants.MSG_TYPE_ERROR:
+        title = "Error";
+        icon = <Icon icon="error" color="red"/>;
+        break;
+      case constants.MSG_TYPE_WARNING:
+        title = "Warning";
+        icon = <Icon icon="error" color="yellow"/>;
+        break;
+      default: // MSG_TYPE_INFO
+        title = "Info";
+        icon = <Icon icon="info-sign"/>;
+        break;
+    }
+
+    //{msgType, msgText, msgDetails} : action
+
+    //className="pt-dialog-footer-info"
+
+    return (
       <div>
         <Dialog
-          icon="inbox"
-          isOpen={this.props.isOpen}
+          icon={icon}
+          isOpen={this.props.showMessages}
           onClose={this.onClose}
-          title="Help"
+          title={title}
           className="pt-dialog pt-dark"
         >
-          <div className="pt-dialog-body">Some content</div>
+          <div className="pt-dialog-body">{text}</div>
           <div className="pt-dialog-footer">
             <div className="pt-dialog-footer-actions">
-              <Button
-                onClick={this.onClose}
-                text="Close"
-              />
+
+              <table className={cssTableClass}><tbody>
+                <tr>
+                  <td>{showMore && `(${props.messages.length - 1} more messages)`}</td>
+                  <td>
+                    {showMore && <Button onClick={this.onCloseAll} text="Close all" />}
+                    <Button onClick={this.onNext} text={showMore ? "Next" : "Close"} />
+                  </td>
+                </tr>
+              </tbody></table>
             </div>
           </div>
         </Dialog>
@@ -48,13 +100,13 @@ class MessageDialog extends React.Component {
 
     );
   }
-
 }
 
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  isOpen: state.slideshow.helpShow,
+  messages: state.messages.messages,
+  showMessages: state.messages.showMessages,
 });
 
 export default connect( mapStateToProps )(MessageDialog);
