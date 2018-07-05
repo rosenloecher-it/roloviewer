@@ -6,11 +6,11 @@ import { Button, Dialog, Intent } from '@blueprintjs/core';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "helpDialog";
+const _logKey = "messageDialog";
 
 // ----------------------------------------------------------------------------------
 
-class HelpDialog extends React.Component {
+class MessageDialog extends React.Component {
 
   constructor(props) {
     super(props);
@@ -57,7 +57,7 @@ const mapStateToProps = state => ({
   isOpen: state.slideshow.helpShow,
 });
 
-export default connect( mapStateToProps )(HelpDialog);
+export default connect( mapStateToProps )(MessageDialog);
 
 /*
 

@@ -55,10 +55,10 @@ class DetailsOverlay extends React.Component {
       return null; // show nothing
 
     const showAll = (state === constants.DETAILS_STATE_ALL);
-    const showPath = (state === constants.DETAILS_STATE_MIN) || showAll;
+    const showMin = (state === constants.DETAILS_STATE_MIN) || showAll;
 
     let itemPath = null;
-    if (showPath)
+    if (showMin)
       itemPath = determinePathAndFilename(item, shortenPathNum);
     else
       itemPath = {};
@@ -71,8 +71,9 @@ class DetailsOverlay extends React.Component {
 
           {props.autoPlay && <tr><td><Icon icon="play"/></td></tr>}
 
-          {this.renderTableLine(showPath, "Folder", itemPath.dir)}
-          {this.renderTableLine(showPath, "Filename", itemPath.filename)}
+          {this.renderTableLine(showMin, "Folder", itemPath.dir)}
+          {this.renderTableLine(showMin, "Filename", itemPath.filename)}
+          {this.renderTableLine(showMin, "Position", `${props.showIndex + 1}/${props.items.length}`)}
 
           {this.renderTableLine(showAll, "xxxx", "xxxx")}
 
