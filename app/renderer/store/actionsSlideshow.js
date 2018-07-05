@@ -53,3 +53,11 @@ export const detailsToogle = () => ({
 export const detailsMove = () => ({
   type: constants.ACTION_DETAILS_MOVE
 });
+
+export const cursorHide = () => ({
+  type: constants.ACTION_CURSOR_HIDE
+});
+
+export const cursorShow = () => ({
+  type: constants.ACTION_CURSOR_SHOW
+});

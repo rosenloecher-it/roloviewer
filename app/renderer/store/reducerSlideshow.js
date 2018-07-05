@@ -16,7 +16,8 @@ const defaultState = {
   container: null,
   helpShow: false,
   detailsState: getValidDetailsState(null, false),
-  detailsPosition: getValidDetailsPosition(null, false)
+  detailsPosition: getValidDetailsPosition(null, false),
+  cursorHide: false,
 };
 
 // ----------------------------------------------------------------------------------
@@ -59,6 +60,11 @@ export default (state = defaultState, action) => {
         return detailsMove(state, action);
       case constants.ACTION_DETAILS_TOOGLE:
         return detailsToogle(state, action);
+
+      case constants.ACTION_CURSOR_HIDE:
+        return cursorHide(state, action);
+      case constants.ACTION_CURSOR_SHOW:
+        return cursorShow(state, action);
 
       default:
         return state;
@@ -301,4 +307,20 @@ export function detailsToogle(state) {
 
 // ----------------------------------------------------------------------------------
 
+export function cursorHide(state) {
+  return {
+    ...state,
+    cursorHide: true,
+  };
+}
 
+// ----------------------------------------------------------------------------------
+
+export function cursorShow(state) {
+  return {
+    ...state,
+    cursorHide: false,
+  };
+}
+
+// ----------------------------------------------------------------------------------

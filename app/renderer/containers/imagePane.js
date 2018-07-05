@@ -19,10 +19,6 @@ class ImagePane extends React.Component {
   constructor(props) {
     super(props);
 
-    this.data = {
-      timerId: null
-    };
-
     this.onClick = this.onClick.bind(this);
     this.onMouseWheel = this.onMouseWheel.bind(this);
     this.render = this.render.bind(this);
@@ -32,7 +28,6 @@ class ImagePane extends React.Component {
   // .......................................................
 
   componentDidMount() {
-
     window.addEventListener("wheel", this.onMouseWheel);
     window.addEventListener('scroll', this.onScroll);
   }
@@ -40,10 +35,6 @@ class ImagePane extends React.Component {
   // .......................................................
 
   componentWillUnmount() {
-
-    if (this.data.timerId)
-      clearInterval(this.data.timerId);
-
     window.removeEventListener("wheel", this.onMouseWheel);
     window.removeEventListener('scroll', this.onScroll);
   }
@@ -86,29 +77,32 @@ class ImagePane extends React.Component {
 
     const {props} = this;
 
+    const cssImagePane = cssConstants.CSS_IMAGEPANE;
+
     let imagePath = null;
     if (props.showIndex >= 0 && props.showIndex < props.items.length) {
       const item = props.items[props.showIndex];
       imagePath = item.file;
     }
     const imageKey = (!imagePath ? "undefined" : imagePath);
-    //log.debug(`${_logKey}${func}(${props.showIndex}):`, imagePath);
-    log.debug(`${_logKey}${func}(${props.showIndex}, autoPlay=${props.autoPlay}):`, imagePath);
+
+    log.debug(`${_logKey}${func}(${props.showIndex}, autoPlay=${props.autoPlay}, cursorHide=${props.cursorHide}):`, imagePath);
 
     // https://github.com/marnusw/react-css-transition-replace
 
     return (
       <ReactCSSTransitionReplace
-        className={cssConstants.CSS_IMAGEPANE}
+        className={cssImagePane}
         transitionName="cross-fade"
         transitionEnterTimeout={2000}
         transitionLeaveTimeout={2000}
       >
         <img
-          className={cssConstants.CSS_IMAGEPANE}
+          className={cssImagePane}
           src={imagePath}
           key={imageKey}
           onClick={this.onClick}
+          style={ props.cursorHide ? { cursor: 'none' } : null }
         />
 
       </ReactCSSTransitionReplace>
@@ -120,9 +114,10 @@ class ImagePane extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  showIndex: state.slideshow.showIndex,
-  items: state.slideshow.items,
   autoPlay: state.slideshow.autoPlay,
+  cursorHide: state.slideshow.cursorHide,
+  items: state.slideshow.items,
+  showIndex: state.slideshow.showIndex,
 });
 
 export default connect( mapStateToProps )(ImagePane);

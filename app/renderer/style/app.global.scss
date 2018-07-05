@@ -46,11 +46,6 @@ body {
   //overflow:hidden;
 }
 
-.image-pane-no-cursor {
-  @extends .image-pane;
-  cursor: none;
-}
-
 .main-pane {
   position: absolute;
   display: flex;
