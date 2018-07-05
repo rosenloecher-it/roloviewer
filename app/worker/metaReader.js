@@ -2,6 +2,9 @@ import {ExifTool} from "exiftool-vendored";
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
+import * as constants from "../common/constants";
+import { validateInt } from '../common/validate';
+import {separateFilePath} from "../common/transfromPath";
 
 // ----------------------------------------------------------------------------------
 
@@ -16,12 +19,11 @@ export class MetaReader {
     this.data = MetaReader.createDefaultData();
 
     this.coupleObjects = this.coupleObjects.bind(this);
+    this.deliverMeta = this.deliverMeta.bind(this);
     this.init = this.init.bind(this);
     this.shutdown = this.shutdown.bind(this);
-
-    this.deliverMeta = this.deliverMeta.bind(this);
+    this.transformAndDeliverTags = this.transformAndDeliverTags.bind(this);
   }
-
 
   // ........................................................
 
@@ -144,17 +146,32 @@ export class MetaReader {
     if (!this.data.exiftool)
       return;
 
-    const p = new Promise(function deliverMetaPromise(resolve, reject) {
-      log.debug(`${_logKey}${func}: in - ${file}`);
+    const instance = this;
 
-      if (this.data.exiftool) {
-        this.data.exiftool
-          .read(file)
-          .then(tags => resolve(prepareTagsFromExiftool(file, tags)))
-          .catch(err => reject(err));
-      } else {
-        // TODO implement fallback to ExifReader
-        reject(new Error ("exiftool is not initialied (and fallback ist not implemented)!"));
+    const p = new Promise(function deliverMetaPromise(resolve, reject) {
+      try {
+        //log.debug(`${_logKey}${func}: in - ${file}`);
+
+        if (instance.data.exiftool) {
+          instance.data.exiftool.read(file).then((tags) => {
+            //log.debug(`${_logKey}${func}: in2 - ${file}`);
+            instance.transformAndDeliverTags(file, tags);
+            resolve();
+            return true;
+          }).catch((err) => {
+            log.error(`${_logKey}${func} - exception - `, err);
+            instance.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, `exception - ${_logKey}${func} - ${err}`);
+            reject(err);
+            return false;
+          });
+        } else {
+          // TODO implement fallback to ExifReader
+          reject(new Error("exiftool is not initialied (and fallback is not implemented)!"));
+        }
+      } catch (err) {
+        log.error(`${_logKey}${func} - exception:`, err);
+        instance.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, `exception - ${_logKey}${func} - ${err}`);
+        reject();
       }
     });
 
@@ -163,78 +180,75 @@ export class MetaReader {
 
   // ........................................................
 
+  transformAndDeliverTags(file, tags) {
+    const func = ".transformAndDeliverTags";
 
+    const meta = prepareTagsFromExiftool(file, tags);
+    this.data.processConnector.send(constants.IPC_RENDERER, constants.ACTION_DELIVER_FILE_META, meta);
+      //ipcTarget, ipcType, payload);
+
+    //log.debug(`${_logKey}${func} - cameraModel=${meta.cameraModel} - file=${file}`);
+  }
 }
-
-// ----------------------------------------------------------------------------------
-
-
 
 // ----------------------------------------------------------------------------------
 
 export function prepareTagsFromExiftool(file, tags) {
   let temp = null;
 
-  const filtered = {
+  const sepPath = separateFilePath(file, 4);
+  const meta = {
     file,
-    basename: path.basename(file),
-    folder: path.dirname(file),
+    filename: sepPath.filename,
+    dir: sepPath.dir,
   };
 
-  filtered.ImageHeight = tags.ImageHeight;
-  filtered.ImageWidth = tags.ImageWidth;
+  meta.imageHeight = tags.ImageHeight;
+  meta.imageWidth = tags.ImageWidth;
+  meta.imageSize = `${tags.ImageWidth}x${tags.ImageHeight}`;
 
-  filtered.Model = tags.Model;
-  filtered.Lens = tags.LensID || tags.LensInfo || tags.Lens || tags.LensModel;
+  meta.cameraModel = tags.Model;
+  meta.cameraLens = tags.LensInfo || tags.LensModel || tags.Lens || tags.LensID;
 
-  filtered.ShutterSpeed = tags.ShutterSpeedValue || tags.ShutterSpeed || tags.FNumber;
-  filtered.Aperture = tags.ApertureValue || tags.Aperture || tags.FNumber;
-  filtered.ISO = tags.ISO;
-  filtered.Flash = tags.Flash;
+
+  meta.photoShutterSpeed = tags.ShutterSpeedValue || tags.ShutterSpeed || tags.FNumber;
+  meta.photoAperture = tags.ApertureValue || tags.Aperture || tags.FNumber;
+  meta.photoISO = tags.ISO;
+  meta.photoFlash = tags.Flash;
 
   temp = validateInt(tags.FocalLength);
   if (temp)
-    filtered.FocalLength = `${temp} mm`;
+    meta.photoFocalLength = `${temp} mm`;
 
   temp = validateInt(tags.UprightFocalLength35mm);
   if (temp)
-    filtered.UprightFocalLength35mm = `${temp} mm`;
+    meta.photoUprightFocalLength35mm = `${temp} mm`;
 
-  filtered.GPSAltitude = tags.GPSAltitude; // '255.3837 m'
-  filtered.GPSLatitude = tags.GPSLatitude; // 51.02369333
-  filtered.GPSLatitudeRef = tags.GPSLatitudeRef; // 'North'
-  filtered.GPSLongitude = tags.GPSLongitude; // 13.65431667
-  filtered.GPSLongitudeRef = tags.GPSLongitudeRef; // 'East'
-  filtered.GPSPosition = tags.GPSPosition; // '51.02369333 N, 13.65431667 E'
-  filtered.GPSVersionID = tags.GPSVersionID; // '2.2.0.0'
+  meta.gpsAltitude = tags.GPSAltitude; // '255.3837 m'
+  meta.gpsLatitude = tags.GPSLatitude; // 51.02369333
+  meta.gpsLatitudeRef = tags.GPSLatitudeRef; // 'North'
+  meta.gpsLongitude = tags.GPSLongitude; // 13.65431667
+  meta.gpsLongitudeRef = tags.GPSLongitudeRef; // 'East'
+  meta.gpsPosition = tags.GPSPosition; // '51.02369333 N, 13.65431667 E'
+  meta.gpsVersionID = tags.GPSVersionID; // '2.2.0.0'
 
-  filtered.Country = tags.Country; // 'Deutschland'
-  filtered.Province = tags.State || tags['Province-State']; // 'Sachsen'
-  filtered.City = tags.City; // 'Freital'
+  meta.gpsCountry = tags.Country; // 'Deutschland'
+  meta.gpsProvince = tags.State || tags['Province-State']; // 'Sachsen'
+  meta.gpsCity = tags.City; // 'Freital'
 
+  if (tags.City && tags.State && tags.Country)
+    meta.gpsLocation = `${tags.City} | ${tags.State} | ${tags.Country}`;
+  else
+    meta.gpsLocation = meta.gpsPosition;
 
-  filtered.Rating = tags.Rating;
+  meta.rating = tags.Rating;
 
-  filtered.DateCreatedValue = validateExifDate(tags.DateTimeOriginal) || validateExifDate(tags.DateCreated)
+  meta.date = validateExifDate(tags.DateTimeOriginal) || validateExifDate(tags.DateCreated)
                                 || validateExifDate(tags.CreateDate) || tags.DateTimeCreated;
 
-  filtered.Keywords = tags.Keywords;
+  meta.keywords = tags.Keywords;
 
-  //log.info(`${logKey}${func} - ${file}: `)
-
-  return filtered;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function validateInt(input) {
-
-  const num = parseInt(input, 10);
-
-  if (Number.isNaN(num))
-    return null;
-
-  return num;
+  return meta;
 }
 
 // ----------------------------------------------------------------------------------

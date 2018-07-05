@@ -142,7 +142,7 @@ class Slideshow extends React.Component {
     const diffTime = currTime - this.data.lastMouseMove; //in ms
 
     if (!this.props.cursorHide && diffTime > 5000) {
-      log.info(`${_logKey}.onTimerHideCursor - hide cursor: cursorHide=${this.props.cursorHide}, diffTime=${diffTime}`);
+      //log.debug(`${_logKey}.onTimerHideCursor - hide cursor: cursorHide=${this.props.cursorHide}, diffTime=${diffTime}`);
       this.props.dispatch(actions.cursorHide());
     }
   }

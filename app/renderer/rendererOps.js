@@ -19,8 +19,6 @@ export function init(ipcMsg) {
   config.pushMainConfig(ipcMsg.payload);
 
   ipc.send(constants.IPC_MAIN, constants.ACTION_READY, null);
-
-  log.debug(`${_logKey}${func} - store=<${!_store ? "null" : "not null"}>`);
 }
 
 // ----------------------------------------------------------------------------------
@@ -116,24 +114,20 @@ export function detailsMove() {
 
 // ----------------------------------------------------------------------------------
 
-export function newFiles(ipcMsg) {
-  const func = ".newFiles";
+export function action2Redux(ipcMsg) {
+  const func = ".pushGenericAction";
+
+  let actionType = "???";
 
   try {
-    log.debug(`${_logKey}.newFiles: type=${ipcMsg.type}, container=${ipcMsg.payload.container}`);
+    actionType = ipcMsg.type;
+    log.debug(`${_logKey}${func}(type=${actionType})`);
 
-    const action = actionsSls.newFiles({
-      type: ipcMsg.type,
-      container: ipcMsg.payload.container,
-      items: ipcMsg.payload.items
-    });
-
-    //log.debug(`${_logKey}.newFiles: action=`, action);
-
+    const action = actionsSls.genericAction(ipcMsg);
     _store.dispatch(action);
 
   } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
+    log.error(`${_logKey}${func}(${actionType}) - exception -`, err);
     // TODO show message
   }
 }

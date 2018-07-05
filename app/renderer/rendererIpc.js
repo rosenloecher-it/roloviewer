@@ -71,10 +71,10 @@ function dispatchRendererActions(ipcMsg) {
         ops.init(ipcMsg); break;
 
       case constants.ACTION_MSG_ADD:
-        ops.addMessage(ipcMsg); break;
       case constants.ACTION_SHOW_FILES:
       case constants.ACTION_ADD_FILES:
-        ops.newFiles(ipcMsg); break;
+      case constants.ACTION_DELIVER_FILE_META:
+        ops.action2Redux(ipcMsg); break;
 
       case constants.ACTION_ESC_CLOSING:
          ops.askQuitApp(ipcMsg); break;

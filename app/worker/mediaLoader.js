@@ -41,6 +41,7 @@ export class MediaLoader {
 
     this.data.config = input.config;
     this.data.processConnector = input.processConnector;
+    this.data.taskManager = input.taskManager;
   }
 
   // ........................................................
@@ -188,6 +189,9 @@ export class MediaLoader {
       file: file
     };
 
+    this.data.taskManager.pushTask({type: constants.ACTION_DELIVER_FILE_META, payload: file});
+      //{ type, payload }
+
     //extractAndStoreMetaData(file);
 
     return item;
@@ -302,8 +306,6 @@ export class MediaLoader {
     else
       sourceFolders.push(sourceFoldersIn);
 
-    const childFolders = [];
-
     for (let i = 0; i < sourceFolders.length; i++) {
       const sourceFolder = sourceFolders[i];
 
@@ -334,7 +336,7 @@ export class MediaLoader {
           if (MediaLoader.isImageFormatSupported(fileShort))
               countJpg++;
         }
-      };
+      }
 
       if (countJpg >= minCountJpg)
         resultFolders.push(sourceFolder);

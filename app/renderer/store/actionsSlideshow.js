@@ -28,11 +28,11 @@ export const toogleAutoPlay = () => ({
   type: constants.ACTION_TOGGLE_AUTOPLAY
 });
 
-export const newFiles = ({ type, container, items }) => ({
+export const genericAction = ({ type, payload }) => ({
   type,
-  container,
-  items,
+  payload
 });
+
 
 export const helpOpen = () => ({
   type: constants.ACTION_HELP_OPEN
@@ -61,3 +61,10 @@ export const cursorHide = () => ({
 export const cursorShow = () => ({
   type: constants.ACTION_CURSOR_SHOW
 });
+
+export const addMeta = (meta) => ({
+  type: constants.ACTION_DELIVER_FILE_META,
+  payload: { meta }
+});
+
+

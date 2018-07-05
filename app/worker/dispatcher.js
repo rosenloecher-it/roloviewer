@@ -141,6 +141,9 @@ export class Dispatcher {
           case constants.ACTION_OPEN:
             instance.data.mediaLoader.open(task.payload); break;
 
+          case constants.ACTION_DELIVER_FILE_META:
+            instance.data.metaReader.deliverMeta(task.payload); break;
+
           case constants.ACTION_DUMMY_TASK:
             log.debug(`${_logKey}${func} - ${task.type}`); break;
 

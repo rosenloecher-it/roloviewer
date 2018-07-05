@@ -53,9 +53,9 @@ export function determinePathAndFilename(item, shortenPathNum) {
   const output = {};
 
   if (item) {
-    if (item.details) {
-      output.filename = item.details.filename;
-      output.dir = item.details.dir;
+    if (item.meta) {
+      output.filename = item.meta.filename;
+      output.dir = item.meta.dir;
     }
 
     if (!output.filename || !output.dir) {

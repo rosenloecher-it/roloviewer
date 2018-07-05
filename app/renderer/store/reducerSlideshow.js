@@ -3,7 +3,7 @@ import * as constants from '../../common/constants';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "reducerImapePane";
+const _logKey = "reducerSlideshow";
 let _deliveryKey = 0;
 
 // ----------------------------------------------------------------------------------
@@ -44,8 +44,11 @@ export default (state = defaultState, action) => {
         //return goEnd(state, action);
       case constants.ACTION_SHOW_FILES:
         return showFiles(state, action);
-       case constants.ACTION_ADD_FILES:
-         return addFiles(state, action);
+      case constants.ACTION_ADD_FILES:
+        return addFiles(state, action);
+      case constants.ACTION_DELIVER_FILE_META:
+        return addMeta(state, action);
+
       case constants.ACTION_TOGGLE_AUTOPLAY:
         return toggleAutoPlay(state, action);
 
@@ -70,7 +73,7 @@ export default (state = defaultState, action) => {
         return state;
     }
   } catch (err) {
-    log.error(`${_logKey}.default - failed -`, action);
+    log.error(`${_logKey}.default - exception -`, err);
     throw (err);
   }
 };
@@ -89,9 +92,9 @@ export function setNewDeliveryKey(items) {
 export function showFiles(state, action) {
   const func = ".showFiles";
 
-  setNewDeliveryKey(action.items);
+  setNewDeliveryKey(action.payload.items);
 
-  log.debug(`${_logKey}${func} - ${action.items.length} items`);
+  log.debug(`${_logKey}${func} - ${action.payload.items.length} items`);
 
   return {
     ...state,
@@ -105,16 +108,17 @@ export function showFiles(state, action) {
 
 export function addFiles(state, action) {
   const func = ".addFiles";
-  //log.debug(`${_logKey}${func}:`, state);
 
-  setNewDeliveryKey(action.items);
+  //log.debug(`${_logKey}${func}:`, action);
+
+  setNewDeliveryKey(action.payload.items);
 
   if (state.container === null) {
 
-    const newItems = state.items.concat(action.items)
+    const newItems = state.items.concat(action.payload.items);
     let newIndex = state.showIndex;
 
-    log.debug(`${_logKey}${func} (add) - ${action.items.length} items (sum = ${newItems.length})`);
+    log.debug(`${_logKey}${func} (add) - ${action.payload.items.length} items (sum = ${newItems.length})`);
 
     if (newIndex < 0 && newItems.length > 0)
       newIndex = 0;
@@ -127,12 +131,12 @@ export function addFiles(state, action) {
       container: null
     }
   } else {
-    log.debug(`${_logKey}${func} (replace) - ${action.items.length} items`);
+    log.debug(`${_logKey}${func} (replace) - ${action.payload.items.length} items`);
 
     // replace old items
     return {
       ...state,
-      items: action.items,
+      items: action.payload.items,
       showIndex: 0,
       container: null
     };
@@ -324,3 +328,43 @@ export function cursorShow(state) {
 }
 
 // ----------------------------------------------------------------------------------
+
+export function addMeta(state, action) {
+
+  let resultState = state;
+
+  do {
+    if (!action.payload)
+      break;
+    const { file } = action.payload;
+    const { items : itemsOrig } = state;
+
+    let fountFirst = -1;
+    for (let i = 0; i < itemsOrig.length; i++) {
+      if (itemsOrig[i].file === file) {
+        fountFirst = i;
+        break;
+      }
+    }
+
+    // real change
+    if (fountFirst >= 0) {
+      resultState = {...state};
+      const { items : itemsNew } = resultState;
+
+      for (let i = 0; i < itemsNew.length; i++) {
+        if (itemsNew[i].file === file) {
+          const newItem = itemsNew[i];
+          newItem.meta = action.payload;
+
+          // if container !== playlist --- break;
+        }
+      }
+    }
+
+  } while (false);
+
+  return resultState;
+}
+
+// ---------------------------------------------------------------------------------

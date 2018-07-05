@@ -103,7 +103,7 @@ export const ACTION_DETAILS_MOVE = 'ACTION_DETAILS_MOVE';
 
 export const ACTION_SHOW_FILES = 'ACTION_SHOW_FILES';   // args: container: dir or file; when null "auto-mode" + items[]
 export const ACTION_ADD_FILES = 'ACTION_ADD_FILES';     // auto-select-mode
-export const ACTION_ADD_META = 'ACTION_ADD_META';     // add meta info for (one) file
+export const ACTION_DELIVER_FILE_META = "ACTION_DELIVER_FILE_META";     // add meta info for (one) file
 
 // action - destination - worker
 
@@ -111,8 +111,6 @@ export const ACTION_OPEN = 'ACTION_OPEN'; // args: container: dir or file; when 
 
 export const ACTION_NEXT_TASK = "ACTION_NEXT_TASK";
 export const ACTION_DUMMY_TASK = "ACTION_DUMMY_TASK";
-
-export const ACTION_DELIVER_FILE_META = "ACTION_DELIVER_FILE_META";
 
 // action - destination - worker AND crawler only
 

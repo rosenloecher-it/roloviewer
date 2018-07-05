@@ -3,6 +3,18 @@ import fs from 'fs';
 
 // ----------------------------------------------------------------------------------
 
+export function validateInt(input) {
+
+  const num = parseInt(input, 10);
+
+  if (Number.isNaN(num))
+    return null;
+
+  return num;
+}
+
+// ----------------------------------------------------------------------------------
+
 export function validateFolderArray(input) {
 
   const output = [];
