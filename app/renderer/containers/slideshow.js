@@ -64,15 +64,7 @@ class Slideshow extends React.Component {
       });
     }
 
-    const {props} = this;
-    let imagePath = null;
-    if (props.showIndex >= 0 && props.showIndex < props.items.length) {
-      const item = props.items[props.showIndex];
-      imagePath = item.file;
-    }
-    if (imagePath)
-      this.handleNotifications(imagePath);
-
+    this.handleNotifications();
   }
 
   // .......................................................
@@ -196,37 +188,38 @@ class Slideshow extends React.Component {
     if (!currentItemFile)
       return;
 
-    new Promise((resolve, reject) => {
+    new Promise((resolve) => {
 
-      if (currentItemFile !== data.lastImageFile || data.lastContainer === props.container) {
+      if (data.lastImageFile !== currentItemFile || data.lastContainer !== props.container)
         ops.publishLastItem(currentItemFile, props.container);
 
-        data.lastImageFile = currentItemFile;
-        data.lastContainer = props.container;
+      data.lastImageFile = currentItemFile;
+      data.lastContainer = props.container;
 
-        do {
-          if (props.container !== null)
-            break; // no auto-select
-          if (props.showIndex < props.items.length - constants.DEFCONF_RENDERER_ITEM_RESERVE)
-            break; // sufficient reserve
+      // request new files
+      do {
+        if (props.container !== null)
+          break; // no auto-select
+        if (props.showIndex < props.items.length - constants.DEFCONF_RENDERER_ITEM_RESERVE)
+          break; // sufficient reserve
 
-          let lastFile = "";
-          if (props.items.length > 0)
-            lastFile = props.items[props.items.length - 1].file;
+        let lastFile = "";
+        if (props.items.length > 0)
+          lastFile = props.items[props.items.length - 1].file;
 
-          const requestKey = `${props.items.length}|${lastFile}|${props.container}`;
-          if (data.lastRequestKey === requestKey) {
-            //log.debug(`${_logKey}${func} - requestNewItems - abort key: lastRequestKey=${data.lastRequestKey}, requestKey=${requestKey}`);
-            break; // already send
-          }
+        const requestKey = `${props.items.length}|${lastFile}|${props.container}`;
+        if (data.lastRequestKey === requestKey) {
+          //log.debug(`${_logKey}${func} - requestNewItems - abort key: lastRequestKey=${data.lastRequestKey}, requestKey=${requestKey}`);
+          break; // already send
+        }
 
-          ops.requestNewItems();
-          data.lastRequestKey = requestKey;
+        ops.requestNewItems();
+        data.lastRequestKey = requestKey;
 
-          log.debug(`${_logKey}${func} - requestNewItems (send): requestKey=${requestKey}`);
+        log.debug(`${_logKey}${func} - requestNewItems (send): requestKey=${requestKey}`);
 
-        } while (false);
-      }
+      } while (false);
+
     }).catch((error) => {
       log.error(`${_logKey}${func} - exception -`, error);
     });
