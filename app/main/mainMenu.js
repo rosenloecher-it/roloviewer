@@ -5,7 +5,11 @@ import config from "./config/mainConfig";
 // --------------------------------------------------------------------------------
 
 export function createMenu() {
-  const menuSectionFile = {
+
+  const template = [];
+
+  // section File
+  template.push({
     label: 'File',
     submenu: [
       {
@@ -27,20 +31,34 @@ export function createMenu() {
       {
         label: 'Exit',
         accelerator: 'ESC',
-        click() { ops.quitApp(); }
+        click() { ops.askQuitApp(); }
       }
     ]
-  };
+  });
 
+  // section View
   const menuSectionView = {
     label: 'View',
     submenu: [
+
+      // {
+      //   role: 'Toogle details',
+      //   accelerator: 'I',
+      //   click: () => { ops.toogleFullscreen(); }
+      // },
+      // {
+      //   role: 'Move details',
+      //   accelerator: 'CmdOrCtrl+I',
+      //   click: () => { ops.toogleFullscreen(); }
+      // },
+
+
       {
         role: 'reload',
         accelerator: 'CmdOrCtrl+R'
       },
       {
-        label: 'Toogkle fullscreen',
+        label: 'Toogle fullscreen',
         accelerator: 'F11',
         click: () => { ops.toogleFullscreen(); }
       }
@@ -61,17 +79,44 @@ export function createMenu() {
     });
   }
 
-  const menuSectionHelp = {
+  template.push(menuSectionView);
+
+  // section Debug
+  if (config.isDevelopment()) {
+    template.push({
+      label: 'Debug',
+      submenu: [
+        {
+          label: 'Debug 1',
+          accelerator: 'CmdOrCtrl+1',
+          click() { ops.debug1(); }
+        },
+        {
+          label: 'Debug 2',
+          accelerator: 'CmdOrCtrl+2',
+          click() { ops.debug2(); }
+        },
+        {
+          label: 'Debug 3',
+          accelerator: 'CmdOrCtrl+3',
+          click() { ops.debug3(); }
+        }
+      ]
+    });
+  }
+
+  // section Help
+  template.push({
     label: 'Help',
     submenu: [
       {
-        label: 'Show help',
+        label: 'Toogle shortcut info',
         accelerator: 'F1',
-        click() { ops.showHelp(); }
+        click() { ops.toogleHelp(); }
       },
       {
-        label: 'Learn More',
-        click() { ops.learnMore(); }
+        label: 'Open website',
+        click() { ops.openWebsite(); }
       },
       { type: 'separator' },
       {
@@ -79,9 +124,7 @@ export function createMenu() {
         click() { ops.showAbout(); }
       }
     ]
-  };
-
-  const template = [menuSectionFile, menuSectionView, menuSectionHelp];
+  });
 
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);

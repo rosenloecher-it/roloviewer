@@ -45,3 +45,11 @@ export const helpClose = () => ({
 export const helpToogle = () => ({
   type: constants.ACTION_HELP_TOOGLE
 });
+
+export const detailsToogle = () => ({
+  type: constants.ACTION_DETAILS_TOOGLE
+});
+
+export const detailsMove = () => ({
+  type: constants.ACTION_DETAILS_MOVE
+});

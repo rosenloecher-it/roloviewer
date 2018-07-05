@@ -1,0 +1,59 @@
+
+.popover-table {
+  border-collapse: collapse;
+  border: none; // 3px solid red
+}
+
+.popover-table td,
+.popover-table th,
+.popover-table tr {
+  border: none; // 3px solid red;
+  padding: 2px;
+}
+
+@mixin popover-base() {
+  background-color: black;
+  color: white;
+  opacity: 0.6;
+  position: absolute;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.popover-left-bottom {
+  @include popover-base();
+  bottom: 0;
+  left: 0;
+}
+
+.popover-right-bottom {
+  @include popover-base();
+  right: 0;
+  bottom: 0;
+}
+
+.popover-right-top {
+  @include popover-base();
+  right: 0;
+  top: 0;
+}
+
+.popover-left-top {
+  @include popover-base();
+  left: 0;
+  top: 0;
+}
+
+.popover-center {
+  @include popover-base();
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.popover-help {
+  @extend .popover-center;
+  z-index: 20;
+}

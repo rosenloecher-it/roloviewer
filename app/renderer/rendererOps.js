@@ -12,7 +12,7 @@ const _logKey = "rendererOps";
 // ----------------------------------------------------------------------------------
 
 export function init(ipcMsg) {
-  const func = ".init"
+  const func = ".init";
   log.debug(`${_logKey}${func}`);
 
   config.pushMainConfig(ipcMsg.payload);
@@ -33,6 +33,27 @@ export function shutdown(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
+export function askQuitApp(ipcMsg) {
+  const func = ".askQuitApp";
+
+  try {
+    log.silly(`${_logKey}${func} - invoked`);
+
+    const {helpShow} = _store.getState().imagePane;
+
+    if (helpShow)
+      _store.dispatch(actions.helpClose());
+    else
+      ipc.send(constants.IPC_MAIN, constants.ACTION_ESC_CLOSING, null);
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
 export function showMessage(ipcMsg) {
 
   log.silly(`${_logKey}.showMessage:`);
@@ -41,13 +62,45 @@ export function showMessage(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
-export function toogleHelp() {
-  const func = ".toogleHelp";
+export function helpToogle() {
+  const func = ".helpToogle";
 
   try {
     log.silly(`${_logKey}${func} - invoked`);
 
     _store.dispatch(actions.helpToogle());
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function detailsToogle() {
+  const func = ".detailsToogle";
+
+  try {
+    log.silly(`${_logKey}${func} - invoked`);
+
+    _store.dispatch(actions.detailsToogle());
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function detailsMove() {
+  const func = ".moveDetails";
+
+  try {
+    log.silly(`${_logKey}${func} - invoked`);
+
+    _store.dispatch(actions.detailsMove());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);

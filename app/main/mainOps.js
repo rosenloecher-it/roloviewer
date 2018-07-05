@@ -215,9 +215,26 @@ export function quitApp() {
 
 // ----------------------------------------------------------------------------------
 
-export function showHelp() {
-  log.silly('showHelp');
+export function askQuitApp() {
+  if (!isAppAlreadyQuitted) {
+    ipc.send(constants.IPC_RENDERER, constants.ACTION_ESC_CLOSING, null);
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function toogleHelp() {
+  log.silly('toogleHelp');
   ipc.send(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE, null);
+}
+
+// ----------------------------------------------------------------------------------
+
+export function sendGeneric(destination, action) {
+
+  const func = ".sendGeneric";
+  log.silly(`${logKey}${func} destination=${destination}, action=${action}`);
+  //ops.sendGeneric(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE);
 }
 
 // ----------------------------------------------------------------------------------
@@ -228,8 +245,8 @@ export function showAbout() {
 
 // ----------------------------------------------------------------------------------
 
-export function learnMore() {
-  log.debug('learnMore');
+export function openWebsite() {
+  log.debug('openWebsite');
   shell.openExternal('https://electronjs.org');
 }
 
@@ -254,3 +271,26 @@ export function setLastItem(ipcMsg) {
 }
 
 // ----------------------------------------------------------------------------------
+
+export function debug1() {
+
+  log.silly('debug1');
+  ipc.send(constants.IPC_RENDERER, constants.ACTION_DETAILS_TOOGLE, null);
+
+}
+
+// ----------------------------------------------------------------------------------
+
+export function debug2() {
+  log.silly('debug2');
+  ipc.send(constants.IPC_RENDERER, constants.ACTION_DETAILS_MOVE, null);
+}
+
+// --------------------------------------------------------------------------------
+
+export function debug3() {
+  log.silly('debug3');
+  ipc.send(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE, null);
+}
+
+// --------------------------------------------------------------------------------

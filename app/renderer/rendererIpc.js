@@ -76,8 +76,16 @@ function dispatchRendererActions(ipcMsg) {
       case constants.ACTION_ADD_FILES:
         ops.newFiles(ipcMsg); break;
 
+      case constants.ACTION_ESC_CLOSING:
+         ops.askQuitApp(ipcMsg); break;
+
       case constants.ACTION_HELP_TOOGLE:
-        ops.toogleHelp(ipcMsg); break;
+        ops.helpToogle(ipcMsg); break;
+
+      case constants.ACTION_DETAILS_TOOGLE:
+        ops.detailsToogle(ipcMsg); break;
+      case constants.ACTION_DETAILS_MOVE:
+        ops.detailsMove(ipcMsg); break;
 
       default:
         log.error(`${_logKey}${func} - invalid type: `, ipcMsg);

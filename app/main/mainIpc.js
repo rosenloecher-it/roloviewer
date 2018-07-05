@@ -78,6 +78,8 @@ function dispatchMainActions(ipcMsg) {
     case constants.ACTION_SET_LAST_ITEM:
       ops.setLastItem(ipcMsg); break;
 
+    case constants.ACTION_ESC_CLOSING:
+      ops.quitApp(ipcMsg); break;
 
     case constants.ACTION_DUMMY_TASK:
       log.info(`${logKey}${func} - ${ipcMsg.type}`); break; // do nothing!

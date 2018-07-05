@@ -69,6 +69,9 @@ export const ACTION_SHUTDOWN = 'ACTION_SHUTDOWN'; // main to worker + renderer
 
 export const ACTION_PUSH_MAIN_CONFIG = 'ACTION_PUSH_MAIN_CONFIG';
 
+export const ACTION_ESC_CLOSING = 'ACTION_ESC_CLOSING';
+
+
 // actions - destination - main
 
 export const ACTION_SET_LAST_ITEM = 'ACTION_SET_LAST_ITEM';
@@ -88,6 +91,9 @@ export const ACTION_TOGGLE_AUTOPLAY = 'ACTION_TOGGLE_AUTOPLAY';
 export const ACTION_HELP_OPEN = 'ACTION_HELP_OPEN';
 export const ACTION_HELP_CLOSE = 'ACTION_HELP_CLOSE';
 export const ACTION_HELP_TOOGLE = 'ACTION_HELP_TOOGLE';
+
+export const ACTION_DETAILS_TOOGLE = 'ACTION_DETAILS_TOOGLE';
+export const ACTION_DETAILS_MOVE = 'ACTION_DETAILS_MOVE';
 
 export const ACTION_SHOW_FILES = 'ACTION_SHOW_FILES';   // args: container: dir or file; when null "auto-mode" + items[]
 export const ACTION_ADD_FILES = 'ACTION_ADD_FILES';     // auto-select-mode
@@ -128,3 +134,10 @@ export const TASK_DELIVER_FILE_META = "";
 export const TASK_CRAWLE_FILE = "";
 export const TASK_EVALUATE_FOLDER = "";
 export const TASK_CRAWLE_FOLDER = "";
+
+// --------------------------------------------------------------------------
+// enums
+
+export const DETAILS_STATE_ALL = "DETAILS_STATE_ALL";
+export const DETAILS_STATE_MIN = "DETAILS_STATE_MIN";
+export const DETAILS_STATE_OFF = "DETAILS_STATE_OFF";

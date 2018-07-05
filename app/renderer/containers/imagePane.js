@@ -85,7 +85,7 @@ class ImagePane extends React.Component {
   }
 
   goNext() {
-    log.debug(`${_logKey}.goNext`);
+    //log.debug(`${_logKey}.goNext`);
     this.props.dispatch(actions.goNext());
   }
 
@@ -93,9 +93,8 @@ class ImagePane extends React.Component {
   // .......................................................
 
   onClick() {
-    log.debug(`${_logKey}.onClick`);
-    if (!this.props.showHelp)
-      this.goNext();
+    //log.debug(`${_logKey}.onClick`);
+    this.goNext();
   }
 
   // .......................................................
@@ -120,6 +119,13 @@ class ImagePane extends React.Component {
       case 39: // arrow right
       case 40: // arrow down
         this.goNext(); break;
+      case 73: // i
+        if (event.ctrlKey)
+          this.props.dispatch(actions.detailsMove());
+        else
+          this.props.dispatch(actions.detailsToogle());
+        break;
+
       default:
         log.silly(`${_logKey}${func} - keyCode=${event.keyCode}`);
         break;
@@ -265,7 +271,7 @@ const mapStateToProps = state => ({
   items: state.imagePane.items,
   container: state.imagePane.container,
   autoPlay: state.imagePane.autoPlay,
-  showHelp: state.imagePane.showHelp,
+  helpShow: state.imagePane.helpShow,
 });
 
 export default connect( mapStateToProps )(ImagePane);

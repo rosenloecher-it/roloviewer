@@ -54,7 +54,7 @@ class HelpDialog extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  isOpen: state.imagePane.showHelp,
+  isOpen: state.imagePane.helpShow,
 });
 
 export default connect( mapStateToProps )(HelpDialog);

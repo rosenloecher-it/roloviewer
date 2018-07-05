@@ -14,7 +14,9 @@ const defaultState = {
   showIndex: -1,
   items: [],
   container: null,
-  showHelp: false
+  helpShow: false,
+  detailsState: getValidDetailsState(null, false),
+  detailsPosition: getValidDetailsPosition(null, false)
 };
 
 // ----------------------------------------------------------------------------------
@@ -53,6 +55,11 @@ export default (state = defaultState, action) => {
       case constants.ACTION_HELP_TOOGLE:
         return helpToogle(state, action);
 
+      case constants.ACTION_DETAILS_MOVE:
+        return detailsMove(state, action);
+      case constants.ACTION_DETAILS_TOOGLE:
+        return detailsToogle(state, action);
+
       default:
         return state;
     }
@@ -73,7 +80,7 @@ export function setNewDeliveryKey(items) {
 
 // ----------------------------------------------------------------------------------
 
-function showFiles(state, action) {
+export function showFiles(state, action) {
   const func = ".showFiles";
 
   setNewDeliveryKey(action.items);
@@ -90,7 +97,7 @@ function showFiles(state, action) {
 
 // ----------------------------------------------------------------------------------
 
-function addFiles(state, action) {
+export function addFiles(state, action) {
   const func = ".addFiles";
   //log.debug(`${_logKey}${func}:`, state);
 
@@ -129,7 +136,7 @@ function addFiles(state, action) {
 
 // ----------------------------------------------------------------------------------
 
-function goTo(state, newIndexIn) {
+export function goTo(state, newIndexIn) {
   const oldIndex = state.showIndex;
   let newIndex = newIndexIn;
 
@@ -154,7 +161,7 @@ function goTo(state, newIndexIn) {
 
 // ----------------------------------------------------------------------------------
 
-function goPageBack(state, action) {
+export function goPageBack(state) {
   const func = ".goPageBack";
 
   log.debug(`${_logKey}${func}`);
@@ -164,7 +171,7 @@ function goPageBack(state, action) {
 
 // ----------------------------------------------------------------------------------
 
-function goPageNext(state, action) {
+export function goPageNext(state) {
   const func = ".goPageNext";
 
   log.debug(`${_logKey}${func}`);
@@ -174,7 +181,7 @@ function goPageNext(state, action) {
 
 // ----------------------------------------------------------------------------------
 
-function goEnd(state, action) {
+export function goEnd(state) {
   if (state.container === null)
     return goTo(state, state.showIndex + 1); // go next
 
@@ -183,7 +190,7 @@ function goEnd(state, action) {
 
 // ----------------------------------------------------------------------------------
 
-function toggleAutoPlay(state, action) {
+export function toggleAutoPlay(state) {
   const newAutoPlay = !state.autoPlay;
   return {
     ...state,
@@ -193,7 +200,7 @@ function toggleAutoPlay(state, action) {
 
 // ----------------------------------------------------------------------------------
 
-function helpShow(state) {
+export function helpShow(state) {
   return {
     ...state,
     showHelp: true
@@ -202,21 +209,96 @@ function helpShow(state) {
 
 // ----------------------------------------------------------------------------------
 
-function helpClose(state) {
+export function helpClose(state) {
   return {
     ...state,
-    showHelp: false
+    helpShow: false
   };
 }
 
 // ----------------------------------------------------------------------------------
 
-function helpToogle(state) {
-  const newShowHelp = !state.showHelp;
+export function helpToogle(state) {
+  const newShowHelp = !state.helpShow;
   return {
     ...state,
-    showHelp: newShowHelp
+    helpShow: newShowHelp
   };
 }
 
 // ----------------------------------------------------------------------------------
+
+export function getValidDetailsPosition(currentPosition, gotoNextPosition) {
+
+  const detailsPositions = [
+    "popover-left-bottom",
+    "popover-left-top",
+    "popover-right-top",
+    "popover-right-bottom",
+  ];
+
+  let found = 0;
+  for (let i = 0; i < detailsPositions.length; i++) {
+    if (currentPosition === detailsPositions[i]) {
+      found = i;
+      break;
+    }
+  }
+
+  if (gotoNextPosition) {
+    found++;
+    if (found >= detailsPositions.length)
+      found = 0;
+  }
+
+  return detailsPositions[found];
+}
+
+// ----------------------------------------------------------------------------------
+
+export function detailsMove(state) {
+  return {
+    ...state,
+    detailsPosition: getValidDetailsPosition(state.detailsPosition, true)
+  };
+}
+
+// ----------------------------------------------------------------------------------
+
+export function getValidDetailsState(currentState, gotoNextState) {
+  const detailsStates = [
+    constants.DETAILS_STATE_ALL,
+    constants.DETAILS_STATE_MIN,
+    constants.DETAILS_STATE_OFF,
+  ];
+
+  let found = 0;
+  for (let i = 0; i < detailsStates.length; i++) {
+    if (currentState === detailsStates[i]) {
+      found = i;
+      break;
+    }
+  }
+
+  if (gotoNextState) {
+    found++;
+    if (found >= detailsStates.length)
+      found = 0;
+  }
+
+  return detailsStates[found];
+}
+
+// ----------------------------------------------------------------------------------
+
+export function detailsToogle(state) {
+  const newDetailsState = getValidDetailsState(state.detailsState, true);
+  return {
+    ...state,
+    detailsState: newDetailsState
+  };
+}
+
+// ----------------------------------------------------------------------------------
+
+
