@@ -86,11 +86,11 @@ class DetailsOverlay extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  detailsState: state.imagePane.detailsState,
-  detailsPosition: state.imagePane.detailsPosition,
-  showIndex: state.imagePane.showIndex,
-  items: state.imagePane.items,
-  autoPlay: state.imagePane.autoPlay,
+  detailsState: state.slideshow.detailsState,
+  detailsPosition: state.slideshow.detailsPosition,
+  showIndex: state.slideshow.showIndex,
+  items: state.slideshow.items,
+  autoPlay: state.slideshow.autoPlay,
 });
 
 

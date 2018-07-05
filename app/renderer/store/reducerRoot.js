@@ -1,10 +1,10 @@
 // @flow
 import { combineReducers } from 'redux';
 import { routerReducer as router } from 'react-router-redux';
-import reducerImagePane from './reducerImagePane';
+import reducerSlideshow from './reducerSlideshow';
 
 const rootReducer = combineReducers({
-  imagePane: reducerImagePane,
+  slideshow: reducerSlideshow,
   router
 });
 

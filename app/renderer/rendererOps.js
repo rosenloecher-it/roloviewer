@@ -3,7 +3,7 @@ import * as constants from "../common/constants";
 import * as ipc from "./rendererIpc";
 import config from "./rendererConfig";
 import { _store } from './store/configureStore';
-import * as actions from "./store/actionsImagePane";
+import * as actions from "./store/actionsSlideshow";
 
 // ----------------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ export function askQuitApp(ipcMsg) {
   try {
     log.silly(`${_logKey}${func} - invoked`);
 
-    const {helpShow} = _store.getState().imagePane;
+    const {helpShow} = _store.getState().slideshow;
 
     if (helpShow)
       _store.dispatch(actions.helpClose());

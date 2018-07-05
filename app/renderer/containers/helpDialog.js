@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from "react-redux";
 import log from 'electron-log';
-import * as actions from "../store/actionsImagePane";
+import * as actions from "../store/actionsSlideshow";
 import { Button, Dialog, Intent } from '@blueprintjs/core';
 
 // ----------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ class HelpDialog extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  isOpen: state.imagePane.helpShow,
+  isOpen: state.slideshow.helpShow,
 });
 
 export default connect( mapStateToProps )(HelpDialog);

@@ -52,7 +52,7 @@ class Slideshow extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  helpShow: state.imagePane.helpShow,
+  helpShow: state.slideshow.helpShow,
 });
 
 export default connect( mapStateToProps )(Slideshow);

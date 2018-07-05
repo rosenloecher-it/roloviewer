@@ -3,7 +3,7 @@ import ReactCSSTransitionReplace from 'react-css-transition-replace';
 import {connect} from "react-redux";
 import log from 'electron-log';
 import * as cssConstants from '../style/cssConstants';
-import * as actions from "../store/actionsImagePane";
+import * as actions from "../store/actionsSlideshow";
 import * as ops from "../rendererOps";
 import * as constants from "../../common/constants";
 import config from '../rendererConfig';
@@ -267,11 +267,11 @@ class ImagePane extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  showIndex: state.imagePane.showIndex,
-  items: state.imagePane.items,
-  container: state.imagePane.container,
-  autoPlay: state.imagePane.autoPlay,
-  helpShow: state.imagePane.helpShow,
+  showIndex: state.slideshow.showIndex,
+  items: state.slideshow.items,
+  container: state.slideshow.container,
+  autoPlay: state.slideshow.autoPlay,
+  helpShow: state.slideshow.helpShow,
 });
 
 export default connect( mapStateToProps )(ImagePane);
