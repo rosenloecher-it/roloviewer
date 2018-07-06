@@ -1,8 +1,8 @@
 import * as constants from '../../common/constants';
 
-export const add = ({msgType, msgText, msgDetails}) => ({
+export const add = (payload) => ({
   type: constants.ACTION_MSG_ADD,
-  msgType, msgText, msgDetails
+  payload
 });
 
 export const removeAll = () => ({

@@ -28,6 +28,7 @@ export const DEFCONF_DETAILS = true;
 export const DEFCONF_TRANSITION_TIME_AUTOPLAY = 3000;
 export const DEFCONF_TRANSITION_TIME_MANUAL = 600;
 export const DEFCONF_TIMER = 7000;
+export const DEFCONF_POWER_SAVE_BLOCK_TIME = 30;
 export const DEFCONF_AWAKE = 30;
 export const DEFCONF_DBNAME = 'crawler.db';
 

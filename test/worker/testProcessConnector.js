@@ -43,9 +43,9 @@ export class TestProcessConnector extends ProcessConnector {
 
   // ........................................................
 
-  sendShowMessage(msgType, msgText, msgDetails) {
+  sendShowMessage(msgType, msgText) {
 
-    const message = ipc.createIpcShowMessage(TestProcessConnector.constructor.name, msgType, msgText, msgDetails);
+    const message = ipc.createIpcShowMessage(TestProcessConnector.constructor.name, msgType, msgText);
 
     this.data.messages.push(message);
   }

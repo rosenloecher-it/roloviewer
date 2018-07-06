@@ -47,7 +47,8 @@ class MessageDialog extends React.Component {
     else
       message = {};
 
-    const text = `type=${message.msgType}, text=${message.msgText}, details=${message.msgDetails}`;
+    // TODO split array
+    const text = `type=${message.msgType}, text=${message.msgText}`;
 
     const showMore = (props.messages.length > 1);
 
@@ -67,7 +68,7 @@ class MessageDialog extends React.Component {
         break;
     }
 
-    //{msgType, msgText, msgDetails} : action
+    //{msgType, msgText} : action
 
     //className="pt-dialog-footer-info"
 

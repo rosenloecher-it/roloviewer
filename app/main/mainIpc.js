@@ -172,11 +172,10 @@ export function send(ipcTarget, ipcType, payload) {
 
 // ----------------------------------------------------------------------------------
 
-export function createIpcShowMessage(ipcSource, msgType, msgText, msgDetails) {
+export function createIpcShowMessage(ipcSource, msgType, msgText) {
   const payload = {
     msgType,
     msgText,
-    msgDetails
   };
 
   return createIpcMessage(ipcSource, constants.IPC_RENDERER, constants.ACTION_MSG_ADD, payload);
@@ -184,9 +183,9 @@ export function createIpcShowMessage(ipcSource, msgType, msgText, msgDetails) {
 
 // ----------------------------------------------------------------------------------
 
-export function sendShowMessage(msgType, msgText, msgDetails) {
+export function sendShowMessage(msgType, msgText) {
 
-  sendRaw(createIpcShowMessage(_ipcMyself, msgType, msgText, msgDetails));
+  sendRaw(createIpcShowMessage(_ipcMyself, msgType, msgText));
 
 }
 

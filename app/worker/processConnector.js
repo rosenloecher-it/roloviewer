@@ -72,8 +72,8 @@ export class ProcessConnector {
 
   // ........................................................
 
-  sendShowMessage(msgType, msgText, msgDetails) {
-    ipc.sendShowMessage(msgType, msgText, msgDetails);
+  sendShowMessage(msgType, msgText) {
+    ipc.sendShowMessage(msgType, msgText);
   }
 
   // ........................................................

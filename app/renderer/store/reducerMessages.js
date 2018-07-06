@@ -40,7 +40,7 @@ export default (state = defaultState, action) => {
 
 export function add(state, action) {
 
-  //{msgType, msgText, msgDetails} : action.payload
+  //{msgType, msgText} : action.payload
   return {
     ...state,
     messages: [...state.messages, action.payload],

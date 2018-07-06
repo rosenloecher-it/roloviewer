@@ -7,6 +7,7 @@ import * as constants from "../common/constants";
 import * as windows from './windows';
 import {mkDirByPathSync} from "./config/configUtils";
 import * as ipc from './mainIpc';
+import * as powerSaveBlocker from "./powerSaveBlocker";
 
 // ----------------------------------------------------------------------------------
 
@@ -206,6 +207,8 @@ export function quitApp() {
   if (!isAppAlreadyQuitted) {
     isAppAlreadyQuitted = true;
 
+    powerSaveBlocker.shutdown();
+
     ipc.send(constants.IPC_RENDERER, constants.ACTION_SHUTDOWN, null);
     ipc.send(constants.IPC_WORKER, constants.ACTION_SHUTDOWN, null);
 
@@ -280,21 +283,21 @@ export function setAutoPlay(ipcMsg) {
 
 export function debug1() {
   log.debug('debug1');
-  ipc.sendShowMessage(constants.MSG_TYPE_INFO, "msgText - info", "msgDetails");
+  ipc.sendShowMessage(constants.MSG_TYPE_INFO, "msgText - info");
 }
 
 // ----------------------------------------------------------------------------------
 
 export function debug2() {
   log.debug('debug2');
-  ipc.sendShowMessage(constants.MSG_TYPE_WARNING, "msgText - warn", "msgDetails");
+  ipc.sendShowMessage(constants.MSG_TYPE_WARNING, "msgText - warn");
 }
 
 // --------------------------------------------------------------------------------
 
 export function debug3() {
   log.debug('debug3');
-  ipc.sendShowMessage(constants.MSG_TYPE_ERROR, "msgText - error", "msgDetails");
+  ipc.sendShowMessage(constants.MSG_TYPE_ERROR, "msgText - error");
 }
 
 // --------------------------------------------------------------------------------

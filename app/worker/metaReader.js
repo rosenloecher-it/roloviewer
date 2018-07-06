@@ -193,8 +193,21 @@ export class MetaReader {
 
 // ----------------------------------------------------------------------------------
 
+export function pushLocation(inputText, addText) {
+  if (!addText)
+    return inputText;
+  if (!inputText)
+    return addText;
+  else
+    return inputText + " | " + addText;
+}
+
+// ----------------------------------------------------------------------------------
+
 export function prepareTagsFromExiftool(file, tags) {
   let temp = null;
+
+  //log.debug(`${_logKey}.prepareTagsFromExiftool - file=${file}`, tags);
 
   const sepPath = separateFilePath(file, 4);
   const meta = {
@@ -236,10 +249,9 @@ export function prepareTagsFromExiftool(file, tags) {
   meta.gpsProvince = tags.State || tags['Province-State']; // 'Sachsen'
   meta.gpsCity = tags.City; // 'Freital'
 
-  if (tags.City && tags.State && tags.Country)
-    meta.gpsLocation = `${tags.City} | ${tags.State} | ${tags.Country}`;
-  else
-    meta.gpsLocation = meta.gpsPosition;
+  meta.gpsLocation = pushLocation(meta.gpsLocation, meta.gpsCity);
+  meta.gpsLocation = pushLocation(meta.gpsLocation, meta.gpsProvince);
+  meta.gpsLocation = pushLocation(meta.gpsLocation, meta.gpsCountry);
 
   meta.rating = tags.Rating;
 

@@ -18,6 +18,7 @@ import * as ops from './mainOps';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
 import * as mainIpc from './mainIpc';
+import * as powerSaveBlocker from "./powerSaveBlocker";
 
 // ----------------------------------------------------------------------------------
 
@@ -100,6 +101,8 @@ if (!config.shouldExit()) {
     windows.createWorkerWindow();
 
     windows.createMainWindow();
+
+    powerSaveBlocker.init();
 
   });
 } else {

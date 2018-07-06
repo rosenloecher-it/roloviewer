@@ -92,6 +92,7 @@ class DetailsOverlay extends React.Component {
       this.pushTableLine(tableLines, "ISO", meta.photoISO);
       //this.pushTableLine(tableLines, "Flash", meta.photoFlash);
       this.pushTableLine(tableLines, "Location", meta.gpsLocation);
+      this.pushTableLine(tableLines, "GPS-Position", meta.gpsPosition);
 
     }
     //log.debug(`${_logKey}.render - state=${state}, showAll=${showAll}, showPath=${showPath}, itemPath=`, itemPath);

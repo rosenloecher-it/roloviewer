@@ -45,6 +45,10 @@ export function mergeDataSystem(dataIn, dataFromCli, dataFromFileIn) {
 
   data.system.exiftool = configUtils.findExifTool(dataFromFile.system.exiftool);
 
+  data.system.powerSaveBlockTime = configUtils.mergeConfigItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME,
+    null,
+    configUtils.validateInt(dataFromFile.system.powerSaveBlockTime));
+
   // TODO data.system.logfile;
 
   data.system.logLevelFile = configUtils.mergeConfigItem(
@@ -55,7 +59,6 @@ export function mergeDataSystem(dataIn, dataFromCli, dataFromFileIn) {
   data.system.logLevelConsole = configUtils.mergeConfigItem(constants.DEFCONF_LOGLEVEL_FILE,
     null,
     configUtils.validateLogLevel(dataFromFile.system.logLevelConsole));
-
 
   data.system.logDeleteOnStart = configUtils.mergeConfigItem(constants.DEFCONF_LOG_DELETE_ON_START,
     null,
