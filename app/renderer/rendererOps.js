@@ -14,11 +14,21 @@ const _logKey = "rendererOps";
 
 export function init(ipcMsg) {
   const func = ".init";
-  log.debug(`${_logKey}${func}`);
 
-  config.importData(ipcMsg.payload);
+  try {
+    log.debug(`${_logKey}${func}`);
 
-  ipc.send(constants.IPC_MAIN, constants.ACTION_READY, null);
+    config.importData(ipcMsg.payload);
+
+    ipc.send(constants.IPC_MAIN, constants.ACTION_READY, null);
+
+    if (config.lastAutoPlay)
+      _store.dispatch(actionsSls.autoPlayStart());
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
 }
 
 // ----------------------------------------------------------------------------------
@@ -148,8 +158,8 @@ export function requestNewItems() {
 
 // ----------------------------------------------------------------------------------
 
-export function publishLastItem(lastItemFile, lastContainer) {
-  const func = ".publishLastItem";
+export function persistLastItem(lastItemFile, lastContainer) {
+  const func = ".persistLastItem";
 
   try {
     //log.debug(`${_logKey}${func} - lastItem=${lastItemFile}, lastContainer=${lastContainer}`);
@@ -160,8 +170,24 @@ export function publishLastItem(lastItemFile, lastContainer) {
         lastContainer
       }
 
-      ipc.send(constants.IPC_MAIN, constants.ACTION_SET_LAST_ITEM, payload);
+      ipc.send(constants.IPC_MAIN, constants.ACTION_PERSIST_LAST_ITEM, payload);
     }
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    // TODO show message
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function persistAutoPlay(autoPlay) {
+  const func = ".persistAutoPlay";
+
+  try {
+    //log.debug(`${_logKey}${func} - autoPlay=${autoPlay}`);
+
+    ipc.send(constants.IPC_MAIN, constants.ACTION_PERSIST_AUTOPLAY, autoPlay);
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);

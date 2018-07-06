@@ -66,6 +66,9 @@ export class ConfigBase {
   isTest() { return this.data.context.isTest; }
   showDevTools() { return this.data.context.showDevTools; }
 
+  get lastAutoPlay() { return this.data.lastItems.autoPlay; }
+  set lastAutoPlay(value) { this.data.lastItems.autoPlay = !!value;  }
+
   // ........................................................
   // renderer
 

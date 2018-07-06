@@ -263,11 +263,17 @@ export function showMessage(msgType, msgText) {
 // ----------------------------------------------------------------------------------
 
 export function setLastItem(ipcMsg) {
-  const func = ".setLastFiles";
 
-  //log.debug(`${logKey}${func}: -`, ipcMsg.payload);
-
+  //log.debug(`${logKey}.setLastItem: -`, ipcMsg.payload);
   config.setLastItem(ipcMsg.payload.lastItemFile, ipcMsg.payload.lastContainer);
+}
+
+// ----------------------------------------------------------------------------------
+
+export function setAutoPlay(ipcMsg) {
+
+  //log.debug(`${logKey}.setAutoPlay: -`, ipcMsg.payload);
+  config.lastAutoPlay = ipcMsg.payload
 }
 
 // ----------------------------------------------------------------------------------

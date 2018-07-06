@@ -76,8 +76,11 @@ function dispatchMainActions(ipcMsg) {
 
     case constants.ACTION_SHOW_FILES:
       ops.forwardShowFiles(ipcMsg); break;
-    case constants.ACTION_SET_LAST_ITEM:
+    case constants.ACTION_PERSIST_LAST_ITEM:
       ops.setLastItem(ipcMsg); break;
+    case constants.ACTION_PERSIST_AUTOPLAY:
+      ops.setAutoPlay(ipcMsg); break;
+
 
     case constants.ACTION_ESC_CLOSING:
       ops.quitApp(ipcMsg); break;

@@ -49,8 +49,12 @@ export default (state = defaultState, action) => {
       case constants.ACTION_DELIVER_FILE_META:
         return addMeta(state, action);
 
-      case constants.ACTION_TOGGLE_AUTOPLAY:
-        return toggleAutoPlay(state, action);
+      case constants.ACTION_AUTOPLAY_START:
+        return { ...state, autoPlay: true };
+      case constants.ACTION_AUTOPLAY_STOP:
+        return { ...state, autoPlay: false };
+      case constants.ACTION_AUTOPLAY_TOGGLE:
+        return { ...state, autoPlay: !state.autoPlay };
 
       case constants.ACTION_HELP_SHOW:
         return helpShow(state, action);
@@ -196,16 +200,6 @@ export function goEnd(state) {
     return goTo(state, state.showIndex + 1); // go next
 
   return goTo(state, state.items.length - 1); // go really to end
-}
-
-// ----------------------------------------------------------------------------------
-
-export function toggleAutoPlay(state) {
-  const newAutoPlay = !state.autoPlay;
-  return {
-    ...state,
-    autoPlay: newAutoPlay
-  };
 }
 
 // ----------------------------------------------------------------------------------

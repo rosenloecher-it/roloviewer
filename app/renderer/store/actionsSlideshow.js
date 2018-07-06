@@ -24,8 +24,16 @@ export const goEnd = () => ({
   type: constants.ACTION_GO_END
 });
 
+export const autoPlayStart = () => ({
+  type: constants.ACTION_AUTOPLAY_START
+});
+
+export const autoPlayStop = () => ({
+  type: constants.ACTION_AUTOPLAY_STOP
+});
+
 export const toogleAutoPlay = () => ({
-  type: constants.ACTION_TOGGLE_AUTOPLAY
+  type: constants.ACTION_AUTOPLAY_TOGGLE
 });
 
 export const genericAction = ({ type, payload }) => ({

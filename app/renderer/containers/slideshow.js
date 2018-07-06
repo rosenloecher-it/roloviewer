@@ -163,7 +163,7 @@ class Slideshow extends React.Component {
     try {
       const activeAutoPlay = (this.data.timerIdNext !== null);
       if (this.props.autoPlay === activeAutoPlay) {
-        log.debug(`${_logKey}${func} - NO CHANGE - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
+        log.silly(`${_logKey}${func} - NO CHANGE - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
         return;
       }
 
@@ -177,6 +177,9 @@ class Slideshow extends React.Component {
         this.data.timerIdNext = null;
         log.debug(`${_logKey}${func} - OFF - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
       }
+
+      ops.persistAutoPlay(this.props.autoPlay);
+
     } catch(error) {
       log.error(`${_logKey}${func} - exception -`, error);
     }
@@ -226,7 +229,7 @@ class Slideshow extends React.Component {
     new Promise((resolve) => {
 
       if (data.lastImageFile !== currentItemFile || data.lastContainer !== props.container)
-        ops.publishLastItem(currentItemFile, props.container);
+        ops.persistLastItem(currentItemFile, props.container);
 
       data.lastImageFile = currentItemFile;
       data.lastContainer = props.container;

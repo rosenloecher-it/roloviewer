@@ -28,6 +28,10 @@ export function mergeDataStart(dataIn, dataFromCli, dataFromFileIn) {
     log.info(`${logKey} - last file/dir doesn't exist any more (${set.container})!`);
     set.container = null;
   }
+
+  set.autoPlay = configUtils.mergeConfigItem(false,
+    null,
+    dataFromFile.lastItems.autoPlay);
 }
 
 // ----------------------------------------------------------------------------------
