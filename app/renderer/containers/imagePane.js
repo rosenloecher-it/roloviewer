@@ -90,12 +90,14 @@ class ImagePane extends React.Component {
 
     // https://github.com/marnusw/react-css-transition-replace
 
+    const transistionTime = 1500;
+
     return (
       <ReactCSSTransitionReplace
         className={cssImagePane}
         transitionName="cross-fade"
-        transitionEnterTimeout={2000}
-        transitionLeaveTimeout={2000}
+        transitionEnterTimeout={transistionTime}
+        transitionLeaveTimeout={transistionTime}
       >
         <img
           className={cssImagePane}

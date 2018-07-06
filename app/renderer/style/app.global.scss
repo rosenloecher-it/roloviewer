@@ -20,7 +20,6 @@ $app-background: $dark-gray2;
 
 //------------------------------------------------------------------------------
 
-
 @import "./popover.scss";
 
 //------------------------------------------------------------------------------
@@ -57,13 +56,15 @@ body {
 
 //------------------------------------------------------------------------------
 
+$transition-time: 1500ms;
+
 .cross-fade-leave {
   opacity: 1;
 }
 
 .cross-fade-leave.cross-fade-leave-active {
   opacity: 0;
-  transition: opacity 0.5s ease-in;
+  transition: opacity $transition-time ease-in;
 }
 
 .cross-fade-enter {
@@ -71,11 +72,11 @@ body {
 }
 .cross-fade-enter.cross-fade-enter-active {
   opacity: 1;
-  transition: opacity 0.5s ease-in;
+  transition: opacity $transition-time ease-in;
 }
 
 .cross-fade-height {
-  transition: height .9s ease-in-out;
+  transition: height $transition-time ease-in-out;
 }
 
 //------------------------------------------------------------------------------
