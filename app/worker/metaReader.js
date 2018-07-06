@@ -3,6 +3,7 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import * as constants from "../common/constants";
+import { shortenString } from "../common/stringUtils";
 import { validateInt } from '../common/validate';
 import {separateFilePath} from "../common/transfromPath";
 
@@ -193,7 +194,7 @@ export class MetaReader {
 
 // ----------------------------------------------------------------------------------
 
-export function pushLocation(inputText, addText) {
+export function pushDetails(inputText, addText) {
   if (!addText)
     return inputText;
   if (!inputText)
@@ -206,6 +207,7 @@ export function pushLocation(inputText, addText) {
 
 export function prepareTagsFromExiftool(file, tags) {
   let temp = null;
+  const ml = 50; // maxLength
 
   //log.debug(`${_logKey}.prepareTagsFromExiftool - file=${file}`, tags);
 
@@ -220,14 +222,20 @@ export function prepareTagsFromExiftool(file, tags) {
   meta.imageWidth = tags.ImageWidth;
   meta.imageSize = `${tags.ImageWidth}x${tags.ImageHeight}`;
 
-  meta.cameraModel = tags.Model;
-  meta.cameraLens = tags.LensInfo || tags.LensModel || tags.Lens || tags.LensID;
-
+  meta.cameraModel = shortenString(tags.Model, ml);
+  meta.cameraLens = shortenString(tags.LensID || tags.LensInfo || tags.LensModel || tags.Lens, ml);
 
   meta.photoShutterSpeed = tags.ShutterSpeedValue || tags.ShutterSpeed || tags.FNumber;
   meta.photoAperture = tags.ApertureValue || tags.Aperture || tags.FNumber;
   meta.photoISO = tags.ISO;
   meta.photoFlash = tags.Flash;
+
+  if (meta.photoShutterSpeed)
+    meta.photoSettings = pushDetails(meta.photoSettings, meta.photoShutterSpeed + "s");
+  if (meta.photoAperture)
+    meta.photoSettings = pushDetails(meta.photoSettings, "f" + meta.photoAperture);
+  if (meta.photoISO)
+    meta.photoSettings = pushDetails(meta.photoSettings, "ISO" + meta.photoISO);
 
   temp = validateInt(tags.FocalLength);
   if (temp)
@@ -245,13 +253,14 @@ export function prepareTagsFromExiftool(file, tags) {
   meta.gpsPosition = tags.GPSPosition; // '51.02369333 N, 13.65431667 E'
   meta.gpsVersionID = tags.GPSVersionID; // '2.2.0.0'
 
-  meta.gpsCountry = tags.Country; // 'Deutschland'
-  meta.gpsProvince = tags.State || tags['Province-State']; // 'Sachsen'
-  meta.gpsCity = tags.City; // 'Freital'
+  meta.gpsCountry = shortenString(tags.Country, ml); // 'Deutschland'
+  meta.gpsProvince = shortenString(tags.State || tags['Province-State'], ml); // 'Sachsen'
+  meta.gpsCity = shortenString(tags.City, ml); // 'Freital'
 
-  meta.gpsLocation = pushLocation(meta.gpsLocation, meta.gpsCity);
-  meta.gpsLocation = pushLocation(meta.gpsLocation, meta.gpsProvince);
-  meta.gpsLocation = pushLocation(meta.gpsLocation, meta.gpsCountry);
+  meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsCity);
+  meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsProvince);
+  meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsCountry);
+  meta.gpsLocation = shortenString(meta.gpsLocation, ml);
 
   meta.rating = tags.Rating;
 

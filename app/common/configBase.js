@@ -69,40 +69,43 @@ export class ConfigBase {
   // ........................................................
 
   get lastAutoPlay() { return this.data.lastItems.autoPlay; }
-  set lastAutoPlay(value) { this.data.lastItems.autoPlay = !!value;  }
+  set lastAutoPlay(value) { this.data.lastItems.autoPlay = !!value; }
 
   // ........................................................
   // renderer
 
   get slideshowTimer() { return this.data.slideshow.timer; }
-  set slideshowTimer(value){ this.data.slideshow.timer = value;  }
+  set slideshowTimer(value){ this.data.slideshow.timer = value; }
 
   get slideshowTransitionTimeAutoPlay() { return this.data.slideshow.transitionTimeAutoPlay; }
-  set slideshowTransitionTimeAutoPlay(value){ this.data.slideshow.transitionTimeAutoPlay = value;  }
+  set slideshowTransitionTimeAutoPlay(value){ this.data.slideshow.transitionTimeAutoPlay = value; }
 
   get slideshowTransitionTimeManual() { return this.data.slideshow.transitionTimeManual; }
   set slideshowTransitionTimeManual(value){ this.data.slideshow.transitionTimeManual = value; }
+
+  get slideshowJumpWidth() { return (this.data.slideshow.jumpWidth || constants.DEFCONF_CRAWLER_BATCHCOUNT); }
+  set slideshowJumpWidth(value){ this.data.slideshow.jumpWidth = value; }
 
   // ........................................................
   // worker
 
   get exiftoolPath() { return this.data.system.exiftool; }
-  set exiftoolPath(value){ this.data.system.exiftool = value;  }
+  set exiftoolPath(value){ this.data.system.exiftool = value; }
 
   get crawlerDatabase() { return this.data.crawler.database; }
-  set crawlerDatabase(value){ this.data.crawler.database = value;  }
+  set crawlerDatabase(value){ this.data.crawler.database = value; }
 
   get crawlerBatchCount() { return (this.data.crawler.batchCount || constants.DEFCONF_CRAWLER_BATCHCOUNT); }
-  set crawlerBatchCount(value){ this.data.crawler.batchCount = value;  }
+  set crawlerBatchCount(value){ this.data.crawler.batchCount = value; }
 
   get crawlerFolderSource() { return this.data.crawler.folderSource; }
-  set crawlerFolderSource(value) { this.data.crawler.folderSource = value;  }
+  set crawlerFolderSource(value) { this.data.crawler.folderSource = value; }
 
   get crawlerFolderBlacklist() { return this.data.crawler.folderBlacklist || []; }
-  set crawlerFolderBlacklist(value){ this.data.crawler.folderBlacklist = value;  }
+  set crawlerFolderBlacklist(value){ this.data.crawler.folderBlacklist = value; }
 
-  get crawlerFolderBlacklistSnippets() { return this.data.crawler.folderBlacklistSnippets || []; }
-  set crawlerFolderBlacklistSnippets(value){ this.data.crawler.folderBlacklistSnippets = value;  }
+  get crawlerFolderBlacklistSnippets() { return (this.data.crawler.folderBlacklistSnippets || []); }
+  set crawlerFolderBlacklistSnippets(value){ this.data.crawler.folderBlacklistSnippets = value; }
 
   // ........................................................
 

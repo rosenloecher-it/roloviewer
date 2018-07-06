@@ -87,9 +87,10 @@ class DetailsOverlay extends React.Component {
       this.pushTableLine(tableLines, "Camera", meta.cameraModel);
       this.pushTableLine(tableLines, "Lens", meta.cameraLens);
 
-      this.pushTableLine(tableLines, "ShutterSpeed", meta.photoShutterSpeed);
-      this.pushTableLine(tableLines, "Aperture", meta.photoAperture);
-      this.pushTableLine(tableLines, "ISO", meta.photoISO);
+      this.pushTableLine(tableLines, "Settings", meta.photoSettings);
+      // this.pushTableLine(tableLines, "ShutterSpeed", meta.photoShutterSpeed);
+      // this.pushTableLine(tableLines, "Aperture", meta.photoAperture);
+      // this.pushTableLine(tableLines, "ISO", meta.photoISO);
       //this.pushTableLine(tableLines, "Flash", meta.photoFlash);
       this.pushTableLine(tableLines, "Location", meta.gpsLocation);
       this.pushTableLine(tableLines, "GPS-Position", meta.gpsPosition);

@@ -36,6 +36,9 @@ class Slideshow extends React.Component {
     this.onTimerHideCursor = this.onTimerHideCursor.bind(this);
     this.onTimerNext = this.onTimerNext.bind(this);
     this.reconfigureAutoPlay = this.reconfigureAutoPlay.bind(this);
+
+    // this.goPageBack = this.goPageBack.bind(this);
+    // this.goPageNext = this.goPageNext.bind(this);
   }
 
   // .......................................................
@@ -83,12 +86,46 @@ class Slideshow extends React.Component {
   // .......................................................
 
   goBack() {
-    this.props.dispatch(actions.goBack());
+    this.dispatchGotoAction(actions.goBack());
   }
 
   goNext() {
     //log.debug(`${_logKey}.goNext`);
-    this.props.dispatch(actions.goNext());
+    this.dispatchGotoAction(actions.goNext());
+  }
+
+  goPageBack() {
+    let action;
+    if (this.props.container)
+      action = actions.goJump(-config.slideshowJumpWidth);
+    else
+      action = actions.goPage(-1);
+
+    this.dispatchGotoAction(action);
+  }
+
+  goPageNext() {
+
+    log.debug(`${_logKey}.goPageNext`);
+
+    let action;
+    if (this.props.container)
+      action = actions.goJump(config.slideshowJumpWidth);
+    else
+      action = actions.goPage(1);
+
+    log.debug(`${_logKey}.goPageNext`, action);
+
+    this.dispatchGotoAction(action);
+  }
+
+  // .......................................................
+
+  dispatchGotoAction(action) {
+    this.props.dispatch(action);
+
+    // if (this.data.timerIdNext)
+    //   this.reconfigureAutoPlay(true);
   }
 
   // .......................................................
@@ -100,13 +137,13 @@ class Slideshow extends React.Component {
       case 32: // space
         this.props.dispatch(actions.toogleAutoPlay()); break;
       case 33: // page up
-        this.props.dispatch(actions.goPageBack()); break;
+        this.goPageBack(); break;
       case 34: // page down
-        this.props.dispatch(actions.goPageNext()); break;
+        this.goPageNext(); break;
       case 35: // end
-        this.props.dispatch(actions.goEnd()); break;
+        this.dispatchGotoAction(actions.goEnd()); break;
       case 36: // pos1
-        this.props.dispatch(actions.goPos1()); break;
+        this.dispatchGotoAction(actions.goPos1()); break;
       case 37: // arrow left
       case 38: // arrow up
         this.goBack(); break;
@@ -157,12 +194,12 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
-  reconfigureAutoPlay() {
+  reconfigureAutoPlay(restart = false) {
     const func = ".reconfigureAutoPlay";
 
     try {
       const activeAutoPlay = (this.data.timerIdNext !== null);
-      if (this.props.autoPlay === activeAutoPlay) {
+      if (this.props.autoPlay === activeAutoPlay && !restart) {
         log.silly(`${_logKey}${func} - NO CHANGE - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
         return;
       }

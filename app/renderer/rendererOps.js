@@ -131,7 +131,7 @@ export function action2Redux(ipcMsg) {
 
   try {
     actionType = ipcMsg.type;
-    log.debug(`${_logKey}${func}(type=${actionType})`);
+    //log.debug(`${_logKey}${func}(type=${actionType})`);
 
     const action = actionsSls.genericAction(ipcMsg);
     _store.dispatch(action);

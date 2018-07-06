@@ -24,6 +24,8 @@ const defaultState = {
 
 export default (state = defaultState, action) => {
 
+  log.debug(`${_logKey}.default - action.type=${action.type}`);
+
   try {
     switch (action.type) {
       case constants.ACTION_GO_BACK:
@@ -32,10 +34,10 @@ export default (state = defaultState, action) => {
       case constants.ACTION_GO_NEXT:
         return goTo(state, state.showIndex + 1);
         //return goNext(state, action);
-      case constants.ACTION_GO_PAGE_BACK:
-        return goPageBack(state, action);
-      case constants.ACTION_GO_PAGE_NEXT:
-        return goPageNext(state, action);
+      case constants.ACTION_GO_JUMP:
+        return goJump(state, action);
+      case constants.ACTION_GO_PAGE:
+        return goPage(state, action);
       case constants.ACTION_GO_POS1:
         return goTo(state, 0);
         //return goPos1(state, action);
@@ -175,20 +177,71 @@ export function goTo(state, newIndexIn) {
 
 // ----------------------------------------------------------------------------------
 
-export function goPageBack(state) {
-  const func = ".goPageBack";
+export function goJump(state, action) {
 
-  log.debug(`${_logKey}${func}`);
+  let jumpWidth = 0;
+  if (action.payload)
+    jumpWidth = action.payload;
+  if (!jumpWidth)
+    return state;
 
-  return state;
+  return goTo(state, state.showIndex + jumpWidth);
 }
 
 // ----------------------------------------------------------------------------------
 
-export function goPageNext(state) {
-  const func = ".goPageNext";
+export function goPage(state, action) {
 
-  log.debug(`${_logKey}${func}`);
+  let pageDirection = 0;
+  if (action.payload)
+    pageDirection = action.payload;
+  if (!pageDirection)
+    return state;
+
+  let newShowIndex = -1;
+
+  do {
+    if (state.container)
+      break;
+
+    let currentDeliveryKey = -1;
+    if (state.showIndex >= 0 && state.showIndex < state.items.length) {
+      const item = state.items[state.showIndex];
+      if (item && item.deliveryKey)
+        currentDeliveryKey = item.deliveryKey;
+    }
+    if (currentDeliveryKey < 0)
+      break; // do standard
+
+    // find first different deliveryKey
+    if (pageDirection < 0) { // jump back
+      for (let i = state.showIndex - 1; i > 0; i--) {
+        const item = state.items[i];
+        if (item.deliveryKey !== currentDeliveryKey) {
+          newShowIndex = i;
+          break; // ready
+        }
+      }
+      if (newShowIndex < 0)
+        newShowIndex = 0;
+    } else {
+      for (let i = state.showIndex + 1; i < state.items.length; i++) {
+        const item = state.items[i];
+        if (item.deliveryKey !== currentDeliveryKey) {
+          newShowIndex = i;
+          break; // ready
+        }
+      }
+      if (newShowIndex < 0)
+        newShowIndex = state.items.length - 1;
+    }
+
+    if (newShowIndex < 0)
+      break;
+
+    return goTo(state, newShowIndex);
+
+  } while (false);
 
   return state;
 }
