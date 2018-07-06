@@ -24,7 +24,7 @@ const defaultState = {
 
 export default (state = defaultState, action) => {
 
-  log.debug(`${_logKey}.default - action.type=${action.type}`);
+  //log.debug(`${_logKey}.default - action.type=${action.type}`);
 
   try {
     switch (action.type) {

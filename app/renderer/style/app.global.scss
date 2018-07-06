@@ -14,7 +14,8 @@
 
 $pt-intent-primary: grey;
 
-$app-background: $dark-gray2;
+//$app-background: $dark-gray2; // '#202b33'
+$app-background: black;
 
 @import "../../../node_modules/@blueprintjs/core/src/blueprint";
 

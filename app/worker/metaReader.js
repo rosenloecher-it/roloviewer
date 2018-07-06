@@ -235,7 +235,7 @@ export function prepareTagsFromExiftool(file, tags) {
   if (meta.photoAperture)
     meta.photoSettings = pushDetails(meta.photoSettings, "f" + meta.photoAperture);
   if (meta.photoISO)
-    meta.photoSettings = pushDetails(meta.photoSettings, "ISO" + meta.photoISO);
+    meta.photoSettings = pushDetails(meta.photoSettings, "ISO " + meta.photoISO);
 
   temp = validateInt(tags.FocalLength);
   if (temp)

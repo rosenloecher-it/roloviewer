@@ -46,7 +46,7 @@ export function createMainWindow() {
     y: windowState.y,
     minWidth: constants.DEFCONF_WIDTH_MIN,
     minHeight: constants.DEFCONF_HEIGHT_MIN,
-    backgroundColor: '#202b33', // has to match style!
+    backgroundColor: 'black', // has to match style!
     show: false
   });
 
