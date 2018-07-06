@@ -8,7 +8,7 @@ import * as configIni from "./configIni";
 import * as constants from '../../common/constants';
 import * as configUtils from "./configUtils";
 import * as configMerge from "./configMerge";
-import configMain from "./mainConfig";
+import { ConfigBase } from '../../common/configBase';
 
 // ----------------------------------------------------------------------------------
 
@@ -16,30 +16,14 @@ const logKey = "configMain";
 
 // ----------------------------------------------------------------------------------
 
-export class ConfigMain {
+export class ConfigMain extends ConfigBase {
 
   constructor() {
-
-    // to test whether we have singleton or not
-    this.time = new Date();
+    super();
 
     this.dataCli = {};
-    this.data = ConfigMain.createDefaultData();
-  }
 
-  // ........................................................
-
-  static createDefaultData() {
-    const data = {
-      context: {},
-      crawler: {},
-      mainwindow: {},
-      slideshow: {},
-      lastItems: {},
-      system: {}
-    };
-
-    return data;
+    this.parseArgs = this.parseArgs.bind(this);
   }
 
   // ........................................................
@@ -57,7 +41,7 @@ export class ConfigMain {
 
     let args;
 
-    if (configMain.isProduction())
+    if (this.isProduction())
       args = process.argv;
     else {
       // const argsString = '-r -o fff -a 12 -t 12'.split(' ');
@@ -129,7 +113,7 @@ export class ConfigMain {
       try {
 
 
-        const dataClone = this.exportConfig();
+        const dataClone = this.exportData();
 
         delete dataClone.context;
 
@@ -188,22 +172,8 @@ export class ConfigMain {
 
   // ........................................................
 
-  exportConfig() {
-    const clone = deepmerge.all([ this.data, {} ]);
-    return clone;
-  }
-
-  // ........................................................
-
-  isDevelopment() { return this.data.context.isDevelopment; }
-  isProduction() { return this.data.context.isProduction; }
-  isTest() { return this.data.context.isTest; }
-  showDevTools() { return this.data.context.showDevTools; }
-
-  // ........................................................
-
   getDefaultConfigFile() {
-    return configUtils.getDefaultConfigFile(configMain.isProduction() ? "" : "_test");
+    return configUtils.getDefaultConfigFile(this.isProduction() ? "" : "_test");
   }
 
   // ........................................................

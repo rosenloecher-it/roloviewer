@@ -150,8 +150,8 @@ class Slideshow extends React.Component {
   // .......................................................
 
   onTimerNext() {
-    const func = ".onTimerNext";
-    log.info(`${_logKey}${func}`);
+    // const func = ".onTimerNext";
+    // log.debug(`${_logKey}${func}`);
     this.goNext();
   }
 

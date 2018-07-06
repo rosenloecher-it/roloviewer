@@ -16,7 +16,7 @@ export function init(ipcMsg) {
   const func = ".init";
   log.debug(`${_logKey}${func}`);
 
-  config.pushMainConfig(ipcMsg.payload);
+  config.importData(ipcMsg.payload);
 
   ipc.send(constants.IPC_MAIN, constants.ACTION_READY, null);
 }

@@ -29,7 +29,7 @@ export function initListener() {
 function initObjects(ipcMsg) {
   const func = ".initObjects";
 
-  config.pushMainConfig(ipcMsg.payload);
+  config.importData(ipcMsg.payload);
 
   if (!_factory) {
     _factory = new WorkerFactory();

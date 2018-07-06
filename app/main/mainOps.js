@@ -106,7 +106,7 @@ export function initChildConfig(ipcMsg) {
 
   const ipcDest = ipcMsg.source;
 
-  const data = config.exportConfig();
+  const data = config.exportData();
   ipc.send(ipcDest, constants.ACTION_PUSH_MAIN_CONFIG, data);
 
 }
