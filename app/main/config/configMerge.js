@@ -76,9 +76,13 @@ export function mergeDataRenderer(dataIn, dataFromCli, dataFromFileIn) {
 
   const set = data.slideshow;
 
-  set.transitionTime = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION,
+  set.transitionTimeAutoPlay = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY,
     null,
-    configUtils.validateInt(dataFromFile.slideshow.transitionTime));
+    configUtils.validateInt(dataFromFile.slideshow.transitionTimeAutoPlay));
+
+  set.transitionTimeManual = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_MANUAL,
+    null,
+    configUtils.validateInt(dataFromFile.slideshow.transitionTimeManual));
 
   set.timer = configUtils.mergeConfigItem(constants.DEFCONF_TIMER,
     null,
