@@ -4,9 +4,8 @@ import {connect} from "react-redux";
 import log from 'electron-log';
 import * as cssConstants from '../style/cssConstants';
 import * as actions from "../store/actionsSlideshow";
-import * as ops from "../rendererOps";
-import * as constants from "../../common/constants";
 import config from '../rendererConfig';
+import ExifOrientationImg from 'react-exif-orientation-img'
 
 // ----------------------------------------------------------------------------------
 
@@ -122,7 +121,7 @@ class ImagePane extends React.Component {
           transitionEnterTimeout={transistionTime}
           transitionLeaveTimeout={transistionTime}
         >
-          <img
+          <ExifOrientationImg
             className={cssImagePane}
             src={imagePath}
             key={imageKey}
