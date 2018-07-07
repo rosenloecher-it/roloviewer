@@ -43,8 +43,7 @@ export default (state = defaultState, action) => {
         return goTo(state, 0);
         //return goPos1(state, action);
       case constants.ACTION_GO_END:
-        return goEnd(state, action);
-        //return goEnd(state, action);
+        return goTo(state, state.items.length - 1);;
       case constants.ACTION_SHOW_FILES:
         return showFiles(state, action);
       case constants.ACTION_ADD_FILES:
@@ -266,15 +265,6 @@ export function goPage(state, action) {
   } while (false);
 
   return state;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function goEnd(state) {
-  if (state.container === null)
-    return goTo(state, state.showIndex + 1); // go next
-
-  return goTo(state, state.items.length - 1); // go really to end
 }
 
 // ----------------------------------------------------------------------------------
