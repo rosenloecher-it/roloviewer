@@ -283,7 +283,7 @@ export function validateExifDate(input) {
     const date = new Date();
 
     date.setFullYear(input.year);
-    date.setMonth(input.month);
+    date.setMonth(input.month - 1);
     date.setDate(input.day);
 
     date.setHours(input.hour);
