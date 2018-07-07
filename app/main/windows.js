@@ -61,8 +61,10 @@ export function createMainWindow() {
     mainWindow.setTitle(constants.APP_TITLE);
     mainWindow.show();
 
-    if (windowState.maximized) mainWindow.maximize();
-    // BrowserWindow.setFullScreen(true)
+    if (windowState.fullscreen)
+      mainWindow.setFullScreen(true)
+    else if (windowState.maximized)
+      mainWindow.maximize();
 
     mainWindow.on('close', closeMainWindow);
 

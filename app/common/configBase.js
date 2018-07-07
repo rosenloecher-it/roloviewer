@@ -1,5 +1,6 @@
 import deepmerge from 'deepmerge';
 import * as constants from "./constants";
+import * as configUtils from "../main/config/configUtils";
 
 // ----------------------------------------------------------------------------------
 
@@ -59,20 +60,30 @@ export class ConfigBase {
   }
 
   // ........................................................
-  // common
+  // context
 
   isDevelopment() { return this.data.context.isDevelopment; }
   isProduction() { return this.data.context.isProduction; }
   isTest() { return this.data.context.isTest; }
   showDevTools() { return this.data.context.showDevTools; }
 
+  get testCliFile() { return this.data.context.testCliFile; }
+  set testCliFile(value){ this.data.context.testCliFile = value; }
+
+  get defaultConfigFile() { return this.data.context.defaultConfigFile; }
+  set defaultConfigFile(value){ this.data.context.defaultConfigFile = value; }
+
+  get configFile() { return this.data.context.configfile; }
+  set configFile(value){ this.data.context.configfile = value; }
+
   // ........................................................
+  // lastItems
 
   get lastAutoPlay() { return this.data.lastItems.autoPlay; }
   set lastAutoPlay(value) { this.data.lastItems.autoPlay = !!value; }
 
   // ........................................................
-  // renderer
+  // slideshow
 
   get slideshowTimer() { return this.data.slideshow.timer; }
   set slideshowTimer(value){ this.data.slideshow.timer = value; }
@@ -87,10 +98,7 @@ export class ConfigBase {
   set slideshowJumpWidth(value){ this.data.slideshow.jumpWidth = value; }
 
   // ........................................................
-  // worker
-
-  get exiftoolPath() { return this.data.system.exiftool; }
-  set exiftoolPath(value){ this.data.system.exiftool = value; }
+  // crawler
 
   get crawlerDatabase() { return this.data.crawler.database; }
   set crawlerDatabase(value){ this.data.crawler.database = value; }
@@ -108,6 +116,13 @@ export class ConfigBase {
   set crawlerFolderBlacklistSnippets(value){ this.data.crawler.folderBlacklistSnippets = value; }
 
   // ........................................................
+  // system
+
+  get exiftoolPath() { return this.data.system.exiftool; }
+  set exiftoolPath(value){ this.data.system.exiftool = value; }
+
+  get configFile() { return this.data.system.configFile; }
+  set configFile(value){ this.data.system.configFile = value; }
 
   get powerSaveBlockTime() { return this.data.system.powerSaveBlockTime; }
   set powerSaveBlockTime(value){ this.data.system.powerSaveBlockTime = value; }

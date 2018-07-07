@@ -2,13 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import electron from 'electron';
 import log from 'electron-log';
-import deepmerge from 'deepmerge';
-import parseCliArgs from "./configCli";
 import * as configIni from "./configIni";
 import * as constants from '../../common/constants';
 import * as configUtils from "./configUtils";
 import * as configMerge from "./configMerge";
 import { ConfigBase } from '../../common/configBase';
+import {getConfigPath} from "./configUtils";
+import Cli from "./cli";
 
 // ----------------------------------------------------------------------------------
 
@@ -21,51 +21,73 @@ export class ConfigMain extends ConfigBase {
   constructor() {
     super();
 
-    this.dataCli = {};
+    this.cliData = {};
+    this.cliParser = null;
 
     this.parseArgs = this.parseArgs.bind(this);
+    this.logCliArgs = this.logCliArgs.bind(this);
+
   }
 
   // ........................................................
 
   initContext(NODE_ENV, DEBUG_PROD) {
-    this.data.context.isDevelopment = NODE_ENV === 'development' || DEBUG_PROD === 'true';
-    this.data.context.isProduction = NODE_ENV === 'production';
-    this.data.context.isTest = NODE_ENV === 'test';
-    this.data.context.showDevTools = !this.data.system.isProduction || DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
+
+    const { data } = this;
+
+    data.context.isDevelopment = NODE_ENV === 'development' || DEBUG_PROD === 'true';
+    data.context.isProduction = NODE_ENV === 'production';
+    data.context.isTest = NODE_ENV === 'test';
+    data.context.showDevTools = !this.data.system.isProduction || DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
+
+    const extra = (data.context.isProduction ? "" : "_test");
+    const configPath = getConfigPath();
+    const configName = `${constants.CONFIG_BASENAME}${extra}.ini`;
+
+    data.context.defaultConfigFile = path.join(configPath, configName);
+
+    if (!data.context.isProduction) {
+      const cliName = `${constants.CONFIG_BASENAME}${extra}.cli`;
+      data.context.testCliFile = path.join(configPath, cliName);
+    }
+
+    //console.log(`${logKey}.initContext - data.context=`, data.context);
   }
 
   // ........................................................
 
   parseArgs() {
-
-    let args;
-
-    if (this.isProduction())
-      args = process.argv;
-    else {
-      // const argsString = '-r -o fff -a 12 -t 12'.split(' ');
-      const argsString = constants.DEBUG_ARGS;
-
-      if (argsString && argsString.trim().length > 0)
-        args = argsString.split(' ');
-    }
-
-    const defaultConfigFile = this.getDefaultConfigFile();
-
     try {
-      if (args) {
-        log.debug("configmain.parseArgs:", args, defaultConfigFile);
-        this.dataCli = parseCliArgs(args, defaultConfigFile);
-      } else
-        this.dataCli = {};
+      if (!this.cliParser)
+        this.cliParser = new Cli(this);
+
+      const args = (this.isProduction() ? process.argv : constants.DEBUG_ARGS);
+      if (args)
+        this.cliData = this.cliParser.parseArray(args);
+      else
+        this.cliData = {};
     } catch (err) {
       log.error(`${logKey}.parseArgs - exception`, err);
     } finally {
-      if (!this.dataCli)
-        this.dataCli = {};
+      if (!this.cliData)
+        this.cliData = {};
     }
 
+  }
+
+  // ........................................................
+
+  logCliArgs() {
+
+    let argsParser = null;
+    if (this.cliParser) {
+      argsParser = this.cliParser.args;
+      this.cliParser = null; // not needed any moore
+    }
+
+    log.debug(`${logKey} - cli args - used:`, argsParser);
+    if (argsParser !== process.argv)
+      log.debug(`${logKey} - cli args - orig:`, process.argv);
   }
 
   // ........................................................
@@ -107,7 +129,7 @@ export class ConfigMain extends ConfigBase {
 
   saveConfig() {
 
-    if (this.data.context.doSaveConfig) {
+    if (!this.data.context.configIsReadOnly) {
       const {configfile} = this.data.context;
 
       try {
@@ -137,43 +159,37 @@ export class ConfigMain extends ConfigBase {
 
     const setCxt = this.data.context;
 
-    if (this.dataCli.config) {
-      if (fs.existsSync(this.dataCli.config)) {
-        setCxt.configfile = this.dataCli.config;
-        setCxt.doSaveConfig = true;
+    setCxt.configIsReadOnly = !!this.cliData.configreadonly;
+
+    if (this.cliData.config) {
+      if (fs.existsSync(this.cliData.config)) {
+        setCxt.configfile = this.cliData.config;
       } else {
-        log.error(`${logKey}${func} - use default config - ${this.dataCli.config} does not exists!`);
+        log.error(`${logKey}${func} - use default config - ${this.cliData.config} does not exists!`);
       }
     }
 
     if (!setCxt.configfile) {
-      setCxt.configfile = this.getDefaultConfigFile();
-      setCxt.doSaveConfig = true;
+      setCxt.configfile = this.defaultConfigFile;
     }
 
     let dataFromFile;
     try {
       dataFromFile = configIni.loadIniFile(setCxt.configfile);
     } catch (err) {
-      log.error(`${logKey}${func} loading ${this.dataCli.config} - exception: `, err);
+      log.error(`${logKey}${func} loading ${this.cliData.config} - exception: `, err);
       dataFromFile = {};
     }
 
     // log.debug("mergeConfigFiles - dataFromFile", dataFromFile);
 
-    configMerge.mergeDataStart(this.data, this.dataCli, dataFromFile);
-    configMerge.mergeDataSystem(this.data, this.dataCli, dataFromFile);
-    configMerge.mergeDataRenderer(this.data, this.dataCli, dataFromFile);
-    configMerge.mergeDataCrawler(this.data, this.dataCli, dataFromFile);
-    configMerge.mergeDataMainWindow(this.data, this.dataCli, dataFromFile);
+    configMerge.mergeDataStart(this.data, this.cliData, dataFromFile);
+    configMerge.mergeDataSystem(this.data, this.cliData, dataFromFile);
+    configMerge.mergeDataRenderer(this.data, this.cliData, dataFromFile);
+    configMerge.mergeDataCrawler(this.data, this.cliData, dataFromFile);
+    configMerge.mergeDataMainWindow(this.data, this.cliData, dataFromFile);
 
     // log.debug("mergeConfigFiles", this.data);
-  }
-
-  // ........................................................
-
-  getDefaultConfigFile() {
-    return configUtils.getDefaultConfigFile(this.isProduction() ? "" : "_test");
   }
 
   // ........................................................
@@ -194,14 +210,14 @@ export class ConfigMain extends ConfigBase {
   // ........................................................
 
   shouldExit() {
-    return (this.dataCli && this.dataCli.exit_code);
+    return (this.cliData && this.cliData.exitCode);
   }
 
   // ........................................................
 
   getExitCode() {
-    if (this.dataCli)
-      return this.dataCli.exit_code;
+    if (this.cliData)
+      return this.cliData.exitCode;
 
     return null;
   }

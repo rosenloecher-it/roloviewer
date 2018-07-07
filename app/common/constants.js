@@ -9,7 +9,6 @@ export const COMPANY_NAME = 'Rosenlöcher IT';
 
 export const CONFIG_NAME = 'RoloSlider';
 export const CONFIG_BASENAME = 'roloslider';
-export const CONFIG_EXT = '.ini';
 
 export const URL_CRASH_REPORT = 'https://your-domain.com/url-to-submit';
 
@@ -45,7 +44,7 @@ export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 2;
 // --------------------------------------------------------------------------
 // debug
 
-export const DEBUG_ARGS =  ""; // "-r -o fff -a 12 -t 12"
+export const DEBUG_ARGS =  [ 'unknownPathToBinary' ] ; // "-r -o fff -a 12 -t 12"
 export const DEBUG_DEVTOOLS_PROD = true;
 export const DEBUG_SHOW_WORKER_WINDOW = false;
 export const DEBUG_IPC_HANDSHAKE = false;

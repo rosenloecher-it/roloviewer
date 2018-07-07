@@ -4,6 +4,7 @@ import path from 'path';
 import * as constants from "../../common/constants";
 import * as vali from "../../common/validate";
 import * as configUtils from "./configUtils";
+import { validateBoolean, validateInt, validateLogLevel, validateRatingArray, validateStringArray } from "../../common/validate";
 
 // ----------------------------------------------------------------------------------
 
@@ -47,22 +48,22 @@ export function mergeDataSystem(dataIn, dataFromCli, dataFromFileIn) {
 
   data.system.powerSaveBlockTime = configUtils.mergeConfigItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME,
     null,
-    configUtils.validateInt(dataFromFile.system.powerSaveBlockTime));
+    validateInt(dataFromFile.system.powerSaveBlockTime));
 
   // TODO data.system.logfile;
 
   data.system.logLevelFile = configUtils.mergeConfigItem(
     !data.system.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL_CONSOLE,
     null,
-    configUtils.validateLogLevel(dataFromFile.system.logLevelFile));
+    validateLogLevel(dataFromFile.system.logLevelFile));
 
   data.system.logLevelConsole = configUtils.mergeConfigItem(constants.DEFCONF_LOGLEVEL_FILE,
     null,
-    configUtils.validateLogLevel(dataFromFile.system.logLevelConsole));
+    validateLogLevel(dataFromFile.system.logLevelConsole));
 
   data.system.logDeleteOnStart = configUtils.mergeConfigItem(constants.DEFCONF_LOG_DELETE_ON_START,
     null,
-    configUtils.validateBoolean(dataFromFile.system.logDeleteOnStart));
+    validateBoolean(dataFromFile.system.logDeleteOnStart));
 
   data.system.logfile = null;
   if (dataFromFile.system.logfile && dataFromFile.system.logfile.trim() === constants.DEFCONF_LOG)
@@ -85,30 +86,30 @@ export function mergeDataRenderer(dataIn, dataFromCli, dataFromFileIn) {
 
   set.transitionTimeAutoPlay = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY,
     null,
-    configUtils.validateInt(dataFromFile.slideshow.transitionTimeAutoPlay));
+    validateInt(dataFromFile.slideshow.transitionTimeAutoPlay));
 
   set.transitionTimeManual = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_MANUAL,
     null,
-    configUtils.validateInt(dataFromFile.slideshow.transitionTimeManual));
+    validateInt(dataFromFile.slideshow.transitionTimeManual));
 
   set.timer = configUtils.mergeConfigItem(constants.DEFCONF_TIMER,
     null,
-    configUtils.validateInt(dataFromFile.slideshow.timer));
+    validateInt(dataFromFile.slideshow.timer));
 
   set.random = configUtils.mergeConfigItem(constants.DEFCONF_RANDOM,
     dataFromCli.random,
     dataFromFile.slideshow.random);
 
   set.awake = configUtils.mergeConfigItem(constants.DEFCONF_AWAKE,
-    configUtils.validateInt(dataFromCli.awake),
-    configUtils.validateInt(dataFromFile.slideshow.awake));
+    null,
+    validateInt(dataFromFile.slideshow.awake));
 
   set.screensaver = configUtils.mergeConfigItem(constants.DEFCONF_SCREENSAVER,
     dataFromCli.screensaver,
     null);
 
   set.details = configUtils.mergeConfigItem(constants.DEFCONF_DETAILS,
-    dataFromCli.details,
+    null,
     dataFromFile.slideshow.details);
 }
 
@@ -127,10 +128,10 @@ export function mergeDataCrawler(dataIn, dataFromCli, dataFromFileIn) {
     null,
     dataFromFile.crawler.database);
 
-  set.batchCount = configUtils.mergeConfigItem(constants.DEFCONF_CRAWLER_BATCHCOUNT, configUtils.validateInt(dataFromFile.crawler.batchCount), null);
-  set.showRating = configUtils.validateRatingArray(dataFromFile.crawler.showRating);
-  set.tagShow = configUtils.validateStringArray(dataFromFile.crawler.tagShow);
-  set.tagBlacklist = configUtils.validateStringArray(dataFromFile.crawler.tagBlacklist);
+  set.batchCount = configUtils.mergeConfigItem(constants.DEFCONF_CRAWLER_BATCHCOUNT, validateInt(dataFromFile.crawler.batchCount), null);
+  set.showRating = validateRatingArray(dataFromFile.crawler.showRating);
+  set.tagShow = validateStringArray(dataFromFile.crawler.tagShow);
+  set.tagBlacklist = validateStringArray(dataFromFile.crawler.tagBlacklist);
   set.folderSource = vali.validateFolderArray(dataFromFile.crawler.folderSource);
   set.folderBlacklist = vali.validateFolderArray(dataFromFile.crawler.folderBlacklist);
   set.folderBlacklistSnippets = vali.validateBlacklistSnippets(dataFromFile.crawler.folderBlacklistSnippets);
@@ -151,14 +152,14 @@ export function mergeDataMainWindow(dataIn, dataFromCli, dataFromFileIn) {
 
   const set = data.mainwindow;
 
-  set.x = configUtils.validateInt(dataFromFile.mainwindow.x);
-  set.y = configUtils.validateInt(dataFromFile.mainwindow.y);
-  set.height = configUtils.validateInt(dataFromFile.mainwindow.height);
-  set.width = configUtils.validateInt(dataFromFile.mainwindow.width);
+  set.x = validateInt(dataFromFile.mainwindow.x);
+  set.y = validateInt(dataFromFile.mainwindow.y);
+  set.height = validateInt(dataFromFile.mainwindow.height);
+  set.width = validateInt(dataFromFile.mainwindow.width);
 
-  set.maximized = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.maximized), null);
-  set.fullscreen = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.fullscreen), null);
-  set.activeDevTools = configUtils.mergeConfigItem(false, configUtils.validateBoolean(dataFromFile.mainwindow.activeDevTools), null);
+  set.maximized = configUtils.mergeConfigItem(false, validateBoolean(dataFromFile.mainwindow.maximized), null);
+  set.fullscreen = configUtils.mergeConfigItem(false, validateBoolean(dataFromFile.mainwindow.fullscreen), null);
+  set.activeDevTools = configUtils.mergeConfigItem(false, validateBoolean(dataFromFile.mainwindow.activeDevTools), null);
 
 }
 

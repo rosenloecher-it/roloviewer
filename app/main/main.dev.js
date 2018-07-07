@@ -24,6 +24,8 @@ import * as powerSaveBlocker from "./powerSaveBlocker";
 
 const logKey = "main";
 
+let _cli = null;
+
 // ----------------------------------------------------------------------------------
 
 function allWindowsClosed() {
@@ -48,7 +50,6 @@ function onAppWillQuit() {
 // ----------------------------------------------------------------------------------
 
 config.initContext(process.env.NODE_ENV, process.env.DEBUG_PROD);
-
 config.parseArgs();
 
 // ----------------------------------------------------------------------------------
@@ -70,6 +71,7 @@ if (!config.shouldExit()) {
 
   ops.startCrashReporter();
   ops.configLogger();
+  config.logCliArgs();
 
   let installExtensions;
 
@@ -109,7 +111,7 @@ if (!config.shouldExit()) {
 
   if (config.isDevelopment()) {
     // else do nothing
-    console.log("exit by app!");
+    console.log(`${logKey} - exit by app!`);
   } else
      process.exit(config.getExitCode());
 

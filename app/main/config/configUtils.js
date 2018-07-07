@@ -11,15 +11,6 @@ export function getConfigPath() {
 
 //----------------------------------------------------------------------------
 
-export function getDefaultConfigFile(extra) {
-  const configPath = getConfigPath();
-  const name = constants.CONFIG_BASENAME + (extra || "") + constants.CONFIG_EXT
-  const configFile = path.join(configPath, name);
-  return configFile;
-}
-
-//----------------------------------------------------------------------------
-
 export function getDefaultCachePath() {
   return path.join(app.getPath('userData'), '..', constants.CONFIG_NAME);
 }
@@ -41,102 +32,6 @@ export function getDefaultLogFile() {
 }
 
 //----------------------------------------------------------------------------
-
-export function validateInt(input) {
-
-  const num = parseInt(input, 10);
-
-  if (Number.isNaN(num))
-    return null;
-
-  return num;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function validateBoolean(input) {
-
-  if (input == null)
-    return null;
-  if (typeof(input) === typeof(true))
-    return input;
-  const compare = input.toString().trim().toLowerCase();
-
-  if (compare === "true" || compare === "on" || compare === "1")
-    return true;
-  else if (compare === "false" || compare === "off" || compare === "0")
-    return false;
-
-  return null;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function validateLogLevel(input) {
-
-  const defaultLogLevel = "warn";
-
-  if (typeof(input) !== typeof("str"))
-    return defaultLogLevel;
-
-  const logLevels = [ "error", "warn", "info", "verbose", "debug", "silly" ];
-
-  const output = input.trim().toLowerCase();
-
-  if (logLevels.indexOf(output) > -1)
-    return output;
-
-  return defaultLogLevel;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function validateStringArray(input) {
-
-  if (!Array.isArray(input))
-    return [];
-
-  const output = [];
-
-  for (let i = 0; i < input.length; i++) {
-    const text = input[i];
-    if (typeof(text) === typeof "str") {
-      const value = text.trim().toLowerCase();
-      if (!output.includes(value))
-        output.push(value);
-    }
-  }
-
-  return output;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function validateRatingArray(input) {
-  if (!Array.isArray(input))
-    return [];
-
-  const output = [];
-
-  for (let i = 0; i < input.length; i++) {
-    const text = input[i];
-    const value = validateInt(text);
-
-    if (value === null) // make flow happy
-      continue;
-    if (typeof(value) !== typeof(1))
-      continue;
-    if (value < 0 || value > 5)
-      continue;
-
-    if (!output.includes(value))
-      output.push(value);
-  }
-
-  return output;
-}
-
-// ----------------------------------------------------------------------------------
 
 export function mergeConfigItem(valueDef, valuePrio1, valuePrio2) {
 
