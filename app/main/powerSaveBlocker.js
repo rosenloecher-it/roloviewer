@@ -6,6 +6,8 @@ import * as ipc from './mainIpc';
 
 // ----------------------------------------------------------------------------------
 
+// https://electronjs.org/docs/api/power-save-blocker
+
 const _logKey = "powerSaveBlocker";
 
 let _timerInit = false;
