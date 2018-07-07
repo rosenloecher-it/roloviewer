@@ -86,7 +86,9 @@ class ImagePane extends React.Component {
     }
     const imageKey = (!imagePath ? "undefined" : imagePath);
 
-    const transistionTime = props.autoPlay ? config.slideshowTransitionTimeAutoPlay : config.slideshowTransitionTimeManual;
+    let transistionTime = props.autoPlay ? config.slideshowTransitionTimeAutoPlay : config.slideshowTransitionTimeManual;
+    if (!transistionTime)
+      transistionTime = 10;
 
     log.debug(`${_logKey}${func}(${props.showIndex}, autoPlay=${props.autoPlay}, transistionTime=${transistionTime}):`, imagePath);
 

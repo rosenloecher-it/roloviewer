@@ -132,12 +132,15 @@ export function activateChild(ipcMsg) {
 
   if (statusChildsState === flagSendStart) {
     statusChildsState = 0;
-    const container = config.getLastContainer();
+
+    let payload = null;
+    if (config.lastContainer)
+      payload = { container: config.lastContainer, selectFile: config.lastItem };
 
     //log.debug(`${logKey}${func} - getLastContainer:`, container);
 
     setTimeout(() => {
-      ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container });
+      ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, payload);
     }, 100)
 
   }
@@ -173,9 +176,6 @@ export function openDialog(isDirectory) {
 // ----------------------------------------------------------------------------------
 
 export function openDirectory() {
-
-  log.debug('open directory clicked');
-
   const folder = openDialog(true);
   if (folder)
     ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container: folder });
@@ -184,11 +184,15 @@ export function openDirectory() {
 // ----------------------------------------------------------------------------------
 
 export function openPlayList() {
-  log.debug('open playlist clicked');
-
   const playlist = openDialog(false);
   if (playlist)
     ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container: playlist });
+}
+
+// ----------------------------------------------------------------------------------
+
+export function openItemDirectory() {
+  ipc.send(constants.IPC_RENDERER, constants.ACTION_OPEN_ITEM_FOLDER, null);
 }
 
 // ----------------------------------------------------------------------------------
@@ -268,7 +272,7 @@ export function showMessage(msgType, msgText) {
 export function setLastItem(ipcMsg) {
 
   //log.debug(`${logKey}.setLastItem: -`, ipcMsg.payload);
-  config.setLastItem(ipcMsg.payload.lastItemFile, ipcMsg.payload.lastContainer);
+  config.setLastItemAndContainer(ipcMsg.payload.lastItemFile, ipcMsg.payload.lastContainer);
 }
 
 // ----------------------------------------------------------------------------------

@@ -76,6 +76,9 @@ function dispatchRendererActions(ipcMsg) {
       case constants.ACTION_DELIVER_FILE_META:
         ops.action2Redux(ipcMsg); break;
 
+      case constants.ACTION_OPEN_ITEM_FOLDER:
+        ops.triggerOpenItemFolder(ipcMsg); break;
+
       case constants.ACTION_ESC_CLOSING:
          ops.askQuitApp(ipcMsg); break;
 

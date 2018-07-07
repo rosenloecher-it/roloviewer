@@ -265,7 +265,7 @@ class Slideshow extends React.Component {
 
     new Promise((resolve) => {
 
-      if (data.lastImageFile !== currentItemFile || data.lastContainer !== props.container)
+      if (currentItemFile && data.lastImageFile !== currentItemFile || data.lastContainer !== props.container)
         ops.persistLastItem(currentItemFile, props.container);
 
       data.lastImageFile = currentItemFile;
@@ -273,8 +273,8 @@ class Slideshow extends React.Component {
 
       // request new files
       do {
-        if (props.container !== null)
-          break; // no auto-select
+        if (props.containerType !== constants.CONTAINER_AUTOSELECT)
+          break;
         if (props.showIndex < props.items.length - constants.DEFCONF_RENDERER_ITEM_RESERVE)
           break; // sufficient reserve
 
@@ -309,6 +309,7 @@ class Slideshow extends React.Component {
 const mapStateToProps = state => ({
   autoPlay: state.slideshow.autoPlay,
   container: state.slideshow.container,
+  containerType: state.slideshow.containerType,
   cursorHide: state.slideshow.cursorHide,
   helpShow: state.slideshow.helpShow,
   items: state.slideshow.items,

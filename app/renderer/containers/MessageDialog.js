@@ -48,7 +48,7 @@ class MessageDialog extends React.Component {
       message = {};
 
     // TODO split array
-    const text = `type=${message.msgType}, text=${message.msgText}`;
+    const text = message.msgText;
 
     const showMore = (props.messages.length > 1);
 

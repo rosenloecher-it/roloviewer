@@ -82,6 +82,35 @@ export class ConfigBase {
   get lastAutoPlay() { return this.data.lastItems.autoPlay; }
   set lastAutoPlay(value) { this.data.lastItems.autoPlay = !!value; }
 
+  get lastContainer() { return this.data.lastItems.container; }
+
+  get lastItem() {
+    if (!this.data.lastItems.files)
+      return null;
+    const {files} = this.data.lastItems;
+    if (files.length <= 0)
+      return;
+    return files[files.length - 1];
+  }
+
+  setLastItemAndContainer(lastItemFile, lastContainer) {
+
+    const {lastItems} = this.data;
+
+    if (typeof(lastContainer) === typeof("str")) {
+      lastItems.files = [lastItemFile];
+    } else {
+      if (!lastItems.files)
+        lastItems.files = [lastItemFile];
+      else {
+        lastItems.files.push(lastItemFile);
+        while (lastItems.files.length > constants.DEFCONF_CRAWLER_BATCHCOUNT)
+          lastItems.files.shift();
+      }
+    }
+    lastItems.container = lastContainer;
+  }
+
   // ........................................................
   // slideshow
 

@@ -18,13 +18,18 @@ export function createMenu() {
         click: () => { ops.openDirectory() }
       },
       {
-        label: 'Open playlist ',
-        accelerator: 'Shift+CmdOrCtrl+O',
+        label: 'Open playlist',
         click: () => { ops.openPlayList() }
       },
       {
+        label: 'Open item directory',
+        accelerator: 'Alt+O',
+        click: () => { ops.openItemDirectory() }
+      },
+
+      {
         label: 'Auto-select',
-        accelerator: 'CmdOrCtrl+A',
+        accelerator: 'F7',
         click: () => { ops.autoSelect() }
       },
       { type: 'separator' },

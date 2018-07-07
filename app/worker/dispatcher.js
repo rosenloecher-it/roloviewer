@@ -90,6 +90,9 @@ export class Dispatcher {
       case constants.ACTION_OPEN:
         this.data.taskManager.pushTask(ipcMsg);
         break;
+      case constants.ACTION_OPEN_ITEM_FOLDER:
+        this.data.taskManager.pushTask(ipcMsg);
+        break;
       case constants.ACTION_DUMMY_TASK:
         this.data.taskManager.pushTask(ipcMsg);
         break;
@@ -140,6 +143,8 @@ export class Dispatcher {
 
           case constants.ACTION_OPEN:
             instance.data.mediaLoader.open(task.payload); break;
+          case constants.ACTION_OPEN_ITEM_FOLDER:
+            instance.data.mediaLoader.openItemFolder(task.payload); break;
 
           case constants.ACTION_DELIVER_FILE_META:
             instance.data.metaReader.deliverMeta(task.payload); break;
@@ -159,7 +164,7 @@ export class Dispatcher {
 
       p.catch((error) => {
         log.error(`${_logKey}${func} - `, error);
-        instance.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, "Error ${_logKey}${func} - ", task);
+        instance.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, `Error ${_logKey}${func} - task=`, task);
       });
     }
 

@@ -14,6 +14,7 @@ const defaultState = {
   showIndex: -1,
   items: [],
   container: null,
+  containerType: 0,
   helpShow: false,
   detailsState: getValidDetailsState(null, false),
   detailsPosition: getValidDetailsPosition(null, false),
@@ -98,15 +99,36 @@ export function setNewDeliveryKey(items) {
 export function showFiles(state, action) {
   const func = ".showFiles";
 
-  setNewDeliveryKey(action.payload.items);
+  const newItems = action.payload.items;
+  const newSelectFile = action.payload.selectItem;
 
-  log.debug(`${_logKey}${func} - ${action.payload.items.length} items`);
+  if (!newItems) {
+    log.error(`${_logKey}${func} !newItems`);
+    throw new Error(`${_logKey}${func} - no items`, action);
+  }
+
+  //log.debug(`${_logKey}${func}:`, action);
+
+  setNewDeliveryKey(newItems);
+
+  log.debug(`${_logKey}${func} - ${newItems.length} items`);
+
+  let newShowIndex = 0;
+  if (action.selectFile) {
+    for (let i = 0; i < newItems.length; i++) {
+      if (newItems[i].file === newSelectFile) {
+        newShowIndex = i;
+        break;
+      }
+    }
+  }
 
   return {
     ...state,
-    items: action.items,
-    showIndex: 0,
-    container: action.container
+    items: newItems,
+    showIndex: newShowIndex,
+    container: action.container,
+    containerType: action.payload.containerType,
   };
 }
 
@@ -115,36 +137,36 @@ export function showFiles(state, action) {
 export function addFiles(state, action) {
   const func = ".addFiles";
 
-  //log.debug(`${_logKey}${func}:`, action);
-
   setNewDeliveryKey(action.payload.items);
 
-  if (state.container === null) {
+  if (state.containerType === constants.CONTAINER_AUTOSELECT) {
 
     const newItems = state.items.concat(action.payload.items);
-    let newIndex = state.showIndex;
+    let newShowIndex = state.showIndex;
 
     log.debug(`${_logKey}${func} (add) - ${action.payload.items.length} items (sum = ${newItems.length})`);
 
-    if (newIndex < 0 && newItems.length > 0)
-      newIndex = 0;
+    if (newShowIndex < 0 && newItems.length > 0)
+      newShowIndex = 0;
 
     // add items
     return {
       ...state,
       items: newItems,
-      showIndex: newIndex,
-      container: null
+      showIndex: newShowIndex,
+      container: null,
+      containerType: action.payload.containerType
     }
   } else {
-    log.debug(`${_logKey}${func} (replace) - ${action.payload.items.length} items`);
+    //log.debug(`${_logKey}${func} (replace) - ${action.payload.items.length} items`);
 
     // replace old items
     return {
       ...state,
       items: action.payload.items,
       showIndex: 0,
-      container: null
+      container: null,
+      containerType: action.payload.containerType
     };
   }
 

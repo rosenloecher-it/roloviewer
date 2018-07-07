@@ -76,28 +76,30 @@ export class MediaLoader {
     const func = ".open";
 
     let data = null;
-    if (!input)
-      data = {};
-    else if (typeof(input) === typeof("str"))
-      data = { container: input };
-    else
-      data = input;
-
     try {
       //log.debug(`${_logKey}.open -`, data);
+
+      if (!input)
+        data = {};
+      else if (typeof(input) === typeof("str"))
+        data = { container: input };
+      else
+        data = input;
 
       if (data.container) {
 
         if (fs.lstatSync(data.container).isDirectory())
-          this.openFolder(data.container);
+          this.openFolder(data.container, data.selectFile);
         else if (fs.lstatSync(data.container).isFile())
           this.openPlayList(data.container);
       } else {
         this.openAutoSelect();
       }
     } catch (error) {
+      const text = `${_logKey}${func} - exception - ${error}`;
       log.error(`${_logKey}${func} - exception -`, error);
-      throw (error);
+      log.error(`${_logKey}${func} - data -`, data);
+      this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text);
     }
 
   }
@@ -114,15 +116,49 @@ export class MediaLoader {
 
   // ........................................................
 
-  openFolder(folder) {
+  openFolder(folder, selectFile) {
     const func = ".openFolder";
 
-    log.debug(`${_logKey}${func} - ${folder}`);
+    log.debug(`${_logKey}${func} - folder=${folder}, selectFile=${selectFile}`);
 
     const images = MediaLoader.loadImagesFromFolder(folder);
     images.sort();
 
-    this.pushFilesToRenderer(constants.ACTION_SHOW_FILES, folder, images);
+    const payload = {
+      type: constants.ACTION_SHOW_FILES,
+      container: folder,
+      containerType: constants.CONTAINER_FOLDER,
+      selectFile
+    };
+
+    this.pushFilesToRenderer(payload, images);
+  }
+
+  // ........................................................
+
+  openItemFolder(input) {
+    const func = ".openItemFolder";
+
+    try {
+      //log.debug(`${_logKey}${func} - input=`, input);
+
+      const { selectFile } = input;
+
+      if (!selectFile) {
+        const text = `${_logKey}${func} - !selectFile => skip!`;
+        log.error(text);
+        this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text, null);
+        return;
+      }
+
+      const folder = path.dirname(selectFile);
+      this.openFolder(folder, selectFile);
+
+    } catch (error) {
+      log.error(`${_logKey}${func} - exception -`, error);
+      throw (error);
+    }
+
   }
 
   // ........................................................
@@ -156,18 +192,24 @@ export class MediaLoader {
 
     autoFiles.sort();
 
-    this.pushFilesToRenderer(constants.ACTION_ADD_FILES, null, autoFiles);
+    const payload = {
+      type: constants.ACTION_ADD_FILES,
+      container: null,
+      containerType: constants.CONTAINER_AUTOSELECT,
+    };
+
+    this.pushFilesToRenderer(payload, autoFiles);
   }
 
   // ........................................................
 
-  pushFilesToRenderer(actionType, container, imageFiles) {
+  pushFilesToRenderer(payloadIn, imageFiles) {
     const func = ".pushFilesToRenderer";
 
-    const payload = {
-      container,
-      items: []
-    };
+    const payload = payloadIn;
+    const actionType = payload.type;
+
+    payload.items = [];
 
     for (let i = 0; i < imageFiles.length; i++) {
       const item = this.loadFile(imageFiles[i]);

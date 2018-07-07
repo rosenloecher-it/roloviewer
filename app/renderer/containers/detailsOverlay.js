@@ -58,7 +58,15 @@ class DetailsOverlay extends React.Component {
       const numberText = `${props.showIndex + 1}/${props.items.length}`;
       const autoPlayIcon = (props.autoPlay && <Icon icon="play" />);
 
-      this.pushTableLine(tableLines, "Number", <div>{numberText} {autoPlayIcon}</div>);
+      let conainterIcon = null;
+      switch (props.containerType) {
+        case constants.CONTAINER_AUTOSELECT: conainterIcon = null; break;
+        case constants.CONTAINER_FOLDER: conainterIcon = <Icon icon="folder-open" />; break;
+        case constants.CONTAINER_PLAYLIST: conainterIcon = <Icon icon="list" />; break;
+        default: conainterIcon = <Icon icon="help" />; break;
+      }
+
+      this.pushTableLine(tableLines, "Status", <div>{conainterIcon} {numberText} {autoPlayIcon}</div>);
       this.pushTableLine(tableLines, "Folder", itemPath.dir);
       this.pushTableLine(tableLines, "Filename", itemPath.filename);
     }
@@ -112,11 +120,12 @@ class DetailsOverlay extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  detailsState: state.slideshow.detailsState,
-  detailsPosition: state.slideshow.detailsPosition,
-  showIndex: state.slideshow.showIndex,
-  items: state.slideshow.items,
   autoPlay: state.slideshow.autoPlay,
+  containerType: state.slideshow.containerType,
+  detailsPosition: state.slideshow.detailsPosition,
+  detailsState: state.slideshow.detailsState,
+  items: state.slideshow.items,
+  showIndex: state.slideshow.showIndex,
 });
 
 

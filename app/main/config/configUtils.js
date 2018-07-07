@@ -47,9 +47,9 @@ export function mergeConfigItem(valueDef, valuePrio1, valuePrio2) {
 
 export function mergeStringItem(valueDef, valuePrio1, valuePrio2) {
 
-  if (typeof("str") === typeof(valuePrio1))
+  if (typeof("str") === typeof(valuePrio1) && valuePrio1 !== "undefined")
     return valuePrio1;
-  if (typeof("str") === typeof(valuePrio2))
+  if (typeof("str") === typeof(valuePrio2) && valuePrio2 !== "undefined")
     return valuePrio2;
 
   return valueDef;

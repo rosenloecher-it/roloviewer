@@ -125,19 +125,48 @@ export function detailsMove() {
 // ----------------------------------------------------------------------------------
 
 export function action2Redux(ipcMsg) {
-  const func = ".pushGenericAction";
+  const func = ".action2Redux";
 
   let actionType = "???";
 
   try {
     actionType = ipcMsg.type;
-    //log.debug(`${_logKey}${func}(type=${actionType})`);
 
-    const action = actionsSls.genericAction(ipcMsg);
-    _store.dispatch(action);
+    _store.dispatch(ipcMsg);
 
   } catch (err) {
     log.error(`${_logKey}${func}(${actionType}) - exception -`, err);
+    // TODO show message
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function triggerOpenItemFolder() {
+  const func = ".triggerOpenItemFolder";
+
+  try {
+
+    const { slideshow } = _store.getState();
+
+    do {
+      if (slideshow.containerType === constants.CONTAINER_FOLDER)
+        break;
+      if (0 > slideshow.showIndex || slideshow.items.length <= slideshow.showIndex)
+        break;
+
+      const currentFile = slideshow.items[slideshow.showIndex].file;
+      const payload = { selectFile: currentFile };
+
+      log.debug(`${_logKey}${func} - constants.ACTION_OPEN -`, payload);
+
+      ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN_ITEM_FOLDER, payload);
+
+    } while (false);
+    //
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
     // TODO show message
   }
 }

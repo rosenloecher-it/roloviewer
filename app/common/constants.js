@@ -113,6 +113,7 @@ export const ACTION_DELIVER_FILE_META = "ACTION_DELIVER_FILE_META";     // add m
 // action - destination - worker
 
 export const ACTION_OPEN = 'ACTION_OPEN'; // args: container: dir or file; when null "auto-mode"
+export const ACTION_OPEN_ITEM_FOLDER = 'ACTION_OPEN_ITEM_FOLDER'; // main => renderer; fills => worker
 
 export const ACTION_NEXT_TASK = "ACTION_NEXT_TASK";
 export const ACTION_DUMMY_TASK = "ACTION_DUMMY_TASK";
@@ -150,3 +151,7 @@ export const TASK_CRAWLE_FOLDER = "";
 export const DETAILS_STATE_ALL = "DETAILS_STATE_ALL";
 export const DETAILS_STATE_MIN = "DETAILS_STATE_MIN";
 export const DETAILS_STATE_OFF = "DETAILS_STATE_OFF";
+
+export const CONTAINER_AUTOSELECT = 1;
+export const CONTAINER_FOLDER = 2;
+export const CONTAINER_PLAYLIST = 3;
