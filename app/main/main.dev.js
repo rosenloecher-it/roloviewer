@@ -31,8 +31,6 @@ const _isProduction = process.env.NODE_ENV === 'production';
 const _isTest = process.env.NODE_ENV === 'test';
 const _showDevTools = !_isProduction || process.env.DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
 
-let _cli = null;
-
 // ----------------------------------------------------------------------------------
 
 function allWindowsClosed() {
@@ -49,22 +47,21 @@ function allWindowsClosed() {
 // ----------------------------------------------------------------------------------
 
 function onAppWillQuit() {
-  log.debug(`${_logKey}.onAppWillQuit`);
-  mainIpc.unregisterListener();
-  config.saveConfig();
+  try {
+    log.debug(`${_logKey}.onAppWillQuit`);
+    mainIpc.unregisterListener();
+    config.saveConfig();
+
+  } catch (err) {
+    log.error(`${_logKey}.onAppWillQuit - exception -`, err);
+  }
 }
 
 // ----------------------------------------------------------------------------------
 
-
-_cli = new Cli(this);
-
-// ----------------------------------------------------------------------------------
-
-if (!_cli.shouldExit()) {
-
-  config.initContext({ isDevelopment: _isDevelopment, isProduction: _isProduction, isTest: _isTest, showDevTools:_showDevTools });
-  config.mergeConfig(_cli.result);
+function startApp(cli) {
+  config.mergeConfig(cli.result,
+    { isDevelopment: _isDevelopment, isProduction: _isProduction, isTest: _isTest, showDevTools:_showDevTools });
 
   if (_isProduction) {
     const sourceMapSupport = require('source-map-support');
@@ -79,8 +76,7 @@ if (!_cli.shouldExit()) {
 
   ops.startCrashReporter();
   ops.configLogger();
-  _cli.logCliArgs();
-  _cli = null; // not needed any moore
+  cli.logCliArgs();
 
   let installExtensions;
 
@@ -101,7 +97,6 @@ if (!_cli.shouldExit()) {
   app.on('window-all-closed', allWindowsClosed);
   app.on('will-quit', onAppWillQuit);
 
-
   app.on('ready', async () => {
     if (installExtensions && _showDevTools) {
       await installExtensions();
@@ -116,15 +111,39 @@ if (!_cli.shouldExit()) {
     powerSaveBlocker.init();
 
   });
-} else {
-
-  if (_isDevelopment) {
-    // else do nothing
-    console.log(`${_logKey} - exit by app!`);
-  } else
-     process.exit(_cli.getExitCode());
 
 }
 
 // ----------------------------------------------------------------------------------
+
+function bootApp() {
+
+  try {
+
+    const cli = new Cli(this);
+    const args = (_isProduction ? process.argv : constants.DEBUG_ARGS);
+    cli.parseArray(args);
+
+    if (!cli.shouldExit()) {
+      startApp(cli);
+    } else {
+
+      if (_isDevelopment) {
+        // else do nothing
+        console.log(`${_logKey} - exit by app!`);
+      } else
+        process.exit(cli.getExitCode());
+
+    }
+
+  } catch (err) {
+    console.log(`${_logKey}.bootupApp - exception -`, err);
+  }
+
+
+}
+
+// ----------------------------------------------------------------------------------
+
+bootApp();
 

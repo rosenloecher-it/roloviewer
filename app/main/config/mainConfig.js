@@ -11,7 +11,7 @@ import Cli from "./cli";
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "configMain";
+const _logKey = "configMain";
 
 // ----------------------------------------------------------------------------------
 
@@ -23,29 +23,6 @@ export class ConfigMain extends ConfigBase {
   }
 
   // ........................................................
-
-  initContext(app) {
-
-    const { data } = this;
-
-    data.context.isDevelopment = app.isDevelopment;
-    data.context.isProduction = app.isProduction;
-    data.context.isTest = app.isTest;
-    data.context.showDevTools = app.showDevTools;
-
-    const extra = (data.context.isProduction ? "" : "_test");
-    const configPath = configUtils.getConfigPath();
-    const configName = `${constants.CONFIG_BASENAME}${extra}.ini`;
-
-    data.context.defaultConfigFile = path.join(configPath, configName);
-
-    if (!data.context.isProduction) {
-      const cliName = `${constants.CONFIG_BASENAME}${extra}.cli`;
-      data.context.testCliFile = path.join(configPath, cliName);
-    }
-
-    //console.log(`${logKey}.initContext - data.context=`, data.context);
-  }
 
   // ........................................................
 
@@ -90,8 +67,6 @@ export class ConfigMain extends ConfigBase {
       const {configfile} = this.data.context;
 
       try {
-
-
         const dataClone = this.exportData();
 
         delete dataClone.context;
@@ -104,15 +79,36 @@ export class ConfigMain extends ConfigBase {
         configIni.saveIniFile(configfile, dataClone);
 
       } catch (err) {
-        log.error(`${logKey}.saveConfig (${configfile}):`, err);
+        log.error(`${_logKey}.saveConfig (${configfile}):`, err);
       }
     }
   }
 
   // ........................................................
 
-  mergeConfig(cliData) {
+  mergeConfig(cliData, app) {
     const func = ".mergeConfig";
+
+
+    const { data } = this;
+
+    data.context.isDevelopment = app.isDevelopment;
+    data.context.isProduction = app.isProduction;
+    data.context.isTest = app.isTest;
+    data.context.showDevTools = app.showDevTools;
+
+    const extra = (data.context.isProduction ? "" : "_test");
+    const configPath = configUtils.getConfigPath();
+    const configName = `${constants.CONFIG_BASENAME}${extra}.ini`;
+
+    data.context.defaultConfigFile = path.join(configPath, configName);
+
+    if (!data.context.isProduction) {
+      const cliName = `${constants.CONFIG_BASENAME}${extra}.cli`;
+      data.context.testCliFile = path.join(configPath, cliName);
+    }
+
+    //console.log(`${logKey}${func} - data.context=`, data.context);
 
     const setCxt = this.data.context;
 
@@ -125,7 +121,7 @@ export class ConfigMain extends ConfigBase {
       if (fs.existsSync(cliData.config)) {
         setCxt.configfile = cliData.config;
       } else {
-        log.error(`${logKey}${func} - use default config - ${cliData.config} does not exists!`);
+        log.error(`${_logKey}${func} - use default config - ${cliData.config} does not exists!`);
       }
     }
 
@@ -137,7 +133,7 @@ export class ConfigMain extends ConfigBase {
     try {
       dataFromFile = configIni.loadIniFile(setCxt.configfile);
     } catch (err) {
-      log.error(`${logKey}${func} loading ${this.cliData.config} - exception: `, err);
+      log.error(`${_logKey}${func} loading ${this.cliData.config} - exception: `, err);
       dataFromFile = {};
     }
 
