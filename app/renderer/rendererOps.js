@@ -4,7 +4,6 @@ import * as ipc from "./rendererIpc";
 import config from "./rendererConfig";
 import { _store } from './store/configureStore';
 import * as actionsSls from "./store/actionsSlideshow";
-import * as actionsMsg from "./store/actionsMessages";
 
 // ----------------------------------------------------------------------------------
 
@@ -54,20 +53,6 @@ export function askQuitApp(ipcMsg) {
     else
       ipc.send(constants.IPC_MAIN, constants.ACTION_ESC_CLOSING, null);
 
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
-export function addMessage(ipcMsg) {
-  const func = ".addMessage";
-
-  try {
-    //log.silly(`${_logKey}${func} - invoked`);
-    _store.dispatch(actionsMsg.add(ipcMsg.payload));
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
     // TODO show message

@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from "react-redux";
 import log from 'electron-log';
 import { Button, Dialog, Intent, Icon} from '@blueprintjs/core';
-import * as actions from "../store/actionsMessages";
+import * as actionsMsg from "../../common/store/messageActions";
 import * as constants from "../../common/constants";
 
 // ----------------------------------------------------------------------------------
@@ -24,13 +24,13 @@ class MessageDialog extends React.Component {
   // .......................................................
 
   onCloseAll() {
-    this.props.dispatch(actions.removeAll());
+    this.props.dispatch(actionsMsg.createActionRemoveAll());
   }
 
   // .......................................................
 
   onNext() {
-    this.props.dispatch(actions.removeFirst());
+    this.props.dispatch(actionsMsg.createActionRemoveFirst());
   }
 
   // .......................................................
