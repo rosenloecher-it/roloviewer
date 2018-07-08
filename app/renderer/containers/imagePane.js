@@ -42,12 +42,12 @@ class ImagePane extends React.Component {
   // .......................................................
 
   goBack() {
-    this.props.dispatch(actions.goBack());
+    this.props.dispatch(actions.createActionGoBack());
   }
 
   goNext() {
     //log.debug(`${_logKey}.goNext`);
-    this.props.dispatch(actions.goNext());
+    this.props.dispatch(actions.createActionGoNext());
   }
 
   // .......................................................

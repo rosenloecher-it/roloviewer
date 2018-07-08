@@ -86,35 +86,34 @@ class Slideshow extends React.Component {
   // .......................................................
 
   goBack() {
-    this.dispatchGotoAction(actions.goBack());
+    this.dispatchGotoAction(actions.createActionGoBack());
   }
 
   goNext() {
     //log.debug(`${_logKey}.goNext`);
-    this.dispatchGotoAction(actions.goNext());
+    this.dispatchGotoAction(actions.createActionGoNext());
   }
 
   goPageBack() {
     let action;
-    if (this.props.container)
-      action = actions.goJump(-config.slideshowJumpWidth);
+    if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
+      action = actions.createActionGoPage(-1);
     else
-      action = actions.goPage(-1);
+      action = actions.createActionJump(-config.slideshowJumpWidth);
 
     this.dispatchGotoAction(action);
   }
 
   goPageNext() {
-
-    log.debug(`${_logKey}.goPageNext`);
+    //log.debug(`${_logKey}.goPageNext`);
 
     let action;
-    if (this.props.container)
-      action = actions.goJump(config.slideshowJumpWidth);
+    if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
+      action = actions.createActionGoPage(1);
     else
-      action = actions.goPage(1);
+      action = actions.createActionJump(config.slideshowJumpWidth);
 
-    log.debug(`${_logKey}.goPageNext`, action);
+    //log.debug(`${_logKey}.goPageNext`, action);
 
     this.dispatchGotoAction(action);
   }
@@ -135,15 +134,15 @@ class Slideshow extends React.Component {
 
     switch (event.keyCode) {
       case 32: // space
-        this.props.dispatch(actions.toogleAutoPlay()); break;
+        this.props.dispatch(actions.createActionToogleAutoPlay()); break;
       case 33: // page up
         this.goPageBack(); break;
       case 34: // page down
         this.goPageNext(); break;
       case 35: // end
-        this.dispatchGotoAction(actions.goEnd()); break;
+        this.dispatchGotoAction(actions.createActionGoEnd()); break;
       case 36: // pos1
-        this.dispatchGotoAction(actions.goPos1()); break;
+        this.dispatchGotoAction(actions.createActionGoPos1()); break;
       case 37: // arrow left
       case 38: // arrow up
         this.goBack(); break;
@@ -152,9 +151,9 @@ class Slideshow extends React.Component {
         this.goNext(); break;
       case 73: // i
         if (event.ctrlKey)
-          this.props.dispatch(actions.detailsMove());
+          this.props.dispatch(actions.createActionDetailsMove());
         else
-          this.props.dispatch(actions.detailsToogle());
+          this.props.dispatch(actions.createActionDetailsToogle());
         break;
 
       default:
@@ -167,7 +166,7 @@ class Slideshow extends React.Component {
 
   onMouseMove() {
     if (this.props.cursorHide)
-      this.props.dispatch(actions.cursorShow());
+      this.props.dispatch(actions.createActionCursorShow());
 
     this.data.lastMouseMove = new Date();
   }
@@ -180,7 +179,7 @@ class Slideshow extends React.Component {
 
     if (!this.props.cursorHide && diffTime > 5000) {
       //log.debug(`${_logKey}.onTimerHideCursor - hide cursor: cursorHide=${this.props.cursorHide}, diffTime=${diffTime}`);
-      this.props.dispatch(actions.cursorHide());
+      this.props.dispatch(actions.createActionCursorHide());
     }
   }
 

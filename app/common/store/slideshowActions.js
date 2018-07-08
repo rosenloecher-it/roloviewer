@@ -35,32 +35,32 @@ export const createActionDeliverFileMeta = (meta) => ({
 
 
 
-export const goNext = () => ({ type: constants.ACTION_GO_NEXT });
-export const goBack = () => ({ type: constants.ACTION_GO_BACK });
+export const createActionGoNext = () => ({ type: constants.ACTION_GO_NEXT });
+export const createActionGoBack = () => ({ type: constants.ACTION_GO_BACK });
 
-export const goJump = (jumpWidth) => ({
+export const createActionJump = (jumpWidth) => ({
   type: constants.ACTION_GO_JUMP,
   payload: jumpWidth
 });
 
-export const goPage = (direction) => ({
+export const createActionGoPage = (direction) => ({
   type: constants.ACTION_GO_PAGE,
   payload: direction
 });
 
-export const goPos1 = () => ({ type: constants.ACTION_GO_POS1 });
-export const goEnd = () => ({ type: constants.ACTION_GO_END });
+export const createActionGoPos1 = () => ({ type: constants.ACTION_GO_POS1 });
+export const createActionGoEnd = () => ({ type: constants.ACTION_GO_END });
 
-export const autoPlayStart = () => ({ type: constants.ACTION_AUTOPLAY_START });
-export const autoPlayStop = () => ({ type: constants.ACTION_AUTOPLAY_STOP });
-export const toogleAutoPlay = () => ({ type: constants.ACTION_AUTOPLAY_TOGGLE });
+export const createActionAutoPlayStart = () => ({ type: constants.ACTION_AUTOPLAY_START });
+export const createActionAutoPlayStop = () => ({ type: constants.ACTION_AUTOPLAY_STOP });
+export const createActionToogleAutoPlay = () => ({ type: constants.ACTION_AUTOPLAY_TOGGLE });
 
-export const helpOpen = () => ({ type: constants.ACTION_HELP_OPEN });
-export const helpClose = () => ({ type: constants.ACTION_HELP_CLOSE });
-export const helpToogle = () => ({ type: constants.ACTION_HELP_TOOGLE });
+export const createActionHelpOpen = () => ({ type: constants.ACTION_HELP_OPEN });
+export const createActionHelpClose = () => ({ type: constants.ACTION_HELP_CLOSE });
+export const createActionHelpToogle = () => ({ type: constants.ACTION_HELP_TOOGLE });
 
-export const detailsToogle = () => ({ type: constants.ACTION_DETAILS_TOOGLE });
-export const detailsMove = () => ({ type: constants.ACTION_DETAILS_MOVE });
+export const createActionDetailsToogle = () => ({ type: constants.ACTION_DETAILS_TOOGLE });
+export const createActionDetailsMove = () => ({ type: constants.ACTION_DETAILS_MOVE });
 
-export const cursorHide = () => ({ type: constants.ACTION_CURSOR_HIDE });
-export const cursorShow = () => ({ type: constants.ACTION_CURSOR_SHOW });
+export const createActionCursorHide = () => ({ type: constants.ACTION_CURSOR_HIDE });
+export const createActionCursorShow = () => ({ type: constants.ACTION_CURSOR_SHOW });

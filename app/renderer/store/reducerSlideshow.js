@@ -33,17 +33,14 @@ export default (state = defaultState, action) => {
     switch (action.type) {
       case constants.ACTION_GO_BACK:
         return goTo(state, state.showIndex - 1);
-        //return goBack(state, action);
       case constants.ACTION_GO_NEXT:
         return goTo(state, state.showIndex + 1);
-        //return goNext(state, action);
       case constants.ACTION_GO_JUMP:
         return goJump(state, action);
       case constants.ACTION_GO_PAGE:
         return goPage(state, action);
       case constants.ACTION_GO_POS1:
         return goTo(state, 0);
-        //return goPos1(state, action);
       case constants.ACTION_GO_END:
         return goTo(state, state.items.length - 1);;
       case constants.ACTION_SHOW_CONTAINER_FILES:

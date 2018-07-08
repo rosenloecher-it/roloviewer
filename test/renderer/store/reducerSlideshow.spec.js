@@ -20,7 +20,7 @@ function addItems(state, countNewItems, deliveryKey) {
 
 describe('reducerSlideshow - goto', () => {
 
-  it ('goJump', () => {
+  it ('createActionJump', () => {
     let stateOut;
     let action;
 
@@ -35,13 +35,13 @@ describe('reducerSlideshow - goto', () => {
     // section 1
     stateIn.showIndex = 16;
     stateIn.container = "noAutoSelect";
-    action = actions.goJump(12);
+    action = actions.createActionJump(12);
     stateOut = reducerSlideshow(stateIn, action);
 
     expect(stateOut === stateIn).toBe(false);
     expect(stateOut.showIndex).toBe(28);
 
-    action = actions.goJump(55);
+    action = actions.createActionJump(55);
     stateOut = reducerSlideshow(stateIn, action);
 
     expect(stateOut === stateIn).toBe(false);
@@ -51,13 +51,13 @@ describe('reducerSlideshow - goto', () => {
     // section 2
     stateIn.showIndex = 25;
     stateIn.container = null;
-    action = actions.goPage(1); // greater than 0
+    action = actions.createActionGoPage(1); // greater than 0
     stateOut = reducerSlideshow(stateIn, action);
 
     expect(stateOut === stateIn).toBe(false);
     expect(stateOut.showIndex).toBe(30);
 
-    action = actions.goPage(-1); // greater than 0
+    action = actions.createActionGoPage(-1); // greater than 0
     stateOut = reducerSlideshow(stateIn, action);
 
     expect(stateOut === stateIn).toBe(false);

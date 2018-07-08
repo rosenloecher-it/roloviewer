@@ -22,7 +22,7 @@ export function init(ipcMsg) {
     ipc.send(constants.IPC_MAIN, constants.ACTION_READY, null);
 
     if (config.lastAutoPlay)
-      _store.dispatch(actionsSls.autoPlayStart());
+      _store.dispatch(actionsSls.createActionAutoPlayStart());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
@@ -49,7 +49,7 @@ export function askQuitApp(ipcMsg) {
     const {helpShow} = _store.getState().slideshow;
 
     if (helpShow)
-      _store.dispatch(actionsSls.helpClose());
+      _store.dispatch(actionsSls.createActionHelpClose());
     else
       ipc.send(constants.IPC_MAIN, constants.ACTION_ESC_CLOSING, null);
 
@@ -67,7 +67,7 @@ export function helpToogle() {
   try {
     log.silly(`${_logKey}${func} - invoked`);
 
-    _store.dispatch(actionsSls.helpToogle());
+    _store.dispatch(actionsSls.createActionHelpToogle());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
@@ -83,7 +83,7 @@ export function detailsToogle() {
   try {
     log.silly(`${_logKey}${func} - invoked`);
 
-    _store.dispatch(actionsSls.detailsToogle());
+    _store.dispatch(actionsSls.createActionDetailsToogle());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
@@ -99,7 +99,7 @@ export function detailsMove() {
   try {
     log.silly(`${_logKey}${func} - invoked`);
 
-    _store.dispatch(actionsSls.detailsMove());
+    _store.dispatch(actionsSls.createActionDetailsMove());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
