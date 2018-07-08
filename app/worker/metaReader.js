@@ -6,6 +6,7 @@ import * as constants from "../common/constants";
 import { shortenString } from "../common/stringUtils";
 import { validateInt } from '../common/validate';
 import {separateFilePath} from "../common/transfromPath";
+import * as actions from "../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -185,8 +186,9 @@ export class MetaReader {
     const func = ".transformAndDeliverTags";
 
     const meta = prepareTagsFromExiftool(file, tags);
-    this.data.processConnector.send(constants.IPC_RENDERER, constants.ACTION_DELIVER_FILE_META, meta);
-      //ipcTarget, ipcType, payload);
+
+    const action = actions.deliverFileMeta(meta);
+    this.data.processConnector.send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
 
     //log.debug(`${_logKey}${func} - cameraModel=${meta.cameraModel} - file=${file}`);
   }

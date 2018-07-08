@@ -72,6 +72,9 @@ export const ACTION_PUSH_MAIN_CONFIG = 'ACTION_PUSH_MAIN_CONFIG';
 
 export const ACTION_ESC_CLOSING = 'ACTION_ESC_CLOSING';
 
+export const ACTION_SPREAD_REDUX_ACTION = 'ACTION_SPREAD_REDUX_ACTION';
+
+
 
 // actionsSls - destination - main
 

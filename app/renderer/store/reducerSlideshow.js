@@ -49,7 +49,7 @@ export default (state = defaultState, action) => {
       case constants.ACTION_ADD_FILES:
         return addFiles(state, action);
       case constants.ACTION_DELIVER_FILE_META:
-        return addMeta(state, action);
+        return deliverFileMeta(state, action);
 
       case constants.ACTION_AUTOPLAY_START:
         return { ...state, autoPlay: true };
@@ -388,14 +388,20 @@ export function cursorShow(state) {
 
 // ----------------------------------------------------------------------------------
 
-export function addMeta(state, action) {
+export function deliverFileMeta(state, action) {
 
   let resultState = state;
 
   do {
-    if (!action.payload)
+    //log.debug(`${_logKey}.deliverFileMeta - ${action.type}`, action);
+
+    if (!action.payload || !action.payload.meta) {
+      log.debug(`${_logKey}.deliverFileMeta - ${action.type} ==> break`);
       break;
-    const { file } = action.payload;
+    }
+
+    const {meta} = action.payload;
+    const { file } = meta;
     const { items : itemsOrig } = state;
 
     let fountFirst = -1;
@@ -414,7 +420,7 @@ export function addMeta(state, action) {
       for (let i = 0; i < itemsNew.length; i++) {
         if (itemsNew[i].file === file) {
           const newItem = itemsNew[i];
-          newItem.meta = action.payload;
+          newItem.meta = meta;
 
           // if container !== playlist --- break;
         }

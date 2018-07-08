@@ -124,18 +124,38 @@ export function detailsMove() {
 
 // ----------------------------------------------------------------------------------
 
-export function action2Redux(ipcMsg) {
+export function action2ReduxOld(ipcMsg) {
   const func = ".action2Redux";
 
   let actionType = "???";
 
   try {
     actionType = ipcMsg.type;
-
     _store.dispatch(ipcMsg);
 
   } catch (err) {
     log.error(`${_logKey}${func}(${actionType}) - exception -`, err);
+    // TODO show message
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function action2Redux(ipcMsg) {
+  const func = ".action2Redux";
+
+  let actionType = "???";
+
+  try {
+    const action = ipcMsg.payload;
+    actionType = action.type;
+
+    //log.debug(`${_logKey}${func}(${actionType}) - in`, ipcMsg);
+    _store.dispatch(action);
+
+  } catch (err) {
+    log.error(`${_logKey}${func}(${actionType}) - exception -`, err);
+    log.error(`${_logKey}${func}(${actionType}) - data -`, ipcMsg);
     // TODO show message
   }
 }
