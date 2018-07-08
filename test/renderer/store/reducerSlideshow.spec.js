@@ -1,7 +1,5 @@
 import reducerSlideshow from '../../../app/renderer/store/reducerSlideshow';
-import * as actions from '../../../app/renderer/store/actionsSlideshow';
-import * as constants from "../../../app/common/constants";
-//import {shortenPathElements, separateFilePath, determinePathAndFilename} from "../../app/common/transfromPath";
+import * as actions from "../../../app/common/store/slideshowActions";
 
 
 function createDefaultTestState() {

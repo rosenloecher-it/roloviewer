@@ -6,7 +6,7 @@ import ImagePane from './imagePane';
 import MessageDialog from './MessageDialog';
 import HelpOverlay from './helpOverlay';
 import DetailsOverlay from './detailsOverlay';
-import * as actions from "../store/actionsSlideshow";
+import * as actions from "../../common/store/slideshowActions";
 import config from "../rendererConfig";
 import * as ops from "../rendererOps";
 import * as constants from "../../common/constants";

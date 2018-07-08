@@ -2,10 +2,10 @@ import React from 'react';
 import ReactCSSTransitionReplace from 'react-css-transition-replace';
 import {connect} from "react-redux";
 import log from 'electron-log';
-import * as cssConstants from '../style/cssConstants';
-import * as actions from "../store/actionsSlideshow";
-import config from '../rendererConfig';
 import ExifOrientationImg from 'react-exif-orientation-img'
+import * as cssConstants from '../style/cssConstants';
+import * as actions from "../../common/store/slideshowActions";
+import config from '../rendererConfig';
 
 // ----------------------------------------------------------------------------------
 

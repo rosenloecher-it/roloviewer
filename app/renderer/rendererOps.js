@@ -3,7 +3,7 @@ import * as constants from "../common/constants";
 import * as ipc from "./rendererIpc";
 import config from "./rendererConfig";
 import { _store } from './store/configureStore';
-import * as actionsSls from "./store/actionsSlideshow";
+import * as actionsSls from "../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------
 
