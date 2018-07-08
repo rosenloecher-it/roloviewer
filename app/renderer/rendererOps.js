@@ -124,23 +124,6 @@ export function detailsMove() {
 
 // ----------------------------------------------------------------------------------
 
-export function action2ReduxOld(ipcMsg) {
-  const func = ".action2Redux";
-
-  let actionType = "???";
-
-  try {
-    actionType = ipcMsg.type;
-    _store.dispatch(ipcMsg);
-
-  } catch (err) {
-    log.error(`${_logKey}${func}(${actionType}) - exception -`, err);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
 export function action2Redux(ipcMsg) {
   const func = ".action2Redux";
 

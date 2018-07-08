@@ -3,6 +3,7 @@ import {electron, remote, ipcRenderer} from 'electron';
 import * as constants from "../common/constants";
 import config from './workerConfig';
 import {WorkerFactory} from "./workerFactory";
+import * as actionsMsg from "../common/store/messageActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -166,17 +167,6 @@ export function createIpcMessage(ipcSource, ipcTarget, ipcType, payload) {
 
 // ----------------------------------------------------------------------------------
 
-export function createIpcShowMessage(ipcSource, msgType, msgText) {
-  const payload = {
-    msgType,
-    msgText,
-  };
-
-  return createIpcMessage(ipcSource, constants.IPC_RENDERER, constants.ACTION_MSG_ADD, payload);
-}
-
-// ----------------------------------------------------------------------------------
-
 export function send(ipcTarget, ipcType, payload) {
   sendRaw(createIpcMessage(_ipcMyself, ipcTarget, ipcType, payload));
 }
@@ -185,8 +175,7 @@ export function send(ipcTarget, ipcType, payload) {
 
 export function sendShowMessage(msgType, msgText) {
 
-  sendRaw(createIpcShowMessage(_ipcMyself, msgType, msgText));
+  const action = actionsMsg.createActionAddMessage(msgType, msgText);
+  send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
 
 }
-
-// ----------------------------------------------------------------------------------

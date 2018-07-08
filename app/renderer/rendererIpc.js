@@ -70,9 +70,6 @@ function dispatchRendererActions(ipcMsg) {
       case constants.ACTION_PUSH_MAIN_CONFIG:
         ops.init(ipcMsg); break;
 
-      case constants.ACTION_MSG_ADD:
-        ops.action2ReduxOld(ipcMsg); break;
-
       case constants.ACTION_SPREAD_REDUX_ACTION:
         ops.action2Redux(ipcMsg); break;
 
