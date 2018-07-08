@@ -3,9 +3,9 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import * as constants from "../common/constants";
-import { shortenString } from "../common/stringUtils";
-import { validateInt } from '../common/validate';
-import {separateFilePath} from "../common/transfromPath";
+import { shortenString } from "../common/utils/stringUtils";
+import { validateInt } from '../common/utils/validate';
+import {separateFilePath} from "../common/utils/transfromPath";
 import * as actions from "../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------

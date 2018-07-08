@@ -1,5 +1,5 @@
 import {MediaLoader} from "../../app/worker/mediaLoader";
-import * as vali from "../../app/common/validate";
+import * as vali from "../../app/common/utils/validate";
 import {TestProcessConnector} from "./testProcessConnector";
 import {ConfigWorker} from "../../app/worker/workerConfig";
 import * as constants from '../../app/common/constants';

@@ -1,4 +1,4 @@
-import * as vali from "../../app/common/validate";
+import * as vali from "../../app/common/utils/validate";
 
 describe('validate', () => {
 

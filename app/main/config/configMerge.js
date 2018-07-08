@@ -2,9 +2,9 @@ import fs from 'fs';
 import log from 'electron-log';
 import path from 'path';
 import * as constants from "../../common/constants";
-import * as vali from "../../common/validate";
+import * as vali from "../../common/utils/validate";
 import * as configUtils from "./configUtils";
-import { validateBoolean, validateInt, validateLogLevel, validateRatingArray, validateStringArray } from "../../common/validate";
+import { validateBoolean, validateInt, validateLogLevel, validateRatingArray, validateStringArray } from "../../common/utils/validate";
 
 // ----------------------------------------------------------------------------------
 
