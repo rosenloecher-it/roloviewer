@@ -19,6 +19,7 @@ import * as mainMenu from './mainMenu';
 import * as windows from './windows';
 import * as mainIpc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
+import Cli from "./config/cli";
 
 // ----------------------------------------------------------------------------------
 
@@ -50,13 +51,14 @@ function onAppWillQuit() {
 // ----------------------------------------------------------------------------------
 
 config.initContext(process.env.NODE_ENV, process.env.DEBUG_PROD);
-config.parseArgs();
+
+_cli = new Cli(this);
 
 // ----------------------------------------------------------------------------------
 
-if (!config.shouldExit()) {
+if (!_cli.shouldExit()) {
 
-  config.mergeConfig();
+  config.mergeConfig(_cli.result);
 
   if (config.isProduction()) {
     const sourceMapSupport = require('source-map-support');
@@ -71,7 +73,8 @@ if (!config.shouldExit()) {
 
   ops.startCrashReporter();
   ops.configLogger();
-  config.logCliArgs();
+  _cli.logCliArgs();
+  _cli = null; // not needed any moore
 
   let installExtensions;
 
@@ -94,7 +97,7 @@ if (!config.shouldExit()) {
 
 
   app.on('ready', async () => {
-    if (config.showDevTools()) {
+    if (installExtensions && config.showDevTools()) {
       await installExtensions();
     }
 
@@ -113,7 +116,7 @@ if (!config.shouldExit()) {
     // else do nothing
     console.log(`${logKey} - exit by app!`);
   } else
-     process.exit(config.getExitCode());
+     process.exit(_cli.getExitCode());
 
 }
 

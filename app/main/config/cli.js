@@ -1,9 +1,13 @@
 import argly from 'argly';
+import log from 'electron-log';
 import * as constants from '../../common/constants';
 
 // ----------------------------------------------------------------------------------
 
 // https://github.com/patrick-steele-idem/argly
+
+const _logKey = "cli";
+const _defaultExitCode = 99;
 
 // ----------------------------------------------------------------------------------
 
@@ -26,12 +30,20 @@ export default class Cli {
 
   // ........................................................
 
+  static errorResult() {
+    return { exitCode: _defaultExitCode };
+  }
+
+  // ........................................................
+
   initData() {
     this.data = {
       exitCode: null,
-      argsIn: null
+      argsIn: null,
+      result: { exitCode: _defaultExitCode },
     }
   }
+
   // ........................................................
 
   createCliParser() {
@@ -82,26 +94,28 @@ export default class Cli {
   // ........................................................
 
   parseArray(args) {
-    if (!this.parser)
-      this.parser = this.createCliParser(this);
+    try {
+      if (!this.parser)
+        this.parser = this.createCliParser(this);
 
-    this.initData();
-    this.data.argsIn = args; // store for logging, when logger is initialized
+      this.initData();
+      this.data.argsIn = args; // store for logging, when logger is initialized
 
-    const argsForParser = args.slice(1); // skip first arg ($0 == binary)
-    let output = this.parser.parse(argsForParser);
-    if (output) {
-      output.exitCode = this.data.exitCode;
-    } else
-      output = { exitCode: 99 };
+      const argsForParser = args.slice(1); // skip first arg ($0 == binary)
+      this.data.result = this.parser.parse(argsForParser);
+      if (this.data.result) {
+        this.data.result.exitCode = this.data.exitCode;
+      } else
+        this.data.result = this.errorResult();
 
-    return output;
-  }
+    } catch (err) {
+      log.error(`${logKey}.parseArray - exception -`, err);
+      this.data.result = this.errorResult();
 
-  // ........................................................
+    } finally {
+      return this.data.result;
 
-  parseFile() {
-
+    }
   }
 
   // ........................................................
@@ -140,6 +154,43 @@ export default class Cli {
   // ........................................................
 
   get args() { return this.data.argsIn; }
+
+  get result() { return this.data.result; }
+
+  // ........................................................
+
+  shouldExit() {
+    const {result} = this.data;
+    return (!result && result.exitCode != null);
+  }
+
+  // ........................................................
+
+  exitCode() {
+    const {result} = this.data;
+
+    if (!result)
+      return result.exitCode;
+
+    return _defaultExitCode;
+  }
+
+  // ........................................................
+
+  logCliArgs() {
+    try {
+      const {argsIn} = this.data;
+
+      log.debug(`${_logKey} - args - used:`, argsIn);
+      if (argsIn !== process.argv)
+        log.debug(`${_logKey} - args - orig:`, process.argv);
+
+    } catch (err) {
+      console.log(`${_logKey}.logCliArgs - exception -`, err);
+    }
+
+  }
+
 }
 
 // ----------------------------------------------------------------------------------

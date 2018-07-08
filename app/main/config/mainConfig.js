@@ -7,7 +7,6 @@ import * as constants from '../../common/constants';
 import * as configUtils from "./configUtils";
 import * as configMerge from "./configMerge";
 import { ConfigBase } from '../../common/configBase';
-import {getConfigPath} from "./configUtils";
 import Cli from "./cli";
 
 // ----------------------------------------------------------------------------------
@@ -20,12 +19,6 @@ export class ConfigMain extends ConfigBase {
 
   constructor() {
     super();
-
-    this.cliData = {};
-    this.cliParser = null;
-
-    this.parseArgs = this.parseArgs.bind(this);
-    this.logCliArgs = this.logCliArgs.bind(this);
 
   }
 
@@ -41,7 +34,7 @@ export class ConfigMain extends ConfigBase {
     data.context.showDevTools = !this.data.system.isProduction || DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
 
     const extra = (data.context.isProduction ? "" : "_test");
-    const configPath = getConfigPath();
+    const configPath = configUtils.getConfigPath();
     const configName = `${constants.CONFIG_BASENAME}${extra}.ini`;
 
     data.context.defaultConfigFile = path.join(configPath, configName);
@@ -52,42 +45,6 @@ export class ConfigMain extends ConfigBase {
     }
 
     //console.log(`${logKey}.initContext - data.context=`, data.context);
-  }
-
-  // ........................................................
-
-  parseArgs() {
-    try {
-      if (!this.cliParser)
-        this.cliParser = new Cli(this);
-
-      const args = (this.isProduction() ? process.argv : constants.DEBUG_ARGS);
-      if (args)
-        this.cliData = this.cliParser.parseArray(args);
-      else
-        this.cliData = {};
-    } catch (err) {
-      log.error(`${logKey}.parseArgs - exception`, err);
-    } finally {
-      if (!this.cliData)
-        this.cliData = {};
-    }
-
-  }
-
-  // ........................................................
-
-  logCliArgs() {
-
-    let argsParser = null;
-    if (this.cliParser) {
-      argsParser = this.cliParser.args;
-      this.cliParser = null; // not needed any moore
-    }
-
-    log.debug(`${logKey} - cli args - used:`, argsParser);
-    if (argsParser !== process.argv)
-      log.debug(`${logKey} - cli args - orig:`, process.argv);
   }
 
   // ........................................................
@@ -154,18 +111,21 @@ export class ConfigMain extends ConfigBase {
 
   // ........................................................
 
-  mergeConfig() {
+  mergeConfig(cliData) {
     const func = ".mergeConfig";
 
     const setCxt = this.data.context;
 
-    setCxt.configIsReadOnly = !!this.cliData.configreadonly;
+    if (!cliData)
+      cliData = {};
 
-    if (this.cliData.config) {
-      if (fs.existsSync(this.cliData.config)) {
-        setCxt.configfile = this.cliData.config;
+    setCxt.configIsReadOnly = !!cliData.configreadonly;
+
+    if (cliData.config) {
+      if (fs.existsSync(cliData.config)) {
+        setCxt.configfile = cliData.config;
       } else {
-        log.error(`${logKey}${func} - use default config - ${this.cliData.config} does not exists!`);
+        log.error(`${logKey}${func} - use default config - ${cliData.config} does not exists!`);
       }
     }
 
@@ -183,11 +143,11 @@ export class ConfigMain extends ConfigBase {
 
     // log.debug("mergeConfigFiles - dataFromFile", dataFromFile);
 
-    configMerge.mergeDataStart(this.data, this.cliData, dataFromFile);
-    configMerge.mergeDataSystem(this.data, this.cliData, dataFromFile);
-    configMerge.mergeDataRenderer(this.data, this.cliData, dataFromFile);
-    configMerge.mergeDataCrawler(this.data, this.cliData, dataFromFile);
-    configMerge.mergeDataMainWindow(this.data, this.cliData, dataFromFile);
+    configMerge.mergeDataStart(this.data, cliData, dataFromFile);
+    configMerge.mergeDataSystem(this.data, cliData, dataFromFile);
+    configMerge.mergeDataRenderer(this.data, cliData, dataFromFile);
+    configMerge.mergeDataCrawler(this.data, cliData, dataFromFile);
+    configMerge.mergeDataMainWindow(this.data, cliData, dataFromFile);
 
     // log.debug("mergeConfigFiles", this.data);
   }
@@ -205,12 +165,6 @@ export class ConfigMain extends ConfigBase {
       logfile: source.logfile,
       logDeleteOnStart: source.logDeleteOnStart
     }
-  }
-
-  // ........................................................
-
-  shouldExit() {
-    return (this.cliData && this.cliData.exitCode);
   }
 
   // ........................................................
