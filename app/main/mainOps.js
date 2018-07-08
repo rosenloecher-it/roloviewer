@@ -8,6 +8,8 @@ import * as windows from './windows';
 import {mkDirByPathSync} from "./config/configUtils";
 import * as ipc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
+import * as actionsMsg from "../common/store/messageActions";
+import * as actionsSls from "../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -231,8 +233,11 @@ export function askQuitApp() {
 // ----------------------------------------------------------------------------------
 
 export function toogleHelp() {
-  log.silly('toogleHelp');
-  ipc.send(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE, null);
+  log.debug('toogleHelp');
+  //ipc.send(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE, null);
+
+  const action = actionsSls.createActionHelpToogle();
+  ipc.send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
 }
 
 // ----------------------------------------------------------------------------------

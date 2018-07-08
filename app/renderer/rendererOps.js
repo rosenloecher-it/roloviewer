@@ -61,54 +61,6 @@ export function askQuitApp(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
-export function helpToogle() {
-  const func = ".helpToogle";
-
-  try {
-    log.silly(`${_logKey}${func} - invoked`);
-
-    _store.dispatch(actionsSls.createActionHelpToogle());
-
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
-export function detailsToogle() {
-  const func = ".detailsToogle";
-
-  try {
-    log.silly(`${_logKey}${func} - invoked`);
-
-    _store.dispatch(actionsSls.createActionDetailsToogle());
-
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
-export function detailsMove() {
-  const func = ".moveDetails";
-
-  try {
-    log.silly(`${_logKey}${func} - invoked`);
-
-    _store.dispatch(actionsSls.createActionDetailsMove());
-
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
 export function action2Redux(ipcMsg) {
   const func = ".action2Redux";
 

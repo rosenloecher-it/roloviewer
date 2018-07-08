@@ -29,12 +29,6 @@ export const createActionDeliverFileMeta = (meta) => ({
   payload: { meta }
 });
 
-
-
-
-
-
-
 export const createActionGoNext = () => ({ type: constants.ACTION_GO_NEXT });
 export const createActionGoBack = () => ({ type: constants.ACTION_GO_BACK });
 
