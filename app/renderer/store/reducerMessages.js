@@ -15,8 +15,13 @@ const defaultState = {
 // ----------------------------------------------------------------------------------
 
 export default (state = defaultState, action) => {
+  const func = ".default";
+  let actionType = '???';
 
   try {
+    actionType = action.type;
+    log.debug(`${_logKey}${func}(${actionType}) - in`);
+
     switch (action.type) {
       case constants.ACTION_MSG_ADD:
         return add(state, action);
@@ -28,11 +33,15 @@ export default (state = defaultState, action) => {
         return closeDialog(state);
 
       default:
+        log.debug(`${_logKey}${func}(${actionType}) - skip`);
         return state;
     }
   } catch (err) {
-    log.error(`${_logKey}.default - failed -`, action);
+    log.error(`${_logKey}${func}(${actionType}) - exception -`, err);
+    log.debug(`${_logKey}${func} - action -`, action);
     throw (err);
+
+    //TODO show message
   }
 };
 

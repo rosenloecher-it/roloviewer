@@ -24,12 +24,13 @@ const defaultState = {
 // ----------------------------------------------------------------------------------
 
 export default (state = defaultState, action) => {
-
+  const func = ".default";
   let actionType = '???';
-  //log.debug(`${_logKey}.default - action.type=${action.type}`);
 
   try {
     actionType = action.type;
+    //log.debug(`${_logKey}${func}(${actionType}) - in`);
+
     switch (action.type) {
       case constants.ACTION_GO_BACK:
         return goTo(state, state.showIndex - 1);
@@ -78,8 +79,8 @@ export default (state = defaultState, action) => {
         return state;
     }
   } catch (err) {
-    log.error(`${_logKey}.default(${actionType}) - exception -`, err);
-    log.debug(`${_logKey}.default(${actionType}) - action -`, action);
+    log.error(`${_logKey}${func}(${actionType}) - exception -`, err);
+    log.debug(`${_logKey}${func} - action -`, action);
     throw (err);
 
     //TODO show message
