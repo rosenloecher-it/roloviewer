@@ -20,10 +20,16 @@ import * as windows from './windows';
 import * as mainIpc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
 import Cli from "./config/cli";
+import * as constants from "../common/constants";
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "main";
+const _logKey = "main";
+
+const _isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const _isProduction = process.env.NODE_ENV === 'production';
+const _isTest = process.env.NODE_ENV === 'test';
+const _showDevTools = !_isProduction || process.env.DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
 
 let _cli = null;
 
@@ -31,7 +37,7 @@ let _cli = null;
 
 function allWindowsClosed() {
 
-  log.debug(`${logKey}.allWindowsClosed`);
+  log.debug(`${_logKey}.allWindowsClosed`);
 
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
@@ -43,14 +49,13 @@ function allWindowsClosed() {
 // ----------------------------------------------------------------------------------
 
 function onAppWillQuit() {
-  log.debug(`${logKey}.onAppWillQuit`);
+  log.debug(`${_logKey}.onAppWillQuit`);
   mainIpc.unregisterListener();
   config.saveConfig();
 }
 
 // ----------------------------------------------------------------------------------
 
-config.initContext(process.env.NODE_ENV, process.env.DEBUG_PROD);
 
 _cli = new Cli(this);
 
@@ -58,14 +63,15 @@ _cli = new Cli(this);
 
 if (!_cli.shouldExit()) {
 
+  config.initContext({ isDevelopment: _isDevelopment, isProduction: _isProduction, isTest: _isTest, showDevTools:_showDevTools });
   config.mergeConfig(_cli.result);
 
-  if (config.isProduction()) {
+  if (_isProduction) {
     const sourceMapSupport = require('source-map-support');
     sourceMapSupport.install();
   }
 
-  if (config.isDevelopment()) {
+  if (_isDevelopment) {
     require('electron-debug')();
     const p = path.join(__dirname, '..', 'app', 'node_modules');
     require('module').globalPaths.push(p);
@@ -78,7 +84,7 @@ if (!_cli.shouldExit()) {
 
   let installExtensions;
 
-  if (config.showDevTools()) {
+  if (_showDevTools) {
     installExtensions = async () => {
       const installer = require('electron-devtools-installer');
       const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -97,7 +103,7 @@ if (!_cli.shouldExit()) {
 
 
   app.on('ready', async () => {
-    if (installExtensions && config.showDevTools()) {
+    if (installExtensions && _showDevTools) {
       await installExtensions();
     }
 
@@ -112,9 +118,9 @@ if (!_cli.shouldExit()) {
   });
 } else {
 
-  if (config.isDevelopment()) {
+  if (_isDevelopment) {
     // else do nothing
-    console.log(`${logKey} - exit by app!`);
+    console.log(`${_logKey} - exit by app!`);
   } else
      process.exit(_cli.getExitCode());
 

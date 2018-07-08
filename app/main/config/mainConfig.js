@@ -24,14 +24,14 @@ export class ConfigMain extends ConfigBase {
 
   // ........................................................
 
-  initContext(NODE_ENV, DEBUG_PROD) {
+  initContext(app) {
 
     const { data } = this;
 
-    data.context.isDevelopment = NODE_ENV === 'development' || DEBUG_PROD === 'true';
-    data.context.isProduction = NODE_ENV === 'production';
-    data.context.isTest = NODE_ENV === 'test';
-    data.context.showDevTools = !this.data.system.isProduction || DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
+    data.context.isDevelopment = app.isDevelopment;
+    data.context.isProduction = app.isProduction;
+    data.context.isTest = app.isTest;
+    data.context.showDevTools = app.showDevTools;
 
     const extra = (data.context.isProduction ? "" : "_test");
     const configPath = configUtils.getConfigPath();
