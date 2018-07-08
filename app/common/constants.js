@@ -109,8 +109,8 @@ export const ACTION_HELP_TOOGLE = 'ACTION_HELP_TOOGLE';
 export const ACTION_DETAILS_TOOGLE = 'ACTION_DETAILS_TOOGLE';
 export const ACTION_DETAILS_MOVE = 'ACTION_DETAILS_MOVE';
 
-export const ACTION_SHOW_FILES = 'ACTION_SHOW_FILES';   // args: container: dir or file; when null "auto-mode" + items[]
-export const ACTION_ADD_FILES = 'ACTION_ADD_FILES';     // auto-select-mode
+export const ACTION_SHOW_CONTAINER_FILES = 'ACTION_SHOW_CONTAINER_FILES';   // args: container: dir or file; when null "auto-mode" + items[]
+export const ACTION_ADD_AUTO_FILES = 'ACTION_ADD_AUTO_FILES';     // auto-select-mode
 export const ACTION_DELIVER_FILE_META = "ACTION_DELIVER_FILE_META";     // add meta info for (one) file
 
 // action - destination - worker

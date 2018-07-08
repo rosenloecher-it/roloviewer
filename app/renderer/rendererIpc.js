@@ -71,8 +71,6 @@ function dispatchRendererActions(ipcMsg) {
         ops.init(ipcMsg); break;
 
       case constants.ACTION_MSG_ADD:
-      case constants.ACTION_SHOW_FILES:
-      case constants.ACTION_ADD_FILES:
         ops.action2ReduxOld(ipcMsg); break;
 
       case constants.ACTION_SPREAD_REDUX_ACTION:

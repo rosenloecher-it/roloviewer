@@ -2,6 +2,7 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import * as constants from "../common/constants";
+import * as actionsSls from "../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -111,7 +112,7 @@ export class MediaLoader {
     // TODO implement
     log.error(`${_logKey}${func} - not implemented - ${playlist}`);
     this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR
-      , `${constants.ERROR_NOT_IMPLEMENTED} - ${_logKey}${func} - not implemented - ${playlist}`);
+      , `${_logKey}${func} - ${constants.ERROR_NOT_IMPLEMENTED} - ${playlist}`);
   }
 
   // ........................................................
@@ -124,14 +125,11 @@ export class MediaLoader {
     const images = MediaLoader.loadImagesFromFolder(folder);
     images.sort();
 
-    const payload = {
-      type: constants.ACTION_SHOW_FILES,
-      container: folder,
-      containerType: constants.CONTAINER_FOLDER,
-      selectFile
-    };
+    const items = this.createItems(images);
+    const action = actionsSls.createActionShowFiles(folder, constants.CONTAINER_FOLDER, items, selectFile);
+    this.data.processConnector.send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
 
-    this.pushFilesToRenderer(payload, images);
+    this.addTasksDeliverFileMeta(images);
   }
 
   // ........................................................
@@ -192,13 +190,30 @@ export class MediaLoader {
 
     autoFiles.sort();
 
-    const payload = {
-      type: constants.ACTION_ADD_FILES,
-      container: null,
-      containerType: constants.CONTAINER_AUTOSELECT,
-    };
+    const items = this.createItems(autoFiles);
+    const action = actionsSls.createActionAddAutoFiles(items);
+    this.data.processConnector.send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
 
-    this.pushFilesToRenderer(payload, autoFiles);
+    this.addTasksDeliverFileMeta(autoFiles);
+  }
+
+  // ........................................................
+
+  createItems(files) {
+    const items = [];
+    for (let i = 0; i < files.length; i++) {
+      const item = actionsSls.createItem(files[i]);
+      if (item)
+        items.push(item);
+    }
+    return items;
+  }
+
+  // ........................................................
+
+  addTasksDeliverFileMeta(files) {
+    for (let i = 0; i < files.length; i++)
+      this.data.taskManager.pushTask({type: constants.ACTION_DELIVER_FILE_META, payload: files[i]});
   }
 
   // ........................................................
@@ -227,12 +242,13 @@ export class MediaLoader {
     const func = ".loadFile";
 
     // log.debug(`${logKey}${func}: in - ${file}`);
-    const item = {
-      file: file
-    };
+    // const item = {
+    //   file: file
+    // };
+    const item = actionsSls.createItem(file);
 
     this.data.taskManager.pushTask({type: constants.ACTION_DELIVER_FILE_META, payload: file});
-      //{ type, payload }
+    //{ type, payload }
 
     //extractAndStoreMetaData(file);
 

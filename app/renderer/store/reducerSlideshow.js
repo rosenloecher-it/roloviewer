@@ -25,9 +25,11 @@ const defaultState = {
 
 export default (state = defaultState, action) => {
 
+  let actionType = '???';
   //log.debug(`${_logKey}.default - action.type=${action.type}`);
 
   try {
+    actionType = action.type;
     switch (action.type) {
       case constants.ACTION_GO_BACK:
         return goTo(state, state.showIndex - 1);
@@ -44,9 +46,9 @@ export default (state = defaultState, action) => {
         //return goPos1(state, action);
       case constants.ACTION_GO_END:
         return goTo(state, state.items.length - 1);;
-      case constants.ACTION_SHOW_FILES:
+      case constants.ACTION_SHOW_CONTAINER_FILES:
         return showFiles(state, action);
-      case constants.ACTION_ADD_FILES:
+      case constants.ACTION_ADD_AUTO_FILES:
         return addFiles(state, action);
       case constants.ACTION_DELIVER_FILE_META:
         return deliverFileMeta(state, action);
@@ -79,8 +81,11 @@ export default (state = defaultState, action) => {
         return state;
     }
   } catch (err) {
-    log.error(`${_logKey}.default - exception -`, err);
+    log.error(`${_logKey}.default(${actionType}) - exception -`, err);
+    log.debug(`${_logKey}.default(${actionType}) - action -`, action);
     throw (err);
+
+    //TODO show message
   }
 };
 

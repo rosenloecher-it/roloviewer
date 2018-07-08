@@ -74,7 +74,7 @@ function dispatchMainActions(ipcMsg) {
       ops.activateChild(ipcMsg); break;
 
 
-    case constants.ACTION_SHOW_FILES:
+    case constants.ACTION_SHOW_CONTAINER_FILES:
       ops.forwardShowFiles(ipcMsg); break;
     case constants.ACTION_PERSIST_LAST_ITEM:
       ops.setLastItem(ipcMsg); break;
