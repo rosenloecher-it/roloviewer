@@ -1,6 +1,5 @@
 import deepmerge from 'deepmerge';
 import * as constants from "./constants";
-import * as configUtils from "../main/config/configUtils";
 
 // ----------------------------------------------------------------------------------
 

@@ -52,8 +52,6 @@ export class MessageReducer {
       log.error(`${this.logKey}${func}(${actionType}) - exception -`, err);
       log.debug(`${this.logKey}${func} - action -`, action);
       throw (err);
-
-      //TODO show message
     }
   }
 
