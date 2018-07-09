@@ -127,7 +127,7 @@ export class MediaLoader {
 
     const items = this.createItems(images);
     const action = actionsSls.createActionShowFiles(folder, constants.CONTAINER_FOLDER, items, selectFile);
-    this.data.processConnector.send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
+    this.data.processConnector.send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
 
     this.addTasksDeliverFileMeta(images);
   }
@@ -192,7 +192,7 @@ export class MediaLoader {
 
     const items = this.createItems(autoFiles);
     const action = actionsSls.createActionAddAutoFiles(items);
-    this.data.processConnector.send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
+    this.data.processConnector.send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
 
     this.addTasksDeliverFileMeta(autoFiles);
   }

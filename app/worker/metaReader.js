@@ -188,7 +188,7 @@ export class MetaReader {
     const meta = prepareTagsFromExiftool(file, tags);
 
     const action = actions.createActionDeliverFileMeta(meta);
-    this.data.processConnector.send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
+    this.data.processConnector.send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
 
     //log.debug(`${_logKey}${func} - cameraModel=${meta.cameraModel} - file=${file}`);
   }

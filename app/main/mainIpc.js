@@ -16,9 +16,6 @@ const _ipcMyself = constants.IPC_MAIN;
 export function registerListener() {
   //log.debug(`${logKey}.initListener`);
   ipcMain.on(_ipcMyself, listenMainChannel);
-
-  if (constants.DEBUG_IPC_HANDSHAKE)
-    testHandshakes();
 }
 
 // ----------------------------------------------------------------------------------
@@ -64,11 +61,6 @@ function dispatchMainActions(ipcMsg) {
   const func = ".dispatchMainActions";
 
   switch (ipcMsg.type) {
-    case constants.ACTION_HANDSHAKE_ANSWER:
-      ipcHandshakeAnswer(ipcMsg); break;
-    case constants.ACTION_HANDSHAKE_REQUEST:
-      ipcHandshakeRequest(ipcMsg); break;
-
     case constants.ACTION_REQUEST_CONFIG:
       ops.initChildConfig(ipcMsg); break;
     case constants.ACTION_READY:
@@ -93,40 +85,6 @@ function dispatchMainActions(ipcMsg) {
       log.error(`${_logKey}${func} - invalid type: `, ipcMsg);
       break;
   }
-}
-
-// ----------------------------------------------------------------------------------
-
-function testHandshakes() {
-  const func = ".startHandshake";
-
-  setTimeout(() => {
-    for (const ipcTarget of [ constants.IPC_RENDERER, constants.IPC_WORKER ]) {
-      const payload = Math.floor(1000 * Math.random());
-      send(ipcTarget, constants.ACTION_HANDSHAKE_REQUEST, payload);
-      log.debug(`${_logKey}${func} - destination=${ipcTarget}; data=`, payload);
-    }
-  }, 2000)
-}
-
-// ----------------------------------------------------------------------------------
-
-function ipcHandshakeAnswer(ipcMsg) {
-  const func = ".ipcHandshakeAnswer";
-
-  if (ipcMsg.source !== _ipcMyself)
-    log.debug(`${_logKey}${func} - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
-  else
-    log.error(`${_logKey}${func} - wrong source - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
-}
-
-// ----------------------------------------------------------------------------------
-
-function ipcHandshakeRequest(ipcMsg) {
-  const func = ".ipcHandshakeRequest";
-
-  log.debug(`${_logKey}${func} - destination=${ipcMsg.destination}; source=${ipcMsg.source}; data=`, ipcMsg.payload);
-  send(ipcMsg.source, constants.ACTION_HANDSHAKE_ANSWER, ipcMsg.payload);
 }
 
 // ----------------------------------------------------------------------------------
@@ -176,7 +134,7 @@ export function send(ipcTarget, ipcType, payload) {
 export function sendShowMessage(msgType, msgText) {
 
   const action = actionsMsg.createActionAddMessage(msgType, msgText);
-  send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
+  send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
 
 }
 

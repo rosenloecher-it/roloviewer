@@ -110,7 +110,7 @@ export function initChildConfig(ipcMsg) {
   const ipcDest = ipcMsg.source;
 
   const data = config.exportData();
-  ipc.send(ipcDest, constants.ACTION_PUSH_MAIN_CONFIG, data);
+  ipc.send(ipcDest, constants.AI_PUSH_MAIN_CONFIG, data);
 
 }
 // ----------------------------------------------------------------------------------
@@ -215,8 +215,8 @@ export function quitApp() {
 
     powerSaveBlocker.shutdown();
 
-    ipc.send(constants.IPC_RENDERER, constants.ACTION_SHUTDOWN, null);
-    ipc.send(constants.IPC_WORKER, constants.ACTION_SHUTDOWN, null);
+    ipc.send(constants.IPC_RENDERER, constants.AI_SHUTDOWN, null);
+    ipc.send(constants.IPC_WORKER, constants.AI_SHUTDOWN, null);
 
     app.quit();
   }
@@ -237,7 +237,7 @@ export function toogleHelp() {
   //ipc.send(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE, null);
 
   const action = actionsSls.createActionHelpToogle();
-  ipc.send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
+  ipc.send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
 }
 
 // ----------------------------------------------------------------------------------

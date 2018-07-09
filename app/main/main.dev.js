@@ -14,6 +14,7 @@ import { app } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import config from './config/mainConfig';
+import storeManager from './store/mainManager';
 import * as ops from './mainOps';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
@@ -29,7 +30,7 @@ const _logKey = "main";
 const _isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 const _isProduction = process.env.NODE_ENV === 'production';
 const _isTest = process.env.NODE_ENV === 'test';
-const _showDevTools = !_isProduction || process.env.DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
+const _isDevTool = !_isProduction || process.env.DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
 
 // ----------------------------------------------------------------------------------
 
@@ -60,8 +61,19 @@ function onAppWillQuit() {
 // ----------------------------------------------------------------------------------
 
 function startApp(cli) {
+
+  storeManager.init({
+    isDevelopment: _isDevelopment,
+    isProduction: _isProduction,
+    isTest: _isTest,
+    isDevTool: _isDevTool
+  }, cli.result);
+
+  storeManager.loadIni();
+
+
   config.mergeConfig(cli.result,
-    { isDevelopment: _isDevelopment, isProduction: _isProduction, isTest: _isTest, showDevTools:_showDevTools });
+    { isDevelopment: _isDevelopment, isProduction: _isProduction, isTest: _isTest, isDevTool:_isDevTool });
 
   if (_isProduction) {
     const sourceMapSupport = require('source-map-support');
@@ -80,7 +92,7 @@ function startApp(cli) {
 
   let installExtensions;
 
-  if (_showDevTools) {
+  if (_isDevTool) {
     installExtensions = async () => {
       const installer = require('electron-devtools-installer');
       const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -98,7 +110,7 @@ function startApp(cli) {
   app.on('will-quit', onAppWillQuit);
 
   app.on('ready', async () => {
-    if (installExtensions && _showDevTools) {
+    if (installExtensions && _isDevTool) {
       await installExtensions();
     }
 
@@ -138,6 +150,7 @@ function bootApp() {
 
   } catch (err) {
     console.log(`${_logKey}.bootupApp - exception -`, err);
+    throw (err);
   }
 
 

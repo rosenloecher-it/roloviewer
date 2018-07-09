@@ -19,9 +19,6 @@ export function initListener() {
   log.silly(`${_logKey}.initListener`);
   ipcRenderer.on(_ipcMyself, listenWorkerChannel);
 
-  if (constants.DEBUG_IPC_HANDSHAKE)
-    testHandshakes();
-
   send(constants.IPC_MAIN, constants.ACTION_REQUEST_CONFIG, null);
 }
 
@@ -75,14 +72,10 @@ function listenWorkerChannel(event, ipcMsg, output) {
     }
 
     switch (ipcMsg.type) { // eslint-disable-line default-case
-      case constants.ACTION_HANDSHAKE_ANSWER:
-        ipcHandshakeAnswer(ipcMsg); return;
-      case constants.ACTION_HANDSHAKE_REQUEST:
-        ipcHandshakeRequest(ipcMsg); return;
 
-      case constants.ACTION_SHUTDOWN:
+      case constants.AI_SHUTDOWN:
         shutdown(ipcMsg); return;
-      case constants.ACTION_PUSH_MAIN_CONFIG:
+      case constants.AI_PUSH_MAIN_CONFIG:
         initObjects(ipcMsg); return;
 
     }
@@ -99,40 +92,6 @@ function listenWorkerChannel(event, ipcMsg, output) {
     log.error(`${_logKey}${func} exception:`, err);
     sendShowMessage(constants.MSG_TYPE_ERROR, "Exception", err);
   }
-}
-
-// ----------------------------------------------------------------------------------
-
-function testHandshakes() {
-  const func = ".startHandshake";
-
-  setTimeout(() => {
-    for (const ipcTarget of [ constants.IPC_MAIN, constants.IPC_RENDERER ]) {
-      const payload = Math.floor(1000 * Math.random());
-      send(ipcTarget, constants.ACTION_HANDSHAKE_REQUEST, payload);
-      log.debug(`${_logKey}${func} - destination=${ipcTarget}; data=`, payload);
-    }
-  }, 2000)
-}
-
-// ----------------------------------------------------------------------------------
-
-function ipcHandshakeAnswer(data) {
-  const func = ".ipcHandshakeAnswer";
-
-  if (data.source !== _ipcMyself)
-    log.debug(`${_logKey}${func} - destination=${data.destination}; source=${data.source}; data=`, data.payload);
-  else
-    log.error(`${_logKey}${func} - wrong source - destination=${data.destination}; source=${data.source}; data=`, data.payload);
-}
-
-// ----------------------------------------------------------------------------------
-
-function ipcHandshakeRequest(data) {
-  const func = ".ipcHandshakeRequest";
-
-  log.debug(`${_logKey}${func} - destination=${data.destination}; source=${data.source}; data=`, data.payload);
-  send(data.source, constants.ACTION_HANDSHAKE_ANSWER, data.payload);
 }
 
 // ----------------------------------------------------------------------------------
@@ -176,6 +135,6 @@ export function send(ipcTarget, ipcType, payload) {
 export function sendShowMessage(msgType, msgText) {
 
   const action = actionsMsg.createActionAddMessage(msgType, msgText);
-  send(constants.IPC_RENDERER, constants.ACTION_SPREAD_REDUX_ACTION, action);
+  send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
 
 }

@@ -47,7 +47,6 @@ export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 2;
 export const DEBUG_ARGS =  [ 'unknownPathToBinary' ] ; // "-r -o fff -a 12 -t 12"
 export const DEBUG_DEVTOOLS_PROD = true;
 export const DEBUG_SHOW_WORKER_WINDOW = false;
-export const DEBUG_IPC_HANDSHAKE = false;
 
 
 // --------------------------------------------------------------------------
@@ -58,21 +57,31 @@ export const IPC_RENDERER = 'IPC_RENDERER';
 export const IPC_WORKER = 'IPC_WORKER';
 
 // --------------------------------------------------------------------------
-// actionsSls - common
+// ipc actions
 
-export const ACTION_HANDSHAKE_REQUEST = 'ACTION_HANDSHAKE_REQUEST';
-export const ACTION_HANDSHAKE_ANSWER = 'ACTION_HANDSHAKE_ANSWER';
+export const AI_SPREAD_REDUX_ACTION = 'AI_SPREAD_REDUX_ACTION';
+export const AI_SHUTDOWN = 'AI_SHUTDOWN'; // main to worker + renderer
+export const AI_PUSH_MAIN_CONFIG = 'AI_PUSH_MAIN_CONFIG';
+
+// --------------------------------------------------------------------------
+// actions - context
+
+
+export const AR_CONTEXT_INIT = 'AR_CONTEXT_INIT';
+
+// --------------------------------------------------------------------------
+// actionsSls - common
 
 export const ACTION_REQUEST_CONFIG = 'ACTION_REQUEST_CONFIG'; // worker + renderer to main
 export const ACTION_READY = 'ACTION_READY'; // worker + renderer to main
 
-export const ACTION_SHUTDOWN = 'ACTION_SHUTDOWN'; // main to worker + renderer
 
-export const ACTION_PUSH_MAIN_CONFIG = 'ACTION_PUSH_MAIN_CONFIG';
+
+
 
 export const ACTION_ESC_CLOSING = 'ACTION_ESC_CLOSING';
 
-export const ACTION_SPREAD_REDUX_ACTION = 'ACTION_SPREAD_REDUX_ACTION';
+
 
 
 
