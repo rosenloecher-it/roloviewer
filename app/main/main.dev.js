@@ -19,9 +19,9 @@ import * as mainMenu from './mainMenu';
 import * as windows from './windows';
 import * as mainIpc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
-import Cli from "./config/cli";
+import Cli from "./cli";
 import * as constants from "../common/constants";
-import * as fileTools from "./config/fileTools";
+import * as fileTools from "./fileTools";
 
 // ----------------------------------------------------------------------------------
 

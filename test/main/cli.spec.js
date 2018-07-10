@@ -1,4 +1,4 @@
-import Cli from "../../../app/main/config/cli";
+import Cli from "../../../app/main/cli";
 
 describe('cli', () => {
 

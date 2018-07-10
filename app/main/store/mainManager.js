@@ -4,9 +4,8 @@ import deepmerge from 'deepmerge';
 import configureStore from "./configureStore";
 import {StoreManager} from "../../common/store/storeManager";
 import * as constants from "../../common/constants";
-import * as fileTools from "../config/fileTools";
-import * as configMerge from "../config/configMerge";
-import * as configIni from "../config/configIni";
+import * as fileTools from "../fileTools";
+import * as iniToActions from "../iniToActions";
 import * as actionsContext from "../../common/store/contextActions";
 import * as actionsMainWindow from "../../common/store/mainWindowActions";
 import * as actionsCrawler from "../../common/store/crawlerActions";
@@ -52,7 +51,7 @@ export class MainManager extends StoreManager {
     try {
 
       const defaultConfigFile = fileTools.getDefaultConfigFile(!!appContext.isProduction);
-      const action = configMerge.createContextAction(appContext, cliData, defaultConfigFile);
+      const action = iniToActions.createContextAction(appContext, cliData, defaultConfigFile);
 
       //log.debug(`${_logKey}${func} - action -`, action);
 
@@ -76,7 +75,7 @@ export class MainManager extends StoreManager {
     try {
       iniFile = this.configFile;
       log.debug(`${_logKey}${func} - configFile`, iniFile);
-      iniData = configIni.loadIniFile(iniFile);
+      iniData = fileTools.loadIniFile(iniFile);
     } catch (err) {
       log.error(`${_logKey}${func} - loading "${iniFile}" failed -`, err);
     }
@@ -92,18 +91,18 @@ export class MainManager extends StoreManager {
 
       const defaultConfigFile = fileTools.getDefaultLogFile();
       const defaultExifTool = fileTools.findExifTool(iniData.system ? iniData.system.exiftool : null);
-      action = configMerge.createSystemAction(iniData, context, defaultConfigFile, defaultExifTool);
+      action = iniToActions.createSystemAction(iniData, context, defaultConfigFile, defaultExifTool);
       this.dispatchLocal(action);
 
-      action = configMerge.createMainWindowAction(iniData, context);
+      action = iniToActions.createMainWindowAction(iniData, context);
       //log.debug(`${_logKey}${func} - action -`, action);
       this.dispatchLocal(action);
 
-      action = configMerge.createSlideshowAction(iniData, context);
+      action = iniToActions.createSlideshowAction(iniData, context);
       this.dispatchLocal(action);
 
       const defaultCrawlerDb = fileTools.getDefaultCrawlerDb()
-      action = configMerge.createCrawlerAction(iniData, context, defaultCrawlerDb);
+      action = iniToActions.createCrawlerAction(iniData, context, defaultCrawlerDb);
       //log.debug(`${_logKey}${func} - action -`, action);
       this.dispatchLocal(action);
 
@@ -133,7 +132,7 @@ export class MainManager extends StoreManager {
       const currentState = this.state;
       const clonedState = MainManager.cloneAndFilterState(this.state);
 
-      configIni.saveIniFile(configFile, clonedState);
+      fileTools.saveIniFile(configFile, clonedState);
 
     } catch (err) {
       log.error(`${_logKey}${func} failed (${configFile}) -`, err);

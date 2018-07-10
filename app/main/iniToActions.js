@@ -1,22 +1,22 @@
 import fs from 'fs';
 import log from 'electron-log';
 import path from 'path';
-import * as constants from "../../common/constants";
+import * as constants from "../common/constants";
 import {
   mergeConfigItem,
   valiBoolean, valiInt, valiLogLevel, valiRatingArray, valiString, valiTagArray,
   valiFolderArray, valiBlacklistSnippets
-} from "../../common/utils/validate";
-import * as actionsContext from "../../common/store/contextActions";
-import * as actionsCrawler from "../../common/store/crawlerActions";
-import * as actionsMainWindow from "../../common/store/mainWindowActions";
-import * as actionsSlideshow from "../../common/store/slideshowActions";
-import * as actionsSystem from "../../common/store/systemActions";
-import { SlideshowReducer } from "../../common/store/slideshowReducer";
+} from "../common/utils/validate";
+import * as actionsContext from "../common/store/contextActions";
+import * as actionsCrawler from "../common/store/crawlerActions";
+import * as actionsMainWindow from "../common/store/mainWindowActions";
+import * as actionsSlideshow from "../common/store/slideshowActions";
+import * as actionsSystem from "../common/store/systemActions";
+import { SlideshowReducer } from "../common/store/slideshowReducer";
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "configMerge";
+const _logKey = "iniToActions";
 
 // ----------------------------------------------------------------------------------
 

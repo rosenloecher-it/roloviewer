@@ -1,6 +1,6 @@
 import argly from 'argly';
 import log from 'electron-log';
-import * as constants from '../../common/constants';
+import * as constants from '../common/constants';
 
 // ----------------------------------------------------------------------------------
 
