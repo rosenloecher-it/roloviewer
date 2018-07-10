@@ -10,6 +10,7 @@ import * as powerSaveBlocker from "./powerSaveBlocker";
 import * as actionsSls from "../common/store/slideshowActions";
 import storeManager from './store/mainManager';
 import * as actionsMainWindow from "../common/store/mainWindowActions";
+import * as actionsCrawler from "../common/store/crawlerActions";
 import * as actionsSystem from "../common/store/systemActions";
 
 // ----------------------------------------------------------------------------------
@@ -142,19 +143,9 @@ export function activateChild(ipcMsg) {
     if (statusChildsState === flagSendStart) {
       statusChildsState = 0;
 
-      //storeManager.dispatchFullState([ ipcDest ]);
-
-      // let payload = null;
-      // if (config.lastContainer)
-      //   payload = { container: config.lastContainer, selectFile: config.lastItem };
-      //
-      //
-      // //log.debug(`${_logKey}${func} - getLastContainer:`, container);
-      //
-      // setTimeout(() => {
-      //   ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, payload);
-      // }, 200)
-
+      const slsState = storeManager.slideshowState;
+      const action = actionsCrawler.createActionOpen(slsState.lastContainer, slsState.lastItem);
+      storeManager.dispatchGlobal(action);
     }
   } catch (err) {
     log.error(`${this._logKey}${func} - exception -`, err);

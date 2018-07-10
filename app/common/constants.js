@@ -1,5 +1,13 @@
 
 // --------------------------------------------------------------------------
+// debug
+
+export const DEBUG_ARGS =  [ 'unknownPathToBinary' ] ; // "-r -o fff -a 12 -t 12"
+export const DEBUG_DEVTOOLS_PROD = true;
+export const DEBUG_SHOW_WORKER_WINDOW = false;
+export const DEBUG_DONT_SAVE_CONFIG = false;
+
+// --------------------------------------------------------------------------
 // app
 
 export const APP_TITLE = 'RoloSlider';
@@ -38,13 +46,6 @@ export const DEFCONF_LOG_DELETE_ON_START = true;
 export const DEFCONF_CRAWLER_BATCHCOUNT = 10;
 
 export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 2;
-
-// --------------------------------------------------------------------------
-// debug
-
-export const DEBUG_ARGS =  [ 'unknownPathToBinary' ] ; // "-r -o fff -a 12 -t 12"
-export const DEBUG_DEVTOOLS_PROD = true;
-export const DEBUG_SHOW_WORKER_WINDOW = false;
 
 // --------------------------------------------------------------------------
 // messages
@@ -107,6 +108,7 @@ export const AR_CONTEXT_INIT = 'AR_CONTEXT_INIT';
 // actions - crawler
 
 export const AR_CRAWLER_INIT = 'AR_CRAWLER_INIT';
+export const AR_CRAWLER_OPEN = 'AR_CRAWLER_OPEN';
 
 // --------------------------------------------------------------------------
 // actions - mainwindow

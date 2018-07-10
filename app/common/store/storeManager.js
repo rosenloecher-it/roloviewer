@@ -51,7 +51,7 @@ export class StoreManager {
 
   // .....................................................
 
-  dispatchLocal(action, sendByRemote = false) {
+  dispatchLocal(action, invokeHook = false) {
     const func = ".dispatchLocal";
 
     if (!action)
@@ -63,8 +63,8 @@ export class StoreManager {
       if (this._store)
         this._store.dispatch(action);
 
-      if (sendByRemote)
-        this.hookActionWasDispatchedByRemote(action);
+      if (invokeHook)
+        this.hookActionWasDispatched(action);
 
     } catch (err) {
       log.error(`${this._logKey}${func} - exception -`, err);
@@ -120,7 +120,7 @@ export class StoreManager {
 
   // ........................................................
 
-  hookActionWasDispatchedByRemote(action) {
+  hookActionWasDispatched(action) {
     // has to be overridden by sub classes
   }
 

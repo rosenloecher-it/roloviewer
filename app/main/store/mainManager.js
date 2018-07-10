@@ -126,7 +126,7 @@ export class MainManager extends StoreManager {
       const {context} = this.state;
       configFile = context.configFile;
 
-      if (!configFile || context.configIsReadOnly)
+      if (!configFile || context.configIsReadOnly || constants.DEBUG_DONT_SAVE_CONFIG)
         return;
 
       const currentState = this.state;
