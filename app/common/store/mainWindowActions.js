@@ -1,6 +1,6 @@
 import * as constants from "../constants";
 import {valiBoolean, valiInt} from "../utils/validate";
-import * as configUtils from "../../main/config/fileTools";
+import * as configUtils from "../../main/fileTools";
 
 export const createActionInit = ({
   x, y, height, width,

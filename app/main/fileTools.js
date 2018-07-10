@@ -1,7 +1,13 @@
 import electron from 'electron';
+import log from 'electron-log';
 import fs from 'fs';
 import path from 'path';
-import * as constants from "../../common/constants";
+import ini from 'configurable-ini';
+import * as constants from "../common/constants";
+
+//----------------------------------------------------------------------------
+
+const _logKey = "fileTools";
 
 // ----------------------------------------------------------------------------------
 
@@ -86,5 +92,43 @@ export function mkDirByPathSync(targetDir) {
 
 // ----------------------------------------------------------------------------------
 
+export function loadIniFile(file) {
+  const func = ".loadIniFile";
+
+  if (!file) {
+    log.error(`${_logKey}${func}: invalid configFile`);
+    return {};
+  }
+
+  if (!fs.existsSync(file)) {
+    log.info(`${_logKey}${func} - file does not exists (${file})!`);
+    return {};
+  }
+
+  const config = ini.parse(fs.readFileSync(file, 'utf-8'));
+  //if (config) log.debug('${_logKey}${func} ', config);
+  return config;
+}
+
+//----------------------------------------------------------------------------
+
+export function saveIniFile(file, data) {
+  if (!file) {
+    log.error(`${_logKey}.saveIniFile: invalid configFile`);
+    return;
+  }
+
+  const parentDir = path.dirname(file);
+  if (!fs.existsSync(parentDir)) {
+    mkDirByPathSync(parentDir);
+  }
+
+  if (data) {
+    // log.debug('configIni.saveIniFile: ', data);
+    fs.writeFileSync(file, ini.stringify(data));
+  }
+}
+
+//----------------------------------------------------------------------------
 
 
