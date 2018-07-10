@@ -9,7 +9,7 @@ import {SystemReducer} from "../../common/store/systemReducer";
 // --------------------------------------------------------------------------
 
 const _myself = constants.IPC_MAIN;
-const _contextReducer = new ContextReducer(constants.IPC_MAIN);
+const _contextReducer = new ContextReducer(_myself);
 const _crawlerReducer = new CrawlerReducer(_myself);
 const _mainWindowReducer = new MainWindowReducer(_myself);
 const _slideshowReducer = new SlideshowReducer(_myself);

@@ -87,8 +87,8 @@ export class MainManager extends StoreManager {
       if (!iniData)
         iniData = {};
 
-      log.debug(`${_logKey}${func} - iniData -`, iniData);
-      log.debug(`${_logKey}${func} - context -`, context);
+      //log.debug(`${_logKey}${func} - iniData -`, iniData);
+      //log.debug(`${_logKey}${func} - context -`, context);
 
       const defaultConfigFile = fileTools.getDefaultLogFile();
       const defaultExifTool = fileTools.findExifTool(iniData.system ? iniData.system.exiftool : null);

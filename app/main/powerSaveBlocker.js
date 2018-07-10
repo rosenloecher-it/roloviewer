@@ -59,15 +59,17 @@ function onBlockStart() {
     const timeMilli = time * 60 * 1000;
 
     //start
-    if (time > 0)
+    if (time >= 0) {
       _blocker = powerSaveBlocker.start('prevent-display-sleep');
 
-    // stop after x ms
-    if (time > 0) {
-      _timerStop = setTimeout(onBlockStop, timeMilli);
-      log.info(`powerSaveBlocker started (${time} min)`);
+      // stop after x ms
+      if (time > 0) {
+        _timerStop = setTimeout(onBlockStop, timeMilli);
+        log.info(`powerSaveBlocker started (${time} min)`);
+      } else
+        log.info(`powerSaveBlocker started (${time} == 0 => infinite)`);
     } else
-      log.info(`powerSaveBlocker started (${time} < 0 => infinite)`);
+      log.info(`powerSaveBlocker disabled (time(${time}) < 0)`);
 
   } catch (err) {
     log.error(`${_logKey}${func} exception:`, err);

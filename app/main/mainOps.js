@@ -114,7 +114,7 @@ export function initChildConfig(ipcMsg) {
 
   ipc.send(ipcDest, constants.AI_MAIN_PUSHED_CONFIG);
 
-  storeManager.dumpState2Log();
+  //storeManager.dumpState2Log();
 
 }
 // ----------------------------------------------------------------------------------
