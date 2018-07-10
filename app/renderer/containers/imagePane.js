@@ -61,10 +61,10 @@ class ImagePane extends React.Component {
 
   onMouseWheel(event) {
     if (event.deltaY > 0) {
-      //log.debug(`${logKey}.onMouseWheel: goNext`, event.deltaY);
+      //log.debug(`${_logKey}.onMouseWheel: goNext`, event.deltaY);
       this.goNext();
     } else if (event.deltaY < 0) {
-      //log.debug(`${logKey}.onMouseWheel: goBack`, event.deltaY);
+      //log.debug(`${_logKey}.onMouseWheel: goBack`, event.deltaY);
       this.goBack();
     }
   }

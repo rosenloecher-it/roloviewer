@@ -85,7 +85,7 @@ export class TaskManager {
       case constants.ACTION_OPEN:
       case constants.ACTION_OPEN_ITEM_FOLDER:
         return PRIO_OPEN;
-      case constants.ACTION_DELIVER_FILE_META:
+      case constants.AR_SLIDESHOW_DELIVER_FILE_META:
         return PRIO_DELIVER_FILE_META;
       case constants.ACTION_CRAWLE_UPDATE_FILE:
         return 2;

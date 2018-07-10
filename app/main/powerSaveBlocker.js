@@ -1,8 +1,7 @@
 import { powerSaveBlocker } from 'electron';
 import log from 'electron-log';
-import config from "./config/mainConfig";
 import * as constants from "../common/constants";
-import * as ipc from './mainIpc';
+import storeManager from './store/mainManager';
 
 // ----------------------------------------------------------------------------------
 
@@ -25,8 +24,8 @@ export function init() {
       _timerStart = setTimeout(onBlockStart, 5000);
     }
   } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    ipc.sendShowMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} failed!`, err);
+    log.error(`${_logKey}${func} exception:`, err);
+    storeManager.showMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} exception: ${err}`);
   }
 }
 
@@ -44,8 +43,8 @@ export function shutdown() {
     stop();
 
   } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    ipc.sendShowMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} failed!`, err);
+    log.error(`${_logKey}${func} exception:`, err);
+    storeManager.showMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} exception: ${err}`);
   }
 }
 
@@ -56,7 +55,7 @@ function onBlockStart() {
   try {
     _timerStart = null;
 
-    const time = config.powerSaveBlockTime;
+    const time = storeManager.powerSaveBlockTime;
     const timeMilli = time * 60 * 1000;
 
     //start
@@ -71,8 +70,8 @@ function onBlockStart() {
       log.info(`powerSaveBlocker started (${time} < 0 => infinite)`);
 
   } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    ipc.sendShowMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} failed!`, err);
+    log.error(`${_logKey}${func} exception:`, err);
+    storeManager.showMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} exception: ${err}`);
   }
 }
 
@@ -84,8 +83,8 @@ function onBlockStop() {
     _timerStop = null;
     stop();
   } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    ipc.sendShowMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} failed!`, err);
+    log.error(`${_logKey}${func} exception:`, err);
+    storeManager.showMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} exception: ${err}`);
   }
 }
 
@@ -100,8 +99,8 @@ function stop() {
       log.info("powerSaveBlocker stopped");
     }
   } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    ipc.sendShowMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} failed!`, err);
+    log.error(`${_logKey}${func} exception:`, err);
+    storeManager.showMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} exception: ${err}`);
   }
 }
 

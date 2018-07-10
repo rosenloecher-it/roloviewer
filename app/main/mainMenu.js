@@ -1,6 +1,6 @@
 import { Menu } from 'electron';
 import * as ops from "./mainOps";
-import config from "./config/mainConfig";
+import storeManager from './store/mainManager';
 
 // --------------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ export function createMenu() {
     ]
   };
 
-  if (config.showDevTools()) {
+  if (storeManager.isDevtool) {
     menuSectionView.submenu.push({ type: 'separator' });
 
     menuSectionView.submenu.push({
@@ -87,7 +87,7 @@ export function createMenu() {
   template.push(menuSectionView);
 
   // section Debug
-  if (config.isDevelopment()) {
+  if (storeManager.isDevelopment) {
     template.push({
       label: 'Debug',
       submenu: [

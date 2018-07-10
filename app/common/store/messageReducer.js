@@ -9,8 +9,7 @@ const _logKey = "messageReducer";
 
 export class MessageReducer {
   constructor(name) {
-    this.name = name;
-    this.logKey = `${_logKey}(${name})`;
+    this._logKey = `${_logKey}(${name})`;
 
     this.reduce = this.reduce.bind(this);
   }
@@ -32,16 +31,16 @@ export class MessageReducer {
 
     try {
       actionType = action.type;
-      //log.debug(`${this.logKey}${func}(${actionType}) - in`);
+      //log.debug(`${this._logKey}${func}(${actionType}) - in`);
 
       switch (action.type) {
-        case constants.ACTION_MSG_ADD:
+        case constants.AR_MESSAGE_ADD:
           return this.add(state, action);
-        case constants.ACTION_MSG_REMOVE_ALL:
+        case constants.AR_MESSAGE_REMOVE_ALL:
           return this.removeAll(state);
-        case constants.ACTION_MSG_REMOVE_FIRST:
+        case constants.AR_MESSAGE_REMOVE_FIRST:
           return this.removeFirst(state);
-        case constants.ACTION_MSG_CLOSE_DIALOG:
+        case constants.AR_MESSAGE_CLOSE_DIALOG:
           return this.closeDialog(state);
 
         default:
@@ -49,8 +48,8 @@ export class MessageReducer {
       }
 
     } catch (err) {
-      log.error(`${this.logKey}${func}(${actionType}) - exception -`, err);
-      log.debug(`${this.logKey}${func} - action -`, action);
+      log.error(`${this._logKey}${func}(${actionType}) - exception -`, err);
+      log.debug(`${this._logKey}${func} - action -`, action);
       throw (err);
     }
   }

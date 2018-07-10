@@ -2,14 +2,15 @@ import { app, crashReporter, shell, dialog } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
-import config from "./config/mainConfig";
 import * as constants from "../common/constants";
 import * as windows from './windows';
-import {mkDirByPathSync} from "./config/configUtils";
+import {mkDirByPathSync} from "./config/fileTools";
 import * as ipc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
-import * as actionsMsg from "../common/store/messageActions";
 import * as actionsSls from "../common/store/slideshowActions";
+import storeManager from './store/mainManager';
+import * as actionsMainWindow from "../common/store/mainWindowActions";
+import * as actionsSystem from "../common/store/systemActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -31,32 +32,29 @@ export function startCrashReporter() {
 export function configLogger() {
   // https://www.npmjs.com/package/electron-log
 
-  const logConfig = config.getLogConfig();
+  const logConfig = storeManager.logConfig;
 
-  if (logConfig.logLevelFile)
-    log.transports.console.level = logConfig.logLevelFile;
+  if (logConfig) {
 
-  if (logConfig.logfile) {
-    if (logConfig.logLevelConsole)
-      log.transports.file.level = logConfig.logLevelConsole;
+    if (logConfig.logLevelFile)
+      log.transports.console.level = logConfig.logLevelFile;
 
-    const parentDir = path.dirname(logConfig.logfile);
-    if (!fs.existsSync(parentDir)) {
-      mkDirByPathSync(parentDir);
+    if (logConfig.logfile) {
+      if (logConfig.logLevelConsole)
+        log.transports.file.level = logConfig.logLevelConsole;
+
+      const parentDir = path.dirname(logConfig.logfile);
+      if (!fs.existsSync(parentDir)) {
+        mkDirByPathSync(parentDir);
+      }
+
+      log.transports.file.file = logConfig.logfile;
+      log.transports.file.maxSize = 5 * 1024 * 1024;
     }
 
-    if (logConfig.logDeleteOnStart && fs.existsSync(logConfig.logfile)) {
-      fs.unlinkSync(logConfig.logfile);
-      if (fs.existsSync(logConfig.logfile))
-        log.error(`ERROR: cannot delete file ${logConfig.logfile}!`);
-    }
-
-    log.transports.file.file = logConfig.logfile;
-    log.transports.file.maxSize = 5 * 1024 * 1024;
-  }
-
-  log.info(`${constants.APP_TITLE} (v${constants.APP_VERSION}) started`);
-
+    log.info(`${constants.APP_TITLE} (v${constants.APP_VERSION}) started`);
+  } else
+    console.log(`${logKey}.configLogger failed - no config data`);
 }
 
 // ----------------------------------------------------------------------------------
@@ -66,10 +64,13 @@ export function toogleFullscreen() {
   const window = windows.getMainWindow();
 
   if (window) {
-    const isFullScreen = window.isFullScreen();
-    if (!isFullScreen)
-      config.setMainWindowState(window);
+    let isFullScreen = window.isFullScreen();
     window.setFullScreen(!isFullScreen);
+
+    isFullScreen = window.isFullScreen();
+
+    const action = actionsMainWindow.createActionSetFullscreen(isFullScreen);
+    storeManager.dispatchGlobal(action);
   }
 }
 
@@ -78,14 +79,14 @@ export function toogleFullscreen() {
 export function toogleDevTools() {
   const window = windows.getMainWindow();
 
-  if (window && config.showDevTools()) {
-    const activeDevTools = config.activeDevTools();
-    config.setActiveDevTools(!activeDevTools);
+  if (window && storeManager.isDevtool) {
 
-    if (activeDevTools)
-      window.webContents.closeDevTools();
-    else
-      window.webContents.openDevTools();
+    // https://github.com/electron/electron/blob/master/docs/api/web-contents.md
+    window.webContents.toggleDevTools();
+
+    const isOpen = window.webContents.isDevToolsOpened();
+    const action = actionsMainWindow.createActionSetActiveDevtool(isOpen);
+    storeManager.dispatchGlobal(action);
   }
 }
 
@@ -94,8 +95,8 @@ export function toogleDevTools() {
 export function restoreDevTools() {
   const window = windows.getMainWindow();
 
-  if (window && config.showDevTools()) {
-    if (config.activeDevTools()) {
+  if (window && storeManager.isDevtool) {
+    if (storeManager.activeDevtool) {
       window.webContents.openDevTools();
     }
   }
@@ -105,12 +106,15 @@ export function restoreDevTools() {
 
 export function initChildConfig(ipcMsg) {
   const func = ".initChildConfig";
-  //log.debug(`${logKey}${func}`, ipcMsg);
+  //log.debug(`${_logKey}${func}`, ipcMsg);
 
   const ipcDest = ipcMsg.source;
 
-  const data = config.exportData();
-  ipc.send(ipcDest, constants.AI_PUSH_MAIN_CONFIG, data);
+  storeManager.dispatchFullState([ ipcDest ]);
+
+  ipc.send(ipcDest, constants.AI_MAIN_PUSHED_CONFIG);
+
+  storeManager.dumpState2Log();
 
 }
 // ----------------------------------------------------------------------------------
@@ -122,31 +126,39 @@ let statusChildsState = flagWorker | flagRenderer | flagSendStart;
 
 export function activateChild(ipcMsg) {
   const func = ".activateChild";
-  //log.debug(`${logKey}${func}`, ipcMsg);
+  //log.debug(`${_logKey}${func}`, ipcMsg);
 
-  const ipcDest = ipcMsg.source;
+  try {
+    const ipcDest = ipcMsg.source;
 
-  // waiting for 2 children - don't know which one comes last => send last opened dir or slideshow
-  if (constants.IPC_RENDERER === ipcDest)
-    statusChildsState &= ~flagRenderer;
-  if (constants.IPC_WORKER === ipcDest)
-    statusChildsState &= ~flagWorker;
+    // waiting for 2 children - don't know which one comes last => send last opened dir or slideshow
+    if (constants.IPC_RENDERER === ipcDest)
+      statusChildsState &= ~flagRenderer;
+    if (constants.IPC_WORKER === ipcDest)
+      statusChildsState &= ~flagWorker;
 
-  if (statusChildsState === flagSendStart) {
-    statusChildsState = 0;
+    log.debug(`${logKey}${func} - ${ipcDest} ready`);
 
-    let payload = null;
-    if (config.lastContainer)
-      payload = { container: config.lastContainer, selectFile: config.lastItem };
+    if (statusChildsState === flagSendStart) {
+      statusChildsState = 0;
 
-    //log.debug(`${logKey}${func} - getLastContainer:`, container);
+      //storeManager.dispatchFullState([ ipcDest ]);
 
-    setTimeout(() => {
-      ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, payload);
-    }, 100)
+      // let payload = null;
+      // if (config.lastContainer)
+      //   payload = { container: config.lastContainer, selectFile: config.lastItem };
+      //
+      //
+      // //log.debug(`${_logKey}${func} - getLastContainer:`, container);
+      //
+      // setTimeout(() => {
+      //   ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, payload);
+      // }, 200)
 
+    }
+  } catch (err) {
+    log.error(`${this._logKey}${func} - exception -`, err);
   }
-
 }
 
 // ----------------------------------------------------------------------------------
@@ -155,7 +167,7 @@ export function openDialog(isDirectory) {
   const func = ".openDialog";
 
   const lastPath = config.getLastDialogFolder();
-  //log.debug(`${logKey}${func} - lastPath:`, lastPath);
+  //log.debug(`${_logKey}${func} - lastPath:`, lastPath);
 
   const dialogType = isDirectory ? 'openDirectory' : 'openFile';
 
@@ -169,7 +181,8 @@ export function openDialog(isDirectory) {
     const selection = files[0];
     log.debug(`${logKey}${func} - selection:`, selection);
 
-    config.setLastDialogFolder(path.dirname(selection));
+    const action = actionsSystem.createActionSetLastDialogFolder(path.dirname(selection));
+    storeManager.dispatchGlobal(action);
 
     return selection;
   }
@@ -225,16 +238,19 @@ export function quitApp() {
 // ----------------------------------------------------------------------------------
 
 export function askQuitApp() {
-  if (!isAppAlreadyQuitted) {
-    ipc.send(constants.IPC_RENDERER, constants.ACTION_ESC_CLOSING, null);
-  }
+
+  quitApp();
+
+  // if (!isAppAlreadyQuitted) {
+  //   ipc.send(constants.IPC_RENDERER, constants.ACTION_ESC_CLOSING, null);
+  // }
 }
 
 // ----------------------------------------------------------------------------------
 
 export function toogleHelp() {
   log.debug('toogleHelp');
-  //ipc.send(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE, null);
+  //ipc.send(constants.IPC_RENDERER, constants.AR_SLIDESHOW_HELP_TOOGLE, null);
 
   const action = actionsSls.createActionHelpToogle();
   ipc.send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
@@ -246,7 +262,7 @@ export function sendGeneric(destination, action) {
 
   const func = ".sendGeneric";
   log.silly(`${logKey}${func} destination=${destination}, action=${action}`);
-  //ops.sendGeneric(constants.IPC_RENDERER, constants.ACTION_HELP_TOOGLE);
+  //ops.sendGeneric(constants.IPC_RENDERER, constants.AR_SLIDESHOW_HELP_TOOGLE);
 }
 
 // ----------------------------------------------------------------------------------
@@ -269,14 +285,14 @@ export function showMessage(msgType, msgText) {
   const payload = { msgType, msgText };
 
   // TODO
-  // ipc.send(constants.IPC_RENDERER, constants.ACTION_MSG_ADD, payload);
+  // ipc.send(constants.IPC_RENDERER, constants.AR_MESSAGE_ADD, payload);
 }
 
 // ----------------------------------------------------------------------------------
 
 export function setLastItem(ipcMsg) {
 
-  //log.debug(`${logKey}.setLastItem: -`, ipcMsg.payload);
+  //log.debug(`${_logKey}.setLastItem: -`, ipcMsg.payload);
   config.setLastItemAndContainer(ipcMsg.payload.lastItemFile, ipcMsg.payload.lastContainer);
 }
 
@@ -284,7 +300,7 @@ export function setLastItem(ipcMsg) {
 
 export function setAutoPlay(ipcMsg) {
 
-  //log.debug(`${logKey}.setAutoPlay: -`, ipcMsg.payload);
+  //log.debug(`${_logKey}.setAutoPlay: -`, ipcMsg.payload);
   config.lastAutoPlay = ipcMsg.payload
 }
 

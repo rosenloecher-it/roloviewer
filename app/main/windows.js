@@ -1,9 +1,14 @@
-import { BrowserWindow, Menu } from 'electron';
+import electron from 'electron';
 import path from 'path';
 import log from 'electron-log';
 import * as ops from "./mainOps";
-import config from "./config/mainConfig";
 import * as constants from "../common/constants";
+import storeManager from './store/mainManager';
+import * as actionsMainWindow from "../common/store/mainWindowActions";
+
+// ----------------------------------------------------------------------------------
+
+const _logKey = "windows";
 
 let mainWindow = null;
 let workerWindow = null;
@@ -23,76 +28,158 @@ function closeMainWindow() {
 
 // ----------------------------------------------------------------------------------
 
+function checkAndCorrectMainWindowBounds(settings, screenSize) {
+
+  let resetBounds = true;
+  const space = 100;
+  do {
+    if (!settings.x || settings.x < 0 || settings.x >= screenSize.width - space)
+      break;
+    if (!settings.y || settings.y < 0 || settings.y >= screenSize.height - space)
+      break;
+    if (!settings.height || settings.height < constants.DEFCONF_HEIGHT_DEF || settings.height > screenSize.height)
+      break;
+    if (!settings.width || settings.width < constants.DEFCONF_WIDTH_DEF || settings.width > screenSize.width)
+      break;
+
+    resetBounds = false;
+
+  } while (false);
+
+  if (resetBounds) {
+    /* eslint-disable no-param-reassign */
+    settings.height = screenSize.height < constants.DEFCONF_HEIGHT_DEF ? screenSize.height : constants.DEFCONF_HEIGHT_DEF;
+    settings.width = screenSize.width < constants.DEFCONF_WIDTH_DEF ? screenSize.width : constants.DEFCONF_WIDTH_DEF;
+    settings.x = (screenSize.width - settings.width) / 2;
+    settings.y = (screenSize.height - settings.height) / 2;
+    /* eslint-enable no-param-reasign */
+  }
+
+  // don't reset: config.maximized + config.fullscreen + config.activeDevtool
+
+}
+
+// ----------------------------------------------------------------------------------
+
 function storeMainWindowState() {
-  if (mainWindow)
-    config.setMainWindowState(mainWindow);
+  const func = ".storeMainWindowState";
+
+  if (!mainWindow)
+    return;
+
+  try {
+    let action = null;
+
+    const win = mainWindow;
+
+    const isFullscreen = win.isFullScreen();
+    if (isFullscreen)
+      action = actionsMainWindow.createActionSetFullscreen(isFullscreen);
+    else {
+      const isMaximized = win.isMaximized();
+      if (isMaximized)
+        action = actionsMainWindow.createActionSetMaximized(isMaximized);
+      else {
+        const actionData = {};
+        const bounds = win.getBounds();
+        actionData.height = bounds.height;
+        actionData.width = bounds.width;
+        actionData.x = bounds.x;
+        actionData.y = bounds.y;
+
+        actionData.fullscreen = false;
+        actionData.maximized = false;
+        actionData.activeDevtool = storeManager.activeDevtool;
+
+        action = actionsMainWindow.createActionInit(actionData);
+      }
+    }
+
+    //log.debug(`${_logKey}${func} - data -`, action);
+
+    storeManager.dispatchGlobal(action);
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+  }
 }
 
 // ----------------------------------------------------------------------------------
 
 export function createMainWindow() {
+  const func = ".createMainWindow";
 
   if (mainWindow)
     return;
 
-  config.checkMainWindowBounds();
+  try {
 
-  const windowState = config.getMainWindowState();
+    const settings = storeManager.mainWindowState;
+    const screenSize = electron.screen.getPrimaryDisplay().size;
 
-  mainWindow = new BrowserWindow({
-    width: windowState.width,
-    height: windowState.height,
-    x: windowState.x,
-    y: windowState.y,
-    minWidth: constants.DEFCONF_WIDTH_MIN,
-    minHeight: constants.DEFCONF_HEIGHT_MIN,
-    backgroundColor: 'black', // has to match style!
-    show: false
-  });
+    checkAndCorrectMainWindowBounds(settings, screenSize);
 
-  const htmlPath = path.join(__dirname, '..', 'renderer', 'app.html');
-  mainWindow.loadURL(`file://${htmlPath}`);
+    mainWindow = new electron.BrowserWindow({
+      width: settings.width,
+      height: settings.height,
+      x: settings.x,
+      y: settings.y,
+      minWidth: constants.DEFCONF_WIDTH_MIN,
+      minHeight: constants.DEFCONF_HEIGHT_MIN,
+      backgroundColor: 'black', // has to match style!
+      show: false
+    });
 
-  // @TODO: Use 'ready-to-show' event
-  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
-  mainWindow.webContents.on('did-finish-load', () => {
-    if (!mainWindow) throw new Error('"windows" is not defined');
+    mainWindow.onerror = function (message, source, lineno, colno, error) {
+      log.error(`${_logKey}.onerror - message: ${message} \n source: ${source} \n line/col=${lineno}/${colno}`, error);
+    };
 
-    mainWindow.setTitle(constants.APP_TITLE);
-    mainWindow.show();
+    const htmlPath = path.join(__dirname, '..', 'renderer', 'app.html');
+    mainWindow.loadURL(`file://${htmlPath}`);
 
-    if (windowState.fullscreen)
-      mainWindow.setFullScreen(true)
-    else if (windowState.maximized)
-      mainWindow.maximize();
+    // @TODO: Use 'ready-to-show' event
+    //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
+    mainWindow.webContents.on('did-finish-load', () => {
+      if (!mainWindow) throw new Error('"windows" is not defined');
 
-    mainWindow.on('close', closeMainWindow);
+      mainWindow.setTitle(constants.APP_TITLE);
+      mainWindow.show();
 
-    if (config.showDevTools()) {
-      ops.restoreDevTools();
+      if (settings.fullscreen)
+        mainWindow.setFullScreen(true)
+      else if (settings.maximized)
+        mainWindow.maximize();
 
-      // add inspect element on right click mainMenu
-      mainWindow.webContents.on('context-mainMenu', (e, props) => {
-        Menu.buildFromTemplate([
-          {
-            label: 'Inspect element',
-            click() {
-              mainWindow.inspectElement(props.x, props.y);
+      mainWindow.on('close', closeMainWindow);
+
+      if (settings.activeDevtool) {
+        ops.restoreDevTools();
+
+        // add inspect element on right click mainMenu
+        mainWindow.webContents.on('context-mainMenu', (e, props) => {
+          electron.Menu.buildFromTemplate([
+            {
+              label: 'Inspect element',
+              click() {
+                mainWindow.inspectElement(props.x, props.y);
+              }
             }
-          }
-        ]).popup(mainWindow);
-      });
-    }
+          ]).popup(mainWindow);
+        });
+      }
 
-    mainWindow.focus();
-  });
+      mainWindow.focus();
+    });
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+    mainWindow.on('closed', () => {
+      mainWindow = null;
+    });
 
-  mainWindow.on('resize', storeMainWindowState);
-  mainWindow.on('move', storeMainWindowState);
+    mainWindow.on('resize', storeMainWindowState);
+    mainWindow.on('move', storeMainWindowState);
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+  }
 }
 
 // ----------------------------------------------------------------------------------
@@ -115,36 +202,44 @@ export function createWorkerWindow() {
   if (workerWindow)
     return;
 
-  const htmlPath = path.join(__dirname, '..', 'worker', 'worker.html');
+  try {
+    const htmlPath = path.join(__dirname, '..', 'worker', 'worker.html');
 
-  workerWindow = new BrowserWindow({
-    width: 600,
-    height: 400,
-    show: false,
-    webPreferences: {
-      nodeIntegrationInWorker: true
-    }
-  });
+    workerWindow = new electron.BrowserWindow({
+      width: 600,
+      height: 400,
+      show: false,
+      webPreferences: {
+        nodeIntegrationInWorker: true
+      }
+    });
 
-  //log.debug("workerWindow.loadURL", htmlPath);
-  workerWindow.loadURL(`file://${htmlPath}`);
+    workerWindow.onerror = function (message, source, lineno, colno, error) {
+      log.error(`${_logKey}.onerror(worker) - message: ${message} \n source: ${source} \n line/col=${lineno}/${colno}`, error);
+    };
 
-  workerWindow.webContents.on('did-finish-load', () => {
-    if (!workerWindow)
-      throw new Error('"windows" is not defined');
+    //log.debug("workerWindow.loadURL", htmlPath);
+    workerWindow.loadURL(`file://${htmlPath}`);
 
-    if (constants.DEBUG_SHOW_WORKER_WINDOW) {
-      workerWindow.webContents.openDevTools();
-      workerWindow.show();
-    }
+    workerWindow.webContents.on('did-finish-load', () => {
+      if (!workerWindow)
+        throw new Error('"windows" is not defined');
 
-  });
+      if (constants.DEBUG_SHOW_WORKER_WINDOW) {
+        workerWindow.webContents.openDevTools();
+        workerWindow.show();
+      }
 
-  workerWindow.on('close', closeWorkerWindow);
+    });
 
-  workerWindow.on('closed', () => {
-    workerWindow = null;
-  });
+    workerWindow.on('close', closeWorkerWindow);
+
+    workerWindow.on('closed', () => {
+      workerWindow = null;
+    });
+  } catch (err) {
+    log.error(`${_logKey}.createWorkerWindow - exception -`, err);
+  }
 }
 
 // ----------------------------------------------------------------------------------

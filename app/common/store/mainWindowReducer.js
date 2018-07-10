@@ -3,50 +3,52 @@ import * as constants from '../constants';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "contextReducer";
+const _logKey = "mainWindowReducer";
 
 // ----------------------------------------------------------------------------------
 
-export class ContextReducer {
+export class MainWindowReducer {
   constructor(name) {
     this._logKey = `${_logKey}(${name})`;
 
     this.reduce = this.reduce.bind(this);
 
-    log.debug(`${this._logKey}.constructor - in`);
+    //log.debug(`${this._logKey}.constructor - in`);
   }
 
   // .....................................................
 
   static defaultState() {
     return {
-      isDevelopment: false,
-      isDevtool: false,
-      isProduction: true,
-      isTest: false,
-      configIsReadOnly: false,
-      configFile: null,
-      tempCliAutoplay: false,
-      tempCliAutoselect: false,
-      tempCliFullscreen: false,
-      tempCliOpenContainer: null,
-      tempCliScreensaver: false,
+      x: -1,
+      y: -1,
+      height: -1,
+      width: -1,
+      fullscreen: false,
+      maximized: false,
+      activeDevtool: false,
     }
   }
 
   // .....................................................
 
-  reduce(state = ContextReducer.defaultState(), action) {
+  reduce(state = MainWindowReducer.defaultState(), action) {
     const func = ".reduce";
     let actionType = '???';
 
     try {
       actionType = action.type;
-      //log.debug(`${this._logKey}${func}(${actionType}) - in`);
+      //log.debug(`${this._logKey}${func}(${actionType}) - in`, action);
 
       switch (action.type) {
-        case constants.AR_CONTEXT_INIT:
+        case constants.AR_MAINWINDOW_INIT:
           return this.init(state, action);
+        case constants.AR_MAINWINDOW_SET_ACTIVE_DEVTOOL:
+          return { ...state, activeDevtool: !!action.payload };
+        case constants.AR_MAINWINDOW_SET_FULLSCREEN:
+          return { ...state, fullscreen: !!action.payload };
+        case constants.AR_MAINWINDOW_SET_MAXIMIZED:
+          return { ...state, maximized: !!action.payload };
 
         default:
           return state;
@@ -63,23 +65,22 @@ export class ContextReducer {
 
   init(state, action) {
     const func = ".init";
-    log.debug(`${this._logKey}${func} - in`);
+    //log.debug(`${this._logKey}${func} - action`, action);
 
     const {
-      isDevelopment, isDevtool, isProduction, isTest,
-      configFile, configIsReadOnly,
-      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer, tempCliScreensaver
+      x, y, height, width,
+      fullscreen, maximized,
+      activeDevtool,
     } = action.payload;
 
     const newState = {
       ...state,
-      isDevelopment, isDevtool, isProduction, isTest,
-      configFile, configIsReadOnly,
-      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer, tempCliScreensaver
-
+      x, y, height, width,
+      fullscreen, maximized,
+      activeDevtool,
     };
 
-    //log.debug(`${this._logKey}${func} - out`, action);
+    //log.debug(`${this._logKey}${func} - out`, newState);
 
     return newState;
   }

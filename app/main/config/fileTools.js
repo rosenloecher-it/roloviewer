@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import electron from 'electron';
 import fs from 'fs';
 import path from 'path';
 import * as constants from "../../common/constants";
@@ -6,13 +6,13 @@ import * as constants from "../../common/constants";
 // ----------------------------------------------------------------------------------
 
 export function getConfigPath() {
-  return path.join(app.getPath('userData'), '..', constants.CONFIG_NAME);
+  return path.join(electron.app.getPath('userData'), '..', constants.CONFIG_NAME);
 }
 
 //----------------------------------------------------------------------------
 
 export function getDefaultCachePath() {
-  return path.join(app.getPath('userData'), '..', constants.CONFIG_NAME);
+  return path.join(electron.app.getPath('userData'), '..', constants.CONFIG_NAME);
 }
 
 //----------------------------------------------------------------------------
@@ -33,54 +33,16 @@ export function getDefaultLogFile() {
 
 //----------------------------------------------------------------------------
 
-export function mergeConfigItem(valueDef, valuePrio1, valuePrio2) {
+export function getDefaultConfigFile(isProduction) {
 
-  if (typeof(valueDef) === typeof(valuePrio1))
-    return valuePrio1;
-  if (typeof(valueDef) === typeof(valuePrio2))
-    return valuePrio2;
-
-  return valueDef;
+  const extra = (isProduction ? "" : "_test");
+  const configPath = getConfigPath();
+  const configName = `${constants.CONFIG_BASENAME}${extra}.ini`;
+  const defaultConfigFile = path.join(configPath, configName);
+  return defaultConfigFile;
 }
 
-// ----------------------------------------------------------------------------------
-
-export function mergeStringItem(valueDef, valuePrio1, valuePrio2) {
-
-  if (typeof("str") === typeof(valuePrio1) && valuePrio1 !== "undefined")
-    return valuePrio1;
-  if (typeof("str") === typeof(valuePrio2) && valuePrio2 !== "undefined")
-    return valuePrio2;
-
-  return valueDef;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function setWindowState(configIn, window) {
-
-  const config = configIn; // change by reference
-
-  if (!window || window.isMinimized())
-    return;
-
-  config.fullscreen = window.isFullScreen();
-
-  if (!config.fullscreen) {
-
-    config.maximized = window.isMaximized();
-
-    if (!config.maximized) {
-      const bounds = window.getBounds();
-      config.height = bounds.height;
-      config.width = bounds.width;
-      config.x = bounds.x;
-      config.y = bounds.y;
-    }
-  }
-}
-
-// ----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 export function findExifTool(pathFromFile) {
   if (!pathFromFile && typeof(pathFromFile) === typeof("s"))
@@ -123,4 +85,6 @@ export function mkDirByPathSync(targetDir) {
 }
 
 // ----------------------------------------------------------------------------------
+
+
 

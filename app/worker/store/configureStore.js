@@ -1,13 +1,12 @@
 import { createStore } from 'redux';
-import mainRootReducer from "./mainRootReducer";
+import workerRootReducer from "./workerRootReducer";
 
 // ----------------------------------------------------------------------------------
 
 export default function configureStore() {
 
-  const store = createStore(mainRootReducer);
+  const store = createStore(workerRootReducer);
 
   return store;
 
 };
-

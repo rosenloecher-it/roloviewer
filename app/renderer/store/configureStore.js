@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 import {createHashHistory} from "history";
 import {routerMiddleware} from "react-router-redux";
 import {createLogger} from "redux-logger";
-import rootReducer from "./reducerRoot";
+import rootReducer from "./rendererRootReducer";
 
 // ----------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ function configureStore(initialState?: counterStateType) {
   }
 
   if (isProduction && module.hot) {
-    module.hot.accept('./reducerRoot', () => {
+    module.hot.accept('./rendererRootReducer', () => {
       const nextReducer = combineReducers(rootReducer);
       localStore.replaceReducer(nextReducer);
     });

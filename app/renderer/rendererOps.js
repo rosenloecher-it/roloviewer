@@ -4,6 +4,7 @@ import * as ipc from "./rendererIpc";
 import config from "./rendererConfig";
 import { _store } from './store/configureStore';
 import * as actionsSls from "../common/store/slideshowActions";
+import storeManager from "./store/rendererManager";
 
 // ----------------------------------------------------------------------------------
 
@@ -17,12 +18,14 @@ export function init(ipcMsg) {
   try {
     log.debug(`${_logKey}${func}`);
 
-    config.importData(ipcMsg.payload);
+    storeManager.init();
 
-    ipc.send(constants.IPC_MAIN, constants.ACTION_READY, null);
+    //config.importData(ipcMsg.payload);
 
-    if (config.lastAutoPlay)
-      _store.dispatch(actionsSls.createActionAutoPlayStart());
+    ipc.send(constants.IPC_MAIN, constants.AI_CHILD_IS_READY, null);
+
+    // if (config.lastAutoPlay)
+    //   _store.dispatch(actionsSls.createActionAutoPlayStart());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
@@ -33,10 +36,13 @@ export function init(ipcMsg) {
 // ----------------------------------------------------------------------------------
 
 export function shutdown(ipcMsg) {
-  log.silly(`${_logKey}.shutdown`);
+  //log.silly(`${_logKey}.shutdown`);
 
-  ipc.unregisterListener();
-
+  try {
+    ipc.unregisterListener();
+  } catch (err) {
+    log.error(`${_logKey}.shutdown - exception -`, err);
+  }
 }
 
 // ----------------------------------------------------------------------------------
@@ -139,7 +145,7 @@ export function persistLastItem(lastItemFile, lastContainer) {
         lastContainer
       }
 
-      ipc.send(constants.IPC_MAIN, constants.ACTION_PERSIST_LAST_ITEM, payload);
+      ipc.send(constants.IPC_MAIN, constants.ACTION_SET_LAST_ITEM_CONTAINER, payload);
     }
 
   } catch (err) {

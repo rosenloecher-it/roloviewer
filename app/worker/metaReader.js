@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import * as constants from "../common/constants";
 import { shortenString } from "../common/utils/stringUtils";
-import { validateInt } from '../common/utils/validate';
+import { valiInt } from '../common/utils/validate';
 import {separateFilePath} from "../common/utils/transfromPath";
 import * as actions from "../common/store/slideshowActions";
 
@@ -239,11 +239,11 @@ export function prepareTagsFromExiftool(file, tags) {
   if (meta.photoISO)
     meta.photoSettings = pushDetails(meta.photoSettings, "ISO " + meta.photoISO);
 
-  temp = validateInt(tags.FocalLength);
+  temp = valiInt(tags.FocalLength);
   if (temp)
     meta.photoFocalLength = `${temp} mm`;
 
-  temp = validateInt(tags.UprightFocalLength35mm);
+  temp = valiInt(tags.UprightFocalLength35mm);
   if (temp)
     meta.photoUprightFocalLength35mm = `${temp} mm`;
 

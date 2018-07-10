@@ -2,165 +2,220 @@ import fs from 'fs';
 import log from 'electron-log';
 import path from 'path';
 import * as constants from "../../common/constants";
-import * as vali from "../../common/utils/validate";
-import * as configUtils from "./configUtils";
-import { validateBoolean, validateInt, validateLogLevel, validateRatingArray, validateStringArray } from "../../common/utils/validate";
+import {
+  mergeConfigItem,
+  valiBoolean, valiInt, valiLogLevel, valiRatingArray, valiString, valiTagArray,
+  valiFolderArray, valiBlacklistSnippets
+} from "../../common/utils/validate";
+import * as actionsContext from "../../common/store/contextActions";
+import * as actionsCrawler from "../../common/store/crawlerActions";
+import * as actionsMainWindow from "../../common/store/mainWindowActions";
+import * as actionsSlideshow from "../../common/store/slideshowActions";
+import * as actionsSystem from "../../common/store/systemActions";
+import { SlideshowReducer } from "../../common/store/slideshowReducer";
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "configMerge"
+const _logKey = "configMerge";
 
 // ----------------------------------------------------------------------------------
 
-export function mergeDataStart(dataIn, dataFromCli, dataFromFileIn) {
+export function createContextAction(appContext, cliData, defaultConfigFile) {
+  const func = ".createContextAction";
 
-  const data = dataIn;
-  const dataFromFile = dataFromFileIn;
-  if (!dataFromFile.lastItems)
-    dataFromFile.lastItems = {};
+  const actionData = {
+    isDevelopment: appContext.isDevelopment,
+    isDevtool: appContext.isDevtool,
+    isProduction: appContext.isProduction,
+    isTest: appContext.isTest,
+  };
 
-  const set = data.lastItems;
+  if (cliData.configfile) {
+    if (!fs.existsSync(cliData.configfile))
+      log.info(`${_logKey}${func} - cli config file "${cliData.configfile}" does not exist!`);
+    actionData.configFile = valiString(cliData.configfile);
+  } else
+    actionData.configFile = defaultConfigFile;
 
-  set.container = configUtils.mergeStringItem(null,
-    dataFromCli.open,
-    dataFromFile.lastItems.container);
 
-  if (set.lastContainer != null && !fs.existsSync(set.container)) {
-    log.info(`${logKey} - last file/dir doesn't exist any more (${set.container})!`);
-    set.container = null;
-  }
+  actionData.configIsReadOnly = valiBoolean(cliData.configreadonly) || false;
+  actionData.tempCliFullscreen = valiBoolean(cliData.fullscreen) || false;
+  actionData.tempCliScreensaver = valiBoolean(cliData.screensaver) || false;
+  actionData.tempCliAutoplay = valiBoolean(cliData.play) || false;
+  actionData.tempCliAutoselect = valiBoolean(cliData.autoselect) || false;
 
-  set.autoPlay = configUtils.mergeConfigItem(false,
-    null,
-    dataFromFile.lastItems.autoPlay);
+
+  if (!actionData.tempCliAutoselect && cliData.open)
+    actionData.tempCliOpenContainer = valiString(cliData.open);
+  else
+    actionData.tempCliOpenContainer = null;
+
+  const action = actionsContext.createActionInit(actionData);
+
+  return action;
 }
 
 // ----------------------------------------------------------------------------------
 
-export function mergeDataSystem(dataIn, dataFromCli, dataFromFileIn) {
+export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
 
-  const data = dataIn;
-  const dataFromFile = dataFromFileIn;
-  if (!dataFromFile.system)
-    dataFromFile.system = {};
+  const iniData = iniDataIn;
+  if (!iniData.crawler)
+    iniData.crawler = {};
 
-  data.system.exiftool = configUtils.findExifTool(dataFromFile.system.exiftool);
+  const actionData = {};
 
-  data.system.powerSaveBlockTime = configUtils.mergeConfigItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME,
+  actionData.database = mergeConfigItem(defaultCrawlerDb,
     null,
-    validateInt(dataFromFile.system.powerSaveBlockTime));
+    iniData.crawler.database);
+
+  actionData.batchCount = mergeConfigItem(constants.DEFCONF_CRAWLER_BATCHCOUNT, valiInt(iniData.crawler.batchCount), null);
+  actionData.showRating = valiRatingArray(iniData.crawler.showRating);
+  actionData.tagShow = valiTagArray(iniData.crawler.tagShow);
+  actionData.tagBlacklist = valiTagArray(iniData.crawler.tagBlacklist);
+  actionData.folderSource = valiFolderArray(iniData.crawler.folderSource);
+  actionData.folderBlacklist = valiFolderArray(iniData.crawler.folderBlacklist);
+  actionData.folderBlacklistSnippets = valiBlacklistSnippets(iniData.crawler.folderBlacklistSnippets);
+
+  for (let i = 0; i < actionData.folderBlacklist.length; i++) {
+    actionData.folderBlacklist[i] = path.normalize(actionData.folderBlacklist[i]);
+  }
+
+  const action = actionsCrawler.createActionInit(actionData);
+
+  return action;
+}
+
+// ----------------------------------------------------------------------------------
+
+export function createMainWindowAction(iniDataIn, context) {
+
+  const iniData = iniDataIn;
+  if (!iniData.mainWindow)
+    iniData.mainWindow = {};
+
+  const actionData = {
+    x: valiInt(iniData.mainWindow.x),
+    y: valiInt(iniData.mainWindow.y),
+    height: valiInt(iniData.mainWindow.height),
+    width: valiInt(iniData.mainWindow.width),
+    maximized: mergeConfigItem(false, valiBoolean(iniData.mainWindow.maximized) || false, null),
+    fullscreen: mergeConfigItem(false, valiBoolean(iniData.mainWindow.fullscreen), null),
+    activeDevtool: mergeConfigItem(false, valiBoolean(iniData.mainWindow.activeDevtool), null),
+  };
+
+  if (context.tempCliFullscreen === true)
+    actionData.fullscreen = true;
+
+  const action = actionsMainWindow.createActionInit(actionData);
+
+  return action;
+}
+
+// ----------------------------------------------------------------------------------
+
+export function createSlideshowAction(iniDataIn, context) {
+
+  const iniData = iniDataIn;
+  if (!iniData.slideshow)
+    iniData.slideshow = {};
+
+  const actionData = {};
+
+  actionData.autoPlay = mergeConfigItem(false,
+    null,
+    iniData.slideshow.autoPlay);
+
+  actionData.transitionTimeAutoPlay = mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY,
+    null,
+    valiInt(iniData.slideshow.transitionTimeAutoPlay));
+
+  actionData.transitionTimeManual = mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_MANUAL,
+    null,
+    valiInt(iniData.slideshow.transitionTimeManual));
+
+  actionData.timer = mergeConfigItem(constants.DEFCONF_TIMER,
+    null,
+    valiInt(iniData.slideshow.timer));
+
+  actionData.random = mergeConfigItem(false,
+    null,
+    valiBoolean(iniData.slideshow.random));
+
+  actionData.detailsPosition = SlideshowReducer.valiDetailsPosition(valiString(iniData.slideshow.detailsPosition));
+  actionData.detailsShow = SlideshowReducer.getValidDetailsState(valiString(iniData.slideshow.detailsShow), false);
+
+  actionData.crawlerInfoPosition = SlideshowReducer.valiCrawlerInfoPosition(valiString(iniData.slideshow.crawlerInfoPosition), actionData.detailsPosition);
+  actionData.crawlerInfoShow = mergeConfigItem(false, null, valiBoolean(iniData.slideshow.crawlerInfoPosition));
+
+  if (context.tempCliAutoselect) {
+    actionData.lastContainerType = constants.CONTAINER_AUTOSELECT;
+    actionData.lastContainer = null;
+    actionData.lastItem = null;
+  } else {
+    if (context.tempCliOpenContainer) {
+      if (fs.existsSync(actionData.tempCliOpenContainer)) {
+        const isDir = fs.lstatSync(context.tempCliOpenContainer).isDirectory();
+        actionData.lastContainerType = (isDir ? constants.CONTAINER_FOLDER : constants.CONTAINER_PLAYLIST);
+        actionData.lastContainer = context.tempCliOpenContainer;
+        actionData.lastItem = null;
+      } else {
+        log.info(`${_logKey}createSlideshowAction - last file/dir doesn't exist (${context.tempCliOpenContainer})!`);
+        actionData.lastContainerType = null;
+        actionData.lastContainer = null;
+        actionData.lastItem = null;
+      }
+    } else {
+      actionData.lastContainerType = SlideshowReducer.convert2ContainerTypeKey(valiString(iniData.slideshow.lastContainerType));
+      actionData.lastContainer = valiString(iniData.slideshow.lastContainer);
+      actionData.lastItem = valiString(iniData.slideshow.lastItem);
+    }
+  }
+
+  actionData.screensaver = !!context.tempCliScreensaver;
+
+  const action = actionsSlideshow.createActionInit(actionData);
+
+  return action;
+}
+
+// ----------------------------------------------------------------------------------
+
+export function createSystemAction(iniDataIn, context, defaultLogFile, defaultExifTool) {
+
+  const iniData = iniDataIn;
+  if (!iniData.system)
+    iniData.system = {};
+
+  const actionData = {};
+
+  actionData.exiftool = defaultExifTool;
+
+  actionData.powerSaveBlockTime = mergeConfigItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME,
+    null,
+    valiInt(iniData.system.powerSaveBlockTime));
 
   // TODO data.system.logfile;
 
-  data.system.logLevelFile = configUtils.mergeConfigItem(
-    !data.system.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL_CONSOLE,
+  actionData.logLevelFile = mergeConfigItem(
+    !context.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL_CONSOLE,
     null,
-    validateLogLevel(dataFromFile.system.logLevelFile));
+    valiLogLevel(iniData.system.logLevelFile));
 
-  data.system.logLevelConsole = configUtils.mergeConfigItem(constants.DEFCONF_LOGLEVEL_FILE,
+  actionData.logLevelConsole = mergeConfigItem(constants.DEFCONF_LOGLEVEL_FILE,
     null,
-    validateLogLevel(dataFromFile.system.logLevelConsole));
+    valiLogLevel(iniData.system.logLevelConsole));
 
-  data.system.logDeleteOnStart = configUtils.mergeConfigItem(constants.DEFCONF_LOG_DELETE_ON_START,
-    null,
-    validateBoolean(dataFromFile.system.logDeleteOnStart));
+  actionData.logfile = null;
+  if (iniData.system.logfile && iniData.system.logfile.trim() === constants.DEFCONF_LOG)
+    actionData.logfile = defaultLogFile;
+  else if (!actionData.logfile)
+    actionData.logfile = iniData.system.logfile;
 
-  data.system.logfile = null;
-  if (dataFromFile.system.logfile && dataFromFile.system.logfile.trim() === constants.DEFCONF_LOG)
-    data.system.logfile = configUtils.getDefaultLogFile();
-  else if (!data.system.logfile)
-    data.system.logfile = dataFromFile.system.logfile;
+  const action = actionsSystem.createActionInit(actionData);
 
+  return action;
 }
 
 // ----------------------------------------------------------------------------------
 
-export function mergeDataRenderer(dataIn, dataFromCli, dataFromFileIn) {
-
-  const data = dataIn;
-  const dataFromFile = dataFromFileIn;
-  if (!dataFromFile.slideshow)
-    dataFromFile.slideshow = {};
-
-  const set = data.slideshow;
-
-  set.transitionTimeAutoPlay = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY,
-    null,
-    validateInt(dataFromFile.slideshow.transitionTimeAutoPlay));
-
-  set.transitionTimeManual = configUtils.mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_MANUAL,
-    null,
-    validateInt(dataFromFile.slideshow.transitionTimeManual));
-
-  set.timer = configUtils.mergeConfigItem(constants.DEFCONF_TIMER,
-    null,
-    validateInt(dataFromFile.slideshow.timer));
-
-  set.random = configUtils.mergeConfigItem(constants.DEFCONF_RANDOM,
-    dataFromCli.random,
-    dataFromFile.slideshow.random);
-
-  set.awake = configUtils.mergeConfigItem(constants.DEFCONF_AWAKE,
-    null,
-    validateInt(dataFromFile.slideshow.awake));
-
-  set.screensaver = configUtils.mergeConfigItem(constants.DEFCONF_SCREENSAVER,
-    dataFromCli.screensaver,
-    null);
-
-  set.details = configUtils.mergeConfigItem(constants.DEFCONF_DETAILS,
-    null,
-    dataFromFile.slideshow.details);
-}
-
-// ----------------------------------------------------------------------------------
-
-export function mergeDataCrawler(dataIn, dataFromCli, dataFromFileIn) {
-
-  const data = dataIn;
-  const dataFromFile = dataFromFileIn;
-  if (!dataFromFile.crawler)
-    dataFromFile.crawler = {};
-
-  const set = data.crawler;
-
-  set.database = configUtils.mergeConfigItem(configUtils.getDefaultCrawlerDb(),
-    null,
-    dataFromFile.crawler.database);
-
-  set.batchCount = configUtils.mergeConfigItem(constants.DEFCONF_CRAWLER_BATCHCOUNT, validateInt(dataFromFile.crawler.batchCount), null);
-  set.showRating = validateRatingArray(dataFromFile.crawler.showRating);
-  set.tagShow = validateStringArray(dataFromFile.crawler.tagShow);
-  set.tagBlacklist = validateStringArray(dataFromFile.crawler.tagBlacklist);
-  set.folderSource = vali.validateFolderArray(dataFromFile.crawler.folderSource);
-  set.folderBlacklist = vali.validateFolderArray(dataFromFile.crawler.folderBlacklist);
-  set.folderBlacklistSnippets = vali.validateBlacklistSnippets(dataFromFile.crawler.folderBlacklistSnippets);
-
-  for (let i = 0; i < set.folderBlacklist.length; i++) {
-    set.folderBlacklist[i] = path.normalize(set.folderBlacklist[i]);
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
-export function mergeDataMainWindow(dataIn, dataFromCli, dataFromFileIn) {
-
-  const data = dataIn;
-  const dataFromFile = dataFromFileIn;
-  if (!dataFromFile.mainwindow)
-    dataFromFile.mainwindow = {};
-
-  const set = data.mainwindow;
-
-  set.x = validateInt(dataFromFile.mainwindow.x);
-  set.y = validateInt(dataFromFile.mainwindow.y);
-  set.height = validateInt(dataFromFile.mainwindow.height);
-  set.width = validateInt(dataFromFile.mainwindow.width);
-
-  set.maximized = configUtils.mergeConfigItem(false, validateBoolean(dataFromFile.mainwindow.maximized), null);
-  set.fullscreen = configUtils.mergeConfigItem(false, validateBoolean(dataFromFile.mainwindow.fullscreen), null);
-  set.activeDevTools = configUtils.mergeConfigItem(false, validateBoolean(dataFromFile.mainwindow.activeDevTools), null);
-
-}
-
-// ----------------------------------------------------------------------------------

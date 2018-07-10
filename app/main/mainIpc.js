@@ -3,8 +3,8 @@ import log from 'electron-log';
 import * as constants from "../common/constants";
 import * as windows from './windows';
 import * as ops from "./mainOps";
-import {createIpcMessage} from "../worker/workerIpc";
 import * as actionsMsg from "../common/store/messageActions";
+import storeManager from './store/mainManager';
 
 // ----------------------------------------------------------------------------------
 
@@ -14,14 +14,14 @@ const _ipcMyself = constants.IPC_MAIN;
 // ----------------------------------------------------------------------------------
 
 export function registerListener() {
-  //log.debug(`${logKey}.initListener`);
+  //log.debug(`${_logKey}.initListener`);
   ipcMain.on(_ipcMyself, listenMainChannel);
 }
 
 // ----------------------------------------------------------------------------------
 
 export function unregisterListener() {
-  //log.debug(`${logKey}.unregisterListener`);
+  //log.debug(`${_logKey}.unregisterListener`);
   ipcMain.removeAllListeners(_ipcMyself);
 }
 
@@ -31,22 +31,10 @@ function listenMainChannel(event, ipcMsg, output) {
   const func = ".listenMainChannel";
 
   try {
-    //log.debug(`${logKey}.listenMainChannel: ipcMsg=`, ipcMsg);
+    //log.debug(`${_logKey}.listenMainChannel: ipcMsg=`, ipcMsg);
 
-    if (!ipcMsg || !ipcMsg.destination || !ipcMsg.type) {
-      log.error(`${_logKey}${func} - invalid data: `, ipcMsg);
-      return;
-    }
-
-    if (ipcMsg.destination === constants.IPC_WORKER || ipcMsg.destination === constants.IPC_RENDERER) {
-      sendRaw(ipcMsg);
-      return;
-    }
-
-    if (ipcMsg.destination !== _ipcMyself) {
-      log.error(`${_logKey}${func} - invalid destination: `, ipcMsg);
-      return;
-    }
+    if (ipcMsg.destination !== _ipcMyself)
+      throw new Error(`invalid destination: ${_ipcMyself}`);
 
     dispatchMainActions(ipcMsg);
 
@@ -61,15 +49,21 @@ function dispatchMainActions(ipcMsg) {
   const func = ".dispatchMainActions";
 
   switch (ipcMsg.type) {
-    case constants.ACTION_REQUEST_CONFIG:
+
+    case constants.AI_DUMMY:
+      log.debug(`${_logKey}${func} - ${ipcMsg.type} from ${ipcMsg.source}`); break;
+
+    case constants.AI_SPREAD_REDUX_ACTION:
+      storeManager.dispatchLocal(ipcMsg.payload, true); break;
+
+    case constants.AI_CHILD_REQUESTS_CONFIG:
       ops.initChildConfig(ipcMsg); break;
-    case constants.ACTION_READY:
+    case constants.AI_CHILD_IS_READY:
       ops.activateChild(ipcMsg); break;
 
-
-    case constants.ACTION_SHOW_CONTAINER_FILES:
+    case constants.AR_SLIDESHOW_SHOW_CONTAINER_FILES:
       ops.forwardShowFiles(ipcMsg); break;
-    case constants.ACTION_PERSIST_LAST_ITEM:
+    case constants.ACTION_SET_LAST_ITEM_CONTAINER:
       ops.setLastItem(ipcMsg); break;
     case constants.ACTION_PERSIST_AUTOPLAY:
       ops.setAutoPlay(ipcMsg); break;
@@ -127,15 +121,6 @@ export function send(ipcTarget, ipcType, payload) {
   };
 
   sendRaw(ipcMsg);
-}
-
-// ----------------------------------------------------------------------------------
-
-export function sendShowMessage(msgType, msgText) {
-
-  const action = actionsMsg.createActionAddMessage(msgType, msgText);
-  send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
-
 }
 
 // ----------------------------------------------------------------------------------

@@ -213,7 +213,7 @@ export class MediaLoader {
 
   addTasksDeliverFileMeta(files) {
     for (let i = 0; i < files.length; i++)
-      this.data.taskManager.pushTask({type: constants.ACTION_DELIVER_FILE_META, payload: files[i]});
+      this.data.taskManager.pushTask({type: constants.AR_SLIDESHOW_DELIVER_FILE_META, payload: files[i]});
   }
 
   // ........................................................
@@ -241,13 +241,13 @@ export class MediaLoader {
   loadFile(file) {
     const func = ".loadFile";
 
-    // log.debug(`${logKey}${func}: in - ${file}`);
+    // log.debug(`${_logKey}${func}: in - ${file}`);
     // const item = {
     //   file: file
     // };
     const item = actionsSls.createItem(file);
 
-    this.data.taskManager.pushTask({type: constants.ACTION_DELIVER_FILE_META, payload: file});
+    this.data.taskManager.pushTask({type: constants.AR_SLIDESHOW_DELIVER_FILE_META, payload: file});
     //{ type, payload }
 
     //extractAndStoreMetaData(file);

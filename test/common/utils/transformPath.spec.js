@@ -1,4 +1,4 @@
-import {shortenPathElements, separateFilePath, determinePathAndFilename} from "../../app/common/utils/transfromPath";
+import {shortenPathElements, separateFilePath, determinePathAndFilename} from "../../../app/common/utils/transfromPath";
 
 describe('transfromPath', () => {
 

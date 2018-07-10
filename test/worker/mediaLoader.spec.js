@@ -46,9 +46,9 @@ describe('MediaLoader', () => {
     const blacklistFoldersIn = [ "/home/data/mymedia/201x/2011/20110224-S95-Test" ];
     const blacklistSnippetsIn = [ "Haus " ];
 
-    const sourceFolders = vali.validateFolderArray(sourceFolderIn);
-    const blacklistFolders = vali.validateFolderArray(blacklistFoldersIn);
-    const blacklistSnippets = vali.validateBlacklistSnippets(blacklistSnippetsIn);
+    const sourceFolders = vali.valiFolderArray(sourceFolderIn);
+    const blacklistFolders = vali.valiFolderArray(blacklistFoldersIn);
+    const blacklistSnippets = vali.valiBlacklistSnippets(blacklistSnippetsIn);
 
     const minCountJpg = 15;
 

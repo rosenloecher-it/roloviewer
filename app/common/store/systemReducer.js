@@ -3,40 +3,34 @@ import * as constants from '../constants';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "contextReducer";
+const _logKey = "systemReducer";
 
 // ----------------------------------------------------------------------------------
 
-export class ContextReducer {
+export class SystemReducer {
   constructor(name) {
     this._logKey = `${_logKey}(${name})`;
 
     this.reduce = this.reduce.bind(this);
 
-    log.debug(`${this._logKey}.constructor - in`);
+    //log.debug(`${this._logKey}.constructor - in`);
   }
 
   // .....................................................
 
   static defaultState() {
     return {
-      isDevelopment: false,
-      isDevtool: false,
-      isProduction: true,
-      isTest: false,
-      configIsReadOnly: false,
-      configFile: null,
-      tempCliAutoplay: false,
-      tempCliAutoselect: false,
-      tempCliFullscreen: false,
-      tempCliOpenContainer: null,
-      tempCliScreensaver: false,
+      exiftool: null,
+      logfile: null,
+      logLevelConsole: 'silly',
+      logLevelFile: 'silly',
+      powerSaveBlockTime: 0,
     }
   }
 
   // .....................................................
 
-  reduce(state = ContextReducer.defaultState(), action) {
+  reduce(state = SystemReducer.defaultState(), action) {
     const func = ".reduce";
     let actionType = '???';
 
@@ -45,7 +39,7 @@ export class ContextReducer {
       //log.debug(`${this._logKey}${func}(${actionType}) - in`);
 
       switch (action.type) {
-        case constants.AR_CONTEXT_INIT:
+        case constants.AR_SYSTEM_INIT:
           return this.init(state, action);
 
         default:
@@ -66,17 +60,16 @@ export class ContextReducer {
     log.debug(`${this._logKey}${func} - in`);
 
     const {
-      isDevelopment, isDevtool, isProduction, isTest,
-      configFile, configIsReadOnly,
-      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer, tempCliScreensaver
+      exiftool,
+      logfile, logLevelConsole, logLevelFile,
+      powerSaveBlockTime
     } = action.payload;
 
     const newState = {
       ...state,
-      isDevelopment, isDevtool, isProduction, isTest,
-      configFile, configIsReadOnly,
-      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer, tempCliScreensaver
-
+      exiftool,
+      logfile, logLevelConsole, logLevelFile,
+      powerSaveBlockTime
     };
 
     //log.debug(`${this._logKey}${func} - out`, action);

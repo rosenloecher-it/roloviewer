@@ -5,14 +5,32 @@ import * as constants from "../constants";
 
 const _logKey = "slideshowReducer";
 
+// CSS classes
+export const CORNER_POS_1 = "popover-left-bottom";
+export const CORNER_POS_2 = "popover-left-top";
+export const CORNER_POS_3 = "popover-right-top";
+export const CORNER_POS_4 = "popover-right-bottom";
+
+const DEFAULT_POSITION_DETAILS = CORNER_POS_1;
+const DEFAULT_POSITION_CRAWLERINFO = CORNER_POS_4;
+
+export const DETAILS_STATE_ALL = "ALL";
+export const DETAILS_STATE_MIN = "MIN";
+export const DETAILS_STATE_OFF = "OFF";
+
+const _containerTypes = [
+  { key: constants.CONTAINER_AUTOSELECT, name: "autoselect" },
+  { key: constants.CONTAINER_FOLDER, name: "folder" },
+  { key: constants.CONTAINER_PLAYLIST, name: "playlist" },
+];
+
 // ----------------------------------------------------------------------------------
 
 export class SlideshowReducer {
 
   constructor(name) {
-    this.name = name;
-    this.logKey = `${_logKey}(${name})`;
-    this.deliveryKey = 0;
+    this._logKey = `${_logKey}(${name})`;
+    this._deliveryKey = 0;
 
     this.reduce = this.reduce.bind(this);
   }
@@ -21,16 +39,24 @@ export class SlideshowReducer {
 
   static defaultState() {
     return {
-      autoFile: false,
       autoPlay: false,
       container: null,
       containerType: 0,
+      crawlerInfoPosition: DEFAULT_POSITION_CRAWLERINFO,
+      crawlerInfoShow: false,
       cursorHide: false,
-      detailsPosition: SlideshowReducer.getValidDetailsPosition(null, false),
-      detailsState: SlideshowReducer.getValidDetailsState(null, false),
+      detailsPosition: DEFAULT_POSITION_DETAILS,
+      detailsState: DETAILS_STATE_MIN,
       helpShow: false,
       items: [],
+      lastContainer: null,
+      lastContainerType: constants.CONTAINER_FOLDER,
+      lastItem: null,
+      random: false,
       showIndex: -1,
+      timer: constants.DEFCONF_TIMER,
+      transitionTimeAutoPlay: constants.DEFCONF_TRANSITION_TIME_AUTOPLAY,
+      transitionTimeManual: constants.DEFCONF_TRANSITION_TIME_MANUAL,
     }
   }
 
@@ -42,71 +68,121 @@ export class SlideshowReducer {
 
     try {
       actionType = action.type;
-      //log.debug(`${this.logKey}${func}(${actionType}) - in`);
+      //log.debug(`${this._logKey}${func}(${actionType}) - in`);
 
       switch (action.type) {
-        case constants.ACTION_GO_BACK:
+        case constants.AR_SLIDESHOW_GO_BACK:
           return this.goTo(state, state.showIndex - 1);
-        case constants.ACTION_GO_NEXT:
+        case constants.AR_SLIDESHOW_GO_NEXT:
           return this.goTo(state, state.showIndex + 1);
-        case constants.ACTION_GO_JUMP:
+        case constants.AR_SLIDESHOW_GO_JUMP:
           return this.goJump(state, action);
-        case constants.ACTION_GO_PAGE:
+        case constants.AR_SLIDESHOW_GO_PAGE:
           return this.goPage(state, action);
-        case constants.ACTION_GO_POS1:
+        case constants.AR_SLIDESHOW_GO_POS1:
           return this.goTo(state, 0);
-        case constants.ACTION_GO_END:
+        case constants.AR_SLIDESHOW_GO_END:
           return this.goTo(state, state.items.length - 1);
 
-        case constants.ACTION_SHOW_CONTAINER_FILES:
+        case constants.AR_SLIDESHOW_SHOW_CONTAINER_FILES:
           return this.showFiles(state, action);
-        case constants.ACTION_ADD_AUTO_FILES:
+        case constants.AR_SLIDESHOW_ADD_AUTO_FILES:
           return this.addFiles(state, action);
-        case constants.ACTION_DELIVER_FILE_META:
+        case constants.AR_SLIDESHOW_DELIVER_FILE_META:
           return this.deliverFileMeta(state, action);
 
-        case constants.ACTION_AUTOPLAY_START:
+        case constants.AR_SLIDESHOW_AUTOPLAY_START:
           return {...state, autoPlay: true};
-        case constants.ACTION_AUTOPLAY_STOP:
+        case constants.AR_SLIDESHOW_AUTOPLAY_STOP:
           return {...state, autoPlay: false};
-        case constants.ACTION_AUTOPLAY_TOGGLE:
+        case constants.AR_SLIDESHOW_AUTOPLAY_TOGGLE:
           return {...state, autoPlay: !state.autoPlay};
 
-        case constants.ACTION_HELP_SHOW:
-          return { ...state, showHelp: true };
-        case constants.ACTION_HELP_CLOSE:
+        case constants.AR_SLIDESHOW_HELP_CLOSE:
           return { ...state, showHelp: false };
-        case constants.ACTION_HELP_TOOGLE:
+        case constants.AR_SLIDESHOW_HELP_TOOGLE:
           return { ...state, showHelp: !state.helpShow };
 
         case constants.ACTION_DETAILS_MOVE:
           return this.detailsMove(state, action);
-        case constants.ACTION_DETAILS_TOOGLE:
+        case constants.AR_SLIDESHOW_DETAILS_TOOGLE:
           return this.detailsToogle(state, action);
 
-        case constants.ACTION_CURSOR_HIDE:
+        case constants.AR_SLIDESHOW_CURSOR_HIDE:
           return {...state, cursorHide: true};
-        case constants.ACTION_CURSOR_SHOW:
+        case constants.AR_SLIDESHOW_CURSOR_SHOW:
           return {...state, cursorHide: false};
+
+        case constants.AR_SLIDESHOW_INIT:
+          return this.init(state, action);
 
         default:
           return state;
       }
 
     } catch (err) {
-      log.error(`${this.logKey}${func}(${actionType}) - exception -`, err);
-      log.debug(`${this.logKey}${func} - action -`, action);
+      log.error(`${this._logKey}${func}(${actionType}) - exception -`, err);
+      log.debug(`${this._logKey}${func} - action -`, action);
       throw (err);
     }
   }
 
   // .....................................................
 
+  init(state, action) {
+    //const func = ".init";
+    //log.debug(`${this._logKey}${func} - in`);
+
+    const {
+      autoPlay,
+      crawlerInfoPosition,
+      crawlerInfoShow,
+      detailsPosition,
+      detailsShow,
+      lastContainer,
+      lastContainerType,
+      lastItem,
+      random,
+      screensaver,
+      timer,
+      transitionTimeAutoPlay,
+      transitionTimeManual,
+    } = action.payload;
+
+    const newState = {
+      ...state,
+      autoPlay,
+      crawlerInfoPosition,
+      crawlerInfoShow,
+      detailsPosition,
+      detailsShow,
+      lastContainer,
+      lastContainerType,
+      lastItem,
+      random,
+      screensaver,
+      timer,
+      transitionTimeAutoPlay,
+      transitionTimeManual,
+      // reset
+      cursorHide: false,
+      helpShow: false,
+      items: [],
+      showIndex: -1,
+    };
+
+    //log.debug(`${this._logKey}${func} - out`, action);
+
+    return newState;
+  }
+
+  // .....................................................
+
   setNewDeliveryKey(items) {
-    this.deliveryKey++;
+    this._deliveryKey++;
 
     for (let i = 0; i < items.length; i++)
-      items[i].deliveryKey = this.deliveryKey; // eslint-disable-line no-param-reassign
+      items[i].deliveryKey = this._deliveryKey; // eslint-disable-line no-param-reassign
   }
 
   // .....................................................
@@ -285,14 +361,22 @@ export class SlideshowReducer {
 
   // .....................................................
 
-  static getValidDetailsPosition(currentPosition, gotoNextPosition) {
-
+  static getCornerPositions() {
     const detailsPositions = [
-      "popover-left-bottom",
-      "popover-left-top",
-      "popover-right-top",
-      "popover-right-bottom",
+      CORNER_POS_1,
+      CORNER_POS_2,
+      CORNER_POS_3,
+      CORNER_POS_4,
     ];
+
+    return detailsPositions;
+  }
+
+  // .....................................................
+
+  static getValidFreeCornerPosition(currentPosition, gotoNextPosition = false, skipPosition = null) {
+
+    const detailsPositions = this.getCornerPositions();
 
     let found = 0;
     for (let i = 0; i < detailsPositions.length; i++) {
@@ -308,16 +392,37 @@ export class SlideshowReducer {
         found = 0;
     }
 
-    return detailsPositions[found];
+    let foundPosition = detailsPositions[found];
+
+    if (skipPosition) {
+      if (foundPosition === skipPosition)
+        foundPosition = this.getValidFreeCornerPosition(foundPosition, true, skipPosition);
+    }
+
+    return foundPosition;
+  }
+
+  // .....................................................
+
+  static valiDetailsPosition(currentPosition) {
+
+    return this.getValidFreeCornerPosition(currentPosition || DEFAULT_POSITION_DETAILS, false, null);
+  }
+
+  // .....................................................
+
+  static valiCrawlerInfoPosition(currentPosition, skipPosition) {
+
+    return this.getValidFreeCornerPosition(currentPosition || DEFAULT_POSITION_CRAWLERINFO, false, skipPosition);
   }
 
   // .....................................................
 
   detailsToogle(state) {
-    const newDetailsState = this.getValidDetailsState(state.detailsState, true);
+    const newDetailsShow = this.getValidDetailsState(state.detailsState, true);
     return {
       ...state,
-      detailsState: newDetailsState
+      detailsState: newDetailsShow
     };
   }
 
@@ -326,7 +431,7 @@ export class SlideshowReducer {
   detailsMove(state) {
     return {
       ...state,
-      detailsPosition: this.getValidDetailsPosition(state.detailsPosition, true)
+      detailsPosition: this.getValidFreeCornerPosition(state.detailsPosition, true)
     };
   }
 
@@ -401,6 +506,31 @@ export class SlideshowReducer {
 
     return resultState;
   }
+
+  // .....................................................
+
+  static convert2ContainerTypeKey(name) {
+    for (let i = 0; i < _containerTypes.length; i++) {
+      const containerMode = _containerTypes[i];
+      if (containerMode.name === name)
+        return containerMode.key;
+    }
+    return null;
+  }
+
+  static convert2ContainerTypeName(key) {
+    for (let i = 0; i < _containerTypes.length; i++) {
+      const containerMode = _containerTypes[i];
+      if (containerMode.key === key)
+        return containerMode.name;
+    }
+    return null;
+  }
 }
+
+// ----------------------------------------------------------------------------------
+
+
+
 
 // ----------------------------------------------------------------------------------

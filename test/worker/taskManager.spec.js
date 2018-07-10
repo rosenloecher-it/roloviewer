@@ -4,7 +4,7 @@ import {TaskManager} from "../../app/worker/taskManager";
 // case constants.ACTION_DUMMY_TASK:
 // case constants.ACTION_OPEN:
 //   return PRIO_OPEN;
-// case constants.ACTION_DELIVER_FILE_META:
+// case constants.AR_SLIDESHOW_DELIVER_FILE_META:
 //   return PRIO_DELIVER_FILE_META;
 // case constants.ACTION_CRAWLE_UPDATE_FILE:
 //   return 2;
@@ -21,7 +21,7 @@ describe('TaskManager', () => {
 
     const testTasks = [
       { type: constants.ACTION_OPEN, payload: constants.ACTION_OPEN },
-      { type: constants.ACTION_DELIVER_FILE_META, payload: constants.ACTION_DELIVER_FILE_META },
+      { type: constants.AR_SLIDESHOW_DELIVER_FILE_META, payload: constants.AR_SLIDESHOW_DELIVER_FILE_META },
       { type: constants.ACTION_CRAWLE_UPDATE_FILE, payload: constants.ACTION_CRAWLE_UPDATE_FILE },
       { type: constants.ACTION_CRAWLE_EVAL_FOLDER, payload: constants.ACTION_CRAWLE_EVAL_FOLDER },
       { type: constants.ACTION_CRAWLE_UPDATE_FOLDER, payload: constants.ACTION_CRAWLE_UPDATE_FOLDER },
@@ -43,7 +43,7 @@ describe('TaskManager', () => {
   it('pushTask + pullTask', () => {
 
     const testTasks = [
-      { type: constants.ACTION_DELIVER_FILE_META, payload: constants.ACTION_DELIVER_FILE_META },
+      { type: constants.AR_SLIDESHOW_DELIVER_FILE_META, payload: constants.AR_SLIDESHOW_DELIVER_FILE_META },
       { type: constants.ACTION_CRAWLE_UPDATE_FILE, payload: constants.ACTION_CRAWLE_UPDATE_FILE },
       { type: constants.ACTION_CRAWLE_EVAL_FOLDER, payload: constants.ACTION_CRAWLE_EVAL_FOLDER },
       { type: constants.ACTION_CRAWLE_UPDATE_FOLDER, payload: constants.ACTION_CRAWLE_UPDATE_FOLDER },
@@ -57,7 +57,7 @@ describe('TaskManager', () => {
     taskManager.pushTask({ type: constants.ACTION_OPEN, payload: 2 });
     expect(taskManager.getTaskCount()).toBe(1); // removes old "open"-tasks
 
-    taskManager.pushTask({ type: constants.ACTION_DELIVER_FILE_META, payload: 4 });
+    taskManager.pushTask({ type: constants.AR_SLIDESHOW_DELIVER_FILE_META, payload: 4 });
     expect(taskManager.getTaskCount()).toBe(2);
 
     taskManager.pushTask({ type: constants.ACTION_OPEN, payload: 5 });

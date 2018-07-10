@@ -1,4 +1,4 @@
-import * as stringUtils from "../../app/common/utils/stringUtils";
+import * as stringUtils from "../../../app/common/utils/stringUtils";
 
 describe('stringUtils', () => {
 

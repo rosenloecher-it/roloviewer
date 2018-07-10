@@ -2,7 +2,7 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import ini from 'configurable-ini';
-import { mkDirByPathSync } from './configUtils';
+import { mkDirByPathSync } from './fileTools';
 
 //----------------------------------------------------------------------------
 
@@ -11,18 +11,20 @@ const _logKey = "configIni";
 // ----------------------------------------------------------------------------------
 
 export function loadIniFile(file) {
+  const func = ".loadIniFile";
+
   if (!file) {
-    log.error(`${_logKey}.loadIniFile: invalid configFile`);
+    log.error(`${_logKey}${func}: invalid configFile`);
     return {};
   }
 
   if (!fs.existsSync(file)) {
-    log.info(`configIni.loadIniFile: file does not exists (${file})!`);
+    log.info(`${_logKey}${func} - file does not exists (${file})!`);
     return {};
   }
 
   const config = ini.parse(fs.readFileSync(file, 'utf-8'));
-  //if (config) log.debug('configIni.loadIniFile: ', config);
+  //if (config) log.debug('${_logKey}${func} ', config);
   return config;
 }
 

@@ -13,7 +13,6 @@
 import { app } from 'electron';
 import log from 'electron-log';
 import path from 'path';
-import config from './config/mainConfig';
 import storeManager from './store/mainManager';
 import * as ops from './mainOps';
 import * as mainMenu from './mainMenu';
@@ -22,6 +21,7 @@ import * as mainIpc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
 import Cli from "./config/cli";
 import * as constants from "../common/constants";
+import * as fileTools from "./config/fileTools";
 
 // ----------------------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ const _logKey = "main";
 const _isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 const _isProduction = process.env.NODE_ENV === 'production';
 const _isTest = process.env.NODE_ENV === 'test';
-const _isDevTool = !_isProduction || process.env.DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
+const _isDevtool = !_isProduction || process.env.DEBUG_PROD === 'true' || constants.DEBUG_DEVTOOLS_PROD;
 
 // ----------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ function onAppWillQuit() {
   try {
     log.debug(`${_logKey}.onAppWillQuit`);
     mainIpc.unregisterListener();
-    config.saveConfig();
+    storeManager.saveIniFile();
 
   } catch (err) {
     log.error(`${_logKey}.onAppWillQuit - exception -`, err);
@@ -66,14 +66,18 @@ function startApp(cli) {
     isDevelopment: _isDevelopment,
     isProduction: _isProduction,
     isTest: _isTest,
-    isDevTool: _isDevTool
+    isDevtool: _isDevtool
   }, cli.result);
 
-  storeManager.loadIni();
+  storeManager.loadIniFile();
 
+  ops.configLogger();
+  cli.logCliArgs();
+  //ops.startCrashReporter();
 
-  config.mergeConfig(cli.result,
-    { isDevelopment: _isDevelopment, isProduction: _isProduction, isTest: _isTest, isDevTool:_isDevTool });
+  process.on('uncaughtException', function (err) {
+    log.error(`${_logKey}.uncaughtException -`, err);
+  });
 
   if (_isProduction) {
     const sourceMapSupport = require('source-map-support');
@@ -86,13 +90,9 @@ function startApp(cli) {
     require('module').globalPaths.push(p);
   }
 
-  ops.startCrashReporter();
-  ops.configLogger();
-  cli.logCliArgs();
-
   let installExtensions;
 
-  if (_isDevTool) {
+  if (_isDevtool) {
     installExtensions = async () => {
       const installer = require('electron-devtools-installer');
       const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -110,11 +110,12 @@ function startApp(cli) {
   app.on('will-quit', onAppWillQuit);
 
   app.on('ready', async () => {
-    if (installExtensions && _isDevTool) {
+    if (installExtensions && _isDevtool) {
       await installExtensions();
     }
 
     mainIpc.registerListener();
+    storeManager.sender = mainIpc;
 
     windows.createWorkerWindow();
 
@@ -132,7 +133,8 @@ function bootApp() {
 
   try {
 
-    const cli = new Cli(this);
+    const defaultConfigFile = fileTools.getDefaultConfigFile(_isProduction);
+    const cli = new Cli(defaultConfigFile);
     const args = (_isProduction ? process.argv : constants.DEBUG_ARGS);
     cli.parseArray(args);
 

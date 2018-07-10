@@ -3,26 +3,29 @@ import {ipcRenderer} from 'electron';
 import * as constants from "../common/constants";
 import config from './rendererConfig';
 import * as ops from "./rendererOps";
+import storeManager from "./store/rendererManager";
 
 // ----------------------------------------------------------------------------------
 
 const _logKey = "rendererIpc";
-const ipcMyself = constants.IPC_RENDERER;
+const _ipcMyself = constants.IPC_RENDERER;
 
 // ----------------------------------------------------------------------------------
 
 export function registerListener() {
-  //log.debug(`${logKey}registerListener`);
-  ipcRenderer.on(ipcMyself, listenRendererChannel);
+  log.debug(`${_logKey}.initListener`);
+  ipcRenderer.on(_ipcMyself, listenRendererChannel);
 
-  send(constants.IPC_MAIN, constants.ACTION_REQUEST_CONFIG, null);
+  //storeManager.init();
+
+  send(constants.IPC_MAIN, constants.AI_CHILD_REQUESTS_CONFIG, null);
 }
 
 // ----------------------------------------------------------------------------------
 
 export function unregisterListener() {
-  //log.debug(`${logKey}unregisterListener`);
-  ipcRenderer.removeAllListeners(ipcMyself);
+  //log.debug(`${_logKey}unregisterListener`);
+  ipcRenderer.removeAllListeners(_ipcMyself);
 }
 
 // ----------------------------------------------------------------------------------
@@ -31,22 +34,15 @@ function listenRendererChannel(event, ipcMsg, output) {
   const func = ".listenRendererChannel";
 
   try {
-    //log.debug(`${logKey}.listenRendererChannel: data=`, ipcMsg.payload);
+    //log.debug(`${_logKey}${func}(${ipcMsg.type})`);
 
-    if (!ipcMsg || !ipcMsg.destination || !ipcMsg.type) {
-      log.error(`${_logKey}${func} - invalid payload: `, ipcMsg);
-      return;
-    }
-
-    if (ipcMsg.destination !== ipcMyself) {
-      log.error(`${_logKey}${func} - invalid destination: `, ipcMsg);
-      return;
-    }
+    if (ipcMsg.destination !== _ipcMyself)
+      throw new Error(`invalid destination: ${_ipcMyself}`);
 
     dispatchRendererActions(ipcMsg);
 
   } catch (err) {
-    log.debug(`${_logKey}${func} exception:`, err);
+    log.error(`${_logKey}${func} - exception -`, err);
   }
 }
 
@@ -55,29 +51,27 @@ function listenRendererChannel(event, ipcMsg, output) {
 function dispatchRendererActions(ipcMsg) {
   const func = ".dispatchRendererActions";
 
-  try {
-    switch (ipcMsg.type) {
-      case constants.AI_SHUTDOWN:
-        ops.shutdown(ipcMsg); break;
-      case constants.AI_PUSH_MAIN_CONFIG:
-        ops.init(ipcMsg); break;
+  switch (ipcMsg.type) {
 
-      case constants.AI_SPREAD_REDUX_ACTION:
-        ops.action2Redux(ipcMsg); break;
+    case constants.AI_SPREAD_REDUX_ACTION:
+      storeManager.dispatchLocal(ipcMsg.payload, true); break;
 
-      case constants.ACTION_OPEN_ITEM_FOLDER:
-        ops.triggerOpenItemFolder(ipcMsg); break;
+    case constants.AI_MAIN_PUSHED_CONFIG:
+      ops.init(ipcMsg); break;
+    case constants.AI_SHUTDOWN:
+      ops.shutdown(ipcMsg); break;
 
-      case constants.ACTION_ESC_CLOSING:
-         ops.askQuitApp(ipcMsg); break;
+    case constants.AI_DUMMY:
+      log.debug(`${_logKey}${func} - ${ipcMsg.type} from ${ipcMsg.source}`); break;
 
-      default:
-        log.error(`${_logKey}${func} - invalid type: `, ipcMsg);
-        break;
-    }
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
+    // case constants.ACTION_OPEN_ITEM_FOLDER:
+    //   ops.triggerOpenItemFolder(ipcMsg); break;
+    // case constants.ACTION_ESC_CLOSING:
+    //    ops.askQuitApp(ipcMsg); break;
+
+    default:
+      log.error(`${_logKey}${func} - invalid type: `, ipcMsg);
+      break;
   }
 }
 
@@ -99,7 +93,7 @@ function sendRaw(ipcMsg) {
 export function send(ipcTarget, ipcType, payload) {
   const ipcMsg = {
     type: ipcType,
-    source: ipcMyself,
+    source: _ipcMyself,
     destination: ipcTarget,
     payload: payload
   };

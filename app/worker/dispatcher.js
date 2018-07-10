@@ -56,7 +56,7 @@ export class Dispatcher {
     const func = ".init";
     log.silly(`${_logKey}${func}`);
 
-    this.sendMsg(constants.IPC_MAIN, constants.ACTION_READY, null);
+    this.sendMsg(constants.IPC_MAIN, constants.AI_CHILD_IS_READY, null);
 
     // return dummy promise
     return new Promise(function(resolve) { resolve(); });
@@ -129,7 +129,7 @@ export class Dispatcher {
 
         switch (task.type) { // eslint-disable-line default-case
 
-          case constants.ACTION_DELIVER_FILE_META:
+          case constants.AR_SLIDESHOW_DELIVER_FILE_META:
             instance.data.metaReader.deliverMeta(task.payload); break;
 
           case constants.ACTION_CRAWLE_UPDATE_FILE:
@@ -146,7 +146,7 @@ export class Dispatcher {
           case constants.ACTION_OPEN_ITEM_FOLDER:
             instance.data.mediaLoader.openItemFolder(task.payload); break;
 
-          case constants.ACTION_DELIVER_FILE_META:
+          case constants.AR_SLIDESHOW_DELIVER_FILE_META:
             instance.data.metaReader.deliverMeta(task.payload); break;
 
           case constants.ACTION_DUMMY_TASK:

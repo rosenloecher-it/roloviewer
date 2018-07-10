@@ -1,13 +1,17 @@
-import fs from 'fs';
-import path from 'path';
 import log from 'electron-log';
+import path from 'path';
+import deepmerge from 'deepmerge';
 import configureStore from "./configureStore";
 import {StoreManager} from "../../common/store/storeManager";
 import * as constants from "../../common/constants";
-import * as actionsCtx from "../../common/store/contextActions";
-import * as configUtils from "../config/configUtils";
+import * as fileTools from "../config/fileTools";
 import * as configMerge from "../config/configMerge";
 import * as configIni from "../config/configIni";
+import * as actionsContext from "../../common/store/contextActions";
+import * as actionsMainWindow from "../../common/store/mainWindowActions";
+import * as actionsCrawler from "../../common/store/crawlerActions";
+import * as actionsSlideshow from "../../common/store/slideshowActions";
+import * as actionsSystem from "../../common/store/systemActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -29,7 +33,6 @@ export class MainManager extends StoreManager {
     }
     if (!this._store)
       throw new Error(`${_logKey}${func} - cannot create store!`);
-
   }
 
   // ........................................................
@@ -48,36 +51,8 @@ export class MainManager extends StoreManager {
 
     try {
 
-      const actionData = {
-        isDevelopment: appContext.isDevelopment,
-        isProduction: appContext.isProduction,
-        isTest: appContext.isTest,
-        isDevTool: appContext.isDevTool,
-      };
-
-      const extra = (actionData.isProduction ? "" : "_test");
-      const configPath = configUtils.getConfigPath();
-      const configName = `${constants.CONFIG_BASENAME}${extra}.ini`;
-      actionData.defaultConfigFile = path.join(configPath, configName);
-
-      actionData.configIsReadOnly = false;
-
-      if (cliData) {
-        actionData.configIsReadOnly = !!cliData.configreadonly;
-
-        if (cliData.config) {
-          if (fs.existsSync(cliData.config)) {
-            actionData.configfile = cliData.config;
-          } else {
-            log.error(`${_logKey}${func} - use default config - ${cliData.config} does not exists!`);
-          }
-        }
-      }
-
-      if (!actionData.configFile)
-        actionData.configFile = actionData.defaultConfigFile;
-
-      const action = actionsCtx.createActionInit(actionData);
+      const defaultConfigFile = fileTools.getDefaultConfigFile(!!appContext.isProduction);
+      const action = configMerge.createContextAction(appContext, cliData, defaultConfigFile);
 
       //log.debug(`${_logKey}${func} - action -`, action);
 
@@ -91,42 +66,139 @@ export class MainManager extends StoreManager {
 
   // .....................................................
 
-  loadIni() {
-    const func = ".loadIni";
+  loadIniFile() {
+    const func = ".loadIniFile";
+
+    let action = null;
+    let iniData = null;
+    let iniFile = null;
 
     try {
+      iniFile = this.configFile;
+      log.debug(`${_logKey}${func} - configFile`, iniFile);
+      iniData = configIni.loadIniFile(iniFile);
+    } catch (err) {
+      log.error(`${_logKey}${func} - loading "${iniFile}" failed -`, err);
+    }
 
-      log.debug(`${_logKey}${func} - configFile`, this.configFile);
+    try {
+      const {context} = this.state;
 
+      if (!iniData)
+        iniData = {};
+
+      log.debug(`${_logKey}${func} - iniData -`, iniData);
+      log.debug(`${_logKey}${func} - context -`, context);
+
+      const defaultConfigFile = fileTools.getDefaultLogFile();
+      const defaultExifTool = fileTools.findExifTool(iniData.system ? iniData.system.exiftool : null);
+      action = configMerge.createSystemAction(iniData, context, defaultConfigFile, defaultExifTool);
+      this.dispatchLocal(action);
+
+      action = configMerge.createMainWindowAction(iniData, context);
+      //log.debug(`${_logKey}${func} - action -`, action);
+      this.dispatchLocal(action);
+
+      action = configMerge.createSlideshowAction(iniData, context);
+      this.dispatchLocal(action);
+
+      const defaultCrawlerDb = fileTools.getDefaultCrawlerDb()
+      action = configMerge.createCrawlerAction(iniData, context, defaultCrawlerDb);
+      //log.debug(`${_logKey}${func} - action -`, action);
+      this.dispatchLocal(action);
 
 
     } catch (err) {
-      log.error(`${_logKey}${func} - exception -`, err);
-      throw (err);
+      log.error(`${_logKey}${func} importing config data failed -`, err);
     }
-    //
-    // let dataFromFile;
-    // try {
-    //   dataFromFile = configIni.loadIniFile(setCxt.configfile);
-    // } catch (err) {
-    //   log.error(`${_logKey}${func} loading ${this.cliData.config} - exception: `, err);
-    //   dataFromFile = {};
-    // }
-    //
-    // // log.debug("mergeConfigFiles - dataFromFile", dataFromFile);
-    //
-    // configMerge.mergeDataStart(this.data, cliData, dataFromFile);
-    // configMerge.mergeDataSystem(this.data, cliData, dataFromFile);
-    // configMerge.mergeDataRenderer(this.data, cliData, dataFromFile);
-    // configMerge.mergeDataCrawler(this.data, cliData, dataFromFile);
-    // configMerge.mergeDataMainWindow(this.data, cliData, dataFromFile);
-    //
-    // // log.debug("mergeConfigFiles", this.data);
+
+    //log.debug(`${_logKey}${func} - data`, iniFile);
   }
 
 
   // ........................................................
 
+  saveIniFile() {
+    const func = ".saveIniFile";
+
+    let configFile = "";
+    try {
+
+      const {context} = this.state;
+      configFile = context.configFile;
+
+      if (!configFile || context.configIsReadOnly)
+        return;
+
+      const currentState = this.state;
+      const clonedState = MainManager.cloneAndFilterState(this.state);
+
+      configIni.saveIniFile(configFile, clonedState);
+
+    } catch (err) {
+      log.error(`${_logKey}${func} failed (${configFile}) -`, err);
+    }
+  }
+
+  // ........................................................
+
+  static cloneAndFilterState(currentState) {
+
+    const clonedState = deepmerge.all([ currentState, {} ]);
+
+    if (clonedState.context !== undefined) delete clonedState.context;
+
+    if (clonedState.messages !== undefined) delete clonedState.messages;
+
+    const {slideshow} = clonedState;
+    if (slideshow !== undefined) {
+      if (slideshow.container !== undefined) delete slideshow.container;
+      if (slideshow.containerType !== undefined) delete slideshow.containerType;
+      if (slideshow.helpShow !== undefined) delete slideshow.helpShow;
+      if (slideshow.items !== undefined) delete slideshow.items;
+      if (slideshow.screensaver !== undefined) delete slideshow.screensaver;
+      if (slideshow.showIndex !== undefined) delete slideshow.showIndex;
+    }
+
+    return clonedState;
+  }
+
+  // ........................................................
+
+  dispatchFullState(destinations) {
+    const func = ".dispatchFullState";
+
+    let action = null;
+
+    try {
+      const currentState = this.state;
+
+      log.debug(`${_logKey}${func} - destinations:`, destinations);
+
+      action = actionsContext.createActionInit(currentState.context);
+      this.dispatchRemote(action, destinations);
+
+      action = actionsSystem.createActionInit(currentState.system);
+      this.dispatchRemote(action);
+
+      action = actionsMainWindow.createActionInit(currentState.mainWindow);
+      this.dispatchRemote(action);
+
+      action = actionsSlideshow.createActionInit(currentState.slideshow);
+      this.dispatchRemote(action);
+
+      action = actionsCrawler.createActionInit(currentState.crawler);
+      this.dispatchRemote(action);
+
+
+    } catch (err) {
+      log.error(`${_logKey}${func} - failed -`, err);
+      if (action != null)
+        log.debug(`${_logKey}${func} - data -`, action);
+    }
+  }
+
+  // ........................................................
 }
 
 // ----------------------------------------------------------------------------------

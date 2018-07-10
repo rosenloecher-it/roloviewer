@@ -1,5 +1,6 @@
 import log from 'electron-log';
 import * as constants from '../constants';
+import * as actionsMsg from "./messageActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -9,10 +10,11 @@ const _logKey = "storeManager";
 
 export class StoreManager {
 
-  constructor(name, targets) {
+  constructor(myself, targets) {
+    const func = ".constructor";
 
-    this._logKey = `${_logKey}(${name})`;
-    this._name = name;
+    this._logKey = `${_logKey}(${myself})`;
+    this._myself = myself;
     this._sender = null;
     this._store = null;
     this._targets = targets;
@@ -20,6 +22,15 @@ export class StoreManager {
 
     this.dispatchLocal = this.dispatchLocal.bind(this);
     this.dispatchGlobal = this.dispatchGlobal.bind(this);
+
+    log.silly(`${this._logKey}${func} - out`);
+  }
+
+  // .....................................................
+
+  init() {
+    const func = ".init";
+    log.debug(`${this._logKey}${func}`);
   }
 
   // .....................................................
@@ -40,39 +51,51 @@ export class StoreManager {
 
   // .....................................................
 
-  dispatchLocal(action) {
+  dispatchLocal(action, sendByRemote = false) {
     const func = ".dispatchLocal";
 
     if (!action)
       return;
 
     try {
+      //log.debug(`${this._logKey}${func} -`, action);
+
       if (this._store)
         this._store.dispatch(action);
+
+      if (sendByRemote)
+        this.hookActionWasDispatchedByRemote(action);
+
     } catch (err) {
-      log.error(`${this.logKey}${func} - exception -`, err);
-      log.debug(`${this.logKey}${func} - action -`, action);
+      log.error(`${this._logKey}${func} - exception -`, err);
+      log.debug(`${this._logKey}${func} - action -`, action);
       throw (err);
     }
   }
 
   // .....................................................
 
-  dispatchRemote(action, destinations) {
+  dispatchRemote(action, destinationsIn = null) {
     const func = ".dispatchRemote";
+
+    let destinations = destinationsIn;
+    if (destinations === null)
+      destinations = this._targets;
 
     if (!action || !destinations)
       return;
 
     try {
-      if (this._sender) {
-        for (let i = 0; i < destinations.length; i++) {
-          this._sender.send(destinations[i], constants.AI_SPREAD_REDUX_ACTION, action);
-        }
+      if (!this._sender)
+        throw new Error("no _sender!");
+
+      for (let i = 0; i < destinations.length; i++) {
+        this._sender.send(destinations[i], constants.AI_SPREAD_REDUX_ACTION, action);
       }
+
     } catch (err) {
-      log.error(`${this.logKey}${func} - exception -`, err);
-      log.debug(`${this.logKey}${func} - action -`, action);
+      log.error(`${this._logKey}${func} - exception -`, err);
+      log.debug(`${this._logKey}${func} - action -`, action);
       throw (err);
     }
   }
@@ -90,19 +113,66 @@ export class StoreManager {
       this.dispatchRemote(action, this._targets);
 
     } catch (err) {
-      log.error(`${this.logKey}${func} - exception -`, err);
+      log.error(`${this._logKey}${func} - exception -`, err);
       throw (err);
     }
   }
 
   // ........................................................
+
+  hookActionWasDispatchedByRemote(action) {
+    // has to be overridden by sub classes
+  }
+
+  // ........................................................
+
+  dumpState2Log() {
+    const currentState = this.state;
+    log.debug(`${this._logKey}.dumpState2Log:`, currentState);
+  }
+
+  // ........................................................
+
+  showMessage(msgType, msgText) {
+
+    const action = actionsMsg.createActionAddMessage(msgType, msgText);
+
+    if (this._myself === constants.IPC_RENDERER)
+      this.dispatchLocal(action);
+    else
+      this.dispatchRemote(action, [constants.IPC_RENDERER]);
+  }
+
+
+  // ........................................................
   // context
+
+  get contextState() {
+    const {context} = this.state;
+    if (!context)
+      return {};
+    return context;
+  }
+
+  get configFile() {
+    const {context} = this.state;
+    if (!context)
+      return null;
+    return context.configFile;
+  }
 
   get isDevelopment() {
     const {context} = this.state;
     if (!context)
       return false;
     return context.isDevelopment;
+  }
+
+  get isDevtool() {
+    const {context} = this.state;
+    if (!context)
+      return false;
+    return context.isDevtool;
   }
 
   get isProduction() {
@@ -119,26 +189,81 @@ export class StoreManager {
     return context.isTest;
   }
 
-  get isDevTool() {
-    const {context} = this.state;
-    if (!context)
+  // ........................................................
+  // crawler
+
+  get crawlerState() {
+    const {crawler} = this.state;
+    if (!crawler)
+      return {};
+    return crawler;
+  }
+
+  // ........................................................
+  // mainWindow
+
+  get mainWindowState() {
+    const {mainWindow} = this.state;
+    if (!mainWindow)
+      return {};
+    return mainWindow;
+  }
+
+  get activeDevtool() {
+    const {mainWindow} = this.state;
+    if (!mainWindow)
       return false;
-    return context.isDevTool;
+    return mainWindow.activeDevtool;
   }
 
-  get defaultConfigFile() {
-    const {context} = this.state;
-    if (!context)
-      return null;
-    return context.defaultConfigFile;
+  // ........................................................
+  // slideshow
+
+  get slideshowState() {
+    const {slideshow} = this.state;
+    if (!slideshow)
+      return {};
+    return slideshow;
   }
 
-  get configFile() {
-    const {context} = this.state;
-    if (!context)
-      return null;
-    return context.configFile;
+  // ........................................................
+  // system
+
+  get systemState() {
+    const {system} = this.state;
+    if (!system)
+      return {};
+    return system;
   }
+
+  get exiftoolPath() {
+    const {system} = this.state;
+    if (!system)
+      return null;
+    return system.exiftool;
+  }
+
+  get logConfig() {
+
+    const {system} = this.state;
+    if (!system)
+      return null;
+
+    return {
+      logLevelFile: system.logLevelFile,
+      logLevelConsole: system.logLevelConsole,
+      logfile: system.logfile,
+    }
+  }
+
+  get powerSaveBlockTime() {
+    const {system} = this.state;
+    if (!system)
+      return constants.DEFCONF_POWER_SAVE_BLOCK_TIME;
+    return system.powerSaveBlockTime;
+  }
+
+  // ........................................................
 
   // ........................................................
   // lastItems
@@ -212,23 +337,4 @@ export class StoreManager {
   //
   // get crawlerFolderBlacklistSnippets() { return (this.data.crawler.folderBlacklistSnippets || []); }
   // set crawlerFolderBlacklistSnippets(value){ this.data.crawler.folderBlacklistSnippets = value; }
-
-  // ........................................................
-  // system
-
-  get exiftoolPath() {
-    const {system} = this.state;
-    if (!system)
-      return null;
-    return system.exiftool;
-  }
-
-  get powerSaveBlockTime() {
-    const {system} = this.state;
-    if (!system)
-      return constants.DEFCONF_POWER_SAVE_BLOCK_TIME;
-    return system.powerSaveBlockTime;
-  }
-
-  // ........................................................
 }

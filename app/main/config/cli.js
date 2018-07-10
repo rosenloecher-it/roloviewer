@@ -13,10 +13,10 @@ const _defaultExitCode = 99;
 
 export default class Cli {
 
-  constructor(config) {
+  constructor(defaultConfigFile) {
     this.data = {};
 
-    this.config = config;
+    this.defaultConfigFile = defaultConfigFile;
     this.parser = null;
 
     this.arglyError = this.arglyError.bind(this);
@@ -51,12 +51,12 @@ export default class Cli {
     const instance = this;
 
     let defaultConfigInfo = "";
-    if (this.config)
-      defaultConfigInfo = ` (default: ${this.config.defaultConfigFile})`;
+    if (this.defaultConfigFile)
+      defaultConfigInfo = ` (default: ${this.defaultConfigFile})`;
 
     return argly
       .createParser({
-        '--auto -a': {
+        '--autoselect -a': {
           type: 'boolean',
           description: 'Auto-select images (config source in config file)'
         },
@@ -79,6 +79,10 @@ export default class Cli {
         '--open -o': {
           type: 'string',
           description: 'Open playlist or directory (default: using crawler)'
+        },
+        '--play -p': {
+          type: 'boolean',
+          description: 'Auto play items'
         },
         '--screensaver -s': {
           type: 'boolean',

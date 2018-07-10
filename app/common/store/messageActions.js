@@ -1,18 +1,18 @@
 import * as constants from "../constants";
 
 export const createActionAddMessage = (msgType, msgText) => ({
-  type: constants.ACTION_MSG_ADD,
+  type: constants.AR_MESSAGE_ADD,
   payload: { msgType, msgText }
 });
 
 export const createActionRemoveAll = () => ({
-  type: constants.ACTION_MSG_REMOVE_ALL
+  type: constants.AR_MESSAGE_REMOVE_ALL
 });
 
 export const createActionRemoveFirst = () => ({
-  type: constants.ACTION_MSG_REMOVE_FIRST
+  type: constants.AR_MESSAGE_REMOVE_FIRST
 });
 
 export const createActionCloseDialog = () => ({
-  type: constants.ACTION_MSG_CLOSE_DIALOG
+  type: constants.AR_MESSAGE_CLOSE_DIALOG
 });

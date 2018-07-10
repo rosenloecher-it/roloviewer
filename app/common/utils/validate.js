@@ -3,7 +3,7 @@ import fs from 'fs';
 
 // ----------------------------------------------------------------------------------
 
-export function validateBoolean(input) {
+export function valiBoolean(input) {
 
   if (input == null)
     return null;
@@ -21,7 +21,7 @@ export function validateBoolean(input) {
 
 // ----------------------------------------------------------------------------------
 
-export function validateInt(input) {
+export function valiInt(input) {
 
   const num = parseInt(input, 10);
 
@@ -33,7 +33,21 @@ export function validateInt(input) {
 
 // ----------------------------------------------------------------------------------
 
-export function validateRatingArray(input) {
+export function valiString(input) {
+
+  if (input == null)
+    return null;
+  if (typeof(text) !== typeof "str")
+    return null;
+  if (input === "undefined")
+    return null;
+
+  return input;
+}
+
+// ----------------------------------------------------------------------------------
+
+export function valiRatingArray(input) {
   if (!Array.isArray(input))
     return [];
 
@@ -41,7 +55,7 @@ export function validateRatingArray(input) {
 
   for (let i = 0; i < input.length; i++) {
     const text = input[i];
-    const value = validateInt(text);
+    const value = valiInt(text);
 
     if (value === null) // make flow happy
       continue;
@@ -59,7 +73,7 @@ export function validateRatingArray(input) {
 
 // ----------------------------------------------------------------------------------
 
-export function validateFolderArray(input) {
+export function valiFolderArray(input) {
 
   const output = [];
 
@@ -82,7 +96,7 @@ export function validateFolderArray(input) {
 
 // ----------------------------------------------------------------------------------
 
-export function validateBlacklistSnippets(input) {
+export function valiBlacklistSnippets(input) {
 
   const output = [];
 
@@ -119,7 +133,7 @@ export function validateBlacklistFolders(blacklistFoldersIn) {
 
 // ----------------------------------------------------------------------------------
 
-export function validateLogLevel(input) {
+export function valiLogLevel(input) {
 
   const defaultLogLevel = "warn";
 
@@ -138,7 +152,7 @@ export function validateLogLevel(input) {
 
 // ----------------------------------------------------------------------------------
 
-export function validateStringArray(input) {
+export function valiTagArray(input) {
 
   if (!Array.isArray(input))
     return [];
@@ -146,8 +160,8 @@ export function validateStringArray(input) {
   const output = [];
 
   for (let i = 0; i < input.length; i++) {
-    const text = input[i];
-    if (typeof(text) === typeof "str") {
+    const text = valiString(input[i]);
+    if (text) {
       const value = text.trim().toLowerCase();
       if (!output.includes(value))
         output.push(value);
@@ -159,3 +173,26 @@ export function validateStringArray(input) {
 
 // ----------------------------------------------------------------------------------
 
+export function mergeConfigItem(valueDef, valuePrio1, valuePrio2) {
+
+  if (typeof(valueDef) === typeof(valuePrio1))
+    return valuePrio1;
+  if (typeof(valueDef) === typeof(valuePrio2))
+    return valuePrio2;
+
+  return valueDef;
+}
+
+// ----------------------------------------------------------------------------------
+
+export function mergeStringItem(valueDef, valuePrio1, valuePrio2) {
+
+  if (typeof("str") === typeof(valuePrio1) && valuePrio1 !== "undefined")
+    return valuePrio1;
+  if (typeof("str") === typeof(valuePrio2) && valuePrio2 !== "undefined")
+    return valuePrio2;
+
+  return valueDef;
+}
+
+// ----------------------------------------------------------------------------------
