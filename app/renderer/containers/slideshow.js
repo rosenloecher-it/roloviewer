@@ -255,8 +255,8 @@ class Slideshow extends React.Component {
     const {props, data} = this;
 
     let currentItemFile = null;
-    if (props.showIndex >= 0 && props.showIndex < props.items.length) {
-      const item = props.items[props.showIndex];
+    if (props.itemIndex >= 0 && props.itemIndex < props.items.length) {
+      const item = props.items[props.itemIndex];
       currentItemFile = item.file;
     }
     if (!currentItemFile)
@@ -274,7 +274,7 @@ class Slideshow extends React.Component {
       do {
         if (props.containerType !== constants.CONTAINER_AUTOSELECT)
           break;
-        if (props.showIndex < props.items.length - constants.DEFCONF_RENDERER_ITEM_RESERVE)
+        if (props.itemIndex < props.items.length - constants.DEFCONF_RENDERER_ITEM_RESERVE)
           break; // sufficient reserve
 
         let lastFile = "";
@@ -312,7 +312,7 @@ const mapStateToProps = state => ({
   cursorHide: state.slideshow.cursorHide,
   helpShow: state.slideshow.helpShow,
   items: state.slideshow.items,
-  showIndex: state.slideshow.showIndex,
+  itemIndex: state.slideshow.itemIndex,
 });
 
 export default connect( mapStateToProps )(Slideshow);

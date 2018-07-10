@@ -42,8 +42,8 @@ class DetailsOverlay extends React.Component {
     const cssPositionClass = props.detailsPosition;
 
     let item = null;
-    if (props.showIndex >= 0 && props.showIndex < props.items.length)
-      item = props.items[props.showIndex];
+    if (props.itemIndex >= 0 && props.itemIndex < props.items.length)
+      item = props.items[props.itemIndex];
 
     if (props.detailsState === constants.DETAILS_STATE_OFF && !props.autoPlay)
       return null; // show nothing
@@ -55,7 +55,7 @@ class DetailsOverlay extends React.Component {
 
     if (props.detailsState !== constants.DETAILS_STATE_OFF && item && item.file) {
       const itemPath = determinePathAndFilename(item, shortenPathNum);
-      const numberText = `${props.showIndex + 1}/${props.items.length}`;
+      const numberText = `${props.itemIndex + 1}/${props.items.length}`;
       const autoPlayIcon = (props.autoPlay && <Icon icon="play" />);
 
       let conainterIcon = null;
@@ -125,7 +125,7 @@ const mapStateToProps = state => ({
   detailsPosition: state.slideshow.detailsPosition,
   detailsState: state.slideshow.detailsState,
   items: state.slideshow.items,
-  showIndex: state.slideshow.showIndex,
+  itemIndex: state.slideshow.itemIndex,
 });
 
 

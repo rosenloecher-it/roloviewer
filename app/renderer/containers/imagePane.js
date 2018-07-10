@@ -80,8 +80,8 @@ class ImagePane extends React.Component {
     const cssImagePane = cssConstants.CSS_IMAGEPANE;
 
     let imagePath = null;
-    if (props.showIndex >= 0 && props.showIndex < props.items.length) {
-      const item = props.items[props.showIndex];
+    if (props.itemIndex >= 0 && props.itemIndex < props.items.length) {
+      const item = props.items[props.itemIndex];
       imagePath = item.file;
     }
     const imageKey = (!imagePath ? "undefined" : imagePath);
@@ -90,7 +90,7 @@ class ImagePane extends React.Component {
     if (!transistionTime)
       transistionTime = 10;
 
-    log.debug(`${_logKey}${func}(${props.showIndex}, autoPlay=${props.autoPlay}, transistionTime=${transistionTime}):`, imagePath);
+    log.debug(`${_logKey}${func}(${props.itemIndex}, autoPlay=${props.autoPlay}, transistionTime=${transistionTime}):`, imagePath);
 
     return (
       <div className={cssImagePane}>
@@ -144,7 +144,7 @@ const mapStateToProps = state => ({
   autoPlay: state.slideshow.autoPlay,
   cursorHide: state.slideshow.cursorHide,
   items: state.slideshow.items,
-  showIndex: state.slideshow.showIndex,
+  itemIndex: state.slideshow.itemIndex,
 });
 
 export default connect( mapStateToProps )(ImagePane);

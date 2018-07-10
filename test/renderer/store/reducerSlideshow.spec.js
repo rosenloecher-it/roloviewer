@@ -33,35 +33,35 @@ describe('reducerSlideshow - goto', () => {
     addItems(stateIn, 10, 4);
 
     // section 1
-    stateIn.showIndex = 16;
+    stateIn.itemIndex = 16;
     stateIn.container = "noAutoSelect";
     action = actions.createActionJump(12);
     stateOut = reducerSlideshow(stateIn, action);
 
     expect(stateOut === stateIn).toBe(false);
-    expect(stateOut.showIndex).toBe(28);
+    expect(stateOut.itemIndex).toBe(28);
 
     action = actions.createActionJump(55);
     stateOut = reducerSlideshow(stateIn, action);
 
     expect(stateOut === stateIn).toBe(false);
-    expect(stateOut.showIndex).toBe(39);
+    expect(stateOut.itemIndex).toBe(39);
 
 
     // section 2
-    stateIn.showIndex = 25;
+    stateIn.itemIndex = 25;
     stateIn.container = null;
     action = actions.createActionGoPage(1); // greater than 0
     stateOut = reducerSlideshow(stateIn, action);
 
     expect(stateOut === stateIn).toBe(false);
-    expect(stateOut.showIndex).toBe(30);
+    expect(stateOut.itemIndex).toBe(30);
 
     action = actions.createActionGoPage(-1); // greater than 0
     stateOut = reducerSlideshow(stateIn, action);
 
     expect(stateOut === stateIn).toBe(false);
-    expect(stateOut.showIndex).toBe(19);
+    expect(stateOut.itemIndex).toBe(19);
   });
 
 

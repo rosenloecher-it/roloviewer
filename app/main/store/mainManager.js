@@ -157,7 +157,7 @@ export class MainManager extends StoreManager {
       if (slideshow.helpShow !== undefined) delete slideshow.helpShow;
       if (slideshow.items !== undefined) delete slideshow.items;
       if (slideshow.screensaver !== undefined) delete slideshow.screensaver;
-      if (slideshow.showIndex !== undefined) delete slideshow.showIndex;
+      if (slideshow.itemIndex !== undefined) delete slideshow.itemIndex;
     }
 
     return clonedState;

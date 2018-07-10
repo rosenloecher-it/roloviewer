@@ -53,7 +53,7 @@ export class SlideshowReducer {
       lastContainerType: constants.CONTAINER_FOLDER,
       lastItem: null,
       random: false,
-      showIndex: -1,
+      itemIndex: -1,
       timer: constants.DEFCONF_TIMER,
       transitionTimeAutoPlay: constants.DEFCONF_TRANSITION_TIME_AUTOPLAY,
       transitionTimeManual: constants.DEFCONF_TRANSITION_TIME_MANUAL,
@@ -72,9 +72,9 @@ export class SlideshowReducer {
 
       switch (action.type) {
         case constants.AR_SLIDESHOW_GO_BACK:
-          return this.goTo(state, state.showIndex - 1);
+          return this.goTo(state, state.itemIndex - 1);
         case constants.AR_SLIDESHOW_GO_NEXT:
-          return this.goTo(state, state.showIndex + 1);
+          return this.goTo(state, state.itemIndex + 1);
         case constants.AR_SLIDESHOW_GO_JUMP:
           return this.goJump(state, action);
         case constants.AR_SLIDESHOW_GO_PAGE:
@@ -168,7 +168,7 @@ export class SlideshowReducer {
       cursorHide: false,
       helpShow: false,
       items: [],
-      showIndex: -1,
+      itemIndex: -1,
     };
 
     //log.debug(`${this._logKey}${func} - out`, action);
@@ -204,11 +204,11 @@ export class SlideshowReducer {
 
     log.debug(`${_logKey}${func} - ${newItems.length} items`);
 
-    let newShowIndex = 0;
+    let newItemIndex = 0;
     if (action.selectFile) {
       for (let i = 0; i < newItems.length; i++) {
         if (newItems[i].file === newSelectFile) {
-          newShowIndex = i;
+          newItemIndex = i;
           break;
         }
       }
@@ -217,7 +217,7 @@ export class SlideshowReducer {
     return {
       ...state,
       items: newItems,
-      showIndex: newShowIndex,
+      itemIndex: newItemIndex,
       container: action.container,
       containerType: action.payload.containerType,
     };
@@ -233,18 +233,18 @@ export class SlideshowReducer {
     if (state.containerType === constants.CONTAINER_AUTOSELECT) {
 
       const newItems = state.items.concat(action.payload.items);
-      let newShowIndex = state.showIndex;
+      let newItemIndex = state.itemIndex;
 
       log.debug(`${_logKey}${func} (add) - ${action.payload.items.length} items (sum = ${newItems.length})`);
 
-      if (newShowIndex < 0 && newItems.length > 0)
-        newShowIndex = 0;
+      if (newItemIndex < 0 && newItems.length > 0)
+        newItemIndex = 0;
 
       // add items
       return {
         ...state,
         items: newItems,
-        showIndex: newShowIndex,
+        itemIndex: newItemIndex,
         container: null,
         containerType: action.payload.containerType
       }
@@ -255,7 +255,7 @@ export class SlideshowReducer {
       return {
         ...state,
         items: action.payload.items,
-        showIndex: 0,
+        itemIndex: 0,
         container: null,
         containerType: action.payload.containerType
       };
@@ -266,7 +266,7 @@ export class SlideshowReducer {
   // .....................................................
 
   goTo(state, newIndexIn) {
-    const oldIndex = state.showIndex;
+    const oldIndex = state.itemIndex;
     let newIndex = newIndexIn;
 
     const length = state.items.length;
@@ -284,7 +284,7 @@ export class SlideshowReducer {
 
     return {
       ...state,
-      showIndex: newIndex
+      itemIndex: newIndex
     };
   }
 
@@ -298,7 +298,7 @@ export class SlideshowReducer {
     if (!jumpWidth)
       return state;
 
-    return goTo(state, state.showIndex + jumpWidth);
+    return goTo(state, state.itemIndex + jumpWidth);
   }
 
   // .....................................................
@@ -311,15 +311,15 @@ export class SlideshowReducer {
     if (!pageDirection)
       return state;
 
-    let newShowIndex = -1;
+    let newItemIndex = -1;
 
     do {
       if (state.container)
         break;
 
       let currentDeliveryKey = -1;
-      if (state.showIndex >= 0 && state.showIndex < state.items.length) {
-        const item = state.items[state.showIndex];
+      if (state.itemIndex >= 0 && state.itemIndex < state.items.length) {
+        const item = state.items[state.itemIndex];
         if (item && item.deliveryKey)
           currentDeliveryKey = item.deliveryKey;
       }
@@ -328,31 +328,31 @@ export class SlideshowReducer {
 
       // find first different deliveryKey
       if (pageDirection < 0) { // jump back
-        for (let i = state.showIndex - 1; i > 0; i--) {
+        for (let i = state.itemIndex - 1; i > 0; i--) {
           const item = state.items[i];
           if (item.deliveryKey !== currentDeliveryKey) {
-            newShowIndex = i;
+            newItemIndex = i;
             break; // ready
           }
         }
-        if (newShowIndex < 0)
-          newShowIndex = 0;
+        if (newItemIndex < 0)
+          newItemIndex = 0;
       } else {
-        for (let i = state.showIndex + 1; i < state.items.length; i++) {
+        for (let i = state.itemIndex + 1; i < state.items.length; i++) {
           const item = state.items[i];
           if (item.deliveryKey !== currentDeliveryKey) {
-            newShowIndex = i;
+            newItemIndex = i;
             break; // ready
           }
         }
-        if (newShowIndex < 0)
-          newShowIndex = state.items.length - 1;
+        if (newItemIndex < 0)
+          newItemIndex = state.items.length - 1;
       }
 
-      if (newShowIndex < 0)
+      if (newItemIndex < 0)
         break;
 
-      return goTo(state, newShowIndex);
+      return goTo(state, newItemIndex);
 
     } while (false);
 

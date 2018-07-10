@@ -98,10 +98,10 @@ export function triggerOpenItemFolder() {
     do {
       if (slideshow.containerType === constants.CONTAINER_FOLDER)
         break;
-      if (0 > slideshow.showIndex || slideshow.items.length <= slideshow.showIndex)
+      if (0 > slideshow.itemIndex || slideshow.items.length <= slideshow.itemIndex)
         break;
 
-      const currentFile = slideshow.items[slideshow.showIndex].file;
+      const currentFile = slideshow.items[slideshow.itemIndex].file;
       const payload = { selectFile: currentFile };
 
       log.debug(`${_logKey}${func} - constants.ACTION_OPEN -`, payload);
