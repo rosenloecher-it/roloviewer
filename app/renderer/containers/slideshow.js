@@ -7,9 +7,10 @@ import MessageDialog from './MessageDialog';
 import HelpOverlay from './helpOverlay';
 import DetailsOverlay from './detailsOverlay';
 import * as actions from "../../common/store/slideshowActions";
-import config from "../rendererConfig";
+import storeManager from "../store/rendererManager";
 import * as ops from "../rendererOps";
 import * as constants from "../../common/constants";
+import * as actionsCrawler from "../../common/store/crawlerActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -18,6 +19,28 @@ const _logKey = "slideshow";
 // ----------------------------------------------------------------------------------
 
 class Slideshow extends React.Component {
+
+  // .......................................................
+
+  static persistLastItem(manager, containerType, container, currentFile) {
+    const func = ".persistLastItem";
+
+    try {
+      //log.debug(`${_logKey}${func} - lastItem=${lastItemFile}, lastContainer=${lastContainer}`);
+
+      if (currentFile) {
+        const action = actions.createActionSetLastItemContainer(containerType, container, currentFile);
+        manager.dispatchGlobal(action);
+      }
+
+    } catch (err) {
+      log.error(`${_logKey}${func} - exception -`, err);
+      manager.showMessage(`${_logKey}${func} - exception - ${err}`);
+    }
+
+  }
+
+  // .......................................................
 
   constructor(props) {
     super(props);
@@ -56,7 +79,7 @@ class Slideshow extends React.Component {
 
     if (this.data.timerIdNext)
       clearInterval(this.data.timerIdNext);
-    this.data.timerIdHideCursor
+    if (this.data.timerIdHideCursor)
       clearInterval(this.data.timerIdHideCursor);
 
     window.removeEventListener("keydown", this.onKeyDown);
@@ -99,7 +122,7 @@ class Slideshow extends React.Component {
     if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
       action = actions.createActionGoPage(-1);
     else
-      action = actions.createActionJump(-config.slideshowJumpWidth);
+      action = actions.createActionJump(-storeManager.slideshowJumpWidth);
 
     this.dispatchGotoAction(action);
   }
@@ -111,7 +134,7 @@ class Slideshow extends React.Component {
     if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
       action = actions.createActionGoPage(1);
     else
-      action = actions.createActionJump(config.slideshowJumpWidth);
+      action = actions.createActionJump(storeManager.slideshowJumpWidth);
 
     //log.debug(`${_logKey}.goPageNext`, action);
 
@@ -121,7 +144,7 @@ class Slideshow extends React.Component {
   // .......................................................
 
   dispatchGotoAction(action) {
-    this.props.dispatch(action);
+    storeManager.dispatchGlobal(action);
 
     // if (this.data.timerIdNext)
     //   this.reconfigureAutoPlay(true);
@@ -134,7 +157,7 @@ class Slideshow extends React.Component {
 
     switch (event.keyCode) {
       case 32: // space
-        this.props.dispatch(actions.createActionToogleAutoPlay()); break;
+        storeManager.dispatchGlobal(actions.createActionToogleAutoPlay()); break;
       case 33: // page up
         this.goPageBack(); break;
       case 34: // page down
@@ -151,13 +174,13 @@ class Slideshow extends React.Component {
         this.goNext(); break;
       case 73: // i
         if (event.ctrlKey)
-          this.props.dispatch(actions.createActionDetailsMove());
+          storeManager.dispatchGlobal(actions.createActionDetailsMove());
         else
-          this.props.dispatch(actions.createActionDetailsToogle());
+          storeManager.dispatchGlobal(actions.createActionDetailsToogle());
         break;
 
       default:
-        log.silly(`${_logKey}${func} - keyCode=${event.keyCode}`);
+        //log.silly(`${_logKey}${func} - keyCode=${event.keyCode}`);
         break;
     }
   }
@@ -166,7 +189,7 @@ class Slideshow extends React.Component {
 
   onMouseMove() {
     if (this.props.cursorHide)
-      this.props.dispatch(actions.createActionCursorShow());
+      storeManager.dispatchLocal(actions.createActionCursorShow());
 
     this.data.lastMouseMove = new Date();
   }
@@ -179,7 +202,7 @@ class Slideshow extends React.Component {
 
     if (!this.props.cursorHide && diffTime > 5000) {
       //log.debug(`${_logKey}.onTimerHideCursor - hide cursor: cursorHide=${this.props.cursorHide}, diffTime=${diffTime}`);
-      this.props.dispatch(actions.createActionCursorHide());
+      storeManager.dispatchLocal(actions.createActionCursorHide());
     }
   }
 
@@ -203,7 +226,7 @@ class Slideshow extends React.Component {
         return;
       }
 
-      const timeSwitch = config.slideshowTimer;
+      const timeSwitch = storeManager.slideshowTimer;
 
       if (this.props.autoPlay) {
         this.data.timerIdNext = setInterval(this.onTimerNext, timeSwitch);
@@ -213,8 +236,6 @@ class Slideshow extends React.Component {
         this.data.timerIdNext = null;
         log.debug(`${_logKey}${func} - OFF - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
       }
-
-      ops.persistAutoPlay(this.props.autoPlay);
 
     } catch(error) {
       log.error(`${_logKey}${func} - exception -`, error);
@@ -264,8 +285,11 @@ class Slideshow extends React.Component {
 
     new Promise((resolve) => {
 
+
       if (currentItemFile && data.lastImageFile !== currentItemFile || data.lastContainer !== props.container)
-        ops.persistLastItem(currentItemFile, props.container);
+        Slideshow.persistLastItem(storeManager, props.containerType, props.container, currentItemFile);
+        //ops.persistLastItem(currentItemFile, props.container);
+
 
       data.lastImageFile = currentItemFile;
       data.lastContainer = props.container;
@@ -287,7 +311,9 @@ class Slideshow extends React.Component {
           break; // already send
         }
 
-        ops.requestNewItems();
+        const action = actionsCrawler.createActionOpen(null, null);
+        storeManager.dispatchGlobal(action);
+
         data.lastRequestKey = requestKey;
 
         log.debug(`${_logKey}${func} - requestNewItems (send): requestKey=${requestKey}`);
@@ -300,6 +326,7 @@ class Slideshow extends React.Component {
   }
 
   // .......................................................
+
 }
 
 

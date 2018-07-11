@@ -63,7 +63,7 @@ export class ContextReducer {
 
   init(state, action) {
     const func = ".init";
-    log.debug(`${this._logKey}${func} - in`);
+    //log.debug(`${this._logKey}${func} - in`);
 
     const {
       isDevelopment, isDevtool, isProduction, isTest,

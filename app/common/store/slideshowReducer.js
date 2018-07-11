@@ -5,23 +5,20 @@ import * as constants from "../constants";
 
 const _logKey = "slideshowReducer";
 
-// CSS classes
-export const CORNER_POS_1 = "popover-left-bottom";
-export const CORNER_POS_2 = "popover-left-top";
-export const CORNER_POS_3 = "popover-right-top";
-export const CORNER_POS_4 = "popover-right-bottom";
-
-const DEFAULT_POSITION_DETAILS = CORNER_POS_1;
-const DEFAULT_POSITION_CRAWLERINFO = CORNER_POS_4;
-
-export const DETAILS_STATE_ALL = "ALL";
-export const DETAILS_STATE_MIN = "MIN";
-export const DETAILS_STATE_OFF = "OFF";
+const DEFAULT_POSITION_DETAILS = constants.CORNER_POS_1;
+const DEFAULT_POSITION_CRAWLERINFO = constants.CORNER_POS_4;
+const DEFAULT_DETAILS_STATE = constants.DETAILS_STATE_MIN;
 
 const _containerTypes = [
   { key: constants.CONTAINER_AUTOSELECT, name: "autoselect" },
   { key: constants.CONTAINER_FOLDER, name: "folder" },
   { key: constants.CONTAINER_PLAYLIST, name: "playlist" },
+];
+
+const _detailsStates = [
+  constants.DETAILS_STATE_ALL,
+  constants.DETAILS_STATE_MIN,
+  constants.DETAILS_STATE_OFF,
 ];
 
 // ----------------------------------------------------------------------------------
@@ -46,7 +43,7 @@ export class SlideshowReducer {
       crawlerInfoShow: false,
       cursorHide: false,
       detailsPosition: DEFAULT_POSITION_DETAILS,
-      detailsState: DETAILS_STATE_MIN,
+      detailsState: constants.DETAILS_STATE_MIN,
       helpShow: false,
       items: [],
       lastContainer: null,
@@ -88,8 +85,10 @@ export class SlideshowReducer {
           return this.showFiles(state, action);
         case constants.AR_SLIDESHOW_ADD_AUTO_FILES:
           return this.addFiles(state, action);
-        case constants.AR_SLIDESHOW_DELIVER_FILE_META:
-          return this.deliverFileMeta(state, action);
+        case constants.AR_SLIDESHOW_DELIVER_META:
+          return this.deliverMeta(state, action);
+        case constants.AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER:
+          return this.setLastItemContainer(state, action);
 
         case constants.AR_SLIDESHOW_AUTOPLAY_START:
           return {...state, autoPlay: true};
@@ -101,7 +100,7 @@ export class SlideshowReducer {
         case constants.AR_SLIDESHOW_HELP_CLOSE:
           return { ...state, showHelp: false };
         case constants.AR_SLIDESHOW_HELP_TOOGLE:
-          return { ...state, showHelp: !state.helpShow };
+          return { ...state, helpShow: !state.helpShow };
 
         case constants.ACTION_DETAILS_MOVE:
           return this.detailsMove(state, action);
@@ -298,7 +297,7 @@ export class SlideshowReducer {
     if (!jumpWidth)
       return state;
 
-    return goTo(state, state.itemIndex + jumpWidth);
+    return this.goTo(state, state.itemIndex + jumpWidth);
   }
 
   // .....................................................
@@ -352,7 +351,7 @@ export class SlideshowReducer {
       if (newItemIndex < 0)
         break;
 
-      return goTo(state, newItemIndex);
+      return this.goTo(state, newItemIndex);
 
     } while (false);
 
@@ -363,10 +362,10 @@ export class SlideshowReducer {
 
   static getCornerPositions() {
     const detailsPositions = [
-      CORNER_POS_1,
-      CORNER_POS_2,
-      CORNER_POS_3,
-      CORNER_POS_4,
+      constants.CORNER_POS_1,
+      constants.CORNER_POS_2,
+      constants.CORNER_POS_3,
+      constants.CORNER_POS_4,
     ];
 
     return detailsPositions;
@@ -376,7 +375,7 @@ export class SlideshowReducer {
 
   static getValidFreeCornerPosition(currentPosition, gotoNextPosition = false, skipPosition = null) {
 
-    const detailsPositions = this.getCornerPositions();
+    const detailsPositions = SlideshowReducer.getCornerPositions();
 
     let found = 0;
     for (let i = 0; i < detailsPositions.length; i++) {
@@ -406,20 +405,20 @@ export class SlideshowReducer {
 
   static valiDetailsPosition(currentPosition) {
 
-    return this.getValidFreeCornerPosition(currentPosition || DEFAULT_POSITION_DETAILS, false, null);
+    return SlideshowReducer.getValidFreeCornerPosition(currentPosition || DEFAULT_POSITION_DETAILS, false, null);
   }
 
   // .....................................................
 
   static valiCrawlerInfoPosition(currentPosition, skipPosition) {
 
-    return this.getValidFreeCornerPosition(currentPosition || DEFAULT_POSITION_CRAWLERINFO, false, skipPosition);
+    return SlideshowReducer.getValidFreeCornerPosition(currentPosition || DEFAULT_POSITION_CRAWLERINFO, false, skipPosition);
   }
 
   // .....................................................
 
   detailsToogle(state) {
-    const newDetailsShow = this.getValidDetailsState(state.detailsState, true);
+    const newDetailsShow = SlideshowReducer.getValidDetailsState(state.detailsState, true);
     return {
       ...state,
       detailsState: newDetailsShow
@@ -431,22 +430,17 @@ export class SlideshowReducer {
   detailsMove(state) {
     return {
       ...state,
-      detailsPosition: this.getValidFreeCornerPosition(state.detailsPosition, true)
+      detailsPosition: SlideshowReducer.getValidFreeCornerPosition(state.detailsPosition, true)
     };
   }
 
   // .....................................................
 
   static getValidDetailsState(currentState, gotoNextState) {
-    const detailsStates = [
-      constants.DETAILS_STATE_ALL,
-      constants.DETAILS_STATE_MIN,
-      constants.DETAILS_STATE_OFF,
-    ];
 
     let found = 0;
-    for (let i = 0; i < detailsStates.length; i++) {
-      if (currentState === detailsStates[i]) {
+    for (let i = 0; i < _detailsStates.length; i++) {
+      if (currentState === _detailsStates[i]) {
         found = i;
         break;
       }
@@ -454,24 +448,25 @@ export class SlideshowReducer {
 
     if (gotoNextState) {
       found++;
-      if (found >= detailsStates.length)
+      if (found >= _detailsStates.length)
         found = 0;
     }
 
-    return detailsStates[found];
+    return _detailsStates[found];
   }
 
   // .....................................................
 
-  deliverFileMeta(state, action) {
+  deliverMeta(state, action) {
+    const func = '.deliverMeta';
 
     let resultState = state;
 
     do {
-      //log.debug(`${_logKey}.deliverFileMeta - ${action.type}`, action);
+      //log.debug(`${_logKey}.deliverMeta - ${action.type}`, action);
 
       if (!action.payload || !action.payload.meta) {
-        log.debug(`${_logKey}.deliverFileMeta - ${action.type} ==> break`);
+        log.debug(`${_logKey}${func} - no payload ==> break`);
         break;
       }
 
@@ -500,11 +495,22 @@ export class SlideshowReducer {
             // if container !== playlist --- break;
           }
         }
-      }
+      } else
+        log.debug(`${_logKey}${func} - no item found for "${file}" !!!`);
 
     } while (false);
 
     return resultState;
+  }
+
+  // .....................................................
+
+  setLastItemContainer(state, action) {
+    const { lastContainerType, lastContainer, lastItem } = action.payload;
+    return {
+      ...state,
+      lastContainerType, lastContainer, lastItem
+    };
   }
 
   // .....................................................

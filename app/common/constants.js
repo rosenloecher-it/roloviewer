@@ -58,6 +58,18 @@ export const MSG_TYPE_WARNING = 3;
 export const ERROR_NOT_IMPLEMENTED = "ERROR: Not implemented!";
 
 // --------------------------------------------------------------------------
+
+// CSS classes
+export const CORNER_POS_1 = "popover-left-bottom";
+export const CORNER_POS_2 = "popover-left-top";
+export const CORNER_POS_3 = "popover-right-top";
+export const CORNER_POS_4 = "popover-right-bottom";
+
+export const DETAILS_STATE_ALL = "ALL";
+export const DETAILS_STATE_MIN = "MIN";
+export const DETAILS_STATE_OFF = "OFF";
+
+// --------------------------------------------------------------------------
 // worker tasks
 
 export const TASK_DELIVER_FILE_META = "";
@@ -81,10 +93,10 @@ export const IPC_RENDERER = 'IPC_RENDERER';
 export const IPC_WORKER = 'IPC_WORKER';
 
 // ##########################################################################
-// actions
+// slideshowActions
 
 // --------------------------------------------------------------------------
-// ipc actions
+// ipc slideshowActions
 
 export const AI_CHILD_REQUESTS_CONFIG = 'AI_CHILD_REQUESTS_CONFIG'; // 1. child alive => requests main
 export const AI_MAIN_PUSHED_CONFIG = 'AI_MAIN_PUSHED_CONFIG'; // 2. main has pushed config via redux (AI_SPREAD_REDUX_ACTION)
@@ -100,18 +112,20 @@ export const AI_SPREAD_REDUX_ACTION = 'AI_SPREAD_REDUX_ACTION';
 
 
 // --------------------------------------------------------------------------
-// actions - context
+// slideshowActions - context
 
 export const AR_CONTEXT_INIT = 'AR_CONTEXT_INIT';
 
 // --------------------------------------------------------------------------
-// actions - crawler
+// slideshowActions - crawler
 
 export const AR_CRAWLER_INIT = 'AR_CRAWLER_INIT';
 export const AR_CRAWLER_OPEN = 'AR_CRAWLER_OPEN';
+export const AR_CRAWLER_REMOVE_TASK = 'AR_CRAWLER_REMOVE_TASK';
+export const AR_CRAWLER_DELIVER_META = 'AR_CRAWLER_DELIVER_META';
 
 // --------------------------------------------------------------------------
-// actions - mainwindow
+// slideshowActions - mainwindow
 
 export const AR_MAINWINDOW_INIT = 'AR_MAINWINDOW_INIT';
 export const AR_MAINWINDOW_SET_ACTIVE_DEVTOOL = 'AR_MAINWINDOW_SET_ACTIVE_DEVTOOL';
@@ -120,7 +134,7 @@ export const AR_MAINWINDOW_SET_FULLSCREEN = 'AR_MAINWINDOW_SET_FULLSCREEN';
 export const AR_MAINWINDOW_SET_MAXIMIZED = 'AR_MAINWINDOW_SET_MAXIMIZED';
 
 // --------------------------------------------------------------------------
-// actions - messages
+// slideshowActions - messages
 
 export const AR_MESSAGE_ADD = 'AR_MESSAGE_ADD'; // error, warning, info
 export const AR_MESSAGE_REMOVE_FIRST = 'AR_MESSAGE_REMOVE_FIRST';
@@ -128,7 +142,7 @@ export const AR_MESSAGE_REMOVE_ALL = 'AR_MESSAGE_REMOVE_ALL';
 export const AR_MESSAGE_CLOSE_DIALOG = 'AR_MESSAGE_CLOSE_DIALOG';
 
 // --------------------------------------------------------------------------
-// actions - slideshow
+// slideshowActions - slideshow
 
 export const AR_SLIDESHOW_INIT = 'AR_SLIDESHOW_INIT';
 
@@ -154,29 +168,27 @@ export const ACTION_DETAILS_MOVE = 'ACTION_DETAILS_MOVE';
 
 export const AR_SLIDESHOW_SHOW_CONTAINER_FILES = 'AR_SLIDESHOW_SHOW_CONTAINER_FILES';   // args: container: dir or file; when null "auto-mode" + items[]
 export const AR_SLIDESHOW_ADD_AUTO_FILES = 'AR_SLIDESHOW_ADD_AUTO_FILES';     // auto-select-mode
-export const AR_SLIDESHOW_DELIVER_FILE_META = "AR_SLIDESHOW_DELIVER_FILE_META";     // add meta info for (one) file
+export const AR_SLIDESHOW_DELIVER_META = "AR_SLIDESHOW_DELIVER_META";     // add meta info for (one) file
+
+export const AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER = 'AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER';
 
 // --------------------------------------------------------------------------
-// actions - system
+// slideshowActions - system
 
 export const AR_SYSTEM_INIT = 'AR_SYSTEM_INIT';
 export const AR_SYSTEM_SET_LAST_DIALOG_FOLDER = 'AR_SYSTEM_SET_LAST_DIALOG_FOLDER';
 
 // --------------------------------------------------------------------------
-// TODO - sort in actions
+// TODO - sort in slideshowActions
 
 export const ACTION_ESC_CLOSING = 'ACTION_ESC_CLOSING';
 
 
-// actionsSls - destination - main
-
-export const ACTION_SET_LAST_ITEM_CONTAINER = 'ACTION_SET_LAST_ITEM_CONTAINER';
-export const ACTION_PERSIST_AUTOPLAY = 'ACTION_PERSIST_AUTOPLAY';
+// actionsSlideshow - destination - main
 
 // action - destination - worker
 
 export const ACTION_OPEN = 'ACTION_OPEN'; // args: container: dir or file; when null "auto-mode"
-export const ACTION_OPEN_ITEM_FOLDER = 'ACTION_OPEN_ITEM_FOLDER'; // main => renderer; fills => worker
 
 export const ACTION_NEXT_TASK = "ACTION_NEXT_TASK";
 export const ACTION_DUMMY_TASK = "ACTION_DUMMY_TASK";

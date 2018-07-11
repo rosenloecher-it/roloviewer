@@ -1,5 +1,5 @@
 import log from 'electron-log';
-import {WorkerFactory} from "./workerFactory";
+import {Factory} from "./crawler/factory";
 import storeManager from "./store/workerManager";
 import * as ipc from "./workerIpc";
 import * as constants from "../common/constants";
@@ -13,37 +13,32 @@ let _dispatcher = null;
 
 // ----------------------------------------------------------------------------------
 
-export function init(ipcMsg) {
+export function init() {
   const func = ".init";
-
-  //config.importData(ipcMsg.payload);
-
-  // if (!_factory) {
-  //   _factory = new WorkerFactory();
-  //   _factory.loadObjects().then(() => {
-  //     _dispatcher = _factory.getDispatcher();
-  //   }).catch((err) => {
-  //     log.error(`${_logKey}${func} - error loading objects - `, err);
-  //     sendShowMessage(constants.MSG_TYPE_ERROR, "Initialising worker failed!", err);
-  //   });
-  // }
-
-
 
   try {
     log.debug(`${_logKey}${func}`);
 
-    storeManager.init();
-
     storeManager.sender = ipc;
 
-    //config.importData(ipcMsg.payload);
+    if (!_factory) {
+      _factory = new Factory(storeManager);
+      _factory.loadObjects().then(() => {
+        _dispatcher = _factory.getDispatcher();
+        if (!_dispatcher)
+          throw new Error("no dispatcher!");
+        storeManager.dispatcher = _dispatcher;
+      }).catch((err) => {
+        log.error(`${_logKey}${func} - error loading objects - `, err);
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} - initialising worker failed! - ${err}`);
+      });
+    }
 
     ipc.send(constants.IPC_MAIN, constants.AI_CHILD_IS_READY, null);
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
+    storeManager.showError(`${_logKey}${func} - exception - ${err}`);
   }
 }
 

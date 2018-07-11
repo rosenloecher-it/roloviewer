@@ -2,41 +2,39 @@ import log from 'electron-log';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "dbWrapper";
+const _logKey = "mediaCrawler";
 
 // ----------------------------------------------------------------------------------
 
-export class DbWrapper {
+export class MediaCrawler {
 
   constructor() {
 
-    this.data = DbWrapper.createDefaultData();
+    this.data = {
+      dbWrapper: null
+    };
 
-    this.coupleObjects = this.coupleObjects.bind(this);
-    this.init = this.init.bind(this);
-    this.shutdown = this.shutdown.bind(this);
 
-    this.open = this.open.bind(this);
-    this.open = this.open.bind(this);
   }
 
   // ........................................................
 
   static createDefaultData() {
     return {
-      dbfile: null
+      dbWrapper: null
     };
   }
 
   // ........................................................
 
   coupleObjects(input) {
-    const func = ".init";
-    log.debug(`${_logKey}${func}`);
+    log.silly(`${_logKey}.coupleObjects`);
 
-    this.data.config = input.config;
+    this.data.dbWrapper = input.dbWrapper;
+    this.data.storeManager = input.storeManager;
 
-
+    if (!this.data.storeManager)
+      throw new Error(`${_logKey}.coupleObjects - no storeManager!`);
   }
 
   // ........................................................
@@ -47,6 +45,10 @@ export class DbWrapper {
     const p = new Promise(function initPromise(resolve, reject) {
       log.silly(`${_logKey}${func}`);
       resolve();
+      //reject("dummy");
+    }).catch((error) => {
+      log.error(`${_logKey}${func} - exception -`, error);
+      throw new Error(`${_logKey}${func} - exception - `, error);
     });
 
     return p;
@@ -67,39 +69,39 @@ export class DbWrapper {
 
   // ........................................................
 
-  open(dbfile) {
-    const func = ".open";
+  startNew() {
 
-    const p = new Promise(function openPromise(resolve, reject) {
-      log.debug(`${_logKey}${func} -`, dbfile);
-      resolve();
-    });
-
-    return p;
   }
 
   // ........................................................
 
-  close() {
-    const func = ".close";
+  updateFile(file) {
 
-    const p = new Promise(function closePromise(resolve, reject) {
-      log.debug(`${_logKey}${func}`);
-      resolve();
-    });
-
-    return p;
   }
 
-  // ........................................................
+  // .......................................................
+
+  evalFolder(folder) {
+
+  }
+
+  // .......................................................
+
+  updateFolder(folder) {
+
+  }
+
+  // .......................................................
+
 
 
 }
 
-
-
 // ----------------------------------------------------------------------------------
 
 
 
 // ----------------------------------------------------------------------------------
+
+
+

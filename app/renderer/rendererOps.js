@@ -1,10 +1,10 @@
 import log from 'electron-log';
 import * as constants from "../common/constants";
 import * as ipc from "./rendererIpc";
-import config from "./rendererConfig";
 import { _store } from './store/configureStore';
 import * as actionsSls from "../common/store/slideshowActions";
 import storeManager from "./store/rendererManager";
+import * as actionsCrawler from "../common/store/crawlerActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -18,18 +18,16 @@ export function init(ipcMsg) {
   try {
     log.debug(`${_logKey}${func}`);
 
-    storeManager.init();
-
-    //config.importData(ipcMsg.payload);
+    storeManager.sender = ipc;
 
     ipc.send(constants.IPC_MAIN, constants.AI_CHILD_IS_READY, null);
 
     // if (config.lastAutoPlay)
-    //   _store.dispatch(actionsSls.createActionAutoPlayStart());
+    //   _store.dispatch(actionsSlideshow.createActionAutoPlayStart());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
+    storeManager.showError(`${_logKey}${func} - exception - ${err}`);
   }
 }
 
@@ -61,113 +59,9 @@ export function askQuitApp(ipcMsg) {
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
+    storeManager.showError(`${_logKey}${func} - exception - ${err}`);
   }
 }
 
 // ----------------------------------------------------------------------------------
 
-export function action2Redux(ipcMsg) {
-  const func = ".action2Redux";
-
-  let actionType = "???";
-
-  try {
-    const action = ipcMsg.payload;
-    actionType = action.type;
-
-    //log.debug(`${_logKey}${func}(${actionType}) - in`, ipcMsg);
-    _store.dispatch(action);
-
-  } catch (err) {
-    log.error(`${_logKey}${func}(${actionType}) - exception -`, err);
-    log.error(`${_logKey}${func}(${actionType}) - data -`, ipcMsg);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
-export function triggerOpenItemFolder() {
-  const func = ".triggerOpenItemFolder";
-
-  try {
-
-    const { slideshow } = _store.getState();
-
-    do {
-      if (slideshow.containerType === constants.CONTAINER_FOLDER)
-        break;
-      if (0 > slideshow.itemIndex || slideshow.items.length <= slideshow.itemIndex)
-        break;
-
-      const currentFile = slideshow.items[slideshow.itemIndex].file;
-      const payload = { selectFile: currentFile };
-
-      log.debug(`${_logKey}${func} - constants.ACTION_OPEN -`, payload);
-
-      ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN_ITEM_FOLDER, payload);
-
-    } while (false);
-    //
-
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
-export function requestNewItems() {
-  const func = ".requestNewItems";
-
-  try {
-    ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, null);
-    //log.debug(`${_logKey}${func}`);
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
-export function persistLastItem(lastItemFile, lastContainer) {
-  const func = ".persistLastItem";
-
-  try {
-    //log.debug(`${_logKey}${func} - lastItem=${lastItemFile}, lastContainer=${lastContainer}`);
-
-    if (lastItemFile) {
-      const payload = {
-        lastItemFile,
-        lastContainer
-      }
-
-      ipc.send(constants.IPC_MAIN, constants.ACTION_SET_LAST_ITEM_CONTAINER, payload);
-    }
-
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------
-
-export function persistAutoPlay(autoPlay) {
-  const func = ".persistAutoPlay";
-
-  try {
-    //log.debug(`${_logKey}${func} - autoPlay=${autoPlay}`);
-
-    ipc.send(constants.IPC_MAIN, constants.ACTION_PERSIST_AUTOPLAY, autoPlay);
-
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    // TODO show message
-  }
-}
-
-// ----------------------------------------------------------------------------------

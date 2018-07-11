@@ -183,29 +183,42 @@ export function openDialog(isDirectory) {
 
 export function openDirectory() {
   const folder = openDialog(true);
-  if (folder)
-    ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container: folder });
+  if (folder) {
+    const action = actionsCrawler.createActionOpen(folder);
+    storeManager.dispatchGlobal(action);
+  }
 }
 
 // ----------------------------------------------------------------------------------
 
 export function openPlayList() {
   const playlist = openDialog(false);
-  if (playlist)
-    ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, { container: playlist });
+  if (playlist) {
+    const action = actionsCrawler.createActionOpen(playlist);
+    storeManager.dispatchGlobal(action);
+  }
 }
 
 // ----------------------------------------------------------------------------------
 
 export function openItemDirectory() {
-  ipc.send(constants.IPC_RENDERER, constants.ACTION_OPEN_ITEM_FOLDER, null);
+
+  const {slideshowState} = storeManager.state;
+
+  if (slideshowState && slideshowState.lastItem) {
+    const folder = path.dirname(slideshowState.lastItem);
+    const action = actionsCrawler.createActionOpen(folder, slideshowState.lastItem);
+    storeManager.dispatchGlobal(action);
+  }
 }
 
 // ----------------------------------------------------------------------------------
 
 export function autoSelect() {
-  log.debug('auto-select clicked');
-  ipc.send(constants.IPC_WORKER, constants.ACTION_OPEN, null);
+  log.debug(`${logKey}.autoSelect`);
+
+  const action = actionsCrawler.createActionOpen(null, null);
+  storeManager.dispatchGlobal(action);
 }
 
 // ----------------------------------------------------------------------------------
@@ -244,16 +257,7 @@ export function toogleHelp() {
   //ipc.send(constants.IPC_RENDERER, constants.AR_SLIDESHOW_HELP_TOOGLE, null);
 
   const action = actionsSls.createActionHelpToogle();
-  ipc.send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
-}
-
-// ----------------------------------------------------------------------------------
-
-export function sendGeneric(destination, action) {
-
-  const func = ".sendGeneric";
-  log.silly(`${logKey}${func} destination=${destination}, action=${action}`);
-  //ops.sendGeneric(constants.IPC_RENDERER, constants.AR_SLIDESHOW_HELP_TOOGLE);
+  storeManager.dispatchGlobal(action);
 }
 
 // ----------------------------------------------------------------------------------
@@ -285,14 +289,6 @@ export function setLastItem(ipcMsg) {
 
   //log.debug(`${_logKey}.setLastItem: -`, ipcMsg.payload);
   config.setLastItemAndContainer(ipcMsg.payload.lastItemFile, ipcMsg.payload.lastContainer);
-}
-
-// ----------------------------------------------------------------------------------
-
-export function setAutoPlay(ipcMsg) {
-
-  //log.debug(`${_logKey}.setAutoPlay: -`, ipcMsg.payload);
-  config.lastAutoPlay = ipcMsg.payload
 }
 
 // ----------------------------------------------------------------------------------

@@ -1,8 +1,12 @@
 import * as constants from "../constants";
 
+// ----------------------------------------------------------------------------------
+
 export const createItem = (file) => ({
   file
 });
+
+// ----------------------------------------------------------------------------------
 
 export const createActionInit = ({
                                    autoPlay,
@@ -37,14 +41,6 @@ export const createActionInit = ({
   }
 });
 
-
-
-
-
-
-
-
-
 export const createActionAddAutoFiles = (items) => ({
   type: constants.AR_SLIDESHOW_ADD_AUTO_FILES,
   payload: {
@@ -65,7 +61,7 @@ export const createActionShowFiles = (container, containerType, items, selectIte
 });
 
 export const createActionDeliverFileMeta = (meta) => ({
-  type: constants.AR_SLIDESHOW_DELIVER_FILE_META,
+  type: constants.AR_SLIDESHOW_DELIVER_META,
   payload: { meta }
 });
 
@@ -101,7 +97,7 @@ export const createActionCursorShow = () => ({ type: constants.AR_SLIDESHOW_CURS
 
 
 export const createActionSetLastItemContainer = (lastContainerType, lastContainer, lastItem) => ({
-  type: constants.ACTION_SET_LAST_ITEM_CONTAINER,
+  type: constants.AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER,
   payload: { lastContainerType, lastContainer, lastItem }
 });
 

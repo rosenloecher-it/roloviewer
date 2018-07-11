@@ -5,7 +5,7 @@ import log from 'electron-log';
 import ExifOrientationImg from 'react-exif-orientation-img'
 import * as cssConstants from '../style/cssConstants';
 import * as actions from "../../common/store/slideshowActions";
-import config from '../rendererConfig';
+import storeManager from "../store/rendererManager";
 
 // ----------------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ class ImagePane extends React.Component {
     }
     const imageKey = (!imagePath ? "undefined" : imagePath);
 
-    let transistionTime = props.autoPlay ? config.slideshowTransitionTimeAutoPlay : config.slideshowTransitionTimeManual;
+    let transistionTime = props.autoPlay ? storeManager.slideshowTransitionTimeAutoPlay : storeManager.slideshowTransitionTimeManual;
     if (!transistionTime)
       transistionTime = 10;
 

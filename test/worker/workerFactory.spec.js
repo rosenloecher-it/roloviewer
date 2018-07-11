@@ -1,9 +1,9 @@
-import {WorkerFactory} from "../../app/worker/workerFactory";
+import {Factory} from "../../app/worker/crawler/factory";
 import {TestProcessConnector} from "./testProcessConnector";
 
-describe('WorkerFactory', () => {
+describe('Factory', () => {
 
-  it('WorkerFactory.loadObjects + .shutdownObjects', () => {
+  it('Factory.loadObjects + .shutdownObjects', () => {
 
     const processConnector = new TestProcessConnector();
 
@@ -11,7 +11,7 @@ describe('WorkerFactory', () => {
       processConnector
     };
 
-    const factory = new WorkerFactory();
+    const factory = new Factory();
     return factory.loadObjects(testObjects).then(() => {
 
       expect(factory.getDispatcher()).not.toBeNull();

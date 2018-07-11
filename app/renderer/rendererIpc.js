@@ -1,7 +1,6 @@
 import log from 'electron-log';
 import {ipcRenderer} from 'electron';
 import * as constants from "../common/constants";
-import config from './rendererConfig';
 import * as ops from "./rendererOps";
 import storeManager from "./store/rendererManager";
 
@@ -13,10 +12,8 @@ const _ipcMyself = constants.IPC_RENDERER;
 // ----------------------------------------------------------------------------------
 
 export function registerListener() {
-  log.debug(`${_logKey}.initListener`);
+  //log.debug(`${_logKey}.initListener`);
   ipcRenderer.on(_ipcMyself, listenRendererChannel);
-
-  //storeManager.init();
 
   send(constants.IPC_MAIN, constants.AI_CHILD_REQUESTS_CONFIG, null);
 }
@@ -54,7 +51,7 @@ function dispatchRendererActions(ipcMsg) {
   switch (ipcMsg.type) {
 
     case constants.AI_SPREAD_REDUX_ACTION:
-      storeManager.dispatchLocal(ipcMsg.payload, true); break;
+      storeManager.dispatchLocalByRemote(ipcMsg.payload); break;
 
     case constants.AI_MAIN_PUSHED_CONFIG:
       ops.init(ipcMsg); break;
@@ -64,8 +61,6 @@ function dispatchRendererActions(ipcMsg) {
     case constants.AI_DUMMY:
       log.debug(`${_logKey}${func} - ${ipcMsg.type} from ${ipcMsg.source}`); break;
 
-    // case constants.ACTION_OPEN_ITEM_FOLDER:
-    //   ops.triggerOpenItemFolder(ipcMsg); break;
     // case constants.ACTION_ESC_CLOSING:
     //    ops.askQuitApp(ipcMsg); break;
 

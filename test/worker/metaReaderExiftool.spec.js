@@ -1,4 +1,4 @@
-import {MetaReader} from '../../app/worker/metaReader';
+import {MetaReader} from '../../app/worker/crawler/metaReader';
 import {ConfigWorker} from "../../app/worker/workerConfig";
 
 describe('reading meta via exiftool', () => {

@@ -33,13 +33,20 @@ function listenMainChannel(event, ipcMsg, output) {
   try {
     //log.debug(`${_logKey}.listenMainChannel: ipcMsg=`, ipcMsg);
 
-    if (ipcMsg.destination !== _ipcMyself)
-      throw new Error(`invalid destination: ${_ipcMyself}`);
+    if (ipcMsg.destination === constants.IPC_WORKER || ipcMsg.destination === constants.IPC_RENDERER) {
+      sendRaw(ipcMsg);
+      return;
+    }
+
+    if (ipcMsg.destination !== _ipcMyself) {
+      log.error(`${_logKey}${func} - invalid destination: >>${_ipcMyself}<<`, ipcMsg);
+      throw new Error(`invalid destination!`);
+    }
 
     dispatchMainActions(ipcMsg);
 
   } catch (err) {
-    log.debug(`${_logKey}${func} exception:`, err);
+    log.error(`${_logKey}${func} exception:`, err);
   }
 }
 
@@ -54,26 +61,21 @@ function dispatchMainActions(ipcMsg) {
       log.debug(`${_logKey}${func} - ${ipcMsg.type} from ${ipcMsg.source}`); break;
 
     case constants.AI_SPREAD_REDUX_ACTION:
-      storeManager.dispatchLocal(ipcMsg.payload, true); break;
+      storeManager.dispatchLocalByRemote(ipcMsg.payload); break;
 
     case constants.AI_CHILD_REQUESTS_CONFIG:
       ops.initChildConfig(ipcMsg); break;
     case constants.AI_CHILD_IS_READY:
       ops.activateChild(ipcMsg); break;
 
-    case constants.AR_SLIDESHOW_SHOW_CONTAINER_FILES:
-      ops.forwardShowFiles(ipcMsg); break;
-    case constants.ACTION_SET_LAST_ITEM_CONTAINER:
-      ops.setLastItem(ipcMsg); break;
-    case constants.ACTION_PERSIST_AUTOPLAY:
-      ops.setAutoPlay(ipcMsg); break;
-
-
-    case constants.ACTION_ESC_CLOSING:
-      ops.quitApp(ipcMsg); break;
-
-    case constants.ACTION_DUMMY_TASK:
-      log.info(`${_logKey}${func} - ${ipcMsg.type}`); break; // do nothing!
+    // case constants.AR_SLIDESHOW_SHOW_CONTAINER_FILES:
+    //   ops.forwardShowFiles(ipcMsg); break;
+    // case constants.AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER:
+    //   ops.setLastItem(ipcMsg); break;
+    // case constants.ACTION_ESC_CLOSING:
+    //   ops.quitApp(ipcMsg); break;
+    // case constants.ACTION_DUMMY_TASK:
+    //   log.info(`${_logKey}${func} - ${ipcMsg.type}`); break; // do nothing!
 
     default:
       log.error(`${_logKey}${func} - invalid type: `, ipcMsg);

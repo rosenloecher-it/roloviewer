@@ -1,7 +1,6 @@
 import log from 'electron-log';
 import {electron, remote, ipcRenderer} from 'electron';
 import * as constants from "../common/constants";
-//import config from './workerConfig';
 import * as actionsMsg from "../common/store/messageActions";
 import storeManager from "./store/workerManager";
 import * as ops from "./workerOps";
@@ -14,10 +13,8 @@ const _ipcMyself = constants.IPC_WORKER;
 // ----------------------------------------------------------------------------------
 
 export function initListener() {
-  log.debug(`${_logKey}.initListener`);
+  //log.debug(`${_logKey}.initListener`);
   ipcRenderer.on(_ipcMyself, listenWorkerChannel);
-
-  //storeManager.init();
 
   send(constants.IPC_MAIN, constants.AI_CHILD_REQUESTS_CONFIG, null);
 }
@@ -44,7 +41,7 @@ function listenWorkerChannel(event, ipcMsg, output) {
 
   } catch (err) {
     log.error(`${_logKey}${func} exception:`, err);
-    sendShowMessage(constants.MSG_TYPE_ERROR, "Exception", err);
+    storeManager.showMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} exception - ${err}`);
   }
 }
 
@@ -55,7 +52,7 @@ function dispatchWorkerActions(ipcMsg) {
 
   switch (ipcMsg.type) {
     case constants.AI_SPREAD_REDUX_ACTION:
-      storeManager.dispatchLocal(ipcMsg.payload, true); break;
+      storeManager.dispatchLocalByRemote(ipcMsg.payload); break;
 
     case constants.AI_MAIN_PUSHED_CONFIG:
       ops.init(ipcMsg); break;
@@ -109,9 +106,3 @@ export function send(ipcTarget, ipcType, payload) {
 
 // ----------------------------------------------------------------------------------
 
-export function sendShowMessage(msgType, msgText) {
-
-  const action = actionsMsg.createActionAddMessage(msgType, msgText);
-  send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
-
-}

@@ -1,8 +1,10 @@
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
-import * as constants from "../common/constants";
-import * as actionsSls from "../common/store/slideshowActions";
+import * as constants from "../../common/constants";
+import * as crawlerActions from "../../common/store/crawlerActions";
+import * as actionsSlideshow from "../../common/store/slideshowActions";
+import storeManager from "../../main/store/mainManager";
 
 // ----------------------------------------------------------------------------------
 
@@ -14,24 +16,10 @@ export class MediaLoader {
 
   constructor() {
 
-    this.data = MediaLoader.createDefaultData();
-
-    this.coupleObjects = this.coupleObjects.bind(this);
-    this.init = this.init.bind(this);
-    this.shutdown = this.shutdown.bind(this);
-
-    this.open = this.open.bind(this);
-    this.openPlayList = this.openPlayList.bind(this);
-    this.openFolder = this.openFolder.bind(this);
-    this.openAutoSelect = this.openAutoSelect.bind(this);
-  }
-
-  // ........................................................
-
-  static createDefaultData() {
-    return {
+    this.data = {
       autoFolders: null
     };
+
   }
 
   // ........................................................
@@ -40,9 +28,10 @@ export class MediaLoader {
     const func = ".coupleObjects";
     log.debug(`${_logKey}${func}`);
 
-    this.data.config = input.config;
-    this.data.processConnector = input.processConnector;
-    this.data.taskManager = input.taskManager;
+    this.data.storeManager = input.storeManager;
+
+    if (!this.data.storeManager)
+      throw new Error(`${_logKey}.coupleObjects - no storeManager!`);
   }
 
   // ........................................................
@@ -100,7 +89,7 @@ export class MediaLoader {
       const text = `${_logKey}${func} - exception - ${error}`;
       log.error(`${_logKey}${func} - exception -`, error);
       log.error(`${_logKey}${func} - data -`, data);
-      this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text);
+      //TODO this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text);
     }
 
   }
@@ -111,8 +100,8 @@ export class MediaLoader {
     const func = ".openPlayList";
     // TODO implement
     log.error(`${_logKey}${func} - not implemented - ${playlist}`);
-    this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR
-      , `${_logKey}${func} - ${constants.ERROR_NOT_IMPLEMENTED} - ${playlist}`);
+    //TODO this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR
+    //  , `${_logKey}${func} - ${constants.ERROR_NOT_IMPLEMENTED} - ${playlist}`);
   }
 
   // ........................................................
@@ -126,8 +115,8 @@ export class MediaLoader {
     images.sort();
 
     const items = this.createItems(images);
-    const action = actionsSls.createActionShowFiles(folder, constants.CONTAINER_FOLDER, items, selectFile);
-    this.data.processConnector.send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
+    const action = actionsSlideshow.createActionShowFiles(folder, constants.CONTAINER_FOLDER, items, selectFile);
+    this.data.storeManager.dispatchGlobal(action);
 
     this.addTasksDeliverFileMeta(images);
   }
@@ -145,7 +134,7 @@ export class MediaLoader {
       if (!selectFile) {
         const text = `${_logKey}${func} - !selectFile => skip!`;
         log.error(text);
-        this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text, null);
+        //TODO this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text, null);
         return;
       }
 
@@ -164,35 +153,42 @@ export class MediaLoader {
   openAutoSelect() {
     const func = ".openAutoSelect";
 
+    const {storeManager} = this.data;
+
     log.debug(`${_logKey}${func}`);
+
+    const crawlerState = storeManager.crawlerState;
+
+    //log.debug(`${_logKey}${func} - crawlerState:`, crawlerState);
 
     if (!this.data.autoFolders) {
 
-      const {config} = this.data;
-      //log.debug(`${_logKey}${func} - config:`, config);
 
-      if (config.crawlerFolderSource.length === 0) {
+
+      if (crawlerState.folderSource.length === 0) {
         const text = "no source folder for crawler defined - no auto select possible!";
         log.error(`${_logKey}${func} - ${text}`);
-        this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text, null);
+        //TODO this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text, null);
         return;
       }
 
-      this.data.autoFolders = MediaLoader.listImageFolderRecursive(config.crawlerFolderSource
-                                , config.crawlerFolderBlacklist
-                                , config.crawlerFolderBlacklistSnippets
-                                , config.crawlerBatchCount);
+      this.data.autoFolders = MediaLoader.listImageFolderRecursive(crawlerState.folderSource
+                                , crawlerState.folderBlacklist
+                                , crawlerState.folderBlacklistSnippets
+                                , crawlerState.batchCount);
     }
 
     const autoFolder = MediaLoader.selectRandomFolder(this.data.autoFolders);
     const images = MediaLoader.loadImagesFromFolder(autoFolder);
-    const autoFiles = MediaLoader.selectRandomItems(images, this.data.config.crawlerBatchCount);
+    const autoFiles = MediaLoader.selectRandomItems(images, crawlerState.batchCount);
 
     autoFiles.sort();
 
     const items = this.createItems(autoFiles);
-    const action = actionsSls.createActionAddAutoFiles(items);
-    this.data.processConnector.send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
+    const action = actionsSlideshow.createActionAddAutoFiles(items);
+    //log.debug(`${_logKey}${func} - action:`, action);
+
+    storeManager.dispatchGlobal(action);
 
     this.addTasksDeliverFileMeta(autoFiles);
   }
@@ -202,7 +198,7 @@ export class MediaLoader {
   createItems(files) {
     const items = [];
     for (let i = 0; i < files.length; i++) {
-      const item = actionsSls.createItem(files[i]);
+      const item = actionsSlideshow.createItem(files[i]);
       if (item)
         items.push(item);
     }
@@ -212,47 +208,13 @@ export class MediaLoader {
   // ........................................................
 
   addTasksDeliverFileMeta(files) {
-    for (let i = 0; i < files.length; i++)
-      this.data.taskManager.pushTask({type: constants.AR_SLIDESHOW_DELIVER_FILE_META, payload: files[i]});
-  }
 
-  // ........................................................
+    for (let i = 0; i < files.length; i++) {
 
-  pushFilesToRenderer(payloadIn, imageFiles) {
-    const func = ".pushFilesToRenderer";
+      const action = crawlerActions.createActionDeliverMeta(files[i]);
+      this.data.storeManager.dispatchGlobal(action);
 
-    const payload = payloadIn;
-    const actionType = payload.type;
-
-    payload.items = [];
-
-    for (let i = 0; i < imageFiles.length; i++) {
-      const item = this.loadFile(imageFiles[i]);
-      if (item)
-        payload.items.push(item);
     }
-
-    log.debug(`${_logKey}${func} - ${actionType} (${payload.items.length} items)`);
-    this.data.processConnector.send(constants.IPC_RENDERER, actionType, payload);
-  }
-
-  // ........................................................
-
-  loadFile(file) {
-    const func = ".loadFile";
-
-    // log.debug(`${_logKey}${func}: in - ${file}`);
-    // const item = {
-    //   file: file
-    // };
-    const item = actionsSls.createItem(file);
-
-    this.data.taskManager.pushTask({type: constants.AR_SLIDESHOW_DELIVER_FILE_META, payload: file});
-    //{ type, payload }
-
-    //extractAndStoreMetaData(file);
-
-    return item;
   }
 
   // ........................................................

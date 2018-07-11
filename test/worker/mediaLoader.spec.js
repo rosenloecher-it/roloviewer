@@ -1,4 +1,4 @@
-import {MediaLoader} from "../../app/worker/mediaLoader";
+import {MediaLoader} from "../../app/worker/crawler/mediaLoader";
 import * as vali from "../../app/common/utils/validate";
 import {TestProcessConnector} from "./testProcessConnector";
 import {ConfigWorker} from "../../app/worker/workerConfig";

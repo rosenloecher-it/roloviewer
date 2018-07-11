@@ -25,10 +25,54 @@ export class WorkerManager extends StoreManager {
       throw new Error(`${_logKey}${func} - cannot create store!`);
   }
 
+
+  // .....................................................
+
+  shutdown() {
+    super.shutdown();
+
+    this._dispatcher = null;
+  }
+
   // ........................................................
 
-  init() {
+  get state() {
+    if (this._store)
+      return this._store.getState();
 
+    return {};
+  }
+
+  // .....................................................
+
+  get dispatcher() { return this._dispatcher; }
+  set dispatcher(value){ this._dispatcher = value; }
+
+  // ........................................................
+
+  dispatchLocal(action, invokeHook = false) {
+    const func = ".dispatchLocal";
+
+    try {
+      super.dispatchLocal(action, invokeHook);
+
+      switch (action.type) {
+        case constants.AR_CRAWLER_OPEN:
+          if (!this._dispatcher)
+            throw new Error("no dispatcher!")
+
+          this._dispatcher.processTask();
+          break;
+
+        default:
+          break; // do nothing
+      }
+
+
+    } catch (err) {
+      log.debug(`${_logKey}${func} - failed`, err);
+      throw (err);
+    }
 
   }
 

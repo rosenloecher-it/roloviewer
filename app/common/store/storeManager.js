@@ -19,18 +19,18 @@ export class StoreManager {
     this._store = null;
     this._targets = targets;
 
-
     this.dispatchLocal = this.dispatchLocal.bind(this);
     this.dispatchGlobal = this.dispatchGlobal.bind(this);
-
-    log.silly(`${this._logKey}${func} - out`);
+    this.dispatchRemote = this.dispatchRemote.bind(this);
+    this.showMessage = this.showMessage.bind(this);
   }
 
   // .....................................................
 
-  init() {
-    const func = ".init";
-    log.debug(`${this._logKey}${func}`);
+  shutdown() {
+    this._sender = null;
+    this._store = null;
+    this._targets = null;
   }
 
   // .....................................................
@@ -75,6 +75,12 @@ export class StoreManager {
 
   // .....................................................
 
+  dispatchLocalByRemote(action) {
+    return this.dispatchLocal(action, true);
+  }
+
+  // .....................................................
+
   dispatchRemote(action, destinationsIn = null) {
     const func = ".dispatchRemote";
 
@@ -87,7 +93,7 @@ export class StoreManager {
 
     try {
       if (!this._sender)
-        throw new Error("no _sender!");
+        throw new Error("no sender!");
 
       for (let i = 0; i < destinations.length; i++) {
         this._sender.send(destinations[i], constants.AI_SPREAD_REDUX_ACTION, action);
@@ -109,7 +115,10 @@ export class StoreManager {
       return;
 
     try {
-      this.dispatchLocal(action);
+
+      if (this._store)
+        this._store.dispatch(action);
+
       this.dispatchRemote(action, this._targets);
 
     } catch (err) {
@@ -143,6 +152,12 @@ export class StoreManager {
       this.dispatchRemote(action, [constants.IPC_RENDERER]);
   }
 
+
+  // ........................................................
+
+  showError(msgText) {
+    this.showMessage(constants.MSG_TYPE_ERROR, msgText)
+  }
 
   // ........................................................
   // context
@@ -224,6 +239,31 @@ export class StoreManager {
     if (!slideshow)
       return {};
     return slideshow;
+  }
+
+  get slideshowTimer() {
+    const {slideshow} = this.state;
+    if (!slideshow)
+      return constants.DEFCONF_TIMER;
+    return slideshow.timer || constants.DEFCONF_TIMER;
+  }
+
+  get slideshowTransitionTimeAutoPlay() {
+    const {slideshow} = this.state;
+    if (!slideshow)
+      return constants.DEFCONF_TRANSITION_TIME_AUTOPLAY;
+    return slideshow.transitionTimeAutoPlay || constants.DEFCONF_TRANSITION_TIME_AUTOPLAY;
+  }
+
+  get slideshowTransitionTimeManual() {
+    const {slideshow} = this.state;
+    if (!slideshow)
+      return constants.DEFCONF_TRANSITION_TIME_MANUAL;
+    return slideshow.transitionTimeAutoPlay || constants.DEFCONF_TRANSITION_TIME_MANUAL;
+  }
+
+  get slideshowJumpWidth() {
+    return constants.DEFCONF_CRAWLER_BATCHCOUNT;
   }
 
   // ........................................................
@@ -308,33 +348,10 @@ export class StoreManager {
   // // ........................................................
   // // slideshow
   //
-  // get slideshowTimer() { return this.data.slideshow.timer; }
-  // set slideshowTimer(value){ this.data.slideshow.timer = value; }
-  //
-  // get slideshowTransitionTimeAutoPlay() { return this.data.slideshow.transitionTimeAutoPlay; }
-  // set slideshowTransitionTimeAutoPlay(value){ this.data.slideshow.transitionTimeAutoPlay = value; }
-  //
-  // get slideshowTransitionTimeManual() { return this.data.slideshow.transitionTimeManual; }
-  // set slideshowTransitionTimeManual(value){ this.data.slideshow.transitionTimeManual = value; }
-  //
-  // get slideshowJumpWidth() { return (this.data.slideshow.jumpWidth || constants.DEFCONF_CRAWLER_BATCHCOUNT); }
-  // set slideshowJumpWidth(value){ this.data.slideshow.jumpWidth = value; }
+
   //
   // // ........................................................
   // // crawler
   //
-  // get crawlerDatabase() { return this.data.crawler.database; }
-  // set crawlerDatabase(value){ this.data.crawler.database = value; }
-  //
-  // get crawlerBatchCount() { return (this.data.crawler.batchCount || constants.DEFCONF_CRAWLER_BATCHCOUNT); }
-  // set crawlerBatchCount(value){ this.data.crawler.batchCount = value; }
-  //
-  // get crawlerFolderSource() { return this.data.crawler.folderSource; }
-  // set crawlerFolderSource(value) { this.data.crawler.folderSource = value; }
-  //
-  // get crawlerFolderBlacklist() { return this.data.crawler.folderBlacklist || []; }
-  // set crawlerFolderBlacklist(value){ this.data.crawler.folderBlacklist = value; }
-  //
-  // get crawlerFolderBlacklistSnippets() { return (this.data.crawler.folderBlacklistSnippets || []); }
-  // set crawlerFolderBlacklistSnippets(value){ this.data.crawler.folderBlacklistSnippets = value; }
+
 }

@@ -1,12 +1,11 @@
 import {ExifTool} from "exiftool-vendored";
 import log from 'electron-log';
-import path from 'path';
 import fs from 'fs';
-import * as constants from "../common/constants";
-import { shortenString } from "../common/utils/stringUtils";
-import { valiInt } from '../common/utils/validate';
-import {separateFilePath} from "../common/utils/transfromPath";
-import * as actions from "../common/store/slideshowActions";
+import * as constants from "../../common/constants";
+import { shortenString } from "../../common/utils/stringUtils";
+import { valiInt } from '../../common/utils/validate';
+import {separateFilePath} from "../../common/utils/transfromPath";
+import * as slideshowActions from "../../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -18,23 +17,12 @@ export class MetaReader {
 
   constructor() {
 
-    this.data = MetaReader.createDefaultData();
-
-    this.coupleObjects = this.coupleObjects.bind(this);
-    this.deliverMeta = this.deliverMeta.bind(this);
-    this.init = this.init.bind(this);
-    this.shutdown = this.shutdown.bind(this);
-    this.transformAndDeliverTags = this.transformAndDeliverTags.bind(this);
-  }
-
-  // ........................................................
-
-  static createDefaultData() {
-    return {
+    this.data = {
       exiftoolInitialized: false,
       exiftool: null,
       exiftoolFallback: true
     };
+
   }
 
   // ........................................................
@@ -43,8 +31,10 @@ export class MetaReader {
     const func = ".coupleObjects";
     log.debug(`${_logKey}${func}`);;
 
-    this.data.config = input.config;
-    this.data.processConnector = input.processConnector;
+    this.data.storeManager = input.storeManager;
+
+    if (!this.data.storeManager)
+      throw new Error(`${_logKey}.coupleObjects - no storeManager!`);
   }
 
   // ........................................................
@@ -67,7 +57,7 @@ export class MetaReader {
       instance.data.exiftoolFallback = false; //instance.data.config....exiftoolFallback;
 
       try {
-        const exiftool = MetaReader.createNewExifTool(instance.data.config.exiftoolPath);
+        const exiftool = MetaReader.createNewExifTool(instance.data.storeManager.exiftoolPath);
 
         exiftool.version()
           .then((version) => {
@@ -149,6 +139,7 @@ export class MetaReader {
       return;
 
     const instance = this;
+    const {storeManager} = instance.data;
 
     const p = new Promise(function deliverMetaPromise(resolve, reject) {
       try {
@@ -162,7 +153,7 @@ export class MetaReader {
             return true;
           }).catch((err) => {
             log.error(`${_logKey}${func} - exception - `, err);
-            instance.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, `exception - ${_logKey}${func} - ${err}`);
+            storeManager.showMessage(constants.MSG_TYPE_ERROR, `exception - ${_logKey}${func} - ${err}`);
             reject(err);
             return false;
           });
@@ -172,7 +163,7 @@ export class MetaReader {
         }
       } catch (err) {
         log.error(`${_logKey}${func} - exception:`, err);
-        instance.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, `exception - ${_logKey}${func} - ${err}`);
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, `exception - ${_logKey}${func} - ${err}`);
         reject();
       }
     });
@@ -187,8 +178,9 @@ export class MetaReader {
 
     const meta = prepareTagsFromExiftool(file, tags);
 
-    const action = actions.createActionDeliverFileMeta(meta);
-    this.data.processConnector.send(constants.IPC_RENDERER, constants.AI_SPREAD_REDUX_ACTION, action);
+    const action = slideshowActions.createActionDeliverFileMeta(meta);
+
+    this.data.storeManager.dispatchRemote(action, [ constants.IPC_RENDERER ]);
 
     //log.debug(`${_logKey}${func} - cameraModel=${meta.cameraModel} - file=${file}`);
   }
@@ -302,3 +294,4 @@ export function validateExifDate(input) {
 }
 
 // ----------------------------------------------------------------------------------
+

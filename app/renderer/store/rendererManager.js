@@ -22,6 +22,22 @@ export class RendererManager extends StoreManager {
 
   // ........................................................
 
+  get state() {
+    if (this._store)
+      return this._store.getState();
+
+    return {};
+  }
+
+  // .....................................................
+
+  dispatchLocalByRemote(action) {
+    super.dispatchLocalByRemote(action);
+
+    // if (action.type === constants.AR_SLIDESHOW_DELIVER_META)
+    //   log.debug(`${_logKey}.dispatchLocalByRemote - action:`, action);
+  }
+
 }
 
 // ----------------------------------------------------------------------------------

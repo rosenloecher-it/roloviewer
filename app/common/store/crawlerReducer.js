@@ -1,6 +1,5 @@
 import log from 'electron-log';
 import * as constants from '../constants';
-import {PRIO_DELIVER_FILE_META, PRIO_OPEN} from "../../worker/taskManager";
 
 // ----------------------------------------------------------------------------------
 
@@ -13,8 +12,6 @@ export class CrawlerReducer {
     this._logKey = `${_logKey}(${name})`;
 
     this.reduce = this.reduce.bind(this);
-
-    //log.debug(`${this._logKey}.constructor - in`);
   }
 
   // .....................................................
@@ -31,19 +28,6 @@ export class CrawlerReducer {
       tagShow: [],
       tasksPrio1open: [],
       tasksPrio2meta: [],
-
-  //     case constants.ACTION_OPEN_ITEM_FOLDER:
-  //   return PRIO_OPEN;
-  // case constants.AR_SLIDESHOW_DELIVER_FILE_META:
-  //   return PRIO_DELIVER_FILE_META;
-  // case constants.ACTION_CRAWLE_UPDATE_FILE:
-  //   return 2;
-  // case constants.ACTION_CRAWLE_EVAL_FOLDER:
-  //   return 3;
-  // case constants.ACTION_CRAWLE_UPDATE_FOLDER:
-  //   return 4;
-  // case constants.ACTION_CRAWLE_START_NEW:
-  //   return 5;
     }
   }
 
@@ -58,8 +42,16 @@ export class CrawlerReducer {
       //log.debug(`${this._logKey}${func}(${actionType}) - in`);
 
       switch (action.type) {
+
+        case constants.AR_CRAWLER_DELIVER_META:
+          return this.deliverMeta(state, action);
+
+        case constants.AR_CRAWLER_REMOVE_TASK:
+          return this.removeTask(state, action);
+
         case constants.AR_CRAWLER_OPEN:
           return this.open(state, action);
+
         case constants.AR_CRAWLER_INIT:
           return this.init(state, action);
 
@@ -78,7 +70,6 @@ export class CrawlerReducer {
 
   init(state, action) {
     const func = ".init";
-    log.debug(`${this._logKey}${func} - in`);
 
     const {
       batchCount, database,
@@ -101,6 +92,8 @@ export class CrawlerReducer {
   // .....................................................
 
   open(state, action) {
+    const func = ".open";
+    //log.debug(`${this._logKey}${func} - in`, action);
 
     const newState = {
       ...state,
@@ -115,5 +108,128 @@ export class CrawlerReducer {
     return newState;
   }
 
+  // .....................................................
+
+  deliverMeta(state, action) {
+    const func = ".deliverMeta";
+    //log.debug(`${this._logKey}${func} - in`, action);
+
+    const newState = {
+      ...state,
+      tasksPrio2meta: state.tasksPrio2meta.concat(action),
+    };
+
+    //log.debug(`${this._logKey}${func} - out`, action);
+
+    return newState;
+  }
+
+  // .....................................................
+
+  static sliceItemFromArray(oldItems, index) {
+
+    const newItems = [];
+
+    for (let i = 0; i < oldItems.length; i++) {
+      if (i !== index)
+        newItems.push(oldItems[i]);
+    }
+
+    return newItems;
+  }
+
+  // .....................................................
+
+  removeTask(state, action) {
+
+    const obsoleteAction = action.payload;
+
+    let newState = null;
+
+    let found = CrawlerReducer.findTaskIndex(state.tasksPrio1open, obsoleteAction);
+    if (found >= 0) {
+      newState = {
+        ...state,
+        tasksPrio1open: CrawlerReducer.sliceItemFromArray(state.tasksPrio1open, found),
+      };
+    } else {
+      found = CrawlerReducer.findTaskIndex(state.tasksPrio2meta, obsoleteAction);
+      if (found >= 0) {
+        newState = {
+          ...state,
+          tasksPrio2meta: CrawlerReducer.sliceItemFromArray(state.tasksPrio2meta, found),
+        };
+      }
+
+    }
+
+    //log.debug(`${this._logKey}${func} - out`, action);
+
+    if (newState !== null)
+      return newState;
+
+    return state;
+  }
+
+  // .....................................................
+
+  static findTaskIndex(tasks, task) {
+
+    if (task && task.payload && task.payload.taskId >= 0) {
+      const {taskId} = task.payload;
+      for (let i = 0; i < tasks.length; i++) {
+        if (taskId === tasks[i].payload.taskId)
+          return i;
+      }
+    }
+
+    return -1;
+  }
+
+  // .....................................................
+
+  static getNextTask(crawlerState) {
+
+    let newTask = null;
+
+    /* eslint-disable prefer-destructuring */
+    if (crawlerState.tasksPrio1open.length > 0) {
+      newTask = crawlerState.tasksPrio1open[0];
+    } else if (crawlerState.tasksPrio2meta.length > 0) {
+      newTask = crawlerState.tasksPrio2meta[0];
+    }
+    /* eslint-enable prefer-destructuring */
+
+    return newTask;
+  }
+
+  // .....................................................
+
+  static existsTask(crawlerState, task) {
+    let found = -1;
+
+    found = CrawlerReducer.findTaskIndex(crawlerState.tasksPrio1open, task);
+    if (found >= 0)
+      return true;
+    else {
+      found = CrawlerReducer.findTaskIndex(crawlerState.tasksPrio2meta, task);
+      if (found >= 0)
+        return true;
+    }
+
+    return false;
+  }
+
+  // ........................................................
+
+  static countTasks(crawlerState) {
+
+    let count = 0;
+
+    count += crawlerState.tasksPrio1open.length;
+    count += crawlerState.tasksPrio2meta.length;
+
+    return count;
+  }
 }
 
