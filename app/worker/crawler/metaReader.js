@@ -6,6 +6,7 @@ import { shortenString } from "../../common/utils/stringUtils";
 import { valiInt } from '../../common/utils/validate';
 import {separateFilePath} from "../../common/utils/transfromPath";
 import * as slideshowActions from "../../common/store/slideshowActions";
+import {CrawlerBase} from "./CrawlerBase";
 
 // ----------------------------------------------------------------------------------
 
@@ -13,34 +14,23 @@ const _logKey = "metaReader";
 
 // ----------------------------------------------------------------------------------
 
-export class MetaReader {
+export class MetaReader extends CrawlerBase {
 
   constructor() {
+    super();
 
-    this.data = {
-      exiftoolInitialized: false,
-      exiftool: null,
-      exiftoolFallback: true
-    };
+    this.data.exiftoolInitialized = false;
+    this.data.exiftool = null;
+    this.data.exiftoolFallback = true;
 
-  }
-
-  // ........................................................
-
-  coupleObjects(input) {
-    const func = ".coupleObjects";
-    log.debug(`${_logKey}${func}`);;
-
-    this.data.storeManager = input.storeManager;
-
-    if (!this.data.storeManager)
-      throw new Error(`${_logKey}.coupleObjects - no storeManager!`);
   }
 
   // ........................................................
 
   init() {
     const func = ".init";
+
+    super.init();
 
     const instance = this;
 

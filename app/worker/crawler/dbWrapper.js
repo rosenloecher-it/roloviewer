@@ -1,4 +1,5 @@
 import log from 'electron-log';
+import {CrawlerBase} from "./CrawlerBase";
 
 // ----------------------------------------------------------------------------------
 
@@ -6,52 +7,15 @@ const _logKey = "dbWrapper";
 
 // ----------------------------------------------------------------------------------
 
-export class DbWrapper {
+export class DbWrapper extends CrawlerBase {
 
   constructor() {
+    super();
 
     this.data = {
       dbfile: null
     };
 
-  }
-
-  // ........................................................
-
-  coupleObjects(input) {
-    const func = ".init";
-    log.debug(`${_logKey}${func}`);
-
-    this.data.storeManager = input.storeManager;
-
-    if (!this.data.storeManager)
-      throw new Error(`${_logKey}.coupleObjects - no storeManager!`);
-  }
-
-  // ........................................................
-
-  init() {
-    const func = ".init";
-
-    const p = new Promise(function initPromise(resolve, reject) {
-      log.silly(`${_logKey}${func}`);
-      resolve();
-    });
-
-    return p;
-  }
-
-  // ........................................................
-
-  shutdown() {
-    const func = ".shutdown";
-
-    const p = new Promise(function shutdownPromise(resolve, reject) {
-      log.silly(`${_logKey}${func}`);
-      resolve();
-    });
-
-    return p;
   }
 
   // ........................................................

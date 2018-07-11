@@ -5,6 +5,7 @@ import * as constants from "../../common/constants";
 import * as crawlerActions from "../../common/store/crawlerActions";
 import * as actionsSlideshow from "../../common/store/slideshowActions";
 import storeManager from "../../main/store/mainManager";
+import {CrawlerBase} from "./CrawlerBase";
 
 // ----------------------------------------------------------------------------------
 
@@ -12,52 +13,13 @@ const _logKey = "mediaLoader";
 
 // ----------------------------------------------------------------------------------
 
-export class MediaLoader {
+export class MediaLoader extends CrawlerBase {
 
   constructor() {
+    super();
 
-    this.data = {
-      autoFolders: null
-    };
+    this.data.autoFolders = null;
 
-  }
-
-  // ........................................................
-
-  coupleObjects(input) {
-    const func = ".coupleObjects";
-    log.debug(`${_logKey}${func}`);
-
-    this.data.storeManager = input.storeManager;
-
-    if (!this.data.storeManager)
-      throw new Error(`${_logKey}.coupleObjects - no storeManager!`);
-  }
-
-  // ........................................................
-
-  init() {
-    const func = ".init";
-
-    const p = new Promise(function(resolve, reject) {
-      log.silly(`${_logKey}${func}`);
-      resolve();
-    });
-
-    return p;
-  }
-
-  // ........................................................
-
-  shutdown() {
-    const func = ".shutdown";
-
-    const p = new Promise(function(resolve, reject) {
-      log.silly(`${_logKey}${func}`);
-      resolve();
-    });
-
-    return p;
   }
 
   // ........................................................

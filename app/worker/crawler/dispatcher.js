@@ -2,6 +2,7 @@ import log from 'electron-log';
 import * as constants from "../../common/constants";
 import * as actionsCrawler from "../../common/store/crawlerActions";
 import {CrawlerReducer} from "../../common/store/crawlerReducer";
+import {CrawlerBase} from "./CrawlerBase";
 
 // ----------------------------------------------------------------------------------
 
@@ -9,56 +10,12 @@ const _logKey = "dispatcher";
 
 // ----------------------------------------------------------------------------------
 
-export class Dispatcher {
+export class Dispatcher extends CrawlerBase {
 
   constructor() {
-
-    this.data = {
-      mediaCrawler: null,
-      mediaLoader: null,
-      metaReader: null,
-      storeManager: null
-    };
+    super();
 
     this.processTask = this.processTask.bind(this);
-  }
-
-  // ........................................................
-
-  coupleObjects(input) {
-    const func = ".coupleObjects";
-    log.silly(`${_logKey}${func}`);
-
-    this.data.mediaCrawler = input.mediaCrawler;
-    this.data.mediaLoader = input.mediaLoader;
-    this.data.metaReader = input.metaReader;
-    this.data.storeManager = input.storeManager;
-
-    if (!this.data.storeManager)
-      throw new Error("!this.data.storeManager");
-  }
-
-  // ........................................................
-
-  init() {
-    const func = ".init";
-    log.silly(`${_logKey}${func}`);
-
-    // return dummy promise
-    return new Promise(function(resolve) { resolve(); });
-  }
-
-  // ........................................................
-
-  shutdown() {
-    const func = ".shutdown";
-
-    const p = new Promise(function shutdownPromise(resolve, reject) {
-      log.silly(`${_logKey}${func}`);
-      resolve();
-    });
-
-    return p;
   }
 
   // ........................................................
@@ -133,33 +90,6 @@ export class Dispatcher {
       log.error(`${_logKey}${func} - exception -`, err);
       storeManager.showMessage(constants.MSG_TYPE_INFO, `${_logKey}${func} - exception - ${err}`);
     }
-  }
-
-  // ........................................................
-
-  static findNextTask(crawlerState) {
-
-    let newTask = null;
-
-    if (crawlerState.tasksPrio1open.length > 0) {
-      newTask = crawlerState.tasksPrio1open[0];
-    } else if (crawlerState.tasksPrio2meta.length > 0) {
-      newTask = crawlerState.tasksPrio2meta[0];
-    }
-
-    return newTask;
-  }
-
-  // ........................................................
-
-  static countTasks(crawlerState) {
-
-    let count = 0;
-
-    count += crawlerState.tasksPrio1open.length;
-    count += crawlerState.tasksPrio2meta.length;
-
-    return count;
   }
 
   // ........................................................
