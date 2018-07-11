@@ -192,7 +192,7 @@ export function openPlayList() {
 
 export function openItemDirectory() {
 
-  const {slideshowState} = storeManager.state;
+  const slideshowState = storeManager.slideshowState;
 
   if (slideshowState && slideshowState.lastItem) {
     const folder = path.dirname(slideshowState.lastItem);
