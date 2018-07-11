@@ -130,7 +130,6 @@ export class MainManager extends StoreManager {
       if (!configFile || context.configIsReadOnly || constants.DEBUG_DONT_SAVE_CONFIG)
         return;
 
-      const currentState = this.state;
       const clonedState = MainManager.cloneAndFilterState(this.state);
 
       fileTools.saveIniFile(configFile, clonedState);
@@ -154,9 +153,10 @@ export class MainManager extends StoreManager {
     if (slideshow !== undefined) {
       if (slideshow.container !== undefined) delete slideshow.container;
       if (slideshow.containerType !== undefined) delete slideshow.containerType;
+      if (slideshow.cursorHide !== undefined) delete slideshow.cursorHide;
       if (slideshow.helpShow !== undefined) delete slideshow.helpShow;
-      if (slideshow.items !== undefined) delete slideshow.items;
       if (slideshow.itemIndex !== undefined) delete slideshow.itemIndex;
+      if (slideshow.items !== undefined) delete slideshow.items;
     }
 
     return clonedState;
