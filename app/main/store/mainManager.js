@@ -95,10 +95,11 @@ export class MainManager extends StoreManager {
       this.dispatchLocal(action);
 
       action = iniToActions.createMainWindowAction(iniData, context);
-      //log.debug(`${_logKey}${func} - action -`, action);
+      //log.debug(`${_logKey}${func} - createMainWindowAction -`, action);
       this.dispatchLocal(action);
 
       action = iniToActions.createSlideshowAction(iniData, context);
+      //log.debug(`${_logKey}${func} - createSlideshowAction -`, action);
       this.dispatchLocal(action);
 
       const defaultCrawlerDb = fileTools.getDefaultCrawlerDb()
@@ -184,6 +185,7 @@ export class MainManager extends StoreManager {
       this.dispatchRemote(action);
 
       action = actionsSlideshow.createActionInit(currentState.slideshow);
+      //log.debug(`${_logKey}${func} - createActionInit(slideshow) -`, action);
       this.dispatchRemote(action);
 
       action = actionsCrawler.createActionInit(currentState.crawler);

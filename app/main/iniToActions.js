@@ -143,7 +143,7 @@ export function createSlideshowAction(iniDataIn, context) {
     valiBoolean(iniData.slideshow.random));
 
   actionData.detailsPosition = SlideshowReducer.valiDetailsPosition(valiString(iniData.slideshow.detailsPosition));
-  actionData.detailsShow = SlideshowReducer.getValidDetailsState(valiString(iniData.slideshow.detailsShow), false);
+  actionData.detailsState = SlideshowReducer.getValidDetailsState(valiString(iniData.slideshow.detailsState), false);
 
   actionData.crawlerInfoPosition = SlideshowReducer.valiCrawlerInfoPosition(valiString(iniData.slideshow.crawlerInfoPosition), actionData.detailsPosition);
   actionData.crawlerInfoShow = mergeConfigItem(false, null, valiBoolean(iniData.slideshow.crawlerInfoPosition));

@@ -137,7 +137,7 @@ export class SlideshowReducer {
       crawlerInfoPosition,
       crawlerInfoShow,
       detailsPosition,
-      detailsShow,
+      detailsState,
       lastContainer,
       lastContainerType,
       lastItem,
@@ -154,7 +154,7 @@ export class SlideshowReducer {
       crawlerInfoPosition,
       crawlerInfoShow,
       detailsPosition,
-      detailsShow,
+      detailsState,
       lastContainer,
       lastContainerType,
       lastItem,
@@ -418,10 +418,10 @@ export class SlideshowReducer {
   // .....................................................
 
   detailsToogle(state) {
-    const newDetailsShow = SlideshowReducer.getValidDetailsState(state.detailsState, true);
+    const newDetailsState = SlideshowReducer.getValidDetailsState(state.detailsState, true);
     return {
       ...state,
-      detailsState: newDetailsShow
+      detailsState: newDetailsState
     };
   }
 
