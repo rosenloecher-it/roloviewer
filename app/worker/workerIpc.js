@@ -87,21 +87,16 @@ function sendRaw(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
-export function createIpcMessage(ipcSource, ipcTarget, ipcType, payload) {
+export function send(ipcTarget, ipcType, payload) {
+
   const ipcMsg = {
     type: ipcType,
-    source: ipcSource,
+    source: _ipcMyself,
     destination: ipcTarget,
     payload
   };
 
-  return ipcMsg;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function send(ipcTarget, ipcType, payload) {
-  sendRaw(createIpcMessage(_ipcMyself, ipcTarget, ipcType, payload));
+  sendRaw(ipcMsg);
 }
 
 // ----------------------------------------------------------------------------------
