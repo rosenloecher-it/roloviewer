@@ -110,7 +110,7 @@ export default class Cli {
       if (this.data.result) {
         this.data.result.exitCode = this.data.exitCode;
       } else
-        this.data.result = this.errorResult();
+        this.data.result = Cli.errorResult();
 
     } catch (err) {
       log.error(`${logKey}.parseArray - exception -`, err);
@@ -137,7 +137,7 @@ export default class Cli {
       return; // abort
     }
 
-    if (result.auto && result.open) {
+    if (result.autoselect && result.open) {
       this.parser.printUsage();
       console.log('ERROR: choose one mode: file/directory or auto mode!');
       this.storeExitCode(1);
@@ -165,12 +165,15 @@ export default class Cli {
 
   shouldExit() {
     const {result} = this.data;
-    return (!result && result.exitCode != null);
+    if (!result)
+      return true;
+
+    return (result.exitCode !== null);
   }
 
   // ........................................................
 
-  exitCode() {
+  get exitCode() {
     const {result} = this.data;
 
     if (!result)

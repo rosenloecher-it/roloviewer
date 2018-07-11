@@ -259,7 +259,7 @@ export class StoreManager {
     const {slideshow} = this.state;
     if (!slideshow)
       return constants.DEFCONF_TRANSITION_TIME_MANUAL;
-    return slideshow.transitionTimeAutoPlay || constants.DEFCONF_TRANSITION_TIME_MANUAL;
+    return slideshow.transitionTimeManual || constants.DEFCONF_TRANSITION_TIME_MANUAL;
   }
 
   get slideshowJumpWidth() {

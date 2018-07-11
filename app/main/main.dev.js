@@ -143,9 +143,9 @@ function bootApp() {
 
       if (_isDevelopment) {
         // else do nothing
-        console.log(`${_logKey} - exit by app!`);
+        console.log(`${_logKey} - exit by app (#${cli.exitCode})!`);
       } else
-        process.exit(cli.getExitCode());
+        process.exit(cli.exitCode);
 
     }
 

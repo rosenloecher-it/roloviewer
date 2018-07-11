@@ -59,14 +59,16 @@ class ImagePane extends React.Component {
   onClick() {
     const {data} = this;
 
+    const instance = this;
+
     data.clickCount++;
     if (data.clickCount === 1) {
       data.singleClickTimer = setTimeout(function() {
         data.clickCount = 0;
         //log.debug(`${_logKey}.onClick == 1`);
-        this.goNext();
+        instance.goNext();
 
-      }, 400);
+      }, 300);
     } else if (data.clickCount === 2) {
       clearTimeout(data.singleClickTimer);
       data.clickCount = 0;

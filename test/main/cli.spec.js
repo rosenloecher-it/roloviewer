@@ -12,8 +12,8 @@ describe('cli', () => {
 
     const cli = new Cli();
 
-    compare = { auto: true, exitCode: null };
-    args = [ app, '--auto' ];
+    compare = { autoselect: true, exitCode: null };
+    args = [ app, '--autoselect' ];
     output = cli.parseArray(args);
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
     args = [ app, '-a' ];
@@ -66,6 +66,9 @@ describe('cli', () => {
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
 
     // console.log("cli output:", output);
+
+    expect(cli.shouldExit()).toBe(false);
+
   });
 
   it('wrong config', () => {
@@ -77,11 +80,13 @@ describe('cli', () => {
 
     const cli = new Cli();
 
-    compare = { auto: true, open: conf, exitCode: null };
-    args = [ app, '--auto', '--open' ];
+    compare = { autoselect: true, open: conf, exitCode: null };
+    args = [ app, '--autoselect', '--open' ];
     output = cli.parseArray(args);
     expect(output.exitCode).not.toBeNull();
     expect(output.exitCode).toBeGreaterThan(0);
+
+    expect(cli.shouldExit()).toBe(true);
 
     // console.log("cli output:", output);
   });
