@@ -18,8 +18,6 @@ export const COMPANY_NAME = 'Rosenlöcher IT';
 export const CONFIG_NAME = 'RoloSlider';
 export const CONFIG_BASENAME = 'roloslider';
 
-export const URL_CRASH_REPORT = 'https://your-domain.com/url-to-submit';
-
 // --------------------------------------------------------------------------
 // config
 
@@ -28,20 +26,16 @@ export const DEFCONF_WIDTH_MIN = 640;
 export const DEFCONF_HEIGHT_DEF = 768;
 export const DEFCONF_HEIGHT_MIN = 480;
 
-export const DEFCONF_FULLSCREEN = false;
-export const DEFCONF_SCREENSAVER = false;
 export const DEFCONF_TRANSITION_TIME_AUTOPLAY = 3000;
 export const DEFCONF_TRANSITION_TIME_MANUAL = 600;
 export const DEFCONF_TIMER = 7000;
 export const DEFCONF_POWER_SAVE_BLOCK_TIME = 30;
-export const DEFCONF_AWAKE = 30;
 export const DEFCONF_DBNAME = 'crawler.db';
 
 export const DEFCONF_LOG = '.';
 export const DEFCONF_LOGNAME = 'roloslider.log';
 export const DEFCONF_LOGLEVEL_FILE = 'warn';
 export const DEFCONF_LOGLEVEL_CONSOLE = 'warn';
-export const DEFCONF_LOG_DELETE_ON_START = true;
 
 export const DEFCONF_CRAWLER_BATCHCOUNT = 10;
 
@@ -70,16 +64,7 @@ export const DETAILS_STATE_MIN = "MIN";
 export const DETAILS_STATE_OFF = "OFF";
 
 // --------------------------------------------------------------------------
-// worker tasks
-
-export const TASK_DELIVER_FILE_META = "";
-export const TASK_CRAWLE_FILE = "";
-export const TASK_EVALUATE_FOLDER = "";
-export const TASK_CRAWLE_FOLDER = "";
-
-// --------------------------------------------------------------------------
 // enums
-
 
 export const CONTAINER_AUTOSELECT = 1;
 export const CONTAINER_FOLDER = 2;
@@ -93,10 +78,9 @@ export const IPC_RENDERER = 'IPC_RENDERER';
 export const IPC_WORKER = 'IPC_WORKER';
 
 // ##########################################################################
-// slideshowActions
 
 // --------------------------------------------------------------------------
-// ipc slideshowActions
+// ipc actions
 
 export const AI_CHILD_REQUESTS_CONFIG = 'AI_CHILD_REQUESTS_CONFIG'; // 1. child alive => requests main
 export const AI_MAIN_PUSHED_CONFIG = 'AI_MAIN_PUSHED_CONFIG'; // 2. main has pushed config via redux (AI_SPREAD_REDUX_ACTION)
@@ -104,12 +88,9 @@ export const AI_CHILD_IS_READY = 'AI_CHILD_IS_READY'; // 3. cilds ready
 
 export const AI_SHUTDOWN = 'AI_SHUTDOWN'; // main to worker + renderer
 
-
 export const AI_DUMMY = "AI_DUMMY";
 
 export const AI_SPREAD_REDUX_ACTION = 'AI_SPREAD_REDUX_ACTION';
-
-
 
 // --------------------------------------------------------------------------
 // slideshowActions - context
@@ -123,6 +104,12 @@ export const AR_CRAWLER_INIT = 'AR_CRAWLER_INIT';
 export const AR_CRAWLER_OPEN = 'AR_CRAWLER_OPEN';
 export const AR_CRAWLER_REMOVE_TASK = 'AR_CRAWLER_REMOVE_TASK';
 export const AR_CRAWLER_DELIVER_META = 'AR_CRAWLER_DELIVER_META';
+
+export const AR_CRAWLER_UPDATE_FILE = "AR_CRAWLER_UPDATE_FILE";
+export const AR_CRAWLER_EVAL_FOLDER = "AR_CRAWLER_EVAL_FOLDER";
+export const AR_CRAWLER_UPDATE_FOLDER = "AR_CRAWLER_UPDATE_FOLDER"; // merge fs
+export const AR_CRAWLER_START_NEW = "AR_CRAWLER_START_NEW";
+
 
 // --------------------------------------------------------------------------
 // slideshowActions - mainwindow
@@ -179,26 +166,8 @@ export const AR_SYSTEM_INIT = 'AR_SYSTEM_INIT';
 export const AR_SYSTEM_SET_LAST_DIALOG_FOLDER = 'AR_SYSTEM_SET_LAST_DIALOG_FOLDER';
 
 // --------------------------------------------------------------------------
-// TODO - sort in slideshowActions
-
-export const ACTION_ESC_CLOSING = 'ACTION_ESC_CLOSING';
 
 
-// actionsSlideshow - destination - main
-
-// action - destination - worker
-
-export const ACTION_OPEN = 'ACTION_OPEN'; // args: container: dir or file; when null "auto-mode"
-
-export const ACTION_NEXT_TASK = "ACTION_NEXT_TASK";
-export const ACTION_DUMMY_TASK = "ACTION_DUMMY_TASK";
-
-// action - destination - worker AND crawler only
-
-export const ACTION_CRAWLE_UPDATE_FILE = "ACTION_CRAWLE_UPDATE_FILE";
-export const ACTION_CRAWLE_EVAL_FOLDER = "ACTION_CRAWLE_EVAL_FOLDER";
-export const ACTION_CRAWLE_UPDATE_FOLDER = "ACTION_CRAWLE_UPDATE_FOLDER"; // merge fs
-export const ACTION_CRAWLE_START_NEW = "ACTION_CRAWLE_START_NEW";
 
 
 

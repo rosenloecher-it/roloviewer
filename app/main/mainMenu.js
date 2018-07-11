@@ -36,7 +36,7 @@ export function createMenu() {
       {
         label: 'Exit',
         accelerator: 'ESC',
-        click() { ops.askQuitApp(); }
+        click() { ops.hitEscKey(); }
       }
     ]
   });

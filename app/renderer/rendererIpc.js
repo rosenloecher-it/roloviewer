@@ -61,9 +61,6 @@ function dispatchRendererActions(ipcMsg) {
     case constants.AI_DUMMY:
       log.debug(`${_logKey}${func} - ${ipcMsg.type} from ${ipcMsg.source}`); break;
 
-    // case constants.ACTION_ESC_CLOSING:
-    //    ops.askQuitApp(ipcMsg); break;
-
     default:
       log.error(`${_logKey}${func} - invalid type: `, ipcMsg);
       break;

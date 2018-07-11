@@ -68,15 +68,6 @@ function dispatchMainActions(ipcMsg) {
     case constants.AI_CHILD_IS_READY:
       ops.activateChild(ipcMsg); break;
 
-    // case constants.AR_SLIDESHOW_SHOW_CONTAINER_FILES:
-    //   ops.forwardShowFiles(ipcMsg); break;
-    // case constants.AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER:
-    //   ops.setLastItem(ipcMsg); break;
-    // case constants.ACTION_ESC_CLOSING:
-    //   ops.quitApp(ipcMsg); break;
-    // case constants.ACTION_DUMMY_TASK:
-    //   log.info(`${_logKey}${func} - ${ipcMsg.type}`); break; // do nothing!
-
     default:
       log.error(`${_logKey}${func} - invalid type: `, ipcMsg);
       break;

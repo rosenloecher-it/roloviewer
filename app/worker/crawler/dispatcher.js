@@ -59,19 +59,18 @@ export class Dispatcher extends CrawlerBase {
             case constants.AR_CRAWLER_DELIVER_META:
               metaReader.deliverMeta(task.payload.file); break;
 
-            case constants.ACTION_CRAWLE_UPDATE_FILE:
+            case constants.AR_CRAWLER_UPDATE_FILE:
               mediaCrawler.updateFile(task.payload); break;
-            case constants.ACTION_CRAWLE_EVAL_FOLDER:
+            case constants.AR_CRAWLER_EVAL_FOLDER:
               mediaCrawler.evalFolder(task.payload); break;
-            case constants.ACTION_CRAWLE_UPDATE_FOLDER:
+            case constants.AR_CRAWLER_UPDATE_FOLDER:
               mediaCrawler.updateFolder(task.payload); break;
-            case constants.ACTION_CRAWLE_START_NEW:
+            case constants.AR_CRAWLER_START_NEW:
               mediaCrawler.startNew(); break;
 
             case constants.AR_CRAWLER_OPEN:
               mediaLoader.open(task.payload); break;
 
-            //ACTION_NEXT_TASK is not valid task!
             default:
               throw new Error("unknown task type!");
           }

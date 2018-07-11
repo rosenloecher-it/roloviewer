@@ -44,24 +44,3 @@ export function shutdown(ipcMsg) {
 }
 
 // ----------------------------------------------------------------------------------
-
-export function askQuitApp(ipcMsg) {
-  const func = ".askQuitApp";
-
-  try {
-    //log.silly(`${_logKey}${func} - invoked`);
-    const {helpShow} = _store.getState().slideshow;
-
-    if (helpShow)
-      _store.dispatch(actionsSls.createActionHelpClose());
-    else
-      ipc.send(constants.IPC_MAIN, constants.ACTION_ESC_CLOSING, null);
-
-  } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
-    storeManager.showError(`${_logKey}${func} - exception - ${err}`);
-  }
-}
-
-// ----------------------------------------------------------------------------------
-

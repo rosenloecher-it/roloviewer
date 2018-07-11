@@ -1,4 +1,4 @@
-import { app, crashReporter, shell, dialog } from 'electron';
+import { app, shell, dialog } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
@@ -15,18 +15,7 @@ import * as actionsSystem from "../common/store/systemActions";
 
 // ----------------------------------------------------------------------------------
 
-const logKey = "mainOps";
-
-// ----------------------------------------------------------------------------------
-
-export function startCrashReporter() {
-  crashReporter.start({
-    productName: app.getName(),
-    companyName: constants.COMPANY_NAME,
-    submitURL: constants.URL_CRASH_REPORT,
-    uploadToServer: false
-  });
-}
+const _logKey = "mainOps";
 
 // ----------------------------------------------------------------------------------
 
@@ -55,7 +44,7 @@ export function configLogger() {
 
     log.info(`${constants.APP_TITLE} (v${constants.APP_VERSION}) started`);
   } else
-    console.log(`${logKey}.configLogger failed - no config data`);
+    console.log(`${_logKey}.configLogger failed - no config data`);
 }
 
 // ----------------------------------------------------------------------------------
@@ -138,7 +127,7 @@ export function activateChild(ipcMsg) {
     if (constants.IPC_WORKER === ipcDest)
       statusChildsState &= ~flagWorker;
 
-    log.debug(`${logKey}${func} - ${ipcDest} ready`);
+    log.debug(`${_logKey}${func} - ${ipcDest} ready`);
 
     if (statusChildsState === flagSendStart) {
       statusChildsState = 0;
@@ -148,7 +137,7 @@ export function activateChild(ipcMsg) {
       storeManager.dispatchGlobal(action);
     }
   } catch (err) {
-    log.error(`${this._logKey}${func} - exception -`, err);
+    log.error(`${_logKey}${func} - exception -`, err);
   }
 }
 
@@ -170,7 +159,7 @@ export function openDialog(isDirectory) {
 
   if (files && Array.isArray(files) && files.length === 1) {
     const selection = files[0];
-    log.debug(`${logKey}${func} - selection:`, selection);
+    log.debug(`${_logKey}${func} - selection:`, selection);
 
     const action = actionsSystem.createActionSetLastDialogFolder(path.dirname(selection));
     storeManager.dispatchGlobal(action);
@@ -215,7 +204,7 @@ export function openItemDirectory() {
 // ----------------------------------------------------------------------------------
 
 export function autoSelect() {
-  log.debug(`${logKey}.autoSelect`);
+  log.debug(`${_logKey}.autoSelect`);
 
   const action = actionsCrawler.createActionOpen(null, null);
   storeManager.dispatchGlobal(action);
@@ -223,12 +212,12 @@ export function autoSelect() {
 
 // ----------------------------------------------------------------------------------
 
-let isAppAlreadyQuitted = false;
+let _isAppAlreadyQuitted = false;
 
 export function quitApp() {
   // closeMainWindow was called twice
-  if (!isAppAlreadyQuitted) {
-    isAppAlreadyQuitted = true;
+  if (!_isAppAlreadyQuitted) {
+    _isAppAlreadyQuitted = true;
 
     powerSaveBlocker.shutdown();
 
@@ -241,13 +230,40 @@ export function quitApp() {
 
 // ----------------------------------------------------------------------------------
 
-export function askQuitApp() {
+export function hitEscKey() {
+  const func = 'hitEscKey';
 
-  quitApp();
+  try {
+    log.debug(`${_logKey}${func} - in`);
 
-  // if (!isAppAlreadyQuitted) {
-  //   ipc.send(constants.IPC_RENDERER, constants.ACTION_ESC_CLOSING, null);
-  // }
+    if (_isAppAlreadyQuitted)
+      return;
+
+    log.debug(`${_logKey}${func} - sl`);
+
+    const slideshowState = storeManager.slideshowState;
+    if (slideshowState.helpShow) {
+      const action = actionsSls.createActionHelpClose();
+      storeManager.dispatchGlobal(action);
+      return;
+    }
+
+    log.debug(`${_logKey}${func} - mv`);
+
+    const mainWindowState = storeManager.mainWindowState;
+    if (mainWindowState.fullscreen) {
+      toogleFullscreen();
+      return;
+    }
+
+    log.debug(`${_logKey}${func} - do quit`);
+
+    quitApp();
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    storeManager.showError()
+  }
 }
 
 // ----------------------------------------------------------------------------------

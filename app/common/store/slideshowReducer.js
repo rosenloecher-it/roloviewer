@@ -98,7 +98,7 @@ export class SlideshowReducer {
           return {...state, autoPlay: !state.autoPlay};
 
         case constants.AR_SLIDESHOW_HELP_CLOSE:
-          return { ...state, showHelp: false };
+          return { ...state, helpShow: false };
         case constants.AR_SLIDESHOW_HELP_TOOGLE:
           return { ...state, helpShow: !state.helpShow };
 
