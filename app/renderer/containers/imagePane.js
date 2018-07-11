@@ -6,6 +6,7 @@ import ExifOrientationImg from 'react-exif-orientation-img'
 import * as cssConstants from '../style/cssConstants';
 import * as actions from "../../common/store/slideshowActions";
 import storeManager from "../store/rendererManager";
+import * as ops from "../rendererOps";
 
 // ----------------------------------------------------------------------------------
 
@@ -18,7 +19,10 @@ class ImagePane extends React.Component {
   constructor(props) {
     super(props);
 
-    this.data = {};
+    this.data = {
+      clickCount: 0,
+      singleClickTimer: null
+    };
 
     this.onClick = this.onClick.bind(this);
     this.onMouseWheel = this.onMouseWheel.bind(this);
@@ -53,8 +57,25 @@ class ImagePane extends React.Component {
   // .......................................................
 
   onClick() {
-    //log.debug(`${_logKey}.onClick`);
-    this.goNext();
+    const {data} = this;
+
+    data.clickCount++;
+    if (data.clickCount === 1) {
+      data.singleClickTimer = setTimeout(function() {
+        data.clickCount = 0;
+        //log.debug(`${_logKey}.onClick == 1`);
+        this.goNext();
+
+      }, 400);
+    } else if (data.clickCount === 2) {
+      clearTimeout(data.singleClickTimer);
+      data.clickCount = 0;
+
+      //log.debug(`${_logKey}.onClick == 2`);
+      ops.toogleFullscreen();
+
+
+    }
   }
 
   // .......................................................

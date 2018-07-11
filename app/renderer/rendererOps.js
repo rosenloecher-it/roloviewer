@@ -44,3 +44,15 @@ export function shutdown(ipcMsg) {
 }
 
 // ----------------------------------------------------------------------------------
+
+export function toogleFullscreen() {
+  //log.silly(`${_logKey}.shutdown`);
+
+  try {
+    ipc.send(constants.IPC_MAIN, constants.AI_TOOGLE_FULLSCREEN)
+  } catch (err) {
+    log.error(`${_logKey}.toogleFullscreen - exception -`, err);
+  }
+}
+
+// ----------------------------------------------------------------------------------

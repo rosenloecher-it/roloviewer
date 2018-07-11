@@ -68,6 +68,9 @@ function dispatchMainActions(ipcMsg) {
     case constants.AI_CHILD_IS_READY:
       ops.activateChild(ipcMsg); break;
 
+    case constants.AI_TOOGLE_FULLSCREEN:
+      ops.toogleFullscreen(); break;
+
     default:
       log.error(`${_logKey}${func} - invalid type: `, ipcMsg);
       break;

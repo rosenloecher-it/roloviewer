@@ -92,6 +92,8 @@ export const AI_DUMMY = "AI_DUMMY";
 
 export const AI_SPREAD_REDUX_ACTION = 'AI_SPREAD_REDUX_ACTION';
 
+export const AI_TOOGLE_FULLSCREEN = 'AI_TOOGLE_FULLSCREEN'; // send to main
+
 // --------------------------------------------------------------------------
 // slideshowActions - context
 

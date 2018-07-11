@@ -8,7 +8,6 @@ import HelpOverlay from './helpOverlay';
 import DetailsOverlay from './detailsOverlay';
 import * as actions from "../../common/store/slideshowActions";
 import storeManager from "../store/rendererManager";
-import * as ops from "../rendererOps";
 import * as constants from "../../common/constants";
 import * as actionsCrawler from "../../common/store/crawlerActions";
 
