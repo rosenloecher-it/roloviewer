@@ -60,14 +60,14 @@ export class SystemReducer {
     const {
       exiftool,
       logfile, logLevelConsole, logLevelFile,
-      powerSaveBlockTime
+      mapUrlFormat, powerSaveBlockTime
     } = action.payload;
 
     const newState = {
       ...state,
       exiftool,
       logfile, logLevelConsole, logLevelFile,
-      powerSaveBlockTime
+      mapUrlFormat, powerSaveBlockTime
     };
 
     //log.debug(`${this._logKey}${func} - out`, action);

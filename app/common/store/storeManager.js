@@ -266,6 +266,15 @@ export class StoreManager {
     return constants.DEFCONF_CRAWLER_BATCHCOUNT;
   }
 
+  get slideshowCurrentItem() {
+    const {slideshow} = this.state;
+    if (!slideshow)
+      return null;
+    if (slideshow.itemIndex >= slideshow.items.length)
+      return null;
+    return slideshow.items[slideshow.itemIndex];
+  }
+
   // ........................................................
   // system
 
@@ -301,6 +310,13 @@ export class StoreManager {
     if (!system)
       return constants.DEFCONF_POWER_SAVE_BLOCK_TIME;
     return system.powerSaveBlockTime;
+  }
+
+  get meta2MapUrlFormat() {
+    const {system} = this.state;
+    if (!system)
+      return constants.DEFCONF_META2MAPURL_FORMAT;
+    return system.mapUrlFormat;
   }
 
   // ........................................................

@@ -26,7 +26,6 @@ export function createMenu() {
         accelerator: 'Alt+O',
         click: () => { ops.openItemDirectory() }
       },
-
       {
         label: 'Auto-select',
         accelerator: 'F7',
@@ -37,6 +36,18 @@ export function createMenu() {
         label: 'Exit',
         accelerator: 'ESC',
         click() { ops.hitEscKey(); }
+      }
+    ]
+  });
+
+  // section View
+  template.push({
+    label: 'Item',
+    submenu: [
+      {
+        label: 'Open item in map',
+        accelerator: 'CmdOrCtrl+M',
+        click: () => { ops.openMap(); }
       }
     ]
   });

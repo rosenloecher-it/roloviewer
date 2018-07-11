@@ -41,6 +41,20 @@ export const DEFCONF_CRAWLER_BATCHCOUNT = 10;
 
 export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 2;
 
+export const DEFCONF_META2MAPURL_FORMAT = 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M';
+
+// --------------------------------------------------------------------------
+// format meta => mapUrl
+
+export const LATI_ABS = "<LATI_ABS>";
+export const LATI_NUM = "<LATI_NUM>";
+export const LATI_REF = "<LATI_REF>";
+export const LATI_REL = "<LATI_REL>";
+export const LONG_ABS = "<LONG_ABS>";
+export const LONG_NUM = "<LONG_NUM>";
+export const LONG_REF = "<LONG_REF>";
+export const LONG_REL = "<LONG_REL>";
+
 // --------------------------------------------------------------------------
 // messages
 

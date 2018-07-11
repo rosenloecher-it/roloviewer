@@ -3,13 +3,13 @@ import * as constants from "../constants";
 export const createActionInit = ({
   exiftool,
   logfile, logLevelConsole, logLevelFile,
-  powerSaveBlockTime
+  mapUrlFormat, powerSaveBlockTime
 }) => ({
   type: constants.AR_SYSTEM_INIT,
   payload: {
     exiftool,
     logfile, logLevelConsole, logLevelFile,
-    powerSaveBlockTime
+    mapUrlFormat, powerSaveBlockTime
   }
 });
 

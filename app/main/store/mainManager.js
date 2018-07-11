@@ -102,7 +102,7 @@ export class MainManager extends StoreManager {
       //log.debug(`${_logKey}${func} - createSlideshowAction -`, action);
       this.dispatchLocal(action);
 
-      const defaultCrawlerDb = fileTools.getDefaultCrawlerDb()
+      const defaultCrawlerDb = fileTools.getDefaultCrawlerDb();
       action = iniToActions.createCrawlerAction(iniData, context, defaultCrawlerDb);
       //log.debug(`${_logKey}${func} - action -`, action);
       this.dispatchLocal(action);

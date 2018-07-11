@@ -5,7 +5,7 @@ import * as constants from "../common/constants";
 import {
   mergeConfigItem,
   valiBoolean, valiInt, valiLogLevel, valiRatingArray, valiString, valiTagArray,
-  valiFolderArray, valiBlacklistSnippets
+  valiFolderArray, valiBlacklistSnippets, valiUrl
 } from "../common/utils/validate";
 import * as actionsContext from "../common/store/contextActions";
 import * as actionsCrawler from "../common/store/crawlerActions";
@@ -37,13 +37,11 @@ export function createContextAction(appContext, cliData, defaultConfigFile) {
   } else
     actionData.configFile = defaultConfigFile;
 
-
   actionData.configIsReadOnly = valiBoolean(cliData.configreadonly) || false;
   actionData.tempCliFullscreen = valiBoolean(cliData.fullscreen) || false;
   actionData.tempCliScreensaver = valiBoolean(cliData.screensaver) || false;
   actionData.tempCliAutoplay = valiBoolean(cliData.play) || false;
   actionData.tempCliAutoselect = valiBoolean(cliData.autoselect) || false;
-
 
   if (!actionData.tempCliAutoselect && cliData.open)
     actionData.tempCliOpenContainer = valiString(cliData.open);
@@ -205,6 +203,10 @@ export function createSystemAction(iniDataIn, context, defaultLogFile, defaultEx
   actionData.logLevelConsole = mergeConfigItem(constants.DEFCONF_LOGLEVEL_FILE,
     null,
     valiLogLevel(iniData.system.logLevelConsole));
+
+  actionData.mapUrlFormat = mergeConfigItem(constants.DEFCONF_META2MAPURL_FORMAT,
+    null,
+    valiUrl(iniData.system.mapUrlFormat));
 
   actionData.logfile = null;
   if (iniData.system.logfile && iniData.system.logfile.trim() === constants.DEFCONF_LOG)

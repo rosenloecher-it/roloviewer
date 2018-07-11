@@ -170,7 +170,7 @@ export class MetaReader extends CrawlerBase {
 
     const action = slideshowActions.createActionDeliverFileMeta(meta);
 
-    this.data.storeManager.dispatchRemote(action, [ constants.IPC_RENDERER ]);
+    this.data.storeManager.dispatchRemote(action, null);
 
     //log.debug(`${_logKey}${func} - cameraModel=${meta.cameraModel} - file=${file}`);
   }
@@ -285,3 +285,100 @@ export function validateExifDate(input) {
 
 // ----------------------------------------------------------------------------------
 
+export function formatGpsMeta(meta, format) {
+  const func = '.formatGpsMeta';
+
+  if (!format)
+    return null;
+
+  let url =  null;
+  let file = ";"
+
+  do {
+
+    if (!meta || !meta.gpsLatitude || !meta.gpsLatitudeRef || !meta.gpsLongitude || !meta.gpsLongitudeRef) {
+      if (meta.file)
+        file = ` (${meta.file})`;
+      log.warn(`${_logKey}${func} - missing meta!`);
+      break;
+    }
+
+    file = ` (${meta.file})`;
+
+    const latiRel = `${meta.gpsLatitudeRef.trim().toLowerCase()}`;
+    const longRel = `${meta.gpsLongitudeRef.trim().toLowerCase()}`;
+
+    let latiMinus = '', longMinus = '', latiRef = '', longRef = '';
+
+    if (latiRel === 'north') {
+      latiRef = 'n';
+      latiMinus = '';
+    } else if (latiRel === 'south') {
+      latiRef = 's';
+      latiMinus = '-';
+    } else {
+      log.warn(`${_logKey}${func} - unknown gpsLatitudeRef (${latiRel})!`);
+      break;
+    }
+
+    if (longRel === 'east') {
+      latiRef = 'e';
+      latiMinus = '';
+    } else if (longRel === 'west') {
+      latiRef = 'w';
+      latiMinus = '-';
+    } else {
+      log.warn(`${_logKey}${func} - unknown gpsLongitudeRef (${longRel})!`);
+      break;
+    }
+
+    const latitude = Math.abs(meta.gpsLatitude);
+    const longitude = Math.abs(meta.gpsLongitude);
+
+    const latiAbs = `${latitude}`;
+    const latiNum = `${latiMinus}${latitude}`;
+    const longAbs = `${longitude}`;
+    const longNum = `${longMinus}${longitude}`;
+
+    let temp = format;
+    temp = temp.replace(constants.LATI_ABS, latiAbs);
+    temp = temp.replace(constants.LATI_NUM, latiNum);
+    temp = temp.replace(constants.LATI_REF, latiRef);
+    temp = temp.replace(constants.LATI_REL, latiRel);
+    temp = temp.replace(constants.LONG_ABS, longAbs);
+    temp = temp.replace(constants.LONG_NUM, longNum);
+    temp = temp.replace(constants.LONG_REF, longRef);
+    temp = temp.replace(constants.LONG_REL, longRel);
+    url = temp;
+
+  } while (false);
+
+  return url;
+
+
+  //var str = "Visit Microsoft!";
+  //var res = str.replace("Microsoft", "W3Schools");
+
+//log.debug(`${_logKey}${func} - meta`, currentItem.meta);
+
+
+  // London: http://www.openstreetmap.org/?mlat=52.51858&mlon=13.37603&zoom=15&layers=M
+  // Queentown: http://www.openstreetmap.org/?mlat=-45.01815333&mlon=168.71480833&zoom=15&layers=M
+
+  // gpsLatitude: 60.88714333,
+  // gpsLatitudeRef: 'North',
+  // gpsLongitude: 6.853205,
+  // gpsLongitudeRef: 'East',
+  // gpsPosition: '60.88714333 N, 6.85320500 E',
+
+  // samples: /home/data/mymedia/200x/2007/20070201 New Zealand Trip/20070303 Glenorgy
+
+
+
+
+
+
+
+}
+
+// ----------------------------------------------------------------------------------

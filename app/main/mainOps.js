@@ -12,6 +12,7 @@ import storeManager from './store/mainManager';
 import * as actionsMainWindow from "../common/store/mainWindowActions";
 import * as actionsCrawler from "../common/store/crawlerActions";
 import * as actionsSystem from "../common/store/systemActions";
+import * as metaReader from '../worker/crawler/metaReader';
 
 // ----------------------------------------------------------------------------------
 
@@ -59,6 +60,24 @@ export function toogleFullscreen() {
 
     isFullScreen = window.isFullScreen();
 
+    const action = actionsMainWindow.createActionSetFullscreen(isFullScreen);
+    storeManager.dispatchGlobal(action);
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function ensureFullscreen(value) {
+
+  const window = windows.getMainWindow();
+
+  if (window) {
+    let isFullScreen = window.isFullScreen();
+
+    if (!!value !== isFullScreen)
+      window.setFullScreen(value);
+
+    isFullScreen = window.isFullScreen();
     const action = actionsMainWindow.createActionSetFullscreen(isFullScreen);
     storeManager.dispatchGlobal(action);
   }
@@ -279,6 +298,50 @@ export function showAbout() {
 export function openWebsite() {
   log.debug('openWebsite');
   shell.openExternal('https://electronjs.org');
+}
+
+// ----------------------------------------------------------------------------------
+
+export function openMap() {
+  const func = '.openMap';
+
+  try {
+
+    const currentItem = storeManager.slideshowCurrentItem;
+
+    //log.debug(`${_logKey}${func} - currentItem`, currentItem);
+
+    do {
+      if (!currentItem)
+        break;
+      if (!currentItem.meta) {
+        log.info(`${_logKey}${func} - no item/meta available!`);
+        break;
+      }
+
+      const format = storeManager.meta2MapUrlFormat;
+
+      //log.debug(`${_logKey}${func} - no format defined!`, storeManager.systemState);
+
+      if (!format || format.length === 0) {
+        log.info(`${_logKey}${func} - no format defined!`);
+        break;
+      }
+
+      const {meta} = currentItem;
+
+      const url = metaReader.formatGpsMeta(meta, format);
+      if (url) {
+        ensureFullscreen(false);
+        shell.openExternal(url);
+      }
+
+    } while (false);
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    storeManager.showError(`${_logKey}${func} - exception - ${err}`);
+  }
 }
 
 // ----------------------------------------------------------------------------------

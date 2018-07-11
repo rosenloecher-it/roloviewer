@@ -47,6 +47,13 @@ export function valiString(input) {
 
 // ----------------------------------------------------------------------------------
 
+export function valiUrl(input) {
+  // TODO implement
+  return valiString(input);
+}
+
+// ----------------------------------------------------------------------------------
+
 export function valiRatingArray(input) {
   if (!Array.isArray(input))
     return [];

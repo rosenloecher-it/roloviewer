@@ -1,4 +1,4 @@
-import {Factory} from "../../app/worker/crawler/factory";
+import {Factory} from "../../../app/worker/crawler/factory";
 import {TestProcessConnector} from "./testProcessConnector";
 
 describe('Factory', () => {

@@ -33,9 +33,12 @@ class HelpOverlay extends React.Component {
 
             <tr><td>help - show this overlay</td><td>F1</td></tr>
 
-            <tr><td>open - directory</td><td>CTRL + O</td></tr>
-            <tr><td>open - current image directory</td><td>ALT + O</td></tr>
             <tr><td>open - auto select</td><td>F7</td></tr>
+            <tr><td>open - current image directory</td><td>ALT + O</td></tr>
+            <tr><td>open - directory</td><td>CTRL + O</td></tr>
+            <tr><td>open - position in map (browser)</td><td>CTRL + M</td></tr>
+
+
 
           </tbody>
         </table>
