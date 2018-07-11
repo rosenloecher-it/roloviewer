@@ -33,14 +33,12 @@ class ImagePane extends React.Component {
 
   componentDidMount() {
     window.addEventListener("wheel", this.onMouseWheel);
-    window.addEventListener('scroll', this.onScroll);
   }
 
   // .......................................................
 
   componentWillUnmount() {
     window.removeEventListener("wheel", this.onMouseWheel);
-    window.removeEventListener('scroll', this.onScroll);
   }
 
   // .......................................................
@@ -57,13 +55,15 @@ class ImagePane extends React.Component {
   // .......................................................
 
   onClick() {
+
     const {data} = this;
 
     const instance = this;
 
     data.clickCount++;
     if (data.clickCount === 1) {
-      data.singleClickTimer = setTimeout(function() {
+      data.singleClickTimer = setTimeout(() => {
+
         data.clickCount = 0;
         //log.debug(`${_logKey}.onClick == 1`);
         instance.goNext();
@@ -71,12 +71,10 @@ class ImagePane extends React.Component {
       }, 300);
     } else if (data.clickCount === 2) {
       clearTimeout(data.singleClickTimer);
-      data.clickCount = 0;
 
+      data.clickCount = 0;
       //log.debug(`${_logKey}.onClick == 2`);
       ops.toogleFullscreen();
-
-
     }
   }
 
@@ -109,11 +107,11 @@ class ImagePane extends React.Component {
     }
     const imageKey = (!imagePath ? "undefined" : imagePath);
 
-    let transistionTime = props.autoPlay ? storeManager.slideshowTransitionTimeAutoPlay : storeManager.slideshowTransitionTimeManual;
+    let transistionTime = props.combinedAutoPlay ? storeManager.slideshowTransitionTimeAutoPlay : storeManager.slideshowTransitionTimeManual;
     if (!transistionTime)
       transistionTime = 10;
 
-    log.debug(`${_logKey}${func}(${props.itemIndex}, autoPlay=${props.autoPlay}, transistionTime=${transistionTime}):`, imagePath);
+    log.debug(`${_logKey}${func}(${props.itemIndex}, autoPlay=${props.combinedAutoPlay}, transistion=${transistionTime}):`, imagePath);
 
     return (
       <div className={cssImagePane}>
@@ -164,10 +162,11 @@ class ImagePane extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  autoPlay: state.slideshow.autoPlay,
+  combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
   cursorHide: state.slideshow.cursorHide,
   items: state.slideshow.items,
   itemIndex: state.slideshow.itemIndex,
+  isScreensaver: state.context.isScreensaver,
 });
 
 export default connect( mapStateToProps )(ImagePane);

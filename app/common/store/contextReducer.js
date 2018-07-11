@@ -64,16 +64,16 @@ export class ContextReducer {
     //log.debug(`${this._logKey}${func} - in`);
 
     const {
-      isDevelopment, isDevtool, isProduction, isTest,
+      isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
       configFile, configIsReadOnly,
-      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer, tempCliScreensaver
+      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer
     } = action.payload;
 
     const newState = {
       ...state,
-      isDevelopment, isDevtool, isProduction, isTest,
+      isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
       configFile, configIsReadOnly,
-      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer, tempCliScreensaver
+      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer
 
     };
 

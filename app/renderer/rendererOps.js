@@ -42,9 +42,20 @@ export function shutdown(ipcMsg) {
 export function toogleFullscreen() {
 
   try {
-    ipc.send(constants.IPC_MAIN, constants.AI_TOOGLE_FULLSCREEN)
+    ipc.send(constants.IPC_MAIN, constants.AI_TOOGLE_FULLSCREEN);
   } catch (err) {
     log.error(`${_logKey}.toogleFullscreen - exception -`, err);
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function quitScreensaver() {
+  try {
+    ipc.send(constants.IPC_MAIN, constants.AI_QUIT_SCREENSAVER);
+    log.debug(`${_logKey}.quitScreensaver send`);
+  } catch (err) {
+    log.error(`${_logKey}.quitScreensaver - exception -`, err);
   }
 }
 

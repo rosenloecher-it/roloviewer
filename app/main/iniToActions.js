@@ -38,10 +38,10 @@ export function createContextAction(appContext, cliData, defaultConfigFile) {
     actionData.configFile = defaultConfigFile;
 
   actionData.configIsReadOnly = valiBoolean(cliData.configreadonly) || false;
-  actionData.tempCliFullscreen = valiBoolean(cliData.fullscreen) || false;
-  actionData.tempCliScreensaver = valiBoolean(cliData.screensaver) || false;
+  actionData.isScreensaver = valiBoolean(cliData.screensaver) || false;
   actionData.tempCliAutoplay = valiBoolean(cliData.play) || false;
   actionData.tempCliAutoselect = valiBoolean(cliData.autoselect) || false;
+  actionData.tempCliFullscreen = valiBoolean(cliData.fullscreen) || false;
 
   if (!actionData.tempCliAutoselect && cliData.open)
     actionData.tempCliOpenContainer = valiString(cliData.open);
@@ -169,8 +169,6 @@ export function createSlideshowAction(iniDataIn, context) {
       actionData.lastItem = valiString(iniData.slideshow.lastItem);
     }
   }
-
-  actionData.screensaver = !!context.tempCliScreensaver;
 
   const action = actionsSlideshow.createActionInit(actionData);
 

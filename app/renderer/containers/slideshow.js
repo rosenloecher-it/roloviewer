@@ -10,6 +10,7 @@ import * as actions from "../../common/store/slideshowActions";
 import storeManager from "../store/rendererManager";
 import * as constants from "../../common/constants";
 import * as actionsCrawler from "../../common/store/crawlerActions";
+import * as ops from "../rendererOps";
 
 // ----------------------------------------------------------------------------------
 
@@ -47,7 +48,8 @@ class Slideshow extends React.Component {
     this.data = {
       timerIdNext: null,
       timerIdHideCursor: null,
-      lastMouseMove: null
+      lastMouseMove: null,
+      isScreensaver: false
     };
 
     this.goBack = this.goBack.bind(this);
@@ -55,12 +57,11 @@ class Slideshow extends React.Component {
     this.handleNotifications = this.handleNotifications.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
+    this.onQuitScreensaver = this.onQuitScreensaver.bind(this);
+    this.registerOnQuitScreensaver = this.registerOnQuitScreensaver.bind(this);
     this.onTimerHideCursor = this.onTimerHideCursor.bind(this);
     this.onTimerNext = this.onTimerNext.bind(this);
     this.reconfigureAutoPlay = this.reconfigureAutoPlay.bind(this);
-
-    // this.goPageBack = this.goPageBack.bind(this);
-    // this.goPageNext = this.goPageNext.bind(this);
   }
 
   // .......................................................
@@ -93,7 +94,7 @@ class Slideshow extends React.Component {
     const instance = this;
 
     const activeAutoPlay = (instance.data.timerIdNext !== null);
-    if (instance.props.autoPlay !== activeAutoPlay) {
+    if (instance.props.combinedAutoPlay !== activeAutoPlay) {
       new Promise((resolve) => {
         instance.reconfigureAutoPlay();
         resolve();
@@ -102,7 +103,34 @@ class Slideshow extends React.Component {
       });
     }
 
+    if (this.props.isScreensaver === true && this.data.isScreensaver === false) {
+      this.data.isScreensaver = true;
+      setTimeout(this.registerOnQuitScreensaver, 500);
+    }
+
     this.handleNotifications();
+  }
+
+  // .......................................................
+
+  registerOnQuitScreensaver() {
+    const func = '.registerOnQuitScreensaver';
+
+    try {
+      window.addEventListener("keydown", this.onQuitScreensaver);
+      window.addEventListener("mousemove", this.onQuitScreensaver);
+      window.addEventListener("onClick", this.onQuitScreensaver);
+
+      log.debug(`${_logKey}${func}`);
+    } catch (error) {
+      log.error(`${_logKey}${func} - exception -`, error);
+    };
+  }
+
+  // .......................................................
+
+  onQuitScreensaver() {
+    ops.quitScreensaver();
   }
 
   // .......................................................
@@ -153,6 +181,9 @@ class Slideshow extends React.Component {
 
   onKeyDown(event) {
     const func = ".onKeyDown";
+
+    if (this.props.isScreensaver)
+      return;
 
     switch (event.keyCode) {
       case 32: // space
@@ -220,14 +251,14 @@ class Slideshow extends React.Component {
 
     try {
       const activeAutoPlay = (this.data.timerIdNext !== null);
-      if (this.props.autoPlay === activeAutoPlay && !restart) {
+      if (this.props.combinedAutoPlay === activeAutoPlay && !restart) {
         log.silly(`${_logKey}${func} - NO CHANGE - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
         return;
       }
 
       const timeSwitch = storeManager.slideshowTimer;
 
-      if (this.props.autoPlay) {
+      if (this.props.combinedAutoPlay) {
         this.data.timerIdNext = setInterval(this.onTimerNext, timeSwitch);
         log.debug(`${_logKey}${func} - ON - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
       } else {
@@ -332,13 +363,14 @@ class Slideshow extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  autoPlay: state.slideshow.autoPlay,
+  combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
   container: state.slideshow.container,
   containerType: state.slideshow.containerType,
   cursorHide: state.slideshow.cursorHide,
   helpShow: state.slideshow.helpShow,
   items: state.slideshow.items,
   itemIndex: state.slideshow.itemIndex,
+  isScreensaver: state.context.isScreensaver,
 });
 
 export default connect( mapStateToProps )(Slideshow);

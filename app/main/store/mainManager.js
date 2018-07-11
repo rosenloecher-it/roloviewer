@@ -156,7 +156,6 @@ export class MainManager extends StoreManager {
       if (slideshow.containerType !== undefined) delete slideshow.containerType;
       if (slideshow.helpShow !== undefined) delete slideshow.helpShow;
       if (slideshow.items !== undefined) delete slideshow.items;
-      if (slideshow.screensaver !== undefined) delete slideshow.screensaver;
       if (slideshow.itemIndex !== undefined) delete slideshow.itemIndex;
     }
 

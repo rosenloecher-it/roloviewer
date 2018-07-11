@@ -5,6 +5,7 @@ import * as windows from './windows';
 import * as ops from "./mainOps";
 import * as actionsMsg from "../common/store/messageActions";
 import storeManager from './store/mainManager';
+import {quitApp} from "./mainOps";
 
 // ----------------------------------------------------------------------------------
 
@@ -70,6 +71,9 @@ function dispatchMainActions(ipcMsg) {
 
     case constants.AI_TOOGLE_FULLSCREEN:
       ops.toogleFullscreen(); break;
+    case constants.AI_QUIT_SCREENSAVER:
+      ops.quitApp(); break;
+
 
     default:
       log.error(`${_logKey}${func} - invalid type: `, ipcMsg);

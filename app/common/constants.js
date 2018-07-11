@@ -2,7 +2,8 @@
 // --------------------------------------------------------------------------
 // debug
 
-export const DEBUG_ARGS =  [ 'unknownPathToBinary' ] ; // "-r -o fff -a 12 -t 12"
+//export const DEBUG_ARGS =  [ 'unknownPathToBinary', '--screensaver', '--fullscreen' ] ;
+export const DEBUG_ARGS =  [ 'unknownPathToBinary' ] ;
 export const DEBUG_DEVTOOLS_PROD = true;
 export const DEBUG_SHOW_WORKER_WINDOW = false;
 export const DEBUG_DONT_SAVE_CONFIG = false;
@@ -107,6 +108,8 @@ export const AI_DUMMY = "AI_DUMMY";
 export const AI_SPREAD_REDUX_ACTION = 'AI_SPREAD_REDUX_ACTION';
 
 export const AI_TOOGLE_FULLSCREEN = 'AI_TOOGLE_FULLSCREEN'; // send to main
+
+export const AI_QUIT_SCREENSAVER = 'AI_QUIT_SCREENSAVER'; // send to main
 
 // --------------------------------------------------------------------------
 // slideshowActions - context

@@ -45,18 +45,18 @@ class DetailsOverlay extends React.Component {
     if (props.itemIndex >= 0 && props.itemIndex < props.items.length)
       item = props.items[props.itemIndex];
 
-    if (props.detailsState === constants.DETAILS_STATE_OFF && !props.autoPlay)
+    if (props.detailsState === constants.DETAILS_STATE_OFF && !props.combinedAutoPlay)
       return null; // show nothing
 
     const tableLines = [];
 
-    if (props.detailsState === constants.DETAILS_STATE_OFF && props.autoPlay)
+    if (props.detailsState === constants.DETAILS_STATE_OFF && props.combinedAutoPlay)
       tableLines.push(<tr key="autoPlay"><td><Icon icon="play" /></td></tr>);
 
     if (props.detailsState !== constants.DETAILS_STATE_OFF && item && item.file) {
       const itemPath = determinePathAndFilename(item, shortenPathNum);
       const numberText = `${props.itemIndex + 1}/${props.items.length}`;
-      const autoPlayIcon = (props.autoPlay && <Icon icon="play" />);
+      const autoPlayIcon = (props.combinedAutoPlay && <Icon icon="play" />);
 
       let conainterIcon = null;
       switch (props.containerType) {
@@ -120,7 +120,7 @@ class DetailsOverlay extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  autoPlay: state.slideshow.autoPlay,
+  combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
   containerType: state.slideshow.containerType,
   detailsPosition: state.slideshow.detailsPosition,
   detailsState: state.slideshow.detailsState,
