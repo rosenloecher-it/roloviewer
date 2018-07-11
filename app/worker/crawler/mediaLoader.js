@@ -117,15 +117,11 @@ export class MediaLoader extends CrawlerBase {
 
     const {storeManager} = this.data;
 
-    log.debug(`${_logKey}${func}`);
-
     const crawlerState = storeManager.crawlerState;
 
     //log.debug(`${_logKey}${func} - crawlerState:`, crawlerState);
 
     if (!this.data.autoFolders) {
-
-
 
       if (crawlerState.folderSource.length === 0) {
         const text = "no source folder for crawler defined - no auto select possible!";

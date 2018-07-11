@@ -17,8 +17,6 @@ export function init() {
   const func = ".init";
 
   try {
-    log.debug(`${_logKey}${func}`);
-
     storeManager.sender = ipc;
 
     if (!_factory) {
@@ -45,7 +43,6 @@ export function init() {
 // ----------------------------------------------------------------------------------
 
 export function shutdown(ipcMsg) {
-  //log.silly(`${_logKey}.shutdown`);
 
   try {
     ipc.unregisterListener();

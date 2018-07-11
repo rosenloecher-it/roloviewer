@@ -127,7 +127,7 @@ export function activateChild(ipcMsg) {
     if (constants.IPC_WORKER === ipcDest)
       statusChildsState &= ~flagWorker;
 
-    log.debug(`${_logKey}${func} - ${ipcDest} ready`);
+    //log.debug(`${_logKey}${func} - ${ipcDest} ready`);
 
     if (statusChildsState === flagSendStart) {
       statusChildsState = 0;
@@ -234,12 +234,8 @@ export function hitEscKey() {
   const func = 'hitEscKey';
 
   try {
-    log.debug(`${_logKey}${func} - in`);
-
     if (_isAppAlreadyQuitted)
       return;
-
-    log.debug(`${_logKey}${func} - sl`);
 
     const slideshowState = storeManager.slideshowState;
     if (slideshowState.helpShow) {
@@ -248,15 +244,11 @@ export function hitEscKey() {
       return;
     }
 
-    log.debug(`${_logKey}${func} - mv`);
-
     const mainWindowState = storeManager.mainWindowState;
     if (mainWindowState.fullscreen) {
       toogleFullscreen();
       return;
     }
-
-    log.debug(`${_logKey}${func} - do quit`);
 
     quitApp();
 

@@ -12,8 +12,6 @@ export class ContextReducer {
     this._logKey = `${_logKey}(${name})`;
 
     this.reduce = this.reduce.bind(this);
-
-    log.debug(`${this._logKey}.constructor - in`);
   }
 
   // .....................................................

@@ -16,14 +16,9 @@ export function init(ipcMsg) {
   const func = ".init";
 
   try {
-    log.debug(`${_logKey}${func}`);
-
     storeManager.sender = ipc;
 
     ipc.send(constants.IPC_MAIN, constants.AI_CHILD_IS_READY, null);
-
-    // if (config.lastAutoPlay)
-    //   _store.dispatch(actionsSlideshow.createActionAutoPlayStart());
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
@@ -34,7 +29,6 @@ export function init(ipcMsg) {
 // ----------------------------------------------------------------------------------
 
 export function shutdown(ipcMsg) {
-  //log.silly(`${_logKey}.shutdown`);
 
   try {
     ipc.unregisterListener();
@@ -46,7 +40,6 @@ export function shutdown(ipcMsg) {
 // ----------------------------------------------------------------------------------
 
 export function toogleFullscreen() {
-  //log.silly(`${_logKey}.shutdown`);
 
   try {
     ipc.send(constants.IPC_MAIN, constants.AI_TOOGLE_FULLSCREEN)

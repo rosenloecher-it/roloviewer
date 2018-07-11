@@ -77,7 +77,6 @@ export class Factory {
 
   initObjects() {
     const func = ".initObjects"
-    log.silly(`${_logKey}${func} - in`);
 
     const {data} = this;
 
@@ -128,11 +127,10 @@ export class Factory {
       return data.dbWrapper.shutdown();
     }).then(() => {
       instance.data = {};
-      log.silly(`${_logKey}${func} - out`);
+      //log.silly(`${_logKey}${func} - ready`);
       return true;
     }).catch((error) => {
       log.error(`${_logKey}${func} - exception -`, error);
-      throw new Error(`${_logKey}${func} - exception - `, error);
     });
   }
 
