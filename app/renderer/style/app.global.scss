@@ -47,6 +47,7 @@ body {
 }
 
 .main-pane {
+  background-color: $app-background;
   position: absolute;
   display: flex;
   flex-direction: row;
