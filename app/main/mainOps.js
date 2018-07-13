@@ -262,6 +262,11 @@ export function hitEscKey() {
       storeManager.dispatchGlobal(action);
       return;
     }
+    if (slideshowState.aboutShow) {
+      const action = actionsSls.createActionAboutClose();
+      storeManager.dispatchGlobal(action);
+      return;
+    }
 
     const mainWindowState = storeManager.mainWindowState;
     if (mainWindowState.fullscreen) {
@@ -291,13 +296,16 @@ export function toogleHelp() {
 
 export function showAbout() {
   log.debug('showAbout');
+
+  const action = actionsSls.createActionAboutOpen();
+  storeManager.dispatchGlobal(action);
 }
 
 // ----------------------------------------------------------------------------------
 
 export function openWebsite() {
   log.debug('openWebsite');
-  shell.openExternal('https://electronjs.org');
+  shell.openExternal(constants.APP_URL);
 }
 
 // ----------------------------------------------------------------------------------
@@ -346,41 +354,26 @@ export function openMap() {
 
 // ----------------------------------------------------------------------------------
 
-export function showMessage(msgType, msgText) {
-
-  const payload = { msgType, msgText };
-
-  // TODO
-  // ipc.send(constants.IPC_RENDERER, constants.AR_MESSAGE_ADD, payload);
-}
-
-// ----------------------------------------------------------------------------------
-
-export function setLastItem(ipcMsg) {
-
-  //log.debug(`${_logKey}.setLastItem: -`, ipcMsg.payload);
-  config.setLastItemAndContainer(ipcMsg.payload.lastItemFile, ipcMsg.payload.lastContainer);
-}
-
-// ----------------------------------------------------------------------------------
-
 export function debug1() {
   log.debug('debug1');
-  ipc.sendShowMessage(constants.MSG_TYPE_INFO, "msgText - info");
+  //storeManager.showMessage(constants.MSG_TYPE_INFO, "msgText - info");
+
+  const action = actionsSls.createActionAboutOpen();
+  storeManager.dispatchGlobal(action);
 }
 
 // ----------------------------------------------------------------------------------
 
 export function debug2() {
   log.debug('debug2');
-  ipc.sendShowMessage(constants.MSG_TYPE_WARNING, "msgText - warn");
+  storeManager.showMessage(constants.MSG_TYPE_WARNING, "msgText - warn");
 }
 
 // --------------------------------------------------------------------------------
 
 export function debug3() {
   log.debug('debug3');
-  ipc.sendShowMessage(constants.MSG_TYPE_ERROR, "msgText - error");
+  storeManager.showMessage(constants.MSG_TYPE_ERROR, "msgText - error");
 }
 
 // --------------------------------------------------------------------------------

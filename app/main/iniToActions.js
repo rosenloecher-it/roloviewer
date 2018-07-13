@@ -43,6 +43,8 @@ export function createContextAction(appContext, cliData, defaultConfigFile) {
   actionData.tempCliAutoselect = valiBoolean(cliData.autoselect) || false;
   actionData.tempCliFullscreen = valiBoolean(cliData.fullscreen) || false;
 
+  actionData.versionElectron = process.versions.electron;
+
   if (!actionData.tempCliAutoselect && cliData.open)
     actionData.tempCliOpenContainer = valiString(cliData.open);
   else

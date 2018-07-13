@@ -29,6 +29,8 @@ export class ContextReducer {
       tempCliFullscreen: false,
       tempCliOpenContainer: null,
       tempCliScreensaver: false,
+      versionElectron: null,
+      versionExifReader: null,
     }
   }
 
@@ -45,6 +47,9 @@ export class ContextReducer {
       switch (action.type) {
         case constants.AR_CONTEXT_INIT:
           return this.init(state, action);
+
+        case constants.AR_CONTEXT_SET_VERSION_EXIFREADER:
+          return {...state, versionExifReader: action.payload};
 
         default:
           return state;
@@ -66,15 +71,16 @@ export class ContextReducer {
     const {
       isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
       configFile, configIsReadOnly,
-      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer
+      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer,
+      versionElectron
     } = action.payload;
 
     const newState = {
       ...state,
       isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
       configFile, configIsReadOnly,
-      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer
-
+      tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer,
+      versionElectron
     };
 
     //log.debug(`${this._logKey}${func} - out`, action);

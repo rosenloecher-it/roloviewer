@@ -13,8 +13,9 @@ export const DEBUG_DONT_SAVE_CONFIG = false;
 
 export const APP_TITLE = 'RoloSlider';
 export const APP_VERSION = '0.0.1';
+export const APP_URL = 'https://www.rosenloecher-it.de';
 
-export const COMPANY_NAME = 'Rosenlöcher IT';
+export const APP_CREATOR = 'Raul Rosenlöcher';
 
 export const CONFIG_NAME = 'RoloSlider';
 export const CONFIG_BASENAME = 'roloslider';
@@ -115,6 +116,7 @@ export const AI_QUIT_SCREENSAVER = 'AI_QUIT_SCREENSAVER'; // send to main
 // slideshowActions - context
 
 export const AR_CONTEXT_INIT = 'AR_CONTEXT_INIT';
+export const AR_CONTEXT_SET_VERSION_EXIFREADER = 'AR_CONTEXT_SET_VERSION_EXIFREADER';
 
 // --------------------------------------------------------------------------
 // slideshowActions - crawler
@@ -165,6 +167,9 @@ export const AR_SLIDESHOW_AUTOPLAY_TOGGLE = 'AR_SLIDESHOW_AUTOPLAY_TOGGLE';
 
 export const AR_SLIDESHOW_CURSOR_HIDE = 'AR_SLIDESHOW_CURSOR_HIDE';
 export const AR_SLIDESHOW_CURSOR_SHOW = 'AR_SLIDESHOW_CURSOR_SHOW';
+
+export const AR_SLIDESHOW_ABOUT_OPEN = 'AR_SLIDESHOW_ABOUT_OPEN';
+export const AR_SLIDESHOW_ABOUT_CLOSE = 'AR_SLIDESHOW_ABOUT_CLOSE';
 
 export const AR_SLIDESHOW_HELP_CLOSE = 'AR_SLIDESHOW_HELP_CLOSE';
 export const AR_SLIDESHOW_HELP_TOOGLE = 'AR_SLIDESHOW_HELP_TOOGLE';

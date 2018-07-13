@@ -1,6 +1,8 @@
 import React from 'react';
 import {connect} from "react-redux";
-import { Icon } from '@blueprintjs/core';
+import { Button, Icon } from '@blueprintjs/core';
+import storeManager from "../store/rendererManager";
+import * as actions from "../../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -8,13 +10,20 @@ class HelpOverlay extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.onClose = this.onClose.bind(this);
+  }
+
+  onClose() {
+    const action = actions.createActionHelpClose();
+    storeManager.dispatchGlobal(action);
   }
 
   render() {
     return (
 
-      <div className={"popover-help"}>
-        <h4>Shortcut overview</h4>
+      <div className={"popover-dialog"}>
+        <h3>Shortcut overview</h3>
         <table className="popover-table">
           <tbody>
 
@@ -37,11 +46,10 @@ class HelpOverlay extends React.Component {
             <tr><td>open - current image directory</td><td>ALT + O</td></tr>
             <tr><td>open - directory</td><td>CTRL + O</td></tr>
             <tr><td>open - position in map (browser)</td><td>CTRL + M</td></tr>
-
-
-
           </tbody>
         </table>
+        <p/>
+        <Button className="popover-button" onClick={this.onClose}>Close</Button>
       </div>
     );
   }

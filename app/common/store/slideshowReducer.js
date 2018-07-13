@@ -36,6 +36,7 @@ export class SlideshowReducer {
 
   static defaultState() {
     return {
+      aboutShow: false,
       autoPlay: false,
       container: null,
       containerType: 0,
@@ -100,7 +101,12 @@ export class SlideshowReducer {
         case constants.AR_SLIDESHOW_HELP_CLOSE:
           return { ...state, helpShow: false };
         case constants.AR_SLIDESHOW_HELP_TOOGLE:
-          return { ...state, helpShow: !state.helpShow };
+          return { ...state, aboutShow: false, helpShow: !state.helpShow };
+
+        case constants.AR_SLIDESHOW_ABOUT_OPEN:
+          return { ...state, aboutShow: true, helpShow: false };
+        case constants.AR_SLIDESHOW_ABOUT_CLOSE:
+          return { ...state, aboutShow: false };
 
         case constants.ACTION_DETAILS_MOVE:
           return this.detailsMove(state, action);

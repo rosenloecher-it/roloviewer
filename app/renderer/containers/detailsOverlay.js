@@ -4,8 +4,6 @@ import { Icon } from '@blueprintjs/core';
 import log from 'electron-log';
 import * as constants from "../../common/constants";
 import {determinePathAndFilename} from "../../common/utils/transfromPath";
-import {valiInt} from "../../common/utils/validate";
-import {validateExifDate} from "../../worker/crawler/metaReader";
 
 // ----------------------------------------------------------------------------------
 

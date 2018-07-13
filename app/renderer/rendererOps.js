@@ -60,3 +60,15 @@ export function quitScreensaver() {
 }
 
 // ----------------------------------------------------------------------------------
+
+export function openUrl(url) {
+
+  try {
+    log.debug(`${_logKey}.openUrl: ${url}`);
+
+    require('electron').remote.shell.openExternal(url);
+
+  } catch (err) {
+    log.error(`${_logKey}.openUrl - exception -`, err);
+  }
+}

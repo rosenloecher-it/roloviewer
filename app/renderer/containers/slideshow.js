@@ -4,6 +4,7 @@ import log from 'electron-log';
 import * as cssConstants from '../style/cssConstants';
 import ImagePane from './imagePane';
 import MessageDialog from './MessageDialog';
+import AboutOverlay from './aboutOverlay';
 import HelpOverlay from './helpOverlay';
 import DetailsOverlay from './detailsOverlay';
 import * as actions from "../../common/store/slideshowActions";
@@ -283,15 +284,17 @@ class Slideshow extends React.Component {
 
     //log.debug(`${_logKey}${func} - props.helpShow=`, props.helpShow);
 
-    let helpOverlay = null;
+    let dialogOverlay = null;
     if (props.helpShow)
-        helpOverlay = <HelpOverlay />;
+      dialogOverlay = <HelpOverlay />;
+    else if ((props.aboutShow))
+      dialogOverlay = <AboutOverlay />;
 
     return (
       <div className={cssConstants.CSS_MAINPANE}>
         <ImagePane />
         <DetailsOverlay />
-        {helpOverlay}
+        {dialogOverlay}
         <MessageDialog />
 
       </div>
@@ -363,6 +366,7 @@ class Slideshow extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
+  aboutShow: state.slideshow.aboutShow,
   combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
   container: state.slideshow.container,
   containerType: state.slideshow.containerType,

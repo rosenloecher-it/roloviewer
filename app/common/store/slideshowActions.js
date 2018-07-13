@@ -83,6 +83,9 @@ export const createActionAutoPlayStart = () => ({ type: constants.AR_SLIDESHOW_A
 export const createActionAutoPlayStop = () => ({ type: constants.AR_SLIDESHOW_AUTOPLAY_STOP });
 export const createActionToogleAutoPlay = () => ({ type: constants.AR_SLIDESHOW_AUTOPLAY_TOGGLE });
 
+export const createActionAboutOpen = () => ({ type: constants.AR_SLIDESHOW_ABOUT_OPEN });
+export const createActionAboutClose = () => ({ type: constants.AR_SLIDESHOW_ABOUT_CLOSE });
+
 export const createActionHelpClose = () => ({ type: constants.AR_SLIDESHOW_HELP_CLOSE });
 export const createActionHelpToogle = () => ({ type: constants.AR_SLIDESHOW_HELP_TOOGLE });
 

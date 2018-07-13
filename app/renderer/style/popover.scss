@@ -1,4 +1,6 @@
 
+$popover-text-color: white;
+
 .popover-table {
   border-collapse: collapse;
   border: none; // 3px solid red
@@ -11,6 +13,18 @@
   padding: 2px;
 }
 
+.popover-dialog a {
+  color: $popover-text-color;
+}
+
+.popover-dialog a:hover {
+  color: darken($popover-text-color, 30%);
+}
+
+.popover-button {
+  float: right;
+}
+
 @mixin popover-base() {
   background-color: black;
   color: white;
@@ -21,6 +35,8 @@
   border-radius: 8px;
   z-index: 10;
 }
+
+
 
 .popover-left-bottom {
   @include popover-base();
@@ -53,7 +69,8 @@
   transform: translate(-50%, -50%);
 }
 
-.popover-help {
+.popover-dialog {
   @extend .popover-center;
+  opacity: 0.7;
   z-index: 20;
 }
