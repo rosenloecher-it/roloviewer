@@ -37,7 +37,8 @@ export function valiString(input) {
 
   if (input == null)
     return null;
-  if (typeof(text) !== typeof "str")
+
+  if (typeof(input) !== typeof "str")
     return null;
   if (input === "undefined")
     return null;
@@ -53,6 +54,13 @@ export function valiUrl(input) {
 }
 
 // ----------------------------------------------------------------------------------
+
+export function valiDir(input) {
+  // TODO implement
+  return valiString(input);
+}
+
+// -----------------------------------------------------------------------------
 
 export function valiRatingArray(input) {
   if (!Array.isArray(input))

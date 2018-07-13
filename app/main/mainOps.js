@@ -165,22 +165,23 @@ export function activateChild(ipcMsg) {
 export function openDialog(isDirectory) {
   const func = ".openDialog";
 
-  const lastPath = config.getLastDialogFolder();
-  //log.debug(`${_logKey}${func} - lastPath:`, lastPath);
+  let lastDialogFolder = storeManager.lastDialogFolder;
+  log.debug(`${_logKey}${func} - lastDialogFolder - in:`, lastDialogFolder);
 
   const dialogType = isDirectory ? 'openDirectory' : 'openFile';
 
   const files = dialog.showOpenDialog(
     {
-      defaultPath: lastPath,
+      defaultPath: lastDialogFolder,
       properties: [ dialogType ]
     });
 
   if (files && Array.isArray(files) && files.length === 1) {
     const selection = files[0];
     log.debug(`${_logKey}${func} - selection:`, selection);
-
-    const action = actionsSystem.createActionSetLastDialogFolder(path.dirname(selection));
+    lastDialogFolder = path.dirname(selection);
+    log.debug(`${_logKey}${func} - lastDialogFolder - out:`, lastDialogFolder);
+    const action = actionsSystem.createActionSetLastDialogFolder(lastDialogFolder);
     storeManager.dispatchGlobal(action);
 
     return selection;

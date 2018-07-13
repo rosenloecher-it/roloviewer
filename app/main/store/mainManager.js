@@ -178,6 +178,7 @@ export class MainManager extends StoreManager {
       this.dispatchRemote(action, destinations);
 
       action = actionsSystem.createActionInit(currentState.system);
+      //log.debug(`${_logKey}${func} - createActionInit(system) -`, action);
       this.dispatchRemote(action);
 
       action = actionsMainWindow.createActionInit(currentState.mainWindow);

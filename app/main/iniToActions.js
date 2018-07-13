@@ -5,7 +5,7 @@ import * as constants from "../common/constants";
 import {
   mergeConfigItem,
   valiBoolean, valiInt, valiLogLevel, valiRatingArray, valiString, valiTagArray,
-  valiFolderArray, valiBlacklistSnippets, valiUrl
+  valiFolderArray, valiBlacklistSnippets, valiUrl, valiDir
 } from "../common/utils/validate";
 import * as actionsContext from "../common/store/contextActions";
 import * as actionsCrawler from "../common/store/crawlerActions";
@@ -192,6 +192,8 @@ export function createSystemAction(iniDataIn, context, defaultLogFile, defaultEx
   actionData.powerSaveBlockTime = mergeConfigItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME,
     null,
     valiInt(iniData.system.powerSaveBlockTime));
+
+  actionData.lastDialogFolder = valiDir(iniData.system.lastDialogFolder);
 
   // TODO data.system.logfile;
 

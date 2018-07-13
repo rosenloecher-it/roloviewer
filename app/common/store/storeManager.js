@@ -292,6 +292,15 @@ export class StoreManager {
     return system.exiftool;
   }
 
+  get lastDialogFolder() {
+
+    const {system} = this.state;
+    if (!system)
+      return null;
+
+    return system.lastDialogFolder;
+  }
+
   get logConfig() {
 
     const {system} = this.state;
@@ -318,56 +327,5 @@ export class StoreManager {
       return constants.DEFCONF_META2MAPURL_FORMAT;
     return system.mapUrlFormat;
   }
-
-  // ........................................................
-
-  // ........................................................
-  // lastItems
-
-  // get lastAutoPlay() {
-  //   const {slideshowLast} = this.state;
-  //   if (!slideshowLast)
-  //     return false;
-  //   return slideshowLast.autoPlay;
-  // }
-  //
-  //
-  // get lastContainer() { return this.data.lastItems.container; }
-  //
-  // get lastItem() {
-  //   if (!this.data.lastItems.files)
-  //     return null;
-  //   const {files} = this.data.lastItems;
-  //   if (files.length <= 0)
-  //     return;
-  //   return files[files.length - 1];
-  // }
-  //
-  // setLastItemAndContainer(lastItemFile, lastContainer) {
-  //
-  //   const {lastItems} = this.data;
-  //
-  //   if (typeof(lastContainer) === typeof("str")) {
-  //     lastItems.files = [lastItemFile];
-  //   } else {
-  //     if (!lastItems.files)
-  //       lastItems.files = [lastItemFile];
-  //     else {
-  //       lastItems.files.push(lastItemFile);
-  //       while (lastItems.files.length > constants.DEFCONF_CRAWLER_BATCHCOUNT)
-  //         lastItems.files.shift();
-  //     }
-  //   }
-  //   lastItems.container = lastContainer;
-  // }
-  //
-  // // ........................................................
-  // // slideshow
-  //
-
-  //
-  // // ........................................................
-  // // crawler
-  //
 
 }

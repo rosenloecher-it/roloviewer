@@ -1,64 +1,111 @@
 
--------------------------------------------------------------------------
-Tasks
 
-(prio absteigend)
+Auswahl Verzeichnis
+Berechnung EVAL
 
-sofort ausführen
-	open/autoSelect
-		clear obsolete deliverFileInfo
-		put new deliverFileInfo
-	shutdown
+	Datum: fixes Datum oder Installation DB <== day0
+	kleinerer Wert gewinnt
+	Konfig: Interpretation 0 Sterne als x (2) Sterne!
 
+	Items:
+		eval_time = mt * (last_played - day0)
+			kleinerer Wert gewinnt
 
+		eval_rating = -(m)r * rating
+			negativ: kleinerer Wert gewinnt
 
+		gesamt = mt * (last_played - day0) - mr * rating
 
-deliverFileInfo
-	vergleiche Zeitstempel DB mit FS
-	lade von DB oder
-		lade von FS + speichere in DB
-	sende an Renderer
+		mt == 1 /(fix)
 
-crawleFile
-	compare FS und Meta
+		mr == 60 (x1 Stern gleich 60 Tage aus)
 
-evaluateDir
-	berechne Bewertung Dir anhand Kind-Elemente
+		Markierung "skip" !
 
-crawleDir
-	check within SourceFolder, outside BlackListFolder
+	Verzeichnis
+		Anforderung
+			items werden sortiert gespeichert!
 
-	merge DB + FS
-		=> viele crawleFile
-		=> childDirs am Anfang crawleDir-List einfügen
-		=> evaluateDir
+		eval_time = mt * (last_played - day0)
+			kleinerer Wert gewinnt
 
-crawleInit
-	wenn alle Dir abgearbeitet sind
-	setzt lastComplete
-	scanne Root-Dirs und füge als crawleDir ein
+		avg-item = Durchschnitt der 10 kleinsten Item-Werte
 
+		gesamt = mt * (last_played - day0) - ma * avg-item - mc * count
 
--------------------------------------------------------------------------
+			mt == 1 (fix?)
+			ma == 60 (wie Items?)
+			mc == 1 / batch_count
 
-TaskManager
-
-	getTask
-
-	pushTask(taskType, arg:fileOrFolder)
-		TASK
-		TASK_CRAWLE_FILE
-		TASK_EVAL_FOLDER
-		TASK_CRAWLE_FOLDER
-
-	clearTasks(taskType);
+		- Wert für Items
 
 -------------------------------------------------------------------------
 
-MetaReader
-	init (path exiftool)
+Auswahl Items
+	Anforderung
+		items werden sortiert gespeichert!
 
-	load(file)
+	Wahrscheinlichkeit aus math-Funktionier
+
+	Beispiel:
+		20 Item
+		selection = 20 - Wurzel(Zufalls-400);
+
+
+	keine zusammenhängenden Items?
+
+		eval
+
+
+-------------------------------------------------------------------------
+
+Prio 1
+	öffnen
+
+Prio 2
+	meta
+
+Prio 3
+	Prüfe Konfiguration: Wenn Änderungen gespeicherte Stand wegwerfen und komplett neu aufsetzen
+		Task wird vom System beim Start neu eingestellt
+		wenn Konfiguration geändert oder letzter Durchlauf x Tage her ist
+		Nezustart-Task Einstellen, wenn schon lange her ist
+			Task-Liste leeren: Prio 4 - LAST
+			Neustart-Task einstellen
+
+Prio 4
+	Neu-Berechnung Verzeichnis anhand gespeicherter Daten
+		Argument: aktuell angezeigte Datei
+
+Prio 5
+	Meta-Daten einlesen und abspeichern
+		n-Items
+		Eval für Verezichnis neu berechnen
+
+Prio 6
+	Verzeichnis aktualisieren
+		Agrument: neu Verzeichnis
+		diese Verzeichnis-Task-Liste wird gespeichert
+
+		löschen, wenn nicht mehr existiert
+		Objekt aus DB laden + wenn nicht in DB anlegen
+
+		Dateien abgleichen
+			wenn Datumstempel geändert => meta neu einlesen
+
+		neue Tasks erzeugen - Meta-Einlesen - n-Items
+
+Prio 7
+	Neustart-Task
+		Task-Liste (Dirs) neu füllen => Prio 6
+
+
+
+
+
+
+
+
 
 
 -------------------------------------------------------------------------
@@ -78,67 +125,5 @@ DB
 
 	saveCrawleFolders
 	loadCrawleFolders
-
--------------------------------------------------------------------------
-
-
-Crawler
-
-	init ()
-
-	setTaskManager
-		for pushTask
-
-	setSourceList([]);
-	setBlackList([]);
-
-	runStep(xxxx)
-
-
--------------------------------------------------------------------------
-
-MediaLoader
-
-	open
-		openFolder
-		openPlaylist
-
-	autoSelect(count)
-
-
--------------------------------------------------------------------------
-
-Dispatcher === Processor === workerOps
-	init ()
-
-	setTaskManager
-
-	config
-		setSourceList([]);
-		setBlackList([]);
-
-		setRatingFilter
-		setTagFilter
-		setTagBlackList
-
-	run
-
-
--------------------------------------------------------------------------
-
-OFFEN
-	TaskManager
-		TASK_OPEN
-		TASK_QUIT
-	save CrawlerState
-		saveToDb
-		loadFromToDb
-
--------------------------------------------------------------------------
-
-IPC - stepCrawler
-
-
-
 
 -------------------------------------------------------------------------

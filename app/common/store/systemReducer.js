@@ -19,6 +19,7 @@ export class SystemReducer {
   static defaultState() {
     return {
       exiftool: null,
+      lastDialogFolder: null,
       logfile: null,
       logLevelConsole: 'silly',
       logLevelFile: 'silly',
@@ -39,6 +40,8 @@ export class SystemReducer {
       switch (action.type) {
         case constants.AR_SYSTEM_INIT:
           return this.init(state, action);
+        case constants.AR_SYSTEM_SET_LAST_DIALOG_FOLDER:
+          return {...state, lastDialogFolder: action.payload};
 
         default:
           return state;
@@ -58,14 +61,14 @@ export class SystemReducer {
     //log.debug(`${this._logKey}${func} - in`);
 
     const {
-      exiftool,
+      exiftool, lastDialogFolder,
       logfile, logLevelConsole, logLevelFile,
       mapUrlFormat, powerSaveBlockTime
     } = action.payload;
 
     const newState = {
       ...state,
-      exiftool,
+      exiftool, lastDialogFolder,
       logfile, logLevelConsole, logLevelFile,
       mapUrlFormat, powerSaveBlockTime
     };

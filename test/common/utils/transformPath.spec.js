@@ -36,13 +36,14 @@ describe('transfromPath', () => {
     expect(!!output.dir).toBe(false);
   });
 
+
   it('determinePathAndFilename', () => {
 
     let output = null;
 
     const item1 = {
       file: "/home/data/mymedia/201x/2011/20111029-Helke-Party/20111029-2045-5153-ha.JPG",
-      details: {
+      meta: {
         filename: "file123.jpg",
         dir: "dir456"
       }
@@ -54,8 +55,8 @@ describe('transfromPath', () => {
     };
 
     output = determinePathAndFilename(item1, 4);
-    expect(output.filename).toBe(item1.details.filename);
-    expect(output.dir).toBe(item1.details.dir);
+    expect(output.filename).toBe(item1.meta.filename);
+    expect(output.dir).toBe(item1.meta.dir);
 
     output = determinePathAndFilename(item2, 4);
     expect(output.filename).toBe("20111029-2045-5153-ha.JPG");
