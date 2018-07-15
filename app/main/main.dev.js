@@ -6,7 +6,7 @@
  * through IPC.
  *
  * When running `npm run build` or `npm run build-main`, this file is compiled to
- * `./app/main.prod.js` using webpack. This gives us some performance wins.
+ * `.app/dist/main.prod.js` using webpack. This gives us some performance wins.
  *
  * @flow
  */

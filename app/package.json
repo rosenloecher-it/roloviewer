@@ -3,7 +3,7 @@
   "productName": "RoloSlider",
   "version": "0.0.1",
   "description": "Image slideshow viewer",
-  "main": "./main/main.prod.js",
+  "main": "./dist/main.prod.js",
   "author": {
     "name": "Raul Rosenlöcher",
     "email": "roloslider@rosenloecher-it.de",

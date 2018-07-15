@@ -12,12 +12,12 @@ const _logKey = "rendererOps";
 export function init(ipcMsg) {
   const func = ".init";
 
-  // // test statck trace
-  // try {
-  //   throw new Error('dummy error - renderer');
-  // } catch (err) {
-  //   log.error(`${_logKey}${func} - exception -`, err);
-  // }
+  // test statck trace
+  try {
+    throw new Error('dummy error - renderer');
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+  }
 
   try {
     storeManager.sender = ipc;
