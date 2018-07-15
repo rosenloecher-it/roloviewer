@@ -91,4 +91,23 @@ describe('cli', () => {
     // console.log("cli output:", output);
   });
 
+  it('cat first args', () => {
+    let argsIn = null;
+    let argsOut = null;
+
+    const remainingArg = '--remarg';
+    //  [ '/home/data/projects/electron/roloslider/node_modules/electron/dist/electron', './app/', --realArg ]
+
+    argsIn = [ '/home/data/projects/electron/roloslider/node_modules/electron/dist/electron', './app/', remainingArg ];
+    argsOut = Cli.prepareArgsForParser(argsIn);
+    expect(argsOut.length).toBe(0);
+
+    argsIn = [ '../rolosider', remainingArg ];
+    argsOut = Cli.prepareArgsForParser(argsIn);
+    expect(argsOut.length).toBe(1);
+    expect(argsOut[0]).toBe(remainingArg);
+
+
+
+  });
 });

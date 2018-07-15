@@ -97,6 +97,26 @@ export default class Cli {
 
   // ........................................................
 
+  static prepareArgsForParser(args) {
+    // npm prod
+    //    [ '/home/data/projects/electron/roloslider/node_modules/electron/dist/electron', './app/' ]
+    // npm dev
+    //   [ '/home/data/projects/electron/roloslider/node_modules/electron/dist/electron',
+    //      '-r',
+    //      'babel-register',
+    //      './app/main/main.dev.js' ]
+
+    // no chance to check all electron & webpack options (when starting via npm ...)
+    if (args.length >= 1) {
+      if (args[0].indexOf('electron') >= 0)
+        return [];
+    }
+
+    return args.slice(1); // skip first arg ($0 == binary)
+  }
+
+  // ........................................................
+
   parseArray(args) {
     try {
       if (!this.parser)
@@ -105,7 +125,8 @@ export default class Cli {
       this.initData();
       this.data.argsIn = args; // store for logging, when logger is initialized
 
-      const argsForParser = args.slice(1); // skip first arg ($0 == binary)
+      const argsForParser = Cli.prepareArgsForParser(args);
+
       this.data.result = this.parser.parse(argsForParser);
       if (this.data.result) {
         this.data.result.exitCode = this.data.exitCode;
