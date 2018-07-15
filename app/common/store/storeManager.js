@@ -214,6 +214,13 @@ export class StoreManager {
     return crawler;
   }
 
+  get database() {
+    const {crawler} = this.state;
+    if (!crawler)
+      return {};
+    return crawler.database;
+  }
+
   // ........................................................
   // mainWindow
 

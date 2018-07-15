@@ -26,7 +26,7 @@ export const createActionInit = ({
 
 
 export const createActionOpen = (container = null, selectFile = null) => ({
-  type: constants.AR_CRAWLER_OPEN,
+  type: constants.AR_CRAWLER_T1_OPEN,
   payload: {
     container, // null == autoSelect
     selectFile,
@@ -42,7 +42,7 @@ export const createActionRemoveTask = (obsoleteAction) => ({
 
 
 export const createActionDeliverMeta = (file) => ({
-  type: constants.AR_CRAWLER_DELIVER_META,
+  type: constants.AR_CRAWLER_T2_DELIVER_META,
   payload: {
     file,
     taskId: getTaskId()

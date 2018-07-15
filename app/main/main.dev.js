@@ -62,6 +62,13 @@ function onAppWillQuit() {
 
 function startApp(cli) {
 
+  // // test stack trace
+  // try {
+  //   throw new Error('dummy error - main');
+  // } catch (err) {
+  //   log.error(`${_logKey}.startApp - exception -`, err);
+  // }
+
   storeManager.init({
     isDevelopment: _isDevelopment,
     isProduction: _isProduction,

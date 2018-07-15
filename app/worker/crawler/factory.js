@@ -32,7 +32,7 @@ export class Factory {
   // ........................................................
 
   loadObjects(externalObjects) {
-    log.silly(`${_logKey}.loadObjects - in`);
+    //log.silly(`${_logKey}.loadObjects - in`);
 
     this.createObjects(externalObjects);
     this.coupleObjects();
@@ -43,7 +43,7 @@ export class Factory {
   // ........................................................
 
   createObjects(externalObjectsIn) {
-    log.silly(`${_logKey}.createObjects`);
+    //log.silly(`${_logKey}.createObjects`);
 
     const externalObjects = externalObjectsIn || {};
 
@@ -59,7 +59,7 @@ export class Factory {
   // ........................................................
 
   coupleObjects() {
-    log.silly(`${_logKey}.coupleObjects`);
+    //log.silly(`${_logKey}.coupleObjects`);
 
     const {data} = this;
 
@@ -109,7 +109,7 @@ export class Factory {
 
   shutdownObjects() {
     const func = ".shutdownObjects"
-    log.silly(`${_logKey}${func} - in`);
+    //log.silly(`${_logKey}${func} - in`);
 
     const instance = this;
     const {data} = instance;

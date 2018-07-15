@@ -20,6 +20,11 @@ export class CrawlerBase {
       metaReader: null,
       storeManager: null
     };
+
+    this.coupleObjects = this.coupleObjects.bind(this);
+    this.init = this.init.bind(this);
+    this.shutdown = this.shutdown.bind(this);
+
   }
 
   // ........................................................
@@ -55,7 +60,7 @@ export class CrawlerBase {
     const func = ".shutdown";
 
     const p = new Promise(function shutdownPromise(resolve, reject) {
-      log.silly(`${_logKey}${func}`);
+      //log.silly(`${_logKey}${func}`);
       resolve();
     });
 

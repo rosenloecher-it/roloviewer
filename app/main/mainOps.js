@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import * as constants from "../common/constants";
 import * as windows from './windows';
-import {mkDirByPathSync} from "./fileTools";
+import {mkDirWithParents} from "./fileTools";
 import * as ipc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
 import * as actionsSls from "../common/store/slideshowActions";
@@ -36,7 +36,7 @@ export function configLogger() {
 
       const parentDir = path.dirname(logConfig.logfile);
       if (!fs.existsSync(parentDir)) {
-        mkDirByPathSync(parentDir);
+        mkDirWithParents(parentDir);
       }
 
       log.transports.file.file = logConfig.logfile;

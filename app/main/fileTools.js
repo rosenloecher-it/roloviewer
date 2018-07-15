@@ -66,7 +66,7 @@ export function findExifTool(pathFromFile) {
 
 // ----------------------------------------------------------------------------------
 
-export function mkDirByPathSync(targetDir) {
+export function mkDirWithParents(targetDir) {
   const {sep} = path;
   const initDir = path.isAbsolute(targetDir) ? sep : '';
   const baseDir = '.';
@@ -76,14 +76,11 @@ export function mkDirByPathSync(targetDir) {
     try {
       if (!fs.existsSync(curDir)) {
         fs.mkdirSync(curDir);
-        console.log(`Directory ${curDir} created!`);
       }
     } catch (err) {
       if (err.code !== 'EEXIST') {
         throw err;
       }
-
-      console.log(`Directory ${curDir} already exists!`);
     }
 
     return curDir;
@@ -120,7 +117,7 @@ export function saveIniFile(file, data) {
 
   const parentDir = path.dirname(file);
   if (!fs.existsSync(parentDir)) {
-    mkDirByPathSync(parentDir);
+    mkDirWithParents(parentDir);
   }
 
   if (data) {

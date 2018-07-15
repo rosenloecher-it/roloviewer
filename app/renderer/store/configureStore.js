@@ -22,8 +22,8 @@ function configureStore(initialState?: counterStateType) {
   const isProduction = process.env.NODE_ENV === 'production';
   const isTest = process.env.NODE_ENV === 'test';
 
-  // Thunk Middleware
-  middleware.push(thunk);
+  // // Thunk Middleware
+  // middleware.push(thunk);
 
   // Logging Middleware
   const logger = createLogger({

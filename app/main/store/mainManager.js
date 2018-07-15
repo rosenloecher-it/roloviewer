@@ -173,6 +173,7 @@ export class MainManager extends StoreManager {
       const currentState = this.state;
 
       //log.debug(`${_logKey}${func} - destinations:`, destinations);
+      //log.debug(`${_logKey}${func} - currentState:`, currentState);
 
       action = actionsContext.createActionInit(currentState.context);
       this.dispatchRemote(action, destinations);

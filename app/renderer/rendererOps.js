@@ -1,10 +1,7 @@
 import log from 'electron-log';
 import * as constants from "../common/constants";
 import * as ipc from "./rendererIpc";
-import { _store } from './store/configureStore';
-import * as actionsSls from "../common/store/slideshowActions";
 import storeManager from "./store/rendererManager";
-import * as actionsCrawler from "../common/store/crawlerActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -14,6 +11,13 @@ const _logKey = "rendererOps";
 
 export function init(ipcMsg) {
   const func = ".init";
+
+  // // test statck trace
+  // try {
+  //   throw new Error('dummy error - renderer');
+  // } catch (err) {
+  //   log.error(`${_logKey}${func} - exception -`, err);
+  // }
 
   try {
     storeManager.sender = ipc;

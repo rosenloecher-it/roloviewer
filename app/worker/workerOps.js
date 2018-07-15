@@ -16,6 +16,14 @@ let _dispatcher = null;
 export function init() {
   const func = ".init";
 
+  // // test statck trace
+  // try {
+  //   throw new Error('dummy error - worker');
+  //
+  // } catch (err) {
+  //   log.error(`${_logKey}${func} - exception -`, err);
+  // }
+
   try {
     storeManager.sender = ipc;
 

@@ -5,6 +5,8 @@ import * as constants from '../constants';
 
 const _logKey = "crawlerReducer";
 
+export const PRIO_MAX = 7;
+
 // ----------------------------------------------------------------------------------
 
 export class CrawlerReducer {
@@ -15,6 +17,15 @@ export class CrawlerReducer {
   }
 
   // .....................................................
+
+  static defaultTaskArray() {
+    const tasks = [];
+
+    for (let i = 0; i <= PRIO_MAX; i++)
+      tasks.push([]);
+
+    return tasks;
+  }
 
   static defaultState() {
     return {
@@ -28,6 +39,7 @@ export class CrawlerReducer {
       tagShow: [],
       tasksPrio1open: [],
       tasksPrio2meta: [],
+      tasks: CrawlerReducer.defaultTaskArray()
     }
   }
 
@@ -43,13 +55,13 @@ export class CrawlerReducer {
 
       switch (action.type) {
 
-        case constants.AR_CRAWLER_DELIVER_META:
+        case constants.AR_CRAWLER_T2_DELIVER_META:
           return this.deliverMeta(state, action);
 
         case constants.AR_CRAWLER_REMOVE_TASK:
           return this.removeTask(state, action);
 
-        case constants.AR_CRAWLER_OPEN:
+        case constants.AR_CRAWLER_T1_OPEN:
           return this.open(state, action);
 
         case constants.AR_CRAWLER_INIT:
@@ -169,6 +181,29 @@ export class CrawlerReducer {
       return newState;
 
     return state;
+  }
+
+  // .....................................................
+
+  static getTaskPrio(taskType) {
+
+    switch (taskType) {
+      case constants.AR_CRAWLER_T1_OPEN:
+        return 0;
+      case constants.AR_CRAWLER_T2_DELIVER_META:
+        return 1;
+      case constants.AR_CRAWLER_T3_CHECK_STATUS:
+        return 2;
+      case constants.AR_CRAWLER_T4_RECALC_DIR:
+        return 3;
+      case constants.AR_CRAWLER_T5_DIR_META:
+        return 4;
+      case constants.AR_CRAWLER_T6_UPDATE_DIR:
+        return 5;
+
+      default:
+        return null;
+    }
   }
 
   // .....................................................

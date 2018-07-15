@@ -111,19 +111,17 @@ Prio 7
 -------------------------------------------------------------------------
 
 DB
-	loadFiles(folder)   		// compare, autoselect
 
-	loadFile()					// meta
-
-	saveFile(folder, name, stat, meta)
-
-
-	saveFolderEval(folder) 		//
-
-	loadFolderEval(maxResults)		// sortiert
-
+	saveStatus
+	loadStatus
 
 	saveCrawleFolders
 	loadCrawleFolders
+
+	saveDir
+	loadDir
+
+	getDirsSorted
+
 
 -------------------------------------------------------------------------

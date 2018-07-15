@@ -45,6 +45,8 @@ export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 2;
 
 export const DEFCONF_META2MAPURL_FORMAT = 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M';
 
+export const CRAWLER_TIME0 = 9;
+
 // --------------------------------------------------------------------------
 // format meta => mapUrl
 
@@ -63,7 +65,6 @@ export const LONG_REL = "<LONG_REL>";
 export const MSG_TYPE_INFO = 1;
 export const MSG_TYPE_ERROR = 2;
 export const MSG_TYPE_WARNING = 3;
-
 
 export const ERROR_NOT_IMPLEMENTED = "ERROR: Not implemented!";
 
@@ -122,9 +123,17 @@ export const AR_CONTEXT_SET_VERSION_EXIFREADER = 'AR_CONTEXT_SET_VERSION_EXIFREA
 // slideshowActions - crawler
 
 export const AR_CRAWLER_INIT = 'AR_CRAWLER_INIT';
-export const AR_CRAWLER_OPEN = 'AR_CRAWLER_OPEN';
+
 export const AR_CRAWLER_REMOVE_TASK = 'AR_CRAWLER_REMOVE_TASK';
-export const AR_CRAWLER_DELIVER_META = 'AR_CRAWLER_DELIVER_META';
+
+export const AR_CRAWLER_T1_OPEN = 'AR_CRAWLER_T1_OPEN';
+export const AR_CRAWLER_T2_DELIVER_META = 'AR_CRAWLER_T2_DELIVER_META';
+export const AR_CRAWLER_T3_CHECK_STATUS = 'AR_CRAWLER_T3_CHECK_STATUS';
+export const AR_CRAWLER_T4_RECALC_DIR = 'AR_CRAWLER_T4_RECALC_DIR';
+export const AR_CRAWLER_T5_DIR_META = 'AR_CRAWLER_T5_DIR_META';
+export const AR_CRAWLER_T6_UPDATE_DIR = 'AR_CRAWLER_T6_UPDATE_DIR';
+export const AR_CRAWLER_T7_RESTART = 'AR_CRAWLER_T7_RESTART';
+
 
 export const AR_CRAWLER_UPDATE_FILE = "AR_CRAWLER_UPDATE_FILE";
 export const AR_CRAWLER_EVAL_FOLDER = "AR_CRAWLER_EVAL_FOLDER";
