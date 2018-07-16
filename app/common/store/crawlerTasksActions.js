@@ -5,7 +5,7 @@ import * as constants from "../constants";
 
 let _currentTaskId = 1;
 
-function getTaskId() {
+function getNextTaskId() {
   return _currentTaskId++;
 }
 
@@ -16,21 +16,20 @@ export const createActionOpen = (container = null, selectFile = null) => ({
   payload: {
     container, // null == autoSelect
     selectFile,
-    taskId: getTaskId()
-  }
+  },
+  taskId: getNextTaskId()
 });
 
 export const createActionRemoveTask = (obsoleteAction) => ({
   type: constants.AR_CRAWLER_REMOVE_TASK,
   payload: deepmerge.all([ obsoleteAction, {} ]),
   //payload: obsoleteAction
+  taskId: getNextTaskId()
 });
 
 
 export const createActionDeliverMeta = (file) => ({
   type: constants.AR_CRAWLER_T2_DELIVER_META,
-  payload: {
-    file,
-    taskId: getTaskId()
-  }
+  payload: {file},
+  taskId: getNextTaskId()
 });

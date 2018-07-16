@@ -50,7 +50,7 @@ export class MediaLoader extends CrawlerBase {
           this.openAutoSelect();
         }
 
-        log.debug(`${_logKey}.open - out`);
+        //log.debug(`${_logKey}.open - out`);
         resolve();
 
       } catch (error) {

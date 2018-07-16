@@ -77,7 +77,7 @@ export class MetaReader extends CrawlerBase {
     const func = ".shutdown";
 
     const p = new Promise((resolve, reject) => {
-      log.silly(`${_logKey}${func}`);
+      //log.silly(`${_logKey}${func}`);
       if (this.data.exiftool)
         this.data.exiftool.end();
       this.data.exiftool = null;
