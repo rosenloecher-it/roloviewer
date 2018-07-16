@@ -4,7 +4,7 @@ import deepmerge from 'deepmerge';
 import configureStore from "./configureStore";
 import {StoreManager} from "../../common/store/storeManager";
 import * as constants from "../../common/constants";
-import * as fileTools from "../fileTools";
+import * as fileTools from "../../common/utils/fileUtils";
 import * as iniToActions from "../iniToActions";
 import * as actionsContext from "../../common/store/contextActions";
 import * as actionsMainWindow from "../../common/store/mainWindowActions";
@@ -102,8 +102,8 @@ export class MainManager extends StoreManager {
       //log.debug(`${_logKey}${func} - createSlideshowAction -`, action);
       this.dispatchLocal(action);
 
-      const defaultCrawlerDb = fileTools.getDefaultCrawlerDb();
-      action = iniToActions.createCrawlerAction(iniData, context, defaultCrawlerDb);
+      const defaultDbPath = fileTools.getConfigPath();
+      action = iniToActions.createCrawlerAction(iniData, context, defaultDbPath);
       //log.debug(`${_logKey}${func} - action -`, action);
       this.dispatchLocal(action);
 

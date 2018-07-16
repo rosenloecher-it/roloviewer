@@ -214,11 +214,11 @@ export class StoreManager {
     return crawler;
   }
 
-  get database() {
+  get databasePath() {
     const {crawler} = this.state;
     if (!crawler)
       return {};
-    return crawler.database;
+    return crawler.databasePath;
   }
 
   // ........................................................

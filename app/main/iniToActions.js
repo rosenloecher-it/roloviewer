@@ -65,9 +65,9 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
 
   const actionData = {};
 
-  actionData.database = mergeConfigItem(defaultCrawlerDb,
+  actionData.databasePath = mergeConfigItem(defaultCrawlerDb,
     null,
-    iniData.crawler.database);
+    iniData.crawler.databasePath);
 
   actionData.batchCount = mergeConfigItem(constants.DEFCONF_CRAWLER_BATCHCOUNT, valiInt(iniData.crawler.batchCount), null);
   actionData.showRating = valiRatingArray(iniData.crawler.showRating);

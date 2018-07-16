@@ -1,7 +1,9 @@
 import log from 'electron-log';
 import Datastore from 'nedb';
+import path from 'path';
 import {CrawlerBase} from "./CrawlerBase";
 import * as constants from "../../common/constants";
+import {mkDirWithParents} from "../../common/utils/fileUtils";
 
 // ----------------------------------------------------------------------------------
 
@@ -16,7 +18,8 @@ export class DbWrapper extends CrawlerBase {
   constructor() {
     super();
 
-    this.db = null;
+    this.dbDir = null;
+    this.dbStatus = null;
 
     if (process.platform.toLowerCase().indexOf('win') >= 0)
       this.convert2Id = this.convert2IdWindows
@@ -47,7 +50,7 @@ export class DbWrapper extends CrawlerBase {
 
     const instance = this;
 
-    const p = new Promise(function openPromise(resolve, reject) {
+    const p = new Promise((resolve, reject) => {
       try {
         instance.openSync();
         resolve();
@@ -64,12 +67,23 @@ export class DbWrapper extends CrawlerBase {
     const func = ".openSync";
 
     try {
-      const dbFile = this.data.storeManager.database;
-      if (!dbFile)
+      const databasePath = this.data.storeManager.databasePath;
+      if (!databasePath)
         throw new Error(`no db file!`);
 
-      this.db = new Datastore({ filename: dbFile, autoload: true });
-      log.debug(`${_logKey}${func} - open "${dbFile}"`);
+      mkDirWithParents(databasePath);
+
+      const fileDbDir = path.join(databasePath, `${constants.APP_BASENAME}Dir.db`);
+      const fileDbStatus = path.join(databasePath, `${constants.APP_BASENAME}Status.db`);
+
+      this.dbDir = null;
+      this.dbStatus = null;
+
+
+      this.dbDir = new Datastore({ filename: fileDbDir, autoload: true });
+      this.dbStatus = new Datastore({ filename: fileDbStatus, autoload: true });
+
+      log.debug(`${_logKey}${func} - open (in "${databasePath}")`);
 
     } catch (err) {
       log.error(`${_logKey}${func} failed:`. err);
@@ -111,7 +125,7 @@ export class DbWrapper extends CrawlerBase {
 
     try {
 
-      this.db.update({ _id: doc._id }, doc, options, this.saveDocCallback);
+      this.dbDir.update({ _id: doc._id }, doc, options, this.saveDocCallback);
 
     } catch (err) {
       log.error(`${_logKey}${func} failed:`. err);
@@ -131,7 +145,7 @@ export class DbWrapper extends CrawlerBase {
 
       let result = null;
 
-      this.db.find({ _id }, (err, docs) => {
+      this.dbDir.find({ _id }, (err, docs) => {
 
         if (err) {
           log.error(`${_logKey}${func} failed:`, err);
@@ -218,7 +232,13 @@ export class DbWrapper extends CrawlerBase {
   */
 
 
+  saveStatus() {
 
+  }
+
+  loadStatus() {
+
+  }
 }
 
 

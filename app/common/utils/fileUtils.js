@@ -3,7 +3,7 @@ import log from 'electron-log';
 import fs from 'fs';
 import path from 'path';
 import ini from 'configurable-ini';
-import * as constants from "../common/constants";
+import * as constants from "../constants";
 
 //----------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ export function getDefaultConfigFile(isProduction) {
 
   const extra = (isProduction ? "" : "_test");
   const configPath = getConfigPath();
-  const configName = `${constants.CONFIG_BASENAME}${extra}.ini`;
+  const configName = `${constants.APP_BASENAME}${extra}.ini`;
   const defaultConfigFile = path.join(configPath, configName);
   return defaultConfigFile;
 }

@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import * as constants from "../common/constants";
 import * as windows from './windows';
-import {mkDirWithParents} from "./fileTools";
+import {mkDirWithParents} from "../common/utils/fileUtils";
 import * as ipc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
 import * as actionsSls from "../common/store/slideshowActions";

@@ -21,7 +21,7 @@ import * as mainIpc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
 import Cli from "./cli";
 import * as constants from "../common/constants";
-import * as fileTools from "./fileTools";
+import * as fileTools from "../common/utils/fileUtils";
 
 // ----------------------------------------------------------------------------------
 

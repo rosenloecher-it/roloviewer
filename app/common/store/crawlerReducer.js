@@ -30,7 +30,7 @@ export class CrawlerReducer {
   static defaultState() {
     return {
       batchCount: constants.DEFCONF_CRAWLER_BATCHCOUNT,
-      database: null,
+      databasePath: null,
       folderBlacklist: [],
       folderBlacklistSnippets: [],
       folderSource: [],
@@ -72,14 +72,14 @@ export class CrawlerReducer {
     const func = ".init";
 
     const {
-      batchCount, database,
+      batchCount, databasePath,
       folderBlacklist, folderBlacklistSnippets, folderSource,
       showRating, tagBlacklist, tagShow,
     } = action.payload;
 
     const newState = {
       ...state,
-      batchCount, database,
+      batchCount, databasePath,
       folderBlacklist, folderBlacklistSnippets, folderSource,
       showRating, tagBlacklist, tagShow,
     };

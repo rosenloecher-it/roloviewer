@@ -18,7 +18,7 @@ export const APP_URL = 'https://www.rosenloecher-it.de';
 export const APP_CREATOR = 'Raul Rosenlöcher';
 
 export const CONFIG_NAME = 'RoloSlider';
-export const CONFIG_BASENAME = 'roloslider';
+export const APP_BASENAME = 'roloslider';
 
 // --------------------------------------------------------------------------
 // config

@@ -10,7 +10,6 @@ import * as testUtils from '../../common/utils/testUtils';
 const subdir = 'dbwrapper';
 
 let _testDir = null;
-let _testDb = null;
 
 // ----------------------------------------------------------------------------------
 
@@ -20,9 +19,6 @@ describe('dbWrapper', () => {
 
     _testDir = testUtils.ensureEmptyTestDir(subdir);
 
-    _testDb = path.join(_testDir, 'testdb');
-
-    //return initializeCityDatabase();
   });
 
   afterAll(() => {
@@ -37,7 +33,7 @@ describe('dbWrapper', () => {
 
     const state = storeManager.crawlerState;
 
-    state.database = _testDb;
+    state.databasePath = _testDir;
     console.log('', state)
 
     const dbWrapper = new DbWrapper();
