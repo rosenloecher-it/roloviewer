@@ -27,10 +27,7 @@ describe('dbWrapper', () => {
 
   it('open', () => {
 
-    console.log(process.platform);
-
     const storeManager = new TestManager();
-
     const state = storeManager.crawlerState;
 
     state.databasePath = _testDir;
@@ -45,17 +42,38 @@ describe('dbWrapper', () => {
       expect(idOut).toBe(idIn);
 
     const pathIn = '/Abc123';
-
-    dbWrapper.openSync();
-
-    const doc = dbWrapper.createDirDoc({ dir: pathIn });
-    doc.weight = 9;
-
-    dbWrapper.saveDoc(doc);
+    const weigthTest = 9;
 
 
-    const docOut = dbWrapper.loadDoc(pathIn);
-    console.log('docOut=', docOut);
+    return dbWrapper.open().then(() => {
+      const docIn = dbWrapper.createDirDoc({dir: pathIn});
+      docIn.weight = weigthTest;
+
+      console.log('docIn=', docIn);
+      return dbWrapper.saveDoc(docIn);
+    }).then(() => {
+
+      console.log('doc saved.');
+      return dbWrapper.loadDoc(pathIn);
+
+    }).then((docOut) => {
+
+      console.log('docOut=', docOut);
+
+      expect(docOut.weight).toBe(weigthTest);
+
+      return true;
+    }).catch((err) => {
+      console.error('test failed:', err);
+    });
+
+
+
+
+
+
+
+
 
 
 

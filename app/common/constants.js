@@ -41,7 +41,7 @@ export const DEFCONF_LOGLEVEL_CONSOLE = 'warn';
 
 export const DEFCONF_CRAWLER_BATCHCOUNT = 10;
 
-export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 2;
+export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 3;
 
 export const DEFCONF_META2MAPURL_FORMAT = 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M';
 

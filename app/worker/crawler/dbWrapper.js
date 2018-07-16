@@ -106,33 +106,35 @@ export class DbWrapper extends CrawlerBase {
 
   // ........................................................
 
-  saveDocCallback(err, numReplaced) {
-    const func = ".saveDocCallback";
-
-    if (err)
-      log.error(`${_logKey}${func} failed:`, err);
-    else
-      log.debug(`${_logKey}${func} - succeded (numReplaced=${numReplaced})`);
-  }
-
   saveDoc(doc) {
     const func = ".saveDoc";
-
-    if (!doc)
-      return;
-
     const options = { upsert: true };
 
-    try {
+    const p = new Promise((resolve, reject) => {
+      log.debug(`${_logKey}${func} - in `);
 
-      this.dbDir.update({ _id: doc._id }, doc, options, this.saveDocCallback);
+      if (!doc || ! doc._id)
+        reject(new Error('wrong args!'));
 
-    } catch (err) {
-      log.error(`${_logKey}${func} failed:`. err);
-      throw (err);
-    }
+      this.dbDir.update({ _id: doc._id }, doc, options, (err, numReplaced) => {
+        if (err)
+          reject(new Error(err));
 
-    //db.update(query, update, options, callback
+        if (numReplaced !== 1)
+          reject(new Error(`numReplaced !== 1 (${numReplaced})!`));
+
+        resolve();
+      });
+
+
+    }).catch((err) => {
+      const text = `${_logKey}${func}.promise.catch failed:`;
+      log.error(`${text}:`, err);
+      throw new Error(`${text} ${err}`);
+    });
+
+    return p;
+
   }
 
   // .......................................................
@@ -140,34 +142,24 @@ export class DbWrapper extends CrawlerBase {
   loadDoc(dir) {
     const func = ".loadDoc";
 
-    try {
-      const _id = this.convert2Id(dir);
+    const wantedId = this.convert2Id(dir);
 
-      let result = null;
+    const p = new Promise((resolve, reject) => {
+      log.debug(`${_logKey}${func} - in`);
 
-      this.dbDir.find({ _id }, (err, docs) => {
+      this.dbDir.findOne({ _id: wantedId }, (err, doc) => {
+        if (err)
+          reject(new Error(err));
 
-        if (err) {
-          log.error(`${_logKey}${func} failed:`, err);
-          throw (err);
-        }
-        if (docs.length !== 1)
-          throw new Error('expected 1 doc!');
-
-        // docs is an array containing documents Mars, Earth, Jupiter
-        // If no document is found, docs is equal to []
-
-        result = docs[0];
-        log.debug(`${_logKey}${func} - doc:`, result);
-
+        resolve(doc);
       });
+    }).catch((err) => {
+      const text = `${_logKey}${func}.promise.catch failed:`;
+      log.error(`${text}`, err);
+      throw new Error(`${text} ${err}`);
+    });
 
-      return result;
-
-    } catch (err) {
-      log.error(`${_logKey}${func} failed:`. err);
-      throw (err);
-    }
+    return p;
   }
 
   // ........................................................
