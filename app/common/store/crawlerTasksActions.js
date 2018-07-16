@@ -12,7 +12,7 @@ function getNextTaskId() {
 // ----------------------------------------------------------------------------------
 
 export const createActionOpen = (container = null, selectFile = null) => ({
-  type: constants.AR_CRAWLER_T1_OPEN,
+  type: constants.AR_CRAWLERTASK_OPEN,
   payload: {
     container, // null == autoSelect
     selectFile,
@@ -29,7 +29,7 @@ export const createActionRemoveTask = (obsoleteAction) => ({
 
 
 export const createActionDeliverMeta = (file) => ({
-  type: constants.AR_CRAWLER_T2_DELIVER_META,
+  type: constants.AR_CRAWLERTASK_DELIVER_META,
   payload: {file},
   taskId: getNextTaskId()
 });

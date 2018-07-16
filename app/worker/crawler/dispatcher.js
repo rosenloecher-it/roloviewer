@@ -56,7 +56,7 @@ export class Dispatcher extends CrawlerBase {
 
         switch (task.type) { // eslint-disable-line default-case
 
-          case constants.AR_CRAWLER_T2_DELIVER_META:
+          case constants.AR_CRAWLERTASK_DELIVER_META:
             p = metaReader.deliverMeta(task.payload.file); break;
 
           case constants.AR_CRAWLER_UPDATE_FILE:
@@ -68,7 +68,7 @@ export class Dispatcher extends CrawlerBase {
           case constants.AR_CRAWLER_START_NEW:
             p = mediaCrawler.startNew(); break;
 
-          case constants.AR_CRAWLER_T1_OPEN:
+          case constants.AR_CRAWLERTASK_OPEN:
             p = mediaLoader.open(task.payload); break;
         }
 

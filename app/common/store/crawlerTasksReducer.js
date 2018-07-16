@@ -45,13 +45,13 @@ export class CrawlerTasksReducer {
 
       switch (action.type) {
 
-        case constants.AR_CRAWLER_T2_DELIVER_META:
+        case constants.AR_CRAWLERTASK_DELIVER_META:
           return this.deliverMeta(state, action);
 
         case constants.AR_CRAWLER_REMOVE_TASK:
           return this.removeTask(state, action);
 
-        case constants.AR_CRAWLER_T1_OPEN:
+        case constants.AR_CRAWLERTASK_OPEN:
           return this.open(state, action);
 
         default:
@@ -73,11 +73,11 @@ export class CrawlerTasksReducer {
 
     const newState = { ...state };
 
-    const prioOpen = CrawlerTasksReducer.getTaskPrio(constants.AR_CRAWLER_T1_OPEN);
+    const prioOpen = CrawlerTasksReducer.getTaskPrio(constants.AR_CRAWLERTASK_OPEN);
     newState.tasks[prioOpen] = [action];
 
     if (action.payload.container !== null) { // folder or playlist
-      const prioMeta = CrawlerTasksReducer.getTaskPrio(constants.AR_CRAWLER_T2_DELIVER_META);
+      const prioMeta = CrawlerTasksReducer.getTaskPrio(constants.AR_CRAWLERTASK_DELIVER_META);
       newState.tasks[prioMeta] = [];
     }
 
@@ -94,7 +94,7 @@ export class CrawlerTasksReducer {
 
     const newState = { ...state };
 
-    const prioMeta = CrawlerTasksReducer.getTaskPrio(constants.AR_CRAWLER_T2_DELIVER_META);
+    const prioMeta = CrawlerTasksReducer.getTaskPrio(constants.AR_CRAWLERTASK_DELIVER_META);
     newState.tasks[prioMeta].push(action);
 
     //log.debug(`${this._logKey}${func} - out`, action);
@@ -149,17 +149,17 @@ export class CrawlerTasksReducer {
   static getTaskPrio(taskType) {
 
     switch (taskType) {
-      case constants.AR_CRAWLER_T1_OPEN:
+      case constants.AR_CRAWLERTASK_OPEN:
         return 0;
-      case constants.AR_CRAWLER_T2_DELIVER_META:
+      case constants.AR_CRAWLERTASK_DELIVER_META:
         return 1;
-      case constants.AR_CRAWLER_T3_CHECK_STATUS:
+      case constants.AR_CRAWLERTASK_CHECK_STATUS:
         return 2;
-      case constants.AR_CRAWLER_T4_RECALC_DIR:
+      case constants.AR_CRAWLERTASK_RECALC_DIR:
         return 3;
-      case constants.AR_CRAWLER_T5_DIR_META:
+      case constants.AR_CRAWLERTASK_DIR_META:
         return 4;
-      case constants.AR_CRAWLER_T6_UPDATE_DIR:
+      case constants.AR_CRAWLERTASK_UPDATE_DIR:
         return 5;
 
       default:
