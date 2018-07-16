@@ -2,7 +2,7 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import * as constants from "../../common/constants";
-import * as crawlerActions from "../../common/store/crawlerActions";
+import * as crawlerTasksActions from "../../common/store/crawlerTasksActions";
 import * as actionsSlideshow from "../../common/store/slideshowActions";
 import storeManager from "../../main/store/mainManager";
 import {CrawlerBase} from "./CrawlerBase";
@@ -27,33 +27,41 @@ export class MediaLoader extends CrawlerBase {
   open(input) {
     const func = ".open";
 
-    let data = null;
-    try {
-      //log.debug(`${_logKey}.open -`, data);
+    const p = new Promise((resolve, reject) => {
 
-      if (!input)
-        data = {};
-      else if (typeof(input) === typeof("str"))
-        data = { container: input };
-      else
-        data = input;
+      let data = null;
+      try {
+        //log.debug(`${_logKey}.open - in`, input);
 
-      if (data.container) {
+        if (!input)
+          data = {};
+        else if (typeof(input) === typeof("str"))
+          data = { container: input };
+        else
+          data = input;
 
-        if (fs.lstatSync(data.container).isDirectory())
-          this.openFolder(data.container, data.selectFile);
-        else if (fs.lstatSync(data.container).isFile())
-          this.openPlayList(data.container);
-      } else {
-        this.openAutoSelect();
+        if (data.container) {
+
+          if (fs.lstatSync(data.container).isDirectory())
+            this.openFolder(data.container, data.selectFile);
+          else if (fs.lstatSync(data.container).isFile())
+            this.openPlayList(data.container);
+        } else {
+          this.openAutoSelect();
+        }
+
+        log.debug(`${_logKey}.open - out`);
+        resolve();
+
+      } catch (error) {
+        const textBase = `${_logKey}${func} - exception -`;
+        log.error(textBase, error);
+        reject(new Error(`${textBase} ${error}`));
       }
-    } catch (error) {
-      const text = `${_logKey}${func} - exception - ${error}`;
-      log.error(`${_logKey}${func} - exception -`, error);
-      log.error(`${_logKey}${func} - data -`, data);
-      //TODO this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text);
-    }
 
+    });
+
+    return p;
   }
 
   // ........................................................
@@ -169,7 +177,8 @@ export class MediaLoader extends CrawlerBase {
 
     for (let i = 0; i < files.length; i++) {
 
-      const action = crawlerActions.createActionDeliverMeta(files[i]);
+      const action = crawlerTasksActions.createActionDeliverMeta(files[i]);
+      //log.debug(`${_logKey}.addTasksDeliverFileMeta - action:`, action);
       this.data.storeManager.dispatchGlobal(action);
 
     }

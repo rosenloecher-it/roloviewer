@@ -10,7 +10,7 @@ import DetailsOverlay from './detailsOverlay';
 import * as actions from "../../common/store/slideshowActions";
 import storeManager from "../store/rendererManager";
 import * as constants from "../../common/constants";
-import * as actionsCrawler from "../../common/store/crawlerActions";
+import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
 import * as ops from "../rendererOps";
 
 // ----------------------------------------------------------------------------------
@@ -344,7 +344,7 @@ class Slideshow extends React.Component {
           break; // already send
         }
 
-        const action = actionsCrawler.createActionOpen(null, null);
+        const action = actionsCrawlerTasks.createActionOpen(null, null);
         storeManager.dispatchGlobal(action);
 
         data.lastRequestKey = requestKey;

@@ -46,7 +46,7 @@ export class CrawlerBase {
   init() {
     const func = ".init";
 
-    const p = new Promise(function initPromise(resolve, reject) {
+    const p = new Promise((resolve, reject) => {
       //log.silly(`${_logKey}${func}`);
       resolve();
     });
@@ -59,7 +59,7 @@ export class CrawlerBase {
   shutdown() {
     const func = ".shutdown";
 
-    const p = new Promise(function shutdownPromise(resolve, reject) {
+    const p = new Promise((resolve, reject) => {
       //log.silly(`${_logKey}${func}`);
       resolve();
     });

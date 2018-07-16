@@ -10,7 +10,7 @@ import * as powerSaveBlocker from "./powerSaveBlocker";
 import * as actionsSls from "../common/store/slideshowActions";
 import storeManager from './store/mainManager';
 import * as actionsMainWindow from "../common/store/mainWindowActions";
-import * as actionsCrawler from "../common/store/crawlerActions";
+import * as actionsCrawlerTasks from "../common/store/crawlerTasksActions";
 import * as actionsSystem from "../common/store/systemActions";
 import * as metaReader from '../worker/crawler/metaReader';
 
@@ -152,7 +152,8 @@ export function activateChild(ipcMsg) {
       statusChildsState = 0;
 
       const slsState = storeManager.slideshowState;
-      const action = actionsCrawler.createActionOpen(slsState.lastContainer, slsState.lastItem);
+      const action = actionsCrawlerTasks.createActionOpen(slsState.lastContainer, slsState.lastItem);
+      //log.debug(`${_logKey}${func} - open -`, action);
       storeManager.dispatchGlobal(action);
     }
   } catch (err) {
@@ -193,7 +194,7 @@ export function openDialog(isDirectory) {
 export function openDirectory() {
   const folder = openDialog(true);
   if (folder) {
-    const action = actionsCrawler.createActionOpen(folder);
+    const action = actionsCrawlerTasks.createActionOpen(folder);
     storeManager.dispatchGlobal(action);
   }
 }
@@ -203,7 +204,7 @@ export function openDirectory() {
 export function openPlayList() {
   const playlist = openDialog(false);
   if (playlist) {
-    const action = actionsCrawler.createActionOpen(playlist);
+    const action = actionsCrawlerTasks.createActionOpen(playlist);
     storeManager.dispatchGlobal(action);
   }
 }
@@ -216,7 +217,7 @@ export function openItemDirectory() {
 
   if (slideshowState && slideshowState.lastItem) {
     const folder = path.dirname(slideshowState.lastItem);
-    const action = actionsCrawler.createActionOpen(folder, slideshowState.lastItem);
+    const action = actionsCrawlerTasks.createActionOpen(folder, slideshowState.lastItem);
     storeManager.dispatchGlobal(action);
   }
 }
@@ -226,7 +227,7 @@ export function openItemDirectory() {
 export function autoSelect() {
   log.debug(`${_logKey}.autoSelect`);
 
-  const action = actionsCrawler.createActionOpen(null, null);
+  const action = actionsCrawlerTasks.createActionOpen(null, null);
   storeManager.dispatchGlobal(action);
 }
 

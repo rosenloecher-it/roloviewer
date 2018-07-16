@@ -97,7 +97,7 @@ function storeMainWindowState() {
 
     //log.debug(`${_logKey}${func} - data -`, action);
 
-    storeManager.dispatchGlobal(action);
+    storeManager.dispatchLocal(action);
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);

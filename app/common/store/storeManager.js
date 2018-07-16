@@ -222,6 +222,18 @@ export class StoreManager {
   }
 
   // ........................................................
+  // crawlerTasks
+
+  get crawlerTasksState() {
+    const {crawlerTasks} = this.state;
+    if (!crawlerTasks)
+      return {};
+    return crawlerTasks;
+  }
+
+
+
+  // ........................................................
   // mainWindow
 
   get mainWindowState() {

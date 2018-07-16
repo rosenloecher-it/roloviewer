@@ -1,10 +1,10 @@
-import {CrawlerReducer} from '../../../app/common/store/crawlerReducer';
-import * as actions from '../../../app/common/store/crawlerActions';
+import {CrawlerTasksReducer} from '../../../app/common/store/crawlerTasksReducer';
+import * as actions from '../../../app/common/store/crawlerTasksActions';
 
 // ----------------------------------------------------------------------------------
 
 function createDefaultTestState() {
-  const reducer = new CrawlerReducer('createDefaultTestState');
+  const reducer = new CrawlerTasksReducer('createDefaultTestState');
   const state = reducer.reduce(undefined, { type: "action_name_should_not_exists!!_14e1234"});
 
   return state;
@@ -12,14 +12,14 @@ function createDefaultTestState() {
 
 // ----------------------------------------------------------------------------------
 
-describe('crawlerReducer - task handling', () => {
+describe('CrawlerTasksReducer - task handling', () => {
 
   it ('createActionJump', () => {
     let stateOut, stateIn;
     let action;
     let count;
 
-    const reducer = new CrawlerReducer('test');
+    const reducer = new CrawlerTasksReducer('test');
 
     // prepare state
     const stateDefault = createDefaultTestState();
@@ -27,12 +27,12 @@ describe('crawlerReducer - task handling', () => {
     stateIn = stateDefault;
     action = actions.createActionOpen();
     stateOut = reducer.reduce(stateIn, action);
-    expect(CrawlerReducer.countTasks(stateOut)).toBe(1);
+    expect(CrawlerTasksReducer.countTasks(stateOut)).toBe(1);
 
     stateIn = stateOut;
     action = actions.createActionRemoveTask(action);
     stateOut = reducer.reduce(stateIn, action);
-    expect(CrawlerReducer.countTasks(stateOut)).toBe(0);
+    expect(CrawlerTasksReducer.countTasks(stateOut)).toBe(0);
 
     //console.log(`stateOut`, stateOut);
 
@@ -47,28 +47,28 @@ describe('crawlerReducer - task handling', () => {
     const action3 = actions.createActionDeliverMeta('3');
     stateOut = reducer.reduce(stateOut, action3);
 
-    expect(CrawlerReducer.countTasks(stateOut)).toBe(4);
+    expect(CrawlerTasksReducer.countTasks(stateOut)).toBe(4);
 
     stateIn = stateOut;
     action = actions.createActionRemoveTask(action2);
     stateOut = reducer.reduce(stateOut, action);
-    expect(CrawlerReducer.countTasks(stateOut)).toBe(3);
+    expect(CrawlerTasksReducer.countTasks(stateOut)).toBe(3);
 
-    expect(CrawlerReducer.existsTask(stateOut, action1)).toBe(true);
-    expect(CrawlerReducer.existsTask(stateOut, action2)).toBe(false);
-    expect(CrawlerReducer.existsTask(stateOut, action3)).toBe(true);
+    expect(CrawlerTasksReducer.existsTask(stateOut, action1)).toBe(true);
+    expect(CrawlerTasksReducer.existsTask(stateOut, action2)).toBe(false);
+    expect(CrawlerTasksReducer.existsTask(stateOut, action3)).toBe(true);
 
     action = actions.createActionRemoveTask(action1);
     stateOut = reducer.reduce(stateOut, action);
-    expect(CrawlerReducer.countTasks(stateOut)).toBe(2);
-    expect(CrawlerReducer.existsTask(stateOut, action1)).toBe(false);
-    expect(CrawlerReducer.existsTask(stateOut, action2)).toBe(false);
-    expect(CrawlerReducer.existsTask(stateOut, action3)).toBe(true);
+    expect(CrawlerTasksReducer.countTasks(stateOut)).toBe(2);
+    expect(CrawlerTasksReducer.existsTask(stateOut, action1)).toBe(false);
+    expect(CrawlerTasksReducer.existsTask(stateOut, action2)).toBe(false);
+    expect(CrawlerTasksReducer.existsTask(stateOut, action3)).toBe(true);
 
     action = actions.createActionRemoveTask(action3);
     stateOut = reducer.reduce(stateOut, action);
-    expect(CrawlerReducer.countTasks(stateOut)).toBe(1);
-    expect(CrawlerReducer.existsTask(stateOut, action3)).toBe(false);
+    expect(CrawlerTasksReducer.countTasks(stateOut)).toBe(1);
+    expect(CrawlerTasksReducer.existsTask(stateOut, action3)).toBe(false);
 
     //action = ;
 

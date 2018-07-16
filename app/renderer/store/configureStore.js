@@ -7,6 +7,8 @@ import rootReducer from "./rendererRootReducer";
 
 // ----------------------------------------------------------------------------------
 
+const _logKey = "configureRendererStore";
+
 const _history = createHashHistory();
 
 const _store = configureStore();
@@ -15,62 +17,70 @@ const _store = configureStore();
 
 function configureStore(initialState?: counterStateType) {
   // Redux Configuration
-  const middleware = [];
-  const enhancers = [];
 
-  const isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
-  const isProduction = process.env.NODE_ENV === 'production';
-  const isTest = process.env.NODE_ENV === 'test';
+  try {
+    const middleware = [];
+    const enhancers = [];
 
-  // // Thunk Middleware
-  // middleware.push(thunk);
+    const isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+    const isProduction = process.env.NODE_ENV === 'production';
+    const isTest = process.env.NODE_ENV === 'test';
 
-  // Logging Middleware
-  const logger = createLogger({
-    level: (isDevelopment ? 'info' : 'error'),
-    collapsed: true
-  });
+    // // Thunk Middleware
+    // middleware.push(thunk);
 
-  // Skip redux logs in console during the tests
-  if (!isTest) {
-    middleware.push(logger);
-  }
-
-  // Router Middleware
-  const router = routerMiddleware(_history);
-  middleware.push(router);
-
-  let localStore = null;
-
-  if (!isDevelopment) {
-    const enhancer = applyMiddleware(...middleware);
-    localStore = createStore(rootReducer, initialState, enhancer);
-
-  } else {
-    // Redux DevTools Configuration
-    // If Redux DevTools Extension is installed use it, otherwise use Redux compose
-    /* eslint-disable no-underscore-dangle */
-    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-      ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-      : compose;
-    /* eslint-enable no-underscore-dangle */
-
-    // Apply Middleware & Compose Enhancers
-    enhancers.push(applyMiddleware(...middleware));
-    const enhancer = composeEnhancers(...enhancers);
-
-    // Create Store
-    localStore = createStore(rootReducer, initialState, enhancer);
-  }
-
-  if (isProduction && module.hot) {
-    module.hot.accept('./rendererRootReducer', () => {
-      const nextReducer = combineReducers(rootReducer);
-      localStore.replaceReducer(nextReducer);
+    // Logging Middleware
+    const logger = createLogger({
+      level: (isDevelopment ? 'info' : 'error'),
+      collapsed: true
     });
+
+    // Skip redux logs in console during the tests
+    if (!isTest) {
+      middleware.push(logger);
+    }
+
+    // Router Middleware
+    const router = routerMiddleware(_history);
+    middleware.push(router);
+
+    let localStore = null;
+
+    if (!isDevelopment) {
+      const enhancer = applyMiddleware(...middleware);
+      localStore = createStore(rootReducer, initialState, enhancer);
+
+    } else {
+      // Redux DevTools Configuration
+      // If Redux DevTools Extension is installed use it, otherwise use Redux compose
+      /* eslint-disable no-underscore-dangle */
+      const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+        ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+        : compose;
+      /* eslint-enable no-underscore-dangle */
+
+      // Apply Middleware & Compose Enhancers
+      enhancers.push(applyMiddleware(...middleware));
+      const enhancer = composeEnhancers(...enhancers);
+
+      // Create Store
+      localStore = createStore(rootReducer, initialState, enhancer);
+    }
+
+    if (isProduction && module.hot) {
+      module.hot.accept('./rendererRootReducer', () => {
+        const nextReducer = combineReducers(rootReducer);
+        localStore.replaceReducer(nextReducer);
+      });
+    }
+
+    return localStore;
+  } catch (err) {
+    log.error(`${_logKey}.configureStore - exception -`, err);
+
+    return null;
   }
 
-  return localStore;
 };
 
 export default { _store, _history };

@@ -125,37 +125,30 @@ export class MetaReader extends CrawlerBase {
   deliverMeta(file) {
     const func = ".deliverMeta";
 
-    if (!this.data.exiftool)
-      return;
+    //log.debug(`${_logKey}${func} - in`, file);
 
     const instance = this;
     const {storeManager} = instance.data;
 
-    const p = new Promise(function deliverMetaPromise(resolve, reject) {
-      try {
-        //log.debug(`${_logKey}${func}: in - ${file}`);
+    const p = new Promise((resolve, reject) => {
 
-        if (instance.data.exiftool) {
-          instance.data.exiftool.read(file).then((tags) => {
-            //log.debug(`${_logKey}${func}: in2 - ${file}`);
-            instance.transformAndDeliverTags(file, tags);
-            resolve();
-            return true;
-          }).catch((err) => {
-            log.error(`${_logKey}${func} - exception - `, err);
-            storeManager.showMessage(constants.MSG_TYPE_ERROR, `exception - ${_logKey}${func} - ${err}`);
-            reject(err);
-            return false;
-          });
-        } else {
-          // TODO implement fallback to ExifReader
-          reject(new Error("exiftool is not initialied (and fallback is not implemented)!"));
-        }
-      } catch (err) {
-        log.error(`${_logKey}${func} - exception:`, err);
-        storeManager.showMessage(constants.MSG_TYPE_ERROR, `exception - ${_logKey}${func} - ${err}`);
-        reject();
+      //log.debug(`${_logKey}${func}: in - ${file}`);
+      if (instance.data.exiftool) {
+        instance.data.exiftool.read(file).then((tags) => {
+          //log.debug(`${_logKey}${func}: in2 - ${file}`);
+          instance.transformAndDeliverTags(file, tags);
+          resolve();
+        }).catch((err) => {
+          log.error(`${_logKey}${func} - exception - `, err);
+          reject(err);
+        });
+      } else {
+        // TODO implement fallback to ExifReader
+        //reject(new Error("exiftool is not initialied (and fallback is not implemented)!"));
+        log.warn(`${_logKey}${func} - exiftool is not initialied (and fallback is not implemented)!`);
+        resolve();
       }
+
     });
 
     return p;

@@ -1,7 +1,7 @@
 import log from 'electron-log';
 import * as constants from "../../common/constants";
-import * as actionsCrawler from "../../common/store/crawlerActions";
-import {CrawlerReducer} from "../../common/store/crawlerReducer";
+import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
+import {CrawlerTasksReducer} from "../../common/store/crawlerTasksReducer";
 import {CrawlerBase} from "./CrawlerBase";
 
 // ----------------------------------------------------------------------------------
@@ -29,19 +29,22 @@ export class Dispatcher extends CrawlerBase {
     const {storeManager} = instance.data;
 
     try {
-      if (this.runningTask !== null)
+      if (this.runningTask !== null) {
+        log.debug(`${_logKey}${func} - active runningTask => skip`);
         return; // async processing aktive
+      }
 
-      const crawlerState = storeManager.crawlerState;
-      instance.runningTask = CrawlerReducer.getNextTask(crawlerState);
+      const crawlerTasksState = storeManager.crawlerTasksState;
+      instance.runningTask = CrawlerTasksReducer.getNextTask(crawlerTasksState);
+      //log.debug(`${_logKey}${func} - in`, instance.runningTask);
 
       if (instance.runningTask === null)
         return; // ok
 
-      //let countTasks2 = CrawlerReducer.countTasks(crawlerState);
+      //let countTasks2 = CrawlerReducer.countTasks(crawlerTasksState);
       //log.debug(`${_logKey}${func} - countTasks2=${countTasks2}`);
 
-      const p = new Promise((resolve) => {
+      const p = new Promise((resolve, reject) => {
         //log.debug(`${_logKey}${func}.promise - in`);
 
         const {metaReader} = instance.data;
@@ -49,49 +52,48 @@ export class Dispatcher extends CrawlerBase {
         const {mediaLoader} = instance.data;
         const task = instance.runningTask;
 
+        let p = null;
+
         switch (task.type) { // eslint-disable-line default-case
 
           case constants.AR_CRAWLER_T2_DELIVER_META:
-            metaReader.deliverMeta(task.payload.file);
-            break;
+            p = metaReader.deliverMeta(task.payload.file); break;
 
           case constants.AR_CRAWLER_UPDATE_FILE:
-            mediaCrawler.updateFile(task.payload);
-            break;
+            p = mediaCrawler.updateFile(task.payload); break;
           case constants.AR_CRAWLER_EVAL_FOLDER:
-            mediaCrawler.evalFolder(task.payload);
-            break;
+            p = mediaCrawler.evalFolder(task.payload); break;
           case constants.AR_CRAWLER_UPDATE_FOLDER:
-            mediaCrawler.updateFolder(task.payload);
-            break;
+            p = mediaCrawler.updateFolder(task.payload); break;
           case constants.AR_CRAWLER_START_NEW:
-            mediaCrawler.startNew();
-            break;
+            p = mediaCrawler.startNew(); break;
 
           case constants.AR_CRAWLER_T1_OPEN:
-            mediaLoader.open(task.payload);
-            break;
-
-          default:
-            throw new Error(`unknown task type ${task.type}!`);
+            p = mediaLoader.open(task.payload); break;
         }
 
-        resolve();
+        if (!p)
+          reject(new Error(`unknown task type ${task.type}!`));
+        else
+          resolve(p);
 
+      }).then((p2) => {
+        return p2;
       }).catch((err) => {
         const logPos = `${_logKey}${func}.catch`;
         log.error(`${logPos} - exception -`, err);
         storeManager.showMessage(constants.MSG_TYPE_ERROR, `${logPos} - exception - ${err}`);
 
       }).then(() => { // finally
-
+        //log.debug(`${_logKey}${func}.finally - in`);
         const localRunningTask = instance.runningTask;
         instance.runningTask = null;
-        const removeTaskAction = actionsCrawler.createActionRemoveTask(localRunningTask);
+        const removeTaskAction = actionsCrawlerTasks.createActionRemoveTask(localRunningTask);
         storeManager.dispatchGlobal(removeTaskAction);
 
         setImmediate(instance.processTask); // check for next task
 
+        return true;
       }).catch((err) => { // catch finally
         const logPos = `${_logKey}${func}.finally.catch`;
         log.error(`${logPos} - exception -`, err);

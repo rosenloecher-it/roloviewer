@@ -147,6 +147,8 @@ export class MainManager extends StoreManager {
 
     if (clonedState.context !== undefined) delete clonedState.context;
 
+    if (clonedState.crawlerTasks !== undefined) delete clonedState.crawlerTasks;
+
     if (clonedState.messages !== undefined) delete clonedState.messages;
 
     const {slideshow} = clonedState;
