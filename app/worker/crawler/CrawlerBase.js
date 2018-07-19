@@ -1,4 +1,5 @@
 import log from 'electron-log';
+import * as constants from "../../common/constants";
 
 // ----------------------------------------------------------------------------------
 
@@ -10,12 +11,15 @@ export class CrawlerBase {
 
 
   constructor() {
-    const func = ".constructor"
+    const func = ".constructor";
 
-    this.data = {
+    this.data = {};
+
+    this.objects = {
       dbWrapper: null,
       dispatcher: null,
       mediaCrawler: null,
+      mediaDisposer: null,
       mediaLoader: null,
       metaReader: null,
       storeManager: null
@@ -23,6 +27,8 @@ export class CrawlerBase {
 
     this.coupleObjects = this.coupleObjects.bind(this);
     this.init = this.init.bind(this);
+    this.logAndShowError = this.logAndShowError.bind(this);
+    this.logAndRethrowError = this.logAndRethrowError.bind(this);
     this.shutdown = this.shutdown.bind(this);
 
   }
@@ -33,43 +39,45 @@ export class CrawlerBase {
     const func = ".init";
     //log.debug(`${_logKey}${func}`);
 
-    this.data.dbWrapper = input.dbWrapper;
-    this.data.mediaCrawler = input.mediaCrawler;
-    this.data.mediaLoader = input.mediaLoader;
-    this.data.metaReader = input.metaReader;
-    this.data.storeManager = input.storeManager;
+    this.objects.dbWrapper = input.dbWrapper;
+    this.objects.mediaCrawler = input.mediaCrawler;
+    this.objects.mediaDisposer = input.mediaDisposer;
+    this.objects.mediaLoader = input.mediaLoader;
+    this.objects.metaReader = input.metaReader;
+    this.objects.storeManager = input.storeManager;
 
   }
 
   // ........................................................
 
   init() {
-    const func = ".init";
-
-    const p = new Promise((resolve, reject) => {
-      //log.silly(`${_logKey}${func}`);
-      resolve();
-    });
-
-    return p;
+    // overwrite by subclass
+    return Promise.resolve();
   }
 
   // ........................................................
 
   shutdown() {
-    const func = ".shutdown";
-
-    const p = new Promise((resolve, reject) => {
-      //log.silly(`${_logKey}${func}`);
-      resolve();
-    });
-
-    return p;
+    // overwrite by subclass
+    return Promise.resolve();
   }
 
   // ........................................................
 
+  logAndShowError(logPos, err) {
+    log.error(`${logPos} -`, err);
+    if (this.objects.storeManager)
+      this.objects.storeManager.showMessage(constants.MSG_TYPE_ERROR, `${logPos} - ${err}`)
+  }
 
+  // ........................................................
+
+  logAndRethrowError(logPos, err) {
+    log.error(`${logPos} -`, err);
+    throw err; // stacktrace of errors is not useable anyway
+  }
+
+  // ........................................................
 
 }
 

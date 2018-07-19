@@ -62,8 +62,14 @@ Auswahl Items
 Prio 1
 	öffnen
 
+	check for cached results => deliver
+	+ find new ones
+
 Prio 2
 	meta
+
+Prio 3
+	fill autoCache
 
 Prio 3
 	Prüfe Konfiguration: Wenn Änderungen gespeicherte Stand wegwerfen und komplett neu aufsetzen
@@ -114,9 +120,6 @@ DB
 
 	saveStatus
 	loadStatus
-
-	saveCrawleFolders
-	loadCrawleFolders
 
 	saveDir
 	loadDir

@@ -24,5 +24,18 @@ describe('stringUtils', () => {
 
   });
 
+  it ('randomString', () => {
+    let output;
 
+    const input = "123456789";
+
+
+    output = stringUtils.randomString(10);
+
+    expect(output.length).toBe(10);
+
+    console.log(output);
+
+
+  });
 });

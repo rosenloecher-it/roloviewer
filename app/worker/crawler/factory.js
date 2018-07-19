@@ -4,6 +4,7 @@ import {Dispatcher} from "./dispatcher";
 import {MediaCrawler} from "./mediaCrawler";
 import {MetaReader} from './metaReader';
 import {MediaLoader} from "./mediaLoader";
+import {MediaDisposer} from "./mediaDisposer";
 
 // ----------------------------------------------------------------------------------
 
@@ -14,18 +15,19 @@ const _logKey = "factory";
 export class Factory {
 
   constructor(storeManager) {
-    const func = ".constructor"
+    const func = '.constructor';
 
-    this.data = {
+    this.objects = {
       dbWrapper: null,
       dispatcher: null,
       mediaCrawler: null,
+      mediaDisposer: null,
       mediaLoader: null,
       metaReader: null,
       storeManager
     };
 
-    if (!this.data.storeManager)
+    if (!this.objects.storeManager)
       throw new Error(`${_logKey}${func} - no storeManager!`);
   }
 
@@ -47,13 +49,15 @@ export class Factory {
 
     const externalObjects = externalObjectsIn || {};
 
-    const {data} = this;
+    const {objects} = this;
 
-    data.dbWrapper = externalObjects.dbWrapper || new DbWrapper();
-    data.dispatcher = externalObjects.dispatcher || new Dispatcher();
-    data.mediaCrawler = externalObjects.mediaCrawler || new MediaCrawler();
-    data.mediaLoader = externalObjects.mediaLoader || new MediaLoader();
-    data.metaReader = externalObjects.metaReader || new MetaReader();
+    objects.dbWrapper = externalObjects.dbWrapper || new DbWrapper();
+    objects.dispatcher = externalObjects.dispatcher || new Dispatcher();
+    objects.mediaCrawler = externalObjects.mediaCrawler || new MediaCrawler();
+    objects.mediaDisposer = externalObjects.mediaDisposer || new MediaDisposer();
+    objects.mediaLoader = externalObjects.mediaLoader || new MediaLoader();
+    objects.metaReader = externalObjects.metaReader || new MetaReader();
+
   }
 
   // ........................................................
@@ -61,38 +65,41 @@ export class Factory {
   coupleObjects() {
     //log.silly(`${_logKey}.coupleObjects`);
 
-    const {data} = this;
+    const {objects} = this;
 
-    Factory.checkObjects(data);
+    Factory.checkObjects(objects);
 
     // all classes use the same property names!
-    data.dbWrapper.coupleObjects(data);
-    data.dispatcher.coupleObjects(data);
-    data.mediaCrawler.coupleObjects(data);
-    data.mediaLoader.coupleObjects(data);
-    data.metaReader.coupleObjects(data);
+    objects.dbWrapper.coupleObjects(objects);
+    objects.dispatcher.coupleObjects(objects);
+    objects.mediaCrawler.coupleObjects(objects);
+    objects.mediaDisposer.coupleObjects(objects);
+    objects.mediaLoader.coupleObjects(objects);
+    objects.metaReader.coupleObjects(objects);
   }
 
   // ........................................................
 
   initObjects() {
-    const func = ".initObjects"
+    const func = '.initObjects';
 
-    const {data} = this;
+    const {objects} = this;
 
-    Factory.checkObjects(data);
+    Factory.checkObjects(objects);
 
     /* eslint-disable arrow-body-style */
 
     // order crucial!
-    return data.dbWrapper.init().then(() => {
-      return data.metaReader.init();
+    return objects.mediaDisposer.init().then(() => {
+      return objects.dbWrapper.init();
     }).then(() => {
-      return data.mediaCrawler.init();
+      return objects.metaReader.init();
     }).then(() => {
-      return data.mediaLoader.init();
+      return objects.mediaCrawler.init();
     }).then(() => {
-      return data.dispatcher.init();
+      return objects.mediaLoader.init();
+    }).then(() => {
+      return objects.dispatcher.init();
     }).then(() => {
       log.silly(`${_logKey}${func} - out`);
       return true;
@@ -108,25 +115,27 @@ export class Factory {
   // ........................................................
 
   shutdownObjects() {
-    const func = ".shutdownObjects"
+    const func = '.shutdownObjects';
     //log.silly(`${_logKey}${func} - in`);
 
     const instance = this;
-    const {data} = instance;
+    const {objects} = instance;
 
-    Factory.checkObjects(data);
+    Factory.checkObjects(objects);
 
     // order crucial!
-    return data.metaReader.shutdown().then(() => {
-      return data.mediaLoader.shutdown();
+    return objects.metaReader.shutdown().then(() => {
+      return objects.mediaLoader.shutdown();
     }).then(() => {
-      return data.mediaCrawler.shutdown();
+      return objects.mediaCrawler.shutdown();
     }).then(() => {
-      return data.dispatcher.shutdown();
+      return objects.dispatcher.shutdown();
     }).then(() => {
-      return data.dbWrapper.shutdown();
+      return objects.dbWrapper.shutdown();
     }).then(() => {
-      instance.data = {};
+      return objects.mediaDisposer.shutdown();
+    }).then(() => {
+      instance.objects = {};
       //log.silly(`${_logKey}${func} - ready`);
       return true;
     }).catch((error) => {
@@ -136,10 +145,10 @@ export class Factory {
 
   // ........................................................
 
-  static checkObjects(data) {
+  static checkObjects(objects) {
 
-    if (!data.dbWrapper || !data.dispatcher || !data.mediaCrawler
-      || !data.mediaLoader || !data.metaReader) {
+    if (!objects.dbWrapper || !objects.dispatcher || !objects.mediaCrawler
+      || !objects.mediaDisposer || !objects.mediaLoader || !objects.metaReader) {
         throw new Error('undefined objects cannot be handled!');
     }
   }
@@ -147,7 +156,7 @@ export class Factory {
   // ........................................................
 
   getDispatcher() {
-    return this.data.dispatcher;
+    return this.objects.dispatcher;
   }
 
 }

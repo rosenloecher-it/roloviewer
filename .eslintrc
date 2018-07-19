@@ -14,6 +14,7 @@
   },
   "rules": {
     "arrow-parens": ["off"],
+    "arrow-body-style": "off",
     "comma-dangle": "off",
     "compat/compat": "error",
     "consistent-return": "off",
@@ -27,6 +28,7 @@
     "no-continue": "off",
     "no-lonely-if": "off",
     "no-multi-assign": "off",
+    "no-param-reassign": "off",
     "no-plusplus": "off",
     "no-underscore-dangle": "off",
     "no-use-before-define": "off",

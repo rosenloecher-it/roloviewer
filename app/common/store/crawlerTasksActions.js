@@ -11,25 +11,56 @@ function getNextTaskId() {
 
 // ----------------------------------------------------------------------------------
 
-export const createActionOpen = (container = null, selectFile = null) => ({
-  type: constants.AR_CRAWLERTASK_OPEN,
+export const createActionOpen = (container = null, selectFile = null, trailNumber = 1) => ({
+  type: constants.AR_WORKER_OPEN,
   payload: {
     container, // null == autoSelect
     selectFile,
+    trailNumber, // file action again, when auto-selction fails
   },
   taskId: getNextTaskId()
 });
 
 export const createActionRemoveTask = (obsoleteAction) => ({
-  type: constants.AR_CRAWLER_REMOVE_TASK,
+  type: constants.AR_WORKER_REMOVE_TASK,
   payload: deepmerge.all([ obsoleteAction, {} ]),
   //payload: obsoleteAction
   taskId: getNextTaskId()
 });
 
+export const createActionRemoveTaskTypes = (taskType) => ({
+  type: constants.AR_WORKER_REMOVE_TASKTYPES,
+  payload: taskType,
+  taskId: getNextTaskId()
+});
 
 export const createActionDeliverMeta = (file) => ({
-  type: constants.AR_CRAWLERTASK_DELIVER_META,
+  type: constants.AR_WORKER_DELIVER_META,
   payload: {file},
   taskId: getNextTaskId()
 });
+
+
+export const createActionCrawlerStart = () => ({
+  type: constants.AR_WORKER_STATUS_UPDATE,
+  taskId: getNextTaskId()
+});
+
+export const createActionDirsRemoveNonExisting = () => ({
+  type: constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING,
+  taskId: getNextTaskId()
+});
+
+export const createActionDirRemoveNonExisting = (file) => ({
+  type: constants.AR_WORKER_DIR_REMOVE_NON_EXISTING,
+  payload: {file},
+  taskId: getNextTaskId()
+});
+
+export const createActionDirUpdate = (file) => ({
+  type: constants.AR_WORKER_DIR_UPDATE,
+  payload: {file},
+  taskId: getNextTaskId()
+});
+
+

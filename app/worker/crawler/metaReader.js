@@ -47,7 +47,7 @@ export class MetaReader extends CrawlerBase {
       instance.data.exiftoolFallback = false; //instance.data.config....exiftoolFallback;
 
       try {
-        const exiftool = MetaReader.createNewExifTool(instance.data.storeManager.exiftoolPath);
+        const exiftool = MetaReader.createNewExifTool(instance.objects.storeManager.exiftoolPath);
 
         exiftool.version()
           .then((version) => {
@@ -163,7 +163,7 @@ export class MetaReader extends CrawlerBase {
 
     const action = slideshowActions.createActionDeliverFileMeta(meta);
 
-    this.data.storeManager.dispatchRemote(action, null);
+    this.objects.storeManager.dispatchRemote(action, null);
 
     //log.debug(`${_logKey}${func} - cameraModel=${meta.cameraModel} - file=${file}`);
   }

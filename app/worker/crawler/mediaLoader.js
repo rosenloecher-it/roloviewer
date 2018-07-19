@@ -68,10 +68,10 @@ export class MediaLoader extends CrawlerBase {
 
   openPlayList(playlist) {
     const func = ".openPlayList";
-    // TODO implement
-    log.error(`${_logKey}${func} - not implemented - ${playlist}`);
-    //TODO this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR
-    //  , `${_logKey}${func} - ${constants.ERROR_NOT_IMPLEMENTED} - ${playlist}`);
+
+    // TODO implement openPlayList
+
+    this.logAndShowError(`${_logKey}${func}`, 'not implemented!');
   }
 
   // ........................................................
@@ -86,7 +86,7 @@ export class MediaLoader extends CrawlerBase {
 
     const items = this.createItems(images);
     const action = actionsSlideshow.createActionShowFiles(folder, constants.CONTAINER_FOLDER, items, selectFile);
-    this.data.storeManager.dispatchGlobal(action);
+    this.objects.storeManager.dispatchGlobal(action);
 
     this.addTasksDeliverFileMeta(images);
   }
@@ -101,19 +101,14 @@ export class MediaLoader extends CrawlerBase {
 
       const { selectFile } = input;
 
-      if (!selectFile) {
-        const text = `${_logKey}${func} - !selectFile => skip!`;
-        log.error(text);
-        //TODO this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text, null);
-        return;
-      }
+      if (!selectFile)
+        throw new Error('!selectFile => skip!');
 
       const folder = path.dirname(selectFile);
       this.openFolder(folder, selectFile);
 
-    } catch (error) {
-      log.error(`${_logKey}${func} - exception -`, error);
-      throw (error);
+    } catch (err) {
+      this.logAndRethrowError(`${_logKey}${func}`, err);
     }
 
   }
@@ -123,40 +118,41 @@ export class MediaLoader extends CrawlerBase {
   openAutoSelect() {
     const func = ".openAutoSelect";
 
-    const {storeManager} = this.data;
+    try {
+      const {storeManager} = this.objects;
 
-    const crawlerState = storeManager.crawlerState;
+      const crawlerState = storeManager.crawlerState;
 
-    //log.debug(`${_logKey}${func} - crawlerState:`, crawlerState);
+      //log.debug(`${_logKey}${func} - crawlerState:`, crawlerState);
 
-    if (!this.data.autoFolders) {
+      if (!this.data.autoFolders) {
 
-      if (crawlerState.folderSource.length === 0) {
-        const text = "no source folder for crawler defined - no auto select possible!";
-        log.error(`${_logKey}${func} - ${text}`);
-        //TODO this.data.processConnector.sendShowMessage(constants.MSG_TYPE_ERROR, text, null);
-        return;
+        if (crawlerState.folderSource.length === 0)
+          throw new Error("no source folder for crawler defined - no auto select possible!");
+
+        this.data.autoFolders = MediaLoader.listImageFolderRecursive(crawlerState.folderSource
+                                  , crawlerState.folderBlacklist
+                                  , crawlerState.folderBlacklistSnippets
+                                  , crawlerState.batchCount);
       }
 
-      this.data.autoFolders = MediaLoader.listImageFolderRecursive(crawlerState.folderSource
-                                , crawlerState.folderBlacklist
-                                , crawlerState.folderBlacklistSnippets
-                                , crawlerState.batchCount);
+      const autoFolder = MediaLoader.selectRandomFolder(this.data.autoFolders);
+      const images = MediaLoader.loadImagesFromFolder(autoFolder);
+      const autoFiles = MediaLoader.selectRandomItems(images, crawlerState.batchCount);
+
+      autoFiles.sort();
+
+      const items = this.createItems(autoFiles);
+      const action = actionsSlideshow.createActionAddAutoFiles(items);
+      //log.debug(`${_logKey}${func} - action:`, action);
+
+      storeManager.dispatchGlobal(action);
+
+      this.addTasksDeliverFileMeta(autoFiles);
+
+    } catch (err) {
+      this.logAndRethrowError(`${_logKey}${func}`, err);
     }
-
-    const autoFolder = MediaLoader.selectRandomFolder(this.data.autoFolders);
-    const images = MediaLoader.loadImagesFromFolder(autoFolder);
-    const autoFiles = MediaLoader.selectRandomItems(images, crawlerState.batchCount);
-
-    autoFiles.sort();
-
-    const items = this.createItems(autoFiles);
-    const action = actionsSlideshow.createActionAddAutoFiles(items);
-    //log.debug(`${_logKey}${func} - action:`, action);
-
-    storeManager.dispatchGlobal(action);
-
-    this.addTasksDeliverFileMeta(autoFiles);
   }
 
   // ........................................................
@@ -179,7 +175,7 @@ export class MediaLoader extends CrawlerBase {
 
       const action = crawlerTasksActions.createActionDeliverMeta(files[i]);
       //log.debug(`${_logKey}.addTasksDeliverFileMeta - action:`, action);
-      this.data.storeManager.dispatchGlobal(action);
+      this.objects.storeManager.dispatchGlobal(action);
 
     }
   }

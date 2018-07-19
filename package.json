@@ -44,7 +44,7 @@
   "build": {
     "productName": "Roloslider",
     "appId": "com.rosenloecher-it.roloslider",
-    "files": [
+    "fileItems": [
       "dist/",
       "node_modules/",
       "renderer/app.html",
@@ -198,6 +198,7 @@
     "argly": "^1.2.0",
     "babel-plugin-source-map-support": "^2.0.1",
     "configurable-ini": "^1.6.1",
+    "deep-equal": "^1.0.1",
     "devtron": "^1.4.0",
     "electron-debug": "^1.5.0",
     "electron-log": "^2.2.16",
@@ -205,7 +206,6 @@
     "fs-extra": "^6.0.1",
     "history": "^4.7.2",
     "nedb": "^1.8.0",
-    "nedb-promises": "^3.0.1",
     "normalize.css": "^8.0.0",
     "react": "^16.4.1",
     "react-css-transition-replace": "^3.0.3",

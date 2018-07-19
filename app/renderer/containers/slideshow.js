@@ -327,7 +327,7 @@ class Slideshow extends React.Component {
       data.lastImageFile = currentItemFile;
       data.lastContainer = props.container;
 
-      // request new files
+      // request new fileItems
       do {
         if (props.containerType !== constants.CONTAINER_AUTOSELECT)
           break;

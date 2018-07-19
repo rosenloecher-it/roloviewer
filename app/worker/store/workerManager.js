@@ -57,7 +57,7 @@ export class WorkerManager extends StoreManager {
       super.dispatchLocal(action, invokeHook);
 
       switch (action.type) {
-        case constants.AR_CRAWLERTASK_OPEN:
+        case constants.AR_WORKER_OPEN:
           if (!this._dispatcher)
             throw new Error("no dispatcher!")
 
@@ -77,6 +77,12 @@ export class WorkerManager extends StoreManager {
   }
 
   // ........................................................
+
+  dispatchTask(action) {
+    this.dispatchGlobal(action);
+  }
+
+  // .......................................................
 
 }
 

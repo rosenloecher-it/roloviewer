@@ -4,6 +4,7 @@ import path from 'path';
 import {CrawlerBase} from "./CrawlerBase";
 import * as constants from "../../common/constants";
 import {mkDirWithParents} from "../../common/utils/fileUtils";
+import {CrawlerReducer} from "../../common/store/crawlerReducer";
 
 // ----------------------------------------------------------------------------------
 
@@ -19,86 +20,37 @@ export class DbWrapper extends CrawlerBase {
     super();
 
     this.dbDir = null;
-    this.dbStatus = null;
-
-    if (process.platform.toLowerCase().indexOf('win') >= 0)
-      this.convert2Id = this.convert2IdWindows
-    else
-      this.convert2Id = this.convert2IdStandard
-
-    this.open = this.open.bind(this);
-    this.openSync = this.openSync.bind(this);
-    //this.coupleObjects = this.coupleObjects.bind(this);
+    this.dbState = null;
 
   }
 
   // ........................................................
 
-  convert2IdWindows(value) {
-    return value.toLowerCase();
-  }
-  // ........................................................
-
-  convert2IdStandard(value) {
-    return value;
-  }
-
-  // ........................................................
-
-  open() {
-    const func = ".open";
+  init() {
+    const func = ".init";
 
     const instance = this;
 
-    const p = new Promise((resolve, reject) => {
-      try {
-        instance.openSync();
-        resolve();
-      } catch (err) {
-        log.error(`${_logKey}${func} failed:`. err);
-        reject();
-      }
-    });
+    const p = new Promise((resolve) => {
 
-    return p;
-  }
-
-  openSync() {
-    const func = ".openSync";
-
-    try {
-      const databasePath = this.data.storeManager.databasePath;
+      const databasePath = instance.objects.storeManager.databasePath;
       if (!databasePath)
         throw new Error(`no db file!`);
 
       mkDirWithParents(databasePath);
 
       const fileDbDir = path.join(databasePath, `${constants.APP_BASENAME}Dir.db`);
-      const fileDbStatus = path.join(databasePath, `${constants.APP_BASENAME}Status.db`);
+      const fileDbState = path.join(databasePath, `${constants.APP_BASENAME}Status.db`);
 
-      this.dbDir = null;
-      this.dbStatus = null;
-
-
-      this.dbDir = new Datastore({ filename: fileDbDir, autoload: true });
-      this.dbStatus = new Datastore({ filename: fileDbStatus, autoload: true });
+      instance.dbDir = new Datastore({ filename: fileDbDir, autoload: true });
+      instance.dbState = new Datastore({ filename: fileDbState, autoload: true });
 
       log.debug(`${_logKey}${func} - open (in "${databasePath}")`);
 
-    } catch (err) {
-      log.error(`${_logKey}${func} failed:`. err);
-      throw (err);
-    }
-  }
-
-  // ........................................................
-
-  close() {
-    const func = ".close";
-
-    const p = new Promise((resolve, reject) => {
-      log.debug(`${_logKey}${func}`);
       resolve();
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -106,8 +58,120 @@ export class DbWrapper extends CrawlerBase {
 
   // ........................................................
 
-  saveDoc(doc) {
-    const func = ".saveDoc";
+  shutdown() {
+    const func = ".shutdown";
+
+    const instance = this;
+
+    const p = new Promise((resolve, reject) => {
+      resolve();
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
+  clearDb () {
+    const func = ".clearDbDir";
+
+    const instance = this;
+
+    const p = this.clearDbDir().then(() => {
+
+      return instance.clearDbState();
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
+  clearDbState () {
+    const func = ".clearDbState";
+
+    const instance = this;
+    const removeOptions = { multi: true };
+
+    const p = new Promise((resolve, reject) => {
+
+      instance.dbState.remove({}, removeOptions, (err, numRemoved) => {
+        if (err)
+          reject(new Error(err));
+
+        log.debug(`${_logKey}${func} - ${numRemoved} states removed`);
+        resolve();
+      });
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
+  clearDbDir () {
+    const func = ".clearDbDir";
+
+    const instance = this;
+    const removeOptions = { multi: true };
+
+    const p = new Promise((resolve, reject) => {
+
+      instance.dbDir.remove({}, removeOptions, (err, numRemoved) => {
+        if (err)
+          reject(new Error(err));
+
+        log.debug(`${_logKey}${func} - ${numRemoved} dirs removed`);
+        resolve();
+      });
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
+  removeDir(dir) {
+    const func = ".removeDir";
+
+    // TODO test
+
+    const instance = this;
+    const {mediaDisposer} = this.objects;
+    const wantedId = mediaDisposer.convert2Id(dir);
+
+    const p = new Promise((resolve, reject) => {
+      log.debug(`${_logKey}${func} - in`);
+
+      instance.dbDir.remove({ _id: wantedId }, (err, doc) => {
+        if (err)
+          reject(new Error(err));
+
+        resolve();
+      });
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
+  saveDir(doc) {
+    const func = ".saveDir";
+
+    const instance = this;
     const options = { upsert: true };
 
     const p = new Promise((resolve, reject) => {
@@ -116,7 +180,7 @@ export class DbWrapper extends CrawlerBase {
       if (!doc || ! doc._id)
         reject(new Error('wrong args!'));
 
-      this.dbDir.update({ _id: doc._id }, doc, options, (err, numReplaced) => {
+      instance.dbDir.update({ _id: doc._id }, doc, options, (err, numReplaced) => {
         if (err)
           reject(new Error(err));
 
@@ -128,9 +192,7 @@ export class DbWrapper extends CrawlerBase {
 
 
     }).catch((err) => {
-      const text = `${_logKey}${func}.promise.catch failed:`;
-      log.error(`${text}:`, err);
-      throw new Error(`${text} ${err}`);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -139,24 +201,26 @@ export class DbWrapper extends CrawlerBase {
 
   // .......................................................
 
-  loadDoc(dir) {
-    const func = ".loadDoc";
+  loadDir(dir) {
 
-    const wantedId = this.convert2Id(dir);
+    // TODO test
+    const func = ".loadDir";
+
+    const instance = this;
+    const {mediaDisposer} = this.objects;
+    const wantedId = mediaDisposer.convert2Id(dir);
 
     const p = new Promise((resolve, reject) => {
-      log.debug(`${_logKey}${func} - in`);
+      log.silly(`${_logKey}${func} - in`);
 
-      this.dbDir.findOne({ _id: wantedId }, (err, doc) => {
+      instance.dbDir.findOne({ _id: wantedId }, (err, doc) => {
         if (err)
           reject(new Error(err));
 
         resolve(doc);
       });
     }).catch((err) => {
-      const text = `${_logKey}${func}.promise.catch failed:`;
-      log.error(`${text}`, err);
-      throw new Error(`${text} ${err}`);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -164,72 +228,180 @@ export class DbWrapper extends CrawlerBase {
 
   // ........................................................
 
-  listEvalSorted() {
+  countDirs() {
+    const func = '.countDirs';
 
-    // return [ dirs ]
+    const instance = this;
 
-    return [];
+    const p = new Promise((resolve, reject) => {
+      instance.dbDir.count({}, (err, count) => {
+        if (err)
+          reject(new Error(err));
+        resolve(count);
+      });
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
   }
 
   // ........................................................
 
-  listUpdateSorted(minDays) {
+  listDirsAll() {
+    const func = '.listDirsAll';
 
-    // return [ dirs ]
+    const instance = this;
 
-    return [];
+    const p = new Promise((resolve, reject) => {
+
+      instance.dbDir.find({}, { dir: 1 }, (err, docs) => {
+
+        if (err)
+          reject(new Error(err));
+
+        //log.debug(`${_logKey}${func} - docs`, docs);
+
+        resolve(docs);
+      });
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // .......................................................
+
+  listDirsWeigthSorted() {
+    const func = '.listWeigthSorted';
+
+    const instance = this;
+
+    const p = new Promise((resolve, reject) => {
+      //log.silly(`${_logKey}${func}`);
+
+      instance.dbDir.find({}, { dir: 1, weight: 1 }).sort({ weight: 1 }).exec((err, docs) => {
+        if (err)
+          reject(new Error(err));
+
+        //log.debug(`${_logKey}${func} - docs`, docs);
+
+        resolve(docs);
+      });
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
   }
 
   // ........................................................
 
-  createDirDoc(input) {
+  listDirsToUpdate(lastUpdatedInMinutes) {
 
-    const doc = {
-      _id: this.convert2Id(input.dir),
-      dir: input.dir,
-      files: [],
-      lastShown: input.lastShown,
-      lastUpdate: input.lastUpdate,
-      weight: input.weight || constants.CRAWLER_TIME0
-    }
+    const func = '.listDirsToUpdate';
 
-    return doc;
+    const instance = this;
+
+    const minLastUpdate = Date.now() - lastUpdatedInMinutes * 60;
+
+
+    const p = new Promise((resolve, reject) => {
+      //log.silly(`${_logKey}${func}`);
+
+      instance.dbDir.find({lastUpdate: { $lt: minLastUpdate }}, { dir: 1, lastUpdate: 1 }, (err, docs) => {
+        if (err)
+          reject(new Error(err));
+
+        //log.debug(`${_logKey}${func} - docs`, docs);
+
+        resolve(docs);
+      });
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
   }
 
   // ........................................................
 
-  createFileDoc(input) {
+  saveState(stateIn) {
+    const func = ".saveState";
 
-    // file
-    return {};
+    const instance = this;
+    const options = { upsert: true };
+
+    const stateCloned = CrawlerReducer.cloneCrawleState(stateIn);
+    stateCloned._id = STATUS_ID;
+
+    const p = new Promise((resolve, reject) => {
+
+      instance.dbState.update({ _id: STATUS_ID }, stateCloned, options, (err, numReplaced) => {
+        if (err)
+          reject(new Error(err));
+
+        if (numReplaced !== 1)
+          reject(new Error(`numReplaced !== 1 (${numReplaced})!`));
+
+        resolve();
+      });
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
   }
 
-  /*
-    format "dir"
-      _id: path
-      dir: path (unter Win unterschiedlich)
-      lastShown: Date
-      lastUpdate
-      files: []
-      eval
+  // ........................................................
 
-    format "file"
-      name:
-      rating:
-      tags: []
-      lastShown:
-      lastModified: Date
-      skip: boolean
+  loadState() {
+    const func = ".loadState";
 
-  */
+    const instance = this;
 
+    const p = new Promise((resolve, reject) => {
 
-  saveStatus() {
+      instance.dbState.findOne({ _id: STATUS_ID }, (err, doc) => {
 
+        if (err)
+          reject(new Error(err));
+
+        resolve(doc);
+      });
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
   }
 
-  loadStatus() {
+  // ........................................................
 
+  countStates() {
+    const func = '.countStates';
+
+    const instance = this;
+
+    const p = new Promise((resolve, reject) => {
+
+      instance.dbState.count({}, (err, count) => {
+
+        if (err)
+          reject(new Error(err));
+
+        resolve(count);
+      });
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
   }
 }
 

@@ -152,9 +152,14 @@ export function activateChild(ipcMsg) {
       statusChildsState = 0;
 
       const slsState = storeManager.slideshowState;
-      const action = actionsCrawlerTasks.createActionOpen(slsState.lastContainer, slsState.lastItem);
-      //log.debug(`${_logKey}${func} - open -`, action);
-      storeManager.dispatchGlobal(action);
+      const actionOpen = actionsCrawlerTasks.createActionOpen(slsState.lastContainer, slsState.lastItem);
+      //log.debug(`${_logKey}${func} - actionOpen:`, actionOpen);
+      storeManager.dispatchGlobal(actionOpen);
+
+      const actionCrawlerInit = actionsCrawlerTasks.createActionCrawlerStart();
+      //log.debug(`${_logKey}${func} - actionCrawlerInit:`, actionCrawlerInit);
+      storeManager.dispatchGlobal(actionCrawlerInit);
+
     }
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);

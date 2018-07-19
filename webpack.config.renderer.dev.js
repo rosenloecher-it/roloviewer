@@ -33,7 +33,7 @@ const requiredByDLLConfig = module.parent.filename.includes(
 if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
   console.log(
     chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "npm run build-dll"'
+      'The DLL fileItems are missing. Sit back while we build them for you with "npm run build-dll"'
     )
   );
   execSync('npm run build-dll');
@@ -117,7 +117,7 @@ export default merge.smart(baseConfig, {
           }
         ]
       },
-      // SASS support - compile all .global.scss files and pipe it to style.css
+      // SASS support - compile all .global.scss fileItems and pipe it to style.css
       {
         test: /\.global\.(scss|sass)$/,
         use: [
@@ -135,7 +135,7 @@ export default merge.smart(baseConfig, {
           }
         ]
       },
-      // SASS support - compile all other .scss files and pipe it to style.css
+      // SASS support - compile all other .scss fileItems and pipe it to style.css
       {
         test: /^((?!\.global).)*\.(scss|sass)$/,
         use: [

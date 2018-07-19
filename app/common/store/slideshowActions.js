@@ -8,6 +8,18 @@ export const createItem = (file) => ({
 
 // ----------------------------------------------------------------------------------
 
+export function createItems(files) {
+  const items = [];
+  for (let i = 0; i < files.length; i++) {
+    const item = createItem(files[i]);
+    if (item)
+      items.push(item);
+  }
+  return items;
+};
+
+// ----------------------------------------------------------------------------------
+
 export const createActionInit = ({
                                    autoPlay,
                                    crawlerInfoPosition,

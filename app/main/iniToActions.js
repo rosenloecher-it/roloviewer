@@ -77,6 +77,11 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
   actionData.folderBlacklist = valiFolderArray(iniData.crawler.folderBlacklist);
   actionData.folderBlacklistSnippets = valiBlacklistSnippets(iniData.crawler.folderBlacklistSnippets);
 
+  actionData.maxFilesPerFolder = mergeConfigItem(constants.DEFCONF_CRAWLER_MAX_FILES_PER_FOLDER,
+      null,
+      valiInt(iniData.crawler.maxFilesPerFolder));
+
+
   for (let i = 0; i < actionData.folderBlacklist.length; i++) {
     actionData.folderBlacklist[i] = path.normalize(actionData.folderBlacklist[i]);
   }
@@ -194,8 +199,6 @@ export function createSystemAction(iniDataIn, context, defaultLogFile, defaultEx
     valiInt(iniData.system.powerSaveBlockTime));
 
   actionData.lastDialogFolder = valiDir(iniData.system.lastDialogFolder);
-
-  // TODO data.system.logfile;
 
   actionData.logLevelFile = mergeConfigItem(
     !context.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL_CONSOLE,

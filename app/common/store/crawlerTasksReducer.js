@@ -5,7 +5,7 @@ import * as constants from '../constants';
 
 const _logKey = "crawlerTasksReducer";
 
-export const PRIO_LENGTH = 6;
+export const PRIO_LENGTH = 9;
 
 // ----------------------------------------------------------------------------------
 
@@ -45,14 +45,19 @@ export class CrawlerTasksReducer {
 
       switch (action.type) {
 
-        case constants.AR_CRAWLERTASK_DELIVER_META:
-          return this.deliverMeta(state, action);
-
-        case constants.AR_CRAWLER_REMOVE_TASK:
+        case constants.AR_WORKER_REMOVE_TASK:
           return this.removeTask(state, action);
 
-        case constants.AR_CRAWLERTASK_OPEN:
+        case constants.AR_WORKER_REMOVE_TASKTYPES:
+          return this.removeTaskTypes(state, action);
+
+        case constants.AR_WORKER_OPEN:
           return this.open(state, action);
+
+        case constants.AR_WORKER_DELIVER_META:
+        case constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING:
+        case constants.AR_WORKER_DIR_REMOVE_NON_EXISTING:
+          return this.pushGenericTask(state, action);
 
         default:
           return state;
@@ -67,17 +72,36 @@ export class CrawlerTasksReducer {
 
   // .....................................................
 
+  pushGenericTask(state, action) {
+    const func = ".handleGenericTask";
+    //log.debug(`${this._logKey}${func} - in`, action);
+
+    const prio = CrawlerTasksReducer.getTaskPrio(action.type);
+
+    if (prio < 0 || prio >= state.tasks.length) {
+      log.error(`${this._logKey}${func} - unknown prio`, action);
+      return state;
+    }
+
+    const newState = { ...state };
+    newState.tasks[prio].push(action);
+
+    return newState;
+  }
+
+  // .....................................................
+
   open(state, action) {
     const func = ".open";
     //log.debug(`${this._logKey}${func} - in`, action);
 
     const newState = { ...state };
 
-    const prioOpen = CrawlerTasksReducer.getTaskPrio(constants.AR_CRAWLERTASK_OPEN);
+    const prioOpen = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_OPEN);
     newState.tasks[prioOpen] = [action];
 
     if (action.payload.container !== null) { // folder or playlist
-      const prioMeta = CrawlerTasksReducer.getTaskPrio(constants.AR_CRAWLERTASK_DELIVER_META);
+      const prioMeta = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_DELIVER_META);
       newState.tasks[prioMeta] = [];
     }
 
@@ -85,24 +109,6 @@ export class CrawlerTasksReducer {
 
     return newState;
   }
-
-  // .....................................................
-
-  deliverMeta(state, action) {
-    const func = ".deliverMeta";
-    //log.debug(`${this._logKey}${func} - in`, action);
-
-    const newState = { ...state };
-
-    const prioMeta = CrawlerTasksReducer.getTaskPrio(constants.AR_CRAWLERTASK_DELIVER_META);
-    newState.tasks[prioMeta].push(action);
-
-    //log.debug(`${this._logKey}${func} - out`, action);
-
-    return newState;
-  }
-
-  // .....................................................
 
   static sliceItemFromArray(oldItems, index) {
 
@@ -144,27 +150,51 @@ export class CrawlerTasksReducer {
     return state;
   }
 
+
+  // .....................................................
+
+  removeTaskTypes(state, action) {
+    const func = ".removeTaskTypes";
+
+    const prio = CrawlerTasksReducer.getTaskPrio(action.payload);
+
+    if (prio < 0 || prio >= state.tasks.length) {
+      log.error(`${this._logKey}${func} - unknown prio`, action);
+      return state;
+    }
+
+    const newState = { ...state };
+    newState.tasks[prio] = [];
+
+    return newState;
+  }
+
+
   // .....................................................
 
   static getTaskPrio(taskType) {
 
     switch (taskType) {
-      case constants.AR_CRAWLERTASK_OPEN:
+      case constants.AR_WORKER_OPEN:
         return 0;
-      case constants.AR_CRAWLERTASK_DELIVER_META:
-        return 1;
-      case constants.AR_CRAWLERTASK_CHECK_STATUS:
+      case constants.AR_WORKER_DELIVER_META:
         return 2;
-      case constants.AR_CRAWLERTASK_RECALC_DIR:
+      case constants.AR_WORKER_STATUS_UPDATE:
         return 3;
-      case constants.AR_CRAWLERTASK_DIR_META:
+      case constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING:
         return 4;
-      case constants.AR_CRAWLERTASK_UPDATE_DIR:
+      case constants.AR_WORKER_DIR_REMOVE_NON_EXISTING:
         return 5;
-
+      case constants.AR_WORKER_DIR_RATE:
+        return 6;
+      case constants.AR_WORKER_FILES_META:
+        return 7;
+      case constants.AR_WORKER_DIR_UPDATE:
+        return 8;
       default:
         return null;
     }
+
   }
 
   // .....................................................

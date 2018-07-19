@@ -62,7 +62,7 @@ export default merge.smart(baseConfig, {
           }
         })
       },
-      // Add SASS support  - compile all .global.scss files and pipe it to style.css
+      // Add SASS support  - compile all .global.scss fileItems and pipe it to style.css
       {
         test: /\.global\.(scss|sass)$/,
         use: ExtractTextPlugin.extract({
@@ -80,7 +80,7 @@ export default merge.smart(baseConfig, {
           fallback: 'style-loader'
         })
       },
-      // Add SASS support  - compile all other .scss files and pipe it to style.css
+      // Add SASS support  - compile all other .scss fileItems and pipe it to style.css
       {
         test: /^((?!\.global).)*\.(scss|sass)$/,
         use: ExtractTextPlugin.extract({

@@ -33,6 +33,9 @@ export const DEFCONF_TRANSITION_TIME_MANUAL = 600;
 export const DEFCONF_TIMER = 7000;
 export const DEFCONF_POWER_SAVE_BLOCK_TIME = 30;
 export const DEFCONF_DBNAME = 'crawler.db';
+export const DEFCONF_CRAWLER_MAX_FILES_PER_FOLDER = 1000;
+export const DEFCONF_CRAWLER_UPDATE_DIR_AFTER_MINUTES = 24 * 60;
+
 
 export const DEFCONF_LOG = '.';
 export const DEFCONF_LOGNAME = 'roloslider.log';
@@ -45,7 +48,9 @@ export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 3;
 
 export const DEFCONF_META2MAPURL_FORMAT = 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M';
 
-export const CRAWLER_TIME0 = 9;
+// --------------------------------------------------------------------------
+
+export const CRAWLER_MAX_WEIGHT = Number.MAX_VALUE;
 
 // --------------------------------------------------------------------------
 // format meta => mapUrl
@@ -114,35 +119,54 @@ export const AI_TOOGLE_FULLSCREEN = 'AI_TOOGLE_FULLSCREEN'; // send to main
 export const AI_QUIT_SCREENSAVER = 'AI_QUIT_SCREENSAVER'; // send to main
 
 // --------------------------------------------------------------------------
-// slideshowActions - context
+// actions - context
 
 export const AR_CONTEXT_INIT = 'AR_CONTEXT_INIT';
 export const AR_CONTEXT_SET_VERSION_EXIFREADER = 'AR_CONTEXT_SET_VERSION_EXIFREADER';
 
 // --------------------------------------------------------------------------
-// slideshowActions - crawler
+// actions - worker
 
-export const AR_CRAWLER_INIT = 'AR_CRAWLER_INIT';
+export const AR_WORKER_INIT = 'AR_WORKER_INIT';
 
-export const AR_CRAWLER_REMOVE_TASK = 'AR_CRAWLER_REMOVE_TASK';
+export const AR_WORKER_REMOVE_TASK = 'AR_WORKER_REMOVE_TASK';
+export const AR_WORKER_REMOVE_TASKTYPES = 'AR_WORKER_REMOVE_TASKTYPES';
 
-export const AR_CRAWLERTASK_OPEN = 'AR_CRAWLERTASK_OPEN';
-export const AR_CRAWLERTASK_DELIVER_META = 'AR_CRAWLERTASK_DELIVER_META';
-export const AR_CRAWLERTASK_CHECK_STATUS = 'AR_CRAWLERTASK_CHECK_STATUS';
-export const AR_CRAWLERTASK_RECALC_DIR = 'AR_CRAWLERTASK_RECALC_DIR';
-export const AR_CRAWLERTASK_DIR_META = 'AR_CRAWLERTASK_DIR_META';
-export const AR_CRAWLERTASK_UPDATE_DIR = 'AR_CRAWLERTASK_UPDATE_DIR';
-export const AR_CRAWLERTASK_RESTART = 'AR_CRAWLERTASK_RESTART';
+export const AR_WORKER_OPEN = 'AR_WORKER_OPEN';
+  // switched by dispatcher
+  // loads directories/playlist by mediaLoader
+  // or by crawler
 
+export const AR_WORKER_DELIVER_META = 'AR_WORKER_DELIVER_META';
 
-export const AR_CRAWLER_UPDATE_FILE = "AR_CRAWLER_UPDATE_FILE";
-export const AR_CRAWLER_EVAL_FOLDER = "AR_CRAWLER_EVAL_FOLDER";
-export const AR_CRAWLER_UPDATE_FOLDER = "AR_CRAWLER_UPDATE_FOLDER"; // merge fs
-export const AR_CRAWLER_START_NEW = "AR_CRAWLER_START_NEW";
+export const AR_WORKER_STATUS_UPDATE = 'AR_WORKER_STATUS_UPDATE';
+  // Prüfe Konfiguration: Wenn Änderungen zum gespeichertem Stand alles wegwerfen und komplett neu aufsetzen
+  //   => AR_CRAWLERTASK_RESTART_SCAN
+  // Task wird vom System beim Start neu eingestellt
+  // reset cache status:
+
+export const AR_WORKER_DIRS_REMOVE_NON_EXISTING = 'AR_WORKER_DIRS_REMOVE_NON_EXISTING';
+  // remove no-existing dirs
+export const AR_WORKER_DIR_REMOVE_NON_EXISTING = 'AR_WORKER_DIR_REMOVE_NON_EXISTING';
+// remove no-existing dirs
+
+export const AR_WORKER_DIR_RATE = 'AR_WORKER_DIR_RATE';
+  // 	Neu-Berechnung Verzeichnis anhand gespeicherter Daten
+  //  Argument: aktuell angezeigte Datei
+
+export const AR_WORKER_FILES_META = 'AR_WORKER_FILES_META';
+  // Meta-Daten einlesen und speichern
+  // Arguments: begrenzte Anzahl Dateien
+  // in klusive
+  // triggered: AR_WORKER_DIR_RATE
+
+export const AR_WORKER_DIR_UPDATE = 'AR_WORKER_DIR_UPDATE';
+  // einzelnes Verzeichnis aktualisieren
+  // Agrument: ein Verzeichnis
 
 
 // --------------------------------------------------------------------------
-// slideshowActions - mainwindow
+// actions - mainwindow
 
 export const AR_MAINWINDOW_INIT = 'AR_MAINWINDOW_INIT';
 export const AR_MAINWINDOW_SET_ACTIVE_DEVTOOL = 'AR_MAINWINDOW_SET_ACTIVE_DEVTOOL';
@@ -151,7 +175,7 @@ export const AR_MAINWINDOW_SET_FULLSCREEN = 'AR_MAINWINDOW_SET_FULLSCREEN';
 export const AR_MAINWINDOW_SET_MAXIMIZED = 'AR_MAINWINDOW_SET_MAXIMIZED';
 
 // --------------------------------------------------------------------------
-// slideshowActions - messages
+// actions - messages
 
 export const AR_MESSAGE_ADD = 'AR_MESSAGE_ADD'; // error, warning, info
 export const AR_MESSAGE_REMOVE_FIRST = 'AR_MESSAGE_REMOVE_FIRST';
@@ -159,7 +183,7 @@ export const AR_MESSAGE_REMOVE_ALL = 'AR_MESSAGE_REMOVE_ALL';
 export const AR_MESSAGE_CLOSE_DIALOG = 'AR_MESSAGE_CLOSE_DIALOG';
 
 // --------------------------------------------------------------------------
-// slideshowActions - slideshow
+// actions - slideshow
 
 export const AR_SLIDESHOW_INIT = 'AR_SLIDESHOW_INIT';
 
@@ -193,7 +217,7 @@ export const AR_SLIDESHOW_DELIVER_META = "AR_SLIDESHOW_DELIVER_META";     // add
 export const AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER = 'AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER';
 
 // --------------------------------------------------------------------------
-// slideshowActions - system
+// actions - system
 
 export const AR_SYSTEM_INIT = 'AR_SYSTEM_INIT';
 export const AR_SYSTEM_SET_LAST_DIALOG_FOLDER = 'AR_SYSTEM_SET_LAST_DIALOG_FOLDER';
