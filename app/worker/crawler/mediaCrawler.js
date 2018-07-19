@@ -198,9 +198,9 @@ export class MediaCrawler extends CrawlerBase {
 
   // ........................................................
 
-  updateStatus() {
-    // AR_WORKER_STATUS_UPDATE
-    const func = '.updateStatus';
+  departure() {
+    // AR_WORKER_DEPARTURE
+    const func = '.departure';
 
     const instance = this;
     const {dbWrapper} = instance.objects;

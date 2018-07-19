@@ -42,7 +42,7 @@ export const createActionDeliverMeta = (file) => ({
 
 
 export const createActionCrawlerStart = () => ({
-  type: constants.AR_WORKER_STATUS_UPDATE,
+  type: constants.AR_WORKER_DEPARTURE,
   taskId: getNextTaskId()
 });
 

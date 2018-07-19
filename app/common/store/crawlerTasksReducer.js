@@ -179,7 +179,7 @@ export class CrawlerTasksReducer {
         return 0;
       case constants.AR_WORKER_DELIVER_META:
         return 2;
-      case constants.AR_WORKER_STATUS_UPDATE:
+      case constants.AR_WORKER_DEPARTURE:
         return 3;
       case constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING:
         return 4;

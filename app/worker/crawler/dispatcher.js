@@ -68,8 +68,8 @@ export class Dispatcher extends CrawlerBase {
           case constants.AR_WORKER_DELIVER_META:
             p = metaReader.deliverMeta(task.payload.file); break;
 
-          case constants.AR_WORKER_STATUS_UPDATE:
-            p = mediaCrawler.updateStatus(); break;
+          case constants.AR_WORKER_DEPARTURE:
+            p = mediaCrawler.departure(); break;
 
           case constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING:
             p = mediaCrawler.removeNonExistingDirs(); break;

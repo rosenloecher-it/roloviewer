@@ -139,7 +139,7 @@ export const AR_WORKER_OPEN = 'AR_WORKER_OPEN';
 
 export const AR_WORKER_DELIVER_META = 'AR_WORKER_DELIVER_META';
 
-export const AR_WORKER_STATUS_UPDATE = 'AR_WORKER_STATUS_UPDATE';
+export const AR_WORKER_DEPARTURE = 'AR_WORKER_DEPARTURE';
   // Prüfe Konfiguration: Wenn Änderungen zum gespeichertem Stand alles wegwerfen und komplett neu aufsetzen
   //   => AR_CRAWLERTASK_RESTART_SCAN
   // Task wird vom System beim Start neu eingestellt
@@ -161,8 +161,7 @@ export const AR_WORKER_FILES_UPDATE = 'AR_WORKER_FILES_UPDATE';
   // triggered: AR_WORKER_DIR_RATE
 
 export const AR_WORKER_DIR_UPDATE = 'AR_WORKER_DIR_UPDATE';
-  // einzelnes Verzeichnis aktualisieren
-  // Agrument: ein Verzeichnis
+  // update single folder (only files, no subdirs; remove non existent, add new ones)
 
 
 // --------------------------------------------------------------------------

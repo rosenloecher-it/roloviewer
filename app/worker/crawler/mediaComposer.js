@@ -186,6 +186,8 @@ export class MediaComposer extends CrawlerBase {
     const selections = [];
     for (let i = 0; i < maxSelections; i++) {
 
+      // TODO check existence (while loop)
+
       const random = this.randomWeighted(candidates.length - 1);
       const currentIndex = candidates.length - 1 - random;
       const currentSelection = candidates[currentIndex];
