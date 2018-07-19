@@ -22,14 +22,6 @@ export class Dispatcher extends CrawlerBase {
 
   // ........................................................
 
-  shutdown() {
-
-
-
-  }
-
-  // ........................................................
-
   processTask() {
     const func = ".processTask";
 
@@ -88,7 +80,7 @@ export class Dispatcher extends CrawlerBase {
           case constants.AR_WORKER_DIR_RATE:
             p = mediaCrawler.rateDirFromPlayedFile(task.payload); break;
 
-          case constants.AR_WORKER_FILES_META:
+          case constants.AR_WORKER_FILES_UPDATE:
             p = mediaCrawler.updateFilesMeta(task.payload); break;
 
           case constants.AR_WORKER_DIR_UPDATE:

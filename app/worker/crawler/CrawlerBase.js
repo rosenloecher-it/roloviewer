@@ -19,7 +19,7 @@ export class CrawlerBase {
       dbWrapper: null,
       dispatcher: null,
       mediaCrawler: null,
-      mediaDisposer: null,
+      mediaComposer: null,
       mediaLoader: null,
       metaReader: null,
       storeManager: null
@@ -41,7 +41,7 @@ export class CrawlerBase {
 
     this.objects.dbWrapper = input.dbWrapper;
     this.objects.mediaCrawler = input.mediaCrawler;
-    this.objects.mediaDisposer = input.mediaDisposer;
+    this.objects.mediaComposer = input.mediaComposer;
     this.objects.mediaLoader = input.mediaLoader;
     this.objects.metaReader = input.metaReader;
     this.objects.storeManager = input.storeManager;

@@ -1,6 +1,6 @@
 import * as constants from '../../../app/common/constants';
 import * as stringUtils from "../../../app/common/utils/stringUtils";
-import {MediaDisposer} from "../../../app/worker/crawler/mediaDisposer";
+import {MediaComposer} from "../../../app/worker/crawler/mediaComposer";
 
 // ----------------------------------------------------------------------------------
 
@@ -126,7 +126,7 @@ describe('mediaWeigher', () => {
 
   it('randomWeighted', () => {
 
-    const disposer = new MediaDisposer();
+    const disposer = new MediaComposer();
 
     checkRandomWeight(disposer, 20);
 
@@ -150,7 +150,7 @@ describe('mediaWeigher', () => {
     d2.setDate(9);
     d2.setHours(21);
 
-    output = MediaDisposer.time2days(d2 - d1);
+    output = MediaComposer.time2days(d2 - d1);
 
     expect(output).toBe(2.5);
 
@@ -162,7 +162,7 @@ describe('mediaWeigher', () => {
 
   it('evaluateFile', () => {
 
-    const disposer = new MediaDisposer();
+    const disposer = new MediaComposer();
 
     const item1 = disposer.createFileItem({ fileName: stringUtils.randomString(10) });
     const item2 = disposer.createFileItem({ fileName: stringUtils.randomString(10) });
@@ -194,7 +194,7 @@ describe('mediaWeigher', () => {
     const countFiles = 30;
     const countSelect = 10;
 
-    const disposer = new MediaDisposer();
+    const disposer = new MediaComposer();
 
     // prepare
     const dir = {
@@ -224,19 +224,24 @@ describe('mediaWeigher', () => {
 
     //console.log('evaluateDir', dir);
 
+    dir.fileItems = [];
+    disposer.evaluateDir(dir);
+    expect(dir.weight).toBe(constants.CRAWLER_MAX_WEIGHT);
+
   });
 
   // .......................................................
 
   it('randomSelectFilesFromDir', () => {
 
-    const disposer = new MediaDisposer();
+    const disposer = new MediaComposer();
 
-    //checkRandomSelectFilesFromDir(disposer, 30, 10);
+    checkRandomSelectFilesFromDir(disposer, 30, 10);
     checkRandomSelectFilesFromDir(disposer, 10, 10);
-    //checkRandomSelectFilesFromDir(disposer, 4, 6);
+    checkRandomSelectFilesFromDir(disposer, 4, 6);
 
 
   });
+
 
 });

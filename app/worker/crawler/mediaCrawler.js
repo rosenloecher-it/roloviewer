@@ -1,10 +1,14 @@
-import log from 'electron-log';
 import deepEquals from 'deep-equal';
+import path from 'path';
+import fs from 'fs-extra';
+import log from 'electron-log';
+import set from 'collections/set';
 import * as constants from "../../common/constants";
 import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
 import {CrawlerBase} from "./CrawlerBase";
 import * as actionsSlideshow from "../../common/store/slideshowActions";
-import {MediaDisposer} from "./mediaDisposer";
+import {MediaComposer} from "./mediaComposer";
+import {MediaLoader} from "./mediaLoader";
 
 // ----------------------------------------------------------------------------------
 
@@ -61,7 +65,7 @@ export class MediaCrawler extends CrawlerBase {
 
     const instance = this;
     const {dbWrapper} = instance.objects;
-    const {mediaDisposer} = instance.objects;
+    const {mediaComposer} = instance.objects;
     const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
 
@@ -71,14 +75,14 @@ export class MediaCrawler extends CrawlerBase {
       if (0 === files.length)
         throw new Error('auto-selection failed (no dirs delivered)!');
 
-      const selected = mediaDisposer.randomWeighted(files.length);
+      const selected = mediaComposer.randomWeighted(files.length);
 
       const selectedFile = files[selected];
 
       return dbWrapper.loadDoc(selectedFile);
     }).then((dir) => {
 
-      const files = mediaDisposer.randomSelectFilesFromDir(dir, crawlerState.batchCount);
+      const files = mediaComposer.randomSelectFilesFromDir(dir, crawlerState.batchCount);
       if (files.length === 0) {
 
         if (trailNumber < 2) {
@@ -181,7 +185,7 @@ export class MediaCrawler extends CrawlerBase {
     const {storeManager} = this.objects;
     const crawlerState = storeManager.crawlerState;
 
-    const action1 = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_FILES_META);
+    const action1 = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_FILES_UPDATE);
     storeManager.dispatchTask(action1);
 
     const action2 = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_DIR_UPDATE);
@@ -289,12 +293,12 @@ export class MediaCrawler extends CrawlerBase {
 
     const instance = this;
     const {dbWrapper} = this.objects;
-    const {mediaDisposer} = instance.objects;
+    const {mediaComposer} = instance.objects;
 
     const p = dbWrapper.loadDoc(file).then((dir) => {
 
-      mediaDisposer.evaluateFile(file);
-      mediaDisposer.evaluateDir(dir);
+      mediaComposer.evaluateFile(file);
+      mediaComposer.evaluateDir(dir);
 
       return dbWrapper.saveDoc(dir);
 
@@ -308,7 +312,7 @@ export class MediaCrawler extends CrawlerBase {
   // .......................................................
 
   updateFilesMeta(folder) {
-    // AR_WORKER_FILES_META
+    // AR_WORKER_FILES_UPDATE
     const func = '.updateFilesMeta';
 
     // TODO implement updateFilesMeta
@@ -329,23 +333,151 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
+  listChildren(folder) {
+    const func = '.listChildren';
+
+    const fileNames = [];
+    const dirs = [];
+
+    const children = fs.readdirSync(folder);
+    for (let k = 0; k < children.length; k++) {
+      const fileShort = children[k];
+      const fileLong = path.join(folder, fileShort);
+      if (fs.lstatSync(fileLong).isDirectory()) {
+        if (this.skipSourceFolder(fileLong))
+          log.info(`${_logKey}${func} - skipped: ${fileLong}`);
+        else
+          dirs.push(fileLong);
+      } else {
+        if (MediaLoader.isImageFormatSupported(fileShort))
+          fileNames.push(fileShort);
+      }
+    }
+
+    return { fileNames, dirs };
+  }
+
+  // .......................................................
+
+  compareFileItems(dirItem, fileNamesFs) {
+
+    let doFileItemsSave = false;
+
+    const fileItemsOld = dirItem.fileItems;
+    const fileItemsNew = [];
+    const itemUpdate = [];
+
+    const setFs = new Set();
+    for (let i = 0; i < fileNamesFs.length; i++) {
+      const fileName = fileNamesFs[i];
+      setFs.add(fileName, fileName);
+    }
+
+    for (let i = 0; i < fileItemsOld.length; i++) {
+      const fileItem = fileItemsOld[i];
+
+      if (setFs.has(fileItem.fileName)) {
+
+        const filePath = path.join(dirItem.dir, fileItem.fileName);
+        const lastChange = fs.lstatSync(filePath).mtimeMs;
+        if (lastChange !== fileItem.lastModified) {
+
+          //fileItem.lastModified = lastChange;
+          // item changed
+          doFileItemsSave = true;
+          itemUpdate.push(fileItem.fileName);
+        } // else: just add (to update list, update will be done later)
+        fileItemsNew.push(fileItem);
+
+        setFs.delete(fileItem.fileName); // remaining items will be the new ones
+
+      } else {
+        // item does not exits any more => remove / don't add
+        doFileItemsSave = true;
+      }
+    }
+
+    for (const fileNameNew of setFs) {
+      const fileItem =  this.objects.mediaComposer.createFileItem(fileNameNew);
+      fileItemsNew.push(fileItem);
+      itemUpdate.push(fileItem.fileName);
+      doFileItemsSave = true;
+    }
+
+    if (doFileItemsSave) {
+      dirItem.fileItems = fileItemsNew;
+
+      this.objects.mediaComposer.evaluateDir(dirItem); // fileItems will be sorted
+
+      dirItem.lastModified = new Date().getTime();
+
+      if (itemUpdate.length > 0) {
+        let actionItems = [];
+        for (let i = 0; i < itemUpdate.length; i++) {
+          actionItems.push(itemUpdate[i]);
+          if (actionItems.length === 10 || i === itemUpdate.length - 1) {
+            const action = actionsCrawlerTasks.createActionFilesUpdate(dirItem.dir, actionItems);
+            this.objects.storeManager.dispatchTask(action);
+            actionItems = [];
+          }
+        }
+      }
+    }
+
+    return doFileItemsSave;
+  }
+
+  // .......................................................
+
+  skipSourceFolder(folder) {
+
+    const crawlerState = this.objects.storeManager.crawlerState;
+
+    return MediaLoader.shouldSkipSourceFolder(folder, crawlerState.folderBlacklist, crawlerState.folderBlacklistSnippets);
+
+      //if (MediaLoader.shouldSkipSourceFolder(folder, crawlerState.blacklistFolders, crawlerState.blacklistSnippets))
+  }
+
+
+  // .......................................................
+
   updateDir(folder) {
     // AR_WORKER_DIR_RATE
     const func = '.updateDir';
 
-    // TODO implement updateDir
+    if (!folder)
+      return Promise.resolve();
 
-    // load data from db
-    // load fileItems from fs
+    const instance = this;
+    const {dbWrapper} = instance.objects;
+    const {mediaComposer} = instance.objects;
+    const {storeManager} = instance.objects;
+    const crawlerState = storeManager.crawlerState;
 
-    // put subdirs as new AR_WORKER_DIR_UPDATE
+    if (this.skipSourceFolder(folder)) {
+      log.info(`${_logKey}${func} - skipped: ${folder}`);
+      return Promise.resolve();
+    }
 
-    // compare: put batchs (10x) of changed fileItems into new task AR_WORKER_FILES_META
-    // ??? mark dir
+    const children = this.listChildren(folder);
 
-    const p = new Promise((resolve, reject) => {
-      //log.silly(`${_logKey}${func}`);
-      resolve();
+    for (let k = 0; k < children.dirs.length; k++) {
+      const action = actionsCrawlerTasks.createActionDirUpdate(children.dirs[k]);
+      storeManager.dispatchTask(action);
+    }
+
+    const p = dbWrapper.loadDir(folder).then((dirItem) => {
+
+      if (!dirItem)
+        dirItem = mediaComposer.createDirItem({dir: folder});
+
+      if (instance.compareFileItems(dirItem, children.fileNames))
+        return dbWrapper.saveDir(dirItem);
+
+      return Promise.resolve();
+
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -354,63 +486,4 @@ export class MediaCrawler extends CrawlerBase {
 }
 
 // ----------------------------------------------------------------------------------
-
-// Markierungen Dir
-//   status: default, skip-new, skip-proposal-but-not-shown
-//   lastPlayed
-//   lastProposal
-
-// Markierungen File
-//   status: default, skip-filter
-//   lastPlayed
-//   lastChanged
-
-
-
-//  Auswahl Verzeichnis
-//  Berechnung EVAL
-//
-//  	Datum: fixes Datum oder Installation DB <== day0
-//  	kleinerer Wert gewinnt
-//  	Konfig: Interpretation 0 Sterne als x (2) Sterne!
-//
-//  	Items:
-//  		eval_time = mt * (last_played - day0)
-//  			kleinerer Wert gewinnt
-//
-//  		eval_rating = -(m)r * rating
-//  			negativ: kleinerer Wert gewinnt
-//
-//  		gesamt = mt * (last_played - day0) - mr * rating
-//
-//  		mt == 1 /(fix)
-//
-//  		mr == 60 (x1 Stern gleich 60 Tage aus)
-//
-//  		Markierung "skip" !
-//
-//  	Verzeichnis
-//  		Anforderung
-//  			items werden sortiert gespeichert!
-//
-//  		eval_time = mt * (last_played - day0)
-//  			kleinerer Wert gewinnt
-//
-//  		avg-item = Durchschnitt der 10 kleinsten Item-Werte
-//
-//  		gesamt = mt * (last_played - day0) - ma * avg-item - mc * count
-//
-//  			mt == 1 (fix?)
-//  			ma == 60 (wie Items?)
-//  			mc == 1 / batch_count
-//
-//  		- Wert für Items
-
-// dirs werden gesperrt => rating auf MAX
-//   wenn im Cache
-//   wenn vorgemerkt  für Update
-
-// ----------------------------------------------------------------------------------
-
-
 

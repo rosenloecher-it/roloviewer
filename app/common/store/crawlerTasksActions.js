@@ -57,6 +57,16 @@ export const createActionDirRemoveNonExisting = (file) => ({
   taskId: getNextTaskId()
 });
 
+export const createActionFilesUpdate = (folder, fileNames) => ({
+  type: constants.AR_WORKER_FILES_UPDATE,
+  payload: {
+    folder,
+    fileNames, // array of fileNames (without leading path)
+  },
+  taskId: getNextTaskId()
+});
+
+
 export const createActionDirUpdate = (file) => ({
   type: constants.AR_WORKER_DIR_UPDATE,
   payload: {file},

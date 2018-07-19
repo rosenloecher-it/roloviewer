@@ -1,7 +1,7 @@
 import deepEquals from 'deep-equal';
 import * as constants from '../../../app/common/constants';
 import {DbWrapper} from '../../../app/worker/crawler/dbWrapper';
-import {MediaDisposer} from '../../../app/worker/crawler/mediaDisposer';
+import {MediaComposer} from '../../../app/worker/crawler/mediaComposer';
 import {TestManager} from "../../common/store/testManager";
 import * as testUtils from '../../common/utils/testUtils';
 import {CrawlerReducer} from "../../../app/common/store/crawlerReducer";
@@ -13,14 +13,14 @@ let _testDir = null;
 
 // ----------------------------------------------------------------------------------
 
-function createTestDirItem(mediaDisposer, countFiles) {
+function createTestDirItem(mediaComposer, countFiles) {
 
   const dirName = stringUtils.randomString(12);
-  const dir = mediaDisposer.createDirItem({dir: dirName});
+  const dir = mediaComposer.createDirItem({dir: dirName});
 
   for (let i = 0; i < countFiles; i++) {
     const fileName = stringUtils.randomString(12);
-    const item = mediaDisposer.createFileItem({
+    const item = mediaComposer.createFileItem({
       fileName,
       weight: i, // => re-sort necessary, no extra evaluateFile necessary
     });
@@ -28,7 +28,7 @@ function createTestDirItem(mediaDisposer, countFiles) {
     dir.fileItems.push(item);
   }
 
-  mediaDisposer.evaluateDir(dir);
+  mediaComposer.evaluateDir(dir);
 
   return dir;
 }
@@ -107,12 +107,13 @@ describe('dbWrapper', () => {
 
   it('save/count dirs', () => {
 
-    const countInsert = 10;
+    const countDefault = 10;
+    const countAll = countDefault + 1; // maxWeight
     const lastUpdatedInMinutes = 30;
     const pathDocToBeUpdated = `${stringUtils.randomString(10)}_maxWeight`;
 
     const storeManager = new TestManager();
-    const mediaDisposer = new MediaDisposer();
+    const mediaComposer = new MediaComposer();
     //const crawlerReducer = new CrawlerReducer('test');
 
     const stateIn = storeManager.crawlerState;
@@ -131,29 +132,29 @@ describe('dbWrapper', () => {
 
       const promises = [];
 
-      for (let i = 0; i < countInsert; i++) {
+      for (let i = 0; i < countDefault; i++) {
 
         const pathIn = `${stringUtils.randomString(10)}_${i}`;
-        const docIn = mediaDisposer.createDirItem({dir: pathIn });
-        docIn.weight = Math.random();
+        const docIn = mediaComposer.createDirItem({dir: pathIn });
+        docIn.weight = 1000 * Math.random();
         docIn.lastUpdate = Date.now();
 
         promises.push(dbWrapper.saveDir(docIn));
       }
 
-      const pathMw = pathDocToBeUpdated;
-      const docMw = mediaDisposer.createDirItem({dir: pathMw});
-      docMw.weight = constants.CRAWLER_MAX_WEIGHT;
-      docMw.lastUpdate = Date.now() - 2 * lastUpdatedInMinutes * 60;
+      const pathMaxWeight = pathDocToBeUpdated;
+      const docMaxWeight = mediaComposer.createDirItem({dir: pathMaxWeight});
+      docMaxWeight.weight = constants.CRAWLER_MAX_WEIGHT;
+      docMaxWeight.lastUpdate = Date.now() - 2 * lastUpdatedInMinutes * 60;
 
-      promises.push(dbWrapper.saveDir(docMw));
+      promises.push(dbWrapper.saveDir(docMaxWeight));
 
       return Promise.all(promises);
     }).then(() => {
       return dbWrapper.countDirs();
 
     }).then((count) => {
-      expect(count).toBe(countInsert + 1);
+      expect(count).toBe(countAll);
 
       return dbWrapper.listDirsAll();
     }).then((dirs) => {
@@ -163,7 +164,7 @@ describe('dbWrapper', () => {
         if (dirs[i].dir && dirs[i]._id)
           foundNonEmpty++;
       }
-      expect(foundNonEmpty).toBe(countInsert + 1);
+      expect(foundNonEmpty).toBe(countAll);
 
       return dbWrapper.listDirsWeigthSorted();
 
@@ -182,7 +183,7 @@ describe('dbWrapper', () => {
         if (dirs[i].dir && dirs[i]._id)
           foundNonEmpty++;
       }
-      expect(foundNonEmpty).toBe(countInsert + 1);
+      expect(foundNonEmpty).toBe(countDefault); // weight less than constants.CRAWLER_MAX_WEIGHT (pathMw)
 
       return dbWrapper.listDirsToUpdate(lastUpdatedInMinutes);
 
@@ -212,21 +213,21 @@ describe('dbWrapper', () => {
   it('load/save dirs', () => {
 
     const storeManager = new TestManager();
-    const mediaDisposer = new MediaDisposer();
+    const mediaComposer = new MediaComposer();
     //const crawlerReducer = new CrawlerReducer('test');
 
     const stateIn = storeManager.crawlerState;
     stateIn.databasePath = _testDir;
 
     const dbWrapper = new DbWrapper();
-    dbWrapper.coupleObjects({storeManager, mediaDisposer});
+    dbWrapper.coupleObjects({storeManager, mediaComposer});
 
-    mediaDisposer.createDirItem({dir: 'ss'});
+    mediaComposer.createDirItem({dir: 'ss'});
 
     const docsIn = [];
     for (let i = 0; i < 3; i++) {
       const countFiles = 9 * Math.random();
-      const dirItem = createTestDirItem(mediaDisposer, countFiles);
+      const dirItem = createTestDirItem(mediaComposer, countFiles);
       dirItem.equalChecked = false;
       docsIn.push(dirItem);
     }
@@ -290,6 +291,12 @@ describe('dbWrapper', () => {
 
     }).then((count) => {
       expect(count).toBe(0);
+
+      return dbWrapper.loadDir('does_not_exists'); // test loading non existing
+
+    }).then((doc) => {
+
+      expect(doc).toBe(null); // test loading non existing
 
     }).then(() => {
       return dbWrapper.shutdown();

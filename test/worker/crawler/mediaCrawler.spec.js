@@ -4,11 +4,48 @@ import {MediaCrawler} from '../../../app/worker/crawler/mediaCrawler';
 import {TestManager} from "../../common/store/testManager";
 import * as testUtils from '../../common/utils/testUtils';
 import * as stringUtils from "../../../app/common/utils/stringUtils";
+import {DummyTestSystem} from "./dummyTestSystem";
+import {MediaComposer} from "../../../app/worker/crawler/mediaComposer";
+import {Dispatcher} from "../../../app/worker/crawler/dispatcher";
+import {MetaReader} from "../../../app/worker/crawler/metaReader";
+import {MediaLoader} from "../../../app/worker/crawler/mediaLoader";
+import {Factory} from "../../../app/worker/crawler/factory";
 
 // ----------------------------------------------------------------------------------
 
 let _testDirDb = null;
 let _testDirMedia = null;
+
+// ----------------------------------------------------------------------------------
+
+function createDummyTestSystem(width, depth) {
+  const testSystem = new DummyTestSystem();
+
+
+  const state = testSystem.crawlerState;
+  state.databasePath = _testDirDb;
+  state.batchCount = 3;
+  state.folderSource.push(_testDirMedia);
+
+  testSystem.createFileSystemStructure(_testDirMedia, width, depth, state.batchCount * 3);
+
+  return testSystem;
+}
+
+// ----------------------------------------------------------------------------------
+
+function createDummyDir(countDirs, countFiles) {
+  const testSystem = new DummyTestSystem();
+
+  const state = testSystem.crawlerState;
+  state.databasePath = _testDirDb;
+  state.batchCount = 3;
+  state.folderSource.push(_testDirMedia);
+
+  testSystem.createSingleDir(_testDirMedia, countDirs, countFiles);
+
+  return testSystem;
+}
 
 // ----------------------------------------------------------------------------------
 
@@ -22,36 +59,29 @@ describe('mediaCrawler', () => {
   });
 
   afterAll(() => {
+
   });
+
+  // ........................................................
 
   it('complexTest', () => {
 
-    const storeManager = new TestManager();
-    const state = storeManager.crawlerState;
+    const testSystem = createDummyDir(2, 2);
 
-    state.databasePath = _testDirDb;
+    const {mediaCrawler} = testSystem;
 
-    const dbWrapper = new DbWrapper();
-    const mediaCrawler = new MediaCrawler();
+    const p = testSystem.init().then(() => {
 
-    const objects = {dbWrapper, mediaCrawler};
-    dbWrapper.coupleObjects(objects);
-    mediaCrawler.coupleObjects(objects);
+      return mediaCrawler.updateDir(_testDirMedia);
 
-    // return dbWrapper.open().then(() => {
-    //
-    //
-    // });
+    }).then(() => {
 
-    // return mediaCrawler.dummyErrorTest().then(() => {
-    //   console.log('mediaCrawler.dummyErrorTest - then:');
-    // }).catch((err) => {
-    //   console.log('mediaCrawler.dummyErrorTest - catch:', err);
-    //
-    // });
+      console.log('testSystem', testSystem.storeManager.data.dispatchedActions)
 
+      return testSystem.shutdown();
+    });
 
-
+    return p;
   });
 
 

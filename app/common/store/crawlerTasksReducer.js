@@ -187,7 +187,7 @@ export class CrawlerTasksReducer {
         return 5;
       case constants.AR_WORKER_DIR_RATE:
         return 6;
-      case constants.AR_WORKER_FILES_META:
+      case constants.AR_WORKER_FILES_UPDATE:
         return 7;
       case constants.AR_WORKER_DIR_UPDATE:
         return 8;

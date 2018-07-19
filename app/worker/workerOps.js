@@ -49,7 +49,7 @@ export function shutdown() {
 
     _dispatcher = null;
     if (_factory)
-      _factory.shutdownObjects();
+      _factory.shutdown();
     _factory = null;
   } catch (err) {
     log.error(`${_logKey}.shutdown - exception -`, err);

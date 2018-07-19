@@ -4,7 +4,7 @@ import {Dispatcher} from "./dispatcher";
 import {MediaCrawler} from "./mediaCrawler";
 import {MetaReader} from './metaReader';
 import {MediaLoader} from "./mediaLoader";
-import {MediaDisposer} from "./mediaDisposer";
+import {MediaComposer} from "./mediaComposer";
 
 // ----------------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ export class Factory {
       dbWrapper: null,
       dispatcher: null,
       mediaCrawler: null,
-      mediaDisposer: null,
+      mediaComposer: null,
       mediaLoader: null,
       metaReader: null,
       storeManager
@@ -39,7 +39,7 @@ export class Factory {
     this.createObjects(externalObjects);
     this.coupleObjects();
 
-    return this.initObjects();
+    return this.init();
   }
 
   // ........................................................
@@ -54,7 +54,7 @@ export class Factory {
     objects.dbWrapper = externalObjects.dbWrapper || new DbWrapper();
     objects.dispatcher = externalObjects.dispatcher || new Dispatcher();
     objects.mediaCrawler = externalObjects.mediaCrawler || new MediaCrawler();
-    objects.mediaDisposer = externalObjects.mediaDisposer || new MediaDisposer();
+    objects.mediaComposer = externalObjects.mediaComposer || new MediaComposer();
     objects.mediaLoader = externalObjects.mediaLoader || new MediaLoader();
     objects.metaReader = externalObjects.metaReader || new MetaReader();
 
@@ -73,15 +73,15 @@ export class Factory {
     objects.dbWrapper.coupleObjects(objects);
     objects.dispatcher.coupleObjects(objects);
     objects.mediaCrawler.coupleObjects(objects);
-    objects.mediaDisposer.coupleObjects(objects);
+    objects.mediaComposer.coupleObjects(objects);
     objects.mediaLoader.coupleObjects(objects);
     objects.metaReader.coupleObjects(objects);
   }
 
   // ........................................................
 
-  initObjects() {
-    const func = '.initObjects';
+  init() {
+    const func = '.init';
 
     const {objects} = this;
 
@@ -90,7 +90,7 @@ export class Factory {
     /* eslint-disable arrow-body-style */
 
     // order crucial!
-    return objects.mediaDisposer.init().then(() => {
+    return objects.mediaComposer.init().then(() => {
       return objects.dbWrapper.init();
     }).then(() => {
       return objects.metaReader.init();
@@ -100,12 +100,9 @@ export class Factory {
       return objects.mediaLoader.init();
     }).then(() => {
       return objects.dispatcher.init();
-    }).then(() => {
-      log.silly(`${_logKey}${func} - out`);
-      return true;
-    }).catch((error) => {
-      log.error(`${_logKey}${func} - exception -`, error);
-      throw new Error(`${_logKey}${func} - exception - `, error);
+    }).catch((err) => {
+      log.error(`${_logKey}${func} -`, err);
+      throw err;
     });
 
     /* eslint-enable arrow-body-style */
@@ -114,8 +111,8 @@ export class Factory {
 
   // ........................................................
 
-  shutdownObjects() {
-    const func = '.shutdownObjects';
+  shutdown() {
+    const func = '.shutdown';
     //log.silly(`${_logKey}${func} - in`);
 
     const instance = this;
@@ -133,13 +130,13 @@ export class Factory {
     }).then(() => {
       return objects.dbWrapper.shutdown();
     }).then(() => {
-      return objects.mediaDisposer.shutdown();
+      return objects.mediaComposer.shutdown();
     }).then(() => {
       instance.objects = {};
-      //log.silly(`${_logKey}${func} - ready`);
-      return true;
-    }).catch((error) => {
-      log.error(`${_logKey}${func} - exception -`, error);
+      return Promise.resolve();
+    }).catch((err) => {
+      log.error(`${_logKey}${func} -`, err);
+      throw err;
     });
   }
 
@@ -148,7 +145,7 @@ export class Factory {
   static checkObjects(objects) {
 
     if (!objects.dbWrapper || !objects.dispatcher || !objects.mediaCrawler
-      || !objects.mediaDisposer || !objects.mediaLoader || !objects.metaReader) {
+      || !objects.mediaComposer || !objects.mediaLoader || !objects.metaReader) {
         throw new Error('undefined objects cannot be handled!');
     }
   }

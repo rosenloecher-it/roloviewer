@@ -154,7 +154,7 @@ export const AR_WORKER_DIR_RATE = 'AR_WORKER_DIR_RATE';
   // 	Neu-Berechnung Verzeichnis anhand gespeicherter Daten
   //  Argument: aktuell angezeigte Datei
 
-export const AR_WORKER_FILES_META = 'AR_WORKER_FILES_META';
+export const AR_WORKER_FILES_UPDATE = 'AR_WORKER_FILES_UPDATE';
   // Meta-Daten einlesen und speichern
   // Arguments: begrenzte Anzahl Dateien
   // in klusive

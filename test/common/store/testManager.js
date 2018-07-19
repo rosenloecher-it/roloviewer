@@ -84,6 +84,10 @@ export class TestManager extends StoreManager {
   dispatchGlobal(action) {
     this.data.dispatchedActions.push(action);
   }
+
+  dispatchTask(action) {
+    this.data.dispatchedActions.push(action);
+  }
 }
 
 // ----------------------------------------------------------------------------------

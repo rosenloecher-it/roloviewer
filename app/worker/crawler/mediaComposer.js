@@ -12,7 +12,7 @@ const DAY0 = 0;
 
 // ----------------------------------------------------------------------------------
 
-export class MediaDisposer extends CrawlerBase {
+export class MediaComposer extends CrawlerBase {
 
   constructor() {
     super();
@@ -117,7 +117,7 @@ export class MediaDisposer extends CrawlerBase {
 
     if (!fileItem.lastShown)
       fileItem.lastShown = DAY0;
-    const diffDays = MediaDisposer.time2days(fileItem.lastShown - DAY0);
+    const diffDays = MediaComposer.time2days(fileItem.lastShown - DAY0);
 
     const rating = fileItem.rating || 0;
 
@@ -133,6 +133,11 @@ export class MediaDisposer extends CrawlerBase {
 
     if (!dirItem)
       return;
+
+    if (!dirItem.fileItems || dirItem.fileItems.length === 0) {
+      dirItem.weight = constants.CRAWLER_MAX_WEIGHT;
+      return;
+    }
 
     const {data} = this;
 
@@ -152,7 +157,7 @@ export class MediaDisposer extends CrawlerBase {
 
     if (!dirItem.lastShown)
       dirItem.lastShown = DAY0;
-    const diffDays = MediaDisposer.time2days(dirItem.lastShown - DAY0);
+    const diffDays = MediaComposer.time2days(dirItem.lastShown - DAY0);
     const weightTime = diffDays;
 
     dirItem.weight = weightTime + weightFilesAverage + weightFilesCount;
@@ -190,6 +195,43 @@ export class MediaDisposer extends CrawlerBase {
     }
 
     return selections;
+  }
+
+
+  // ........................................................
+
+  static skipSourceFolder(sourceFolderIn, blacklistFolders, blacklistSnippets) {
+
+    // blacklistFolders: normalized
+    // blacklistSnippets: .trim.toLowercase
+
+    // https://nodejs.org/api/path.html
+
+    if (!sourceFolderIn)
+      return true;
+
+    const sourceFolder = path.normalize(sourceFolderIn);
+
+    // not testable
+    // if (!fs.lstatSync(sourceFolder).isDirectory())
+    //   return true;
+
+    for (let i = 0; i < blacklistFolders.length; i++) {
+      const found = sourceFolder.indexOf(blacklistFolders[i]);
+      if (found === 0)
+        return true;
+    }
+
+    if (blacklistSnippets.length > 0) {
+      const sourceFolderLowerCase = sourceFolder.toLowerCase();
+      for (let i = 0; i < blacklistSnippets.length; i++) {
+        const found = sourceFolderLowerCase.indexOf(blacklistSnippets[i]);
+        if (found > -1)
+          return true;
+      }
+    }
+
+    return false;
   }
 
   // .......................................................

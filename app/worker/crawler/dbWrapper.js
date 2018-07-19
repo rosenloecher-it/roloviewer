@@ -147,12 +147,10 @@ export class DbWrapper extends CrawlerBase {
     // TODO test
 
     const instance = this;
-    const {mediaDisposer} = this.objects;
-    const wantedId = mediaDisposer.convert2Id(dir);
+    const {mediaComposer} = this.objects;
+    const wantedId = mediaComposer.convert2Id(dir);
 
     const p = new Promise((resolve, reject) => {
-      log.debug(`${_logKey}${func} - in`);
-
       instance.dbDir.remove({ _id: wantedId }, (err, doc) => {
         if (err)
           reject(new Error(err));
@@ -175,8 +173,6 @@ export class DbWrapper extends CrawlerBase {
     const options = { upsert: true };
 
     const p = new Promise((resolve, reject) => {
-      log.debug(`${_logKey}${func} - in `);
-
       if (!doc || ! doc._id)
         reject(new Error('wrong args!'));
 
@@ -207,12 +203,10 @@ export class DbWrapper extends CrawlerBase {
     const func = ".loadDir";
 
     const instance = this;
-    const {mediaDisposer} = this.objects;
-    const wantedId = mediaDisposer.convert2Id(dir);
+    const {mediaComposer} = this.objects;
+    const wantedId = mediaComposer.convert2Id(dir);
 
     const p = new Promise((resolve, reject) => {
-      log.silly(`${_logKey}${func} - in`);
-
       instance.dbDir.findOne({ _id: wantedId }, (err, doc) => {
         if (err)
           reject(new Error(err));
@@ -282,7 +276,10 @@ export class DbWrapper extends CrawlerBase {
     const p = new Promise((resolve, reject) => {
       //log.silly(`${_logKey}${func}`);
 
-      instance.dbDir.find({}, { dir: 1, weight: 1 }).sort({ weight: 1 }).exec((err, docs) => {
+      const maxWeight = constants.CRAWLER_MAX_WEIGHT;
+      // {weight: { $lt: constants.CRAWLER_MAX_WEIGHT} }
+
+      instance.dbDir.find({weight: { $lt: maxWeight} }, { dir: 1, weight: 1 }).sort({ weight: 1 }).exec((err, docs) => {
         if (err)
           reject(new Error(err));
 
