@@ -369,21 +369,52 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  updateFilesMeta(folder) {
-    // AR_WORKER_UPDATE_FILES
-    const func = '.updateFilesMeta';
+  updateFiles(folder, fileNames) {
+    // AR_WORKER_UPDATE_FILES - only updates or add files - no remove!
+    const func = '.updateFiles';
 
-    // TODO implement updateFilesMeta
+    const instance = this;
+    const {dbWrapper} = instance.objects;
+    const {mediaComposer} = instance.objects;
+    const {metaReader} = instance.objects;
 
-    // args: list of fileItems
-    // load dir from db
-    // update meta for listed fileItems
-    // sort fileItems + rate dir
-    // save dir to db
+    let dirItem = null;
 
-    const p = new Promise((resolve, reject) => {
-      //log.silly(`${_logKey}${func}`);
-      resolve();
+    const p = dbWrapper.loadDir(folder).then((dirItemDb) => {
+
+      dirItem = dirItemDb;
+      if (!dirItem)
+        dirItem = mediaComposer.createDirItem(folder);
+
+      const promises = [];
+
+      for (let i = 0; i < fileNames.length; i++) {
+        const fileName = fileNames[i];
+        let fileItem = mediaComposer.findFileItem(dirItem, fileName);
+        if (!fileItem) {
+          fileItem = mediaComposer.createFileItem({fileName});
+          dirItem.fileItems.push(fileItem);
+        }
+
+        const filePath = path.join(dirItem.dir, fileItem.fileName);
+        fileItem.lastModified = MediaComposer.lastModifiedFromFile(filePath);
+        promises.push(metaReader.loadMeta(filePath));
+      }
+
+      return Promise.all(promises);
+
+    }).then((values) => {
+
+      for (let i = 0; i < values.length; i++) {
+        const meta = values[i];
+        mediaComposer.updateFileMeta(dirItem, meta)
+      }
+      mediaComposer.evaluateDir(dirItem);
+
+      return dbWrapper.saveDoc(dirItem);
+
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -391,7 +422,7 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  compareFileItems(dirItem, fileNamesFs) {
+  checkAndHandleChangedFileItems(dirItem, fileNamesFs) {
 
     let doFileItemsSave = false;
 
@@ -411,7 +442,7 @@ export class MediaCrawler extends CrawlerBase {
       if (setFs.has(fileItem.fileName)) {
 
         const filePath = path.join(dirItem.dir, fileItem.fileName);
-        const lastChange = fs.lstatSync(filePath).mtimeMs;
+        const lastChange = MediaComposer.lastModifiedFromFile(filePath);
         if (lastChange !== fileItem.lastModified) {
 
           //fileItem.lastModified = lastChange;
@@ -429,8 +460,8 @@ export class MediaCrawler extends CrawlerBase {
       }
     }
 
-    for (const fileNameNew of setFs) {
-      const fileItem =  this.objects.mediaComposer.createFileItem(fileNameNew);
+    for (const fileName of setFs) {
+      const fileItem =  this.objects.mediaComposer.createFileItem({fileName});
       fileItemsNew.push(fileItem);
       itemUpdate.push(fileItem.fileName);
       doFileItemsSave = true;
@@ -485,21 +516,30 @@ export class MediaCrawler extends CrawlerBase {
 
     const children = MediaFilter.listFiles(folder);
 
-    const p = dbWrapper.loadDir(folder).then((dirItem) => {
+    let p = null;
 
-      if (!dirItem)
-        dirItem = mediaComposer.createDirItem({dir: folder});
+    if (children.length === 0)
+      p = dbWrapper.removeDir(folder);
+    else {
+      p = dbWrapper.loadDir(folder).then((dirItem) => {
 
-      if (instance.compareFileItems(dirItem, children))
-        return dbWrapper.saveDir(dirItem);
+        if (!dirItem)
+          dirItem = mediaComposer.createDirItem({dir: folder});
 
-      return Promise.resolve();
+        log.debug(`${_logKey}${func} - dirItem:`, dirItem);
+        log.debug(`${_logKey}${func} - children:`, children);
 
-    }).catch((err) => {
+        if (instance.checkAndHandleChangedFileItems(dirItem, children))
+          return dbWrapper.saveDir(dirItem);
+
+        return Promise.resolve();
+
+      });
+    }
+
+    return p.catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
-
-    return p;
   }
 
 }

@@ -110,6 +110,23 @@ export class MediaComposer extends CrawlerBase {
 
   // ........................................................
 
+  findFileItem(dirItem, fileName) {
+
+    if (!dirItem || !fileName)
+      return null;
+
+    for (let i = 0; i < dirItem.fileItems.length; i++) {
+      const fileItem = dirItem.fileItems[i];
+      if (fileItem.fileName === fileName) {
+        return fileItem;
+      }
+    }
+
+    return null;
+  }
+
+  // ........................................................
+
   evaluateFileItem(fileItem) {
 
     if (!fileItem)
@@ -134,21 +151,34 @@ export class MediaComposer extends CrawlerBase {
   evaluateFile(dirItem, fileName) {
     const func = 'evaluateFile';
 
-    if (!dirItem || !fileName)
+    const fileItem = this.findFileItem(dirItem, fileName);
+    if (fileItem) {
+      this.evaluateFileItem(fileItem);
       return;
-
-    for (let i = 0; i < dirItem.fileItems.length; i++) {
-      const fileItem = dirItem.fileItems[i];
-      if (fileItem.fileName === fileName) {
-        this.evaluateFileItem(fileItem);
-        return;
-      }
     }
 
-    throw new Error(`${_logKey}${func} - could not find fileName (${fileName})!`);
+    throw new Error(`${_logKey}${func} - cannot find fileName (${fileName})!`);
   }
 
   // .......................................................
+
+  updateFileMeta(dirItem, meta) {
+    const func = 'updateFileMeta';
+
+    if (!meta)
+      return;
+
+    const fileItem = this.findFileItem(dirItem, meta.filename);
+    if (!fileItem)
+      throw new Error(`${_logKey}${func} - cannot fileItem!`);
+
+    fileItem.rating = meta.rating || 0;
+    fileItem.tags = meta.tags || [];
+
+    this.evaluateFileItem(fileItem);
+  }
+
+  // ........................................................
 
   evaluateDir(dirItem) {
 
@@ -203,21 +233,7 @@ export class MediaComposer extends CrawlerBase {
       candidates.push(fileItems[i]);
 
     const maxSelections = Math.min(selectionCount, candidates.length);
-
     const selections = [];
-    // for (let i = 0; i < maxSelections; i++) {
-    //
-    //   // TODO check existence (while loop)
-    //
-    //   const random = this.randomWeighted(candidates.length - 1);
-    //   const currentIndex = candidates.length - 1 - random;
-    //   const currentSelection = candidates[currentIndex];
-    //   selections.push(currentSelection);
-    //
-    //   candidates.splice(currentIndex, 1);
-    // }
-
-
 
     do {
 
@@ -244,48 +260,18 @@ export class MediaComposer extends CrawlerBase {
 
     } while (true);
 
-
     return selections;
   }
 
-
   // ........................................................
 
-  static skipSourceFolder(sourceFolderIn, blacklistFolders, blacklistSnippets) {
+  static lastModifiedFromFile(fullPath) {
 
-    // blacklistFolders: normalized
-    // blacklistSnippets: .trim.toLowercase
+    if (!fullPath)
+      return null;
 
-    // https://nodejs.org/api/path.html
-
-    if (!sourceFolderIn)
-      return true;
-
-    const sourceFolder = path.normalize(sourceFolderIn);
-
-    // not testable
-    // if (!fs.lstatSync(sourceFolder).isDirectory())
-    //   return true;
-
-    for (let i = 0; i < blacklistFolders.length; i++) {
-      const found = sourceFolder.indexOf(blacklistFolders[i]);
-      if (found === 0)
-        return true;
-    }
-
-    if (blacklistSnippets.length > 0) {
-      const sourceFolderLowerCase = sourceFolder.toLowerCase();
-      for (let i = 0; i < blacklistSnippets.length; i++) {
-        const found = sourceFolderLowerCase.indexOf(blacklistSnippets[i]);
-        if (found > -1)
-          return true;
-      }
-    }
-
-    return false;
+    return fs.lstatSync(fullPath).mtimeMs;;
   }
-
-  // .......................................................
 
 }
 

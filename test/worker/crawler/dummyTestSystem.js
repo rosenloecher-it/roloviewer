@@ -8,6 +8,7 @@ import {MediaComposer} from "../../../app/worker/crawler/mediaComposer";
 import {MediaLoader} from "../../../app/worker/crawler/mediaLoader";
 import {DummyMetaReader} from "./dummyMetaReader";
 import * as stringUtils from "../../../app/common/utils/stringUtils";
+import {Dispatcher} from "../../../app/worker/crawler/dispatcher";
 
 // ----------------------------------------------------------------------------------
 
@@ -24,6 +25,7 @@ export class DummyTestSystem {
     this.files = [];
 
     this.dbWrapper = new DbWrapper();
+    this.dispatcher = new Dispatcher();
     this.mediaCrawler = new MediaCrawler();
     this.mediaComposer = new MediaComposer();
     this.mediaLoader = new MediaLoader();
@@ -57,7 +59,7 @@ export class DummyTestSystem {
     return storeManager.crawlerState;
   }
 
-// ........................................................
+  // ........................................................
 
   createFileSystemStructure(basePath, width, depth, fileCountPerFolder) {
 
@@ -125,11 +127,41 @@ export class DummyTestSystem {
 
         const fileItem = this.mediaComposer.createFileItem({ fileName });
 
-        fs.writeFileSync(filePath, JSON.stringify(fileItem));
+        fileItem.rating = Math.floor(5 * Math.random());
+
+        DummyTestSystem.saveDummyFile(filePath, fileItem);
 
         this.files.push(filePath);
       } while (false);
     }
+  }
+
+  // ........................................................
+
+  static saveDummyFile(filePath, fileItem) {
+    fs.writeFileSync(filePath, JSON.stringify(fileItem), 'utf8');
+  }
+
+
+  // ........................................................
+
+  static readDummyFile(filePath) {
+
+    fs.readFileSync(filePath)
+
+    const data = JSON.parse(fs.readFileSync('file', 'utf8'));
+
+    return data;
+
+
+    // fs.readFile('/path/to/file.json', 'utf8', function (err, data) {
+    //   if (err) throw err; // we'll not consider error handling for now
+    //   var obj = JSON.parse(data);
+    // });
+    //
+    // fileItem
+
+    fs.writeFileSync(filePath, JSON.stringify(fileItem));
   }
 
   // ........................................................

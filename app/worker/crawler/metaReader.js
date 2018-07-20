@@ -12,6 +12,8 @@ import {CrawlerBase} from "./crawlerBase";
 
 const _logKey = "metaReader";
 
+let _showNoExifToolWarning = true;
+
 // ----------------------------------------------------------------------------------
 
 export class MetaReader extends CrawlerBase {
@@ -119,6 +121,39 @@ export class MetaReader extends CrawlerBase {
     return exiftool;
   }
 
+  // ........................................................
+
+  loadMeta(file) {
+    const func = ".loadMeta"; // for crawler
+
+    const instance = this;
+
+    const p = new Promise((resolve, reject) => {
+
+      if (instance.data.exiftool) {
+        return instance.data.exiftool.read(file).then((tags) => {
+
+          const meta = prepareTagsFromExiftool(file, tags, true);
+
+          resolve(meta);
+        });
+
+      } else {
+        // TODO implement fallback to ExifReader
+        if (_showNoExifToolWarning) {
+          _showNoExifToolWarning = false;
+          //reject(new Error("exiftool is not initialied (and fallback is not implemented)!"));
+          log.warn(`${_logKey}${func} - exiftool is not initialied (and fallback is not implemented)!`);
+        }
+        resolve(null);
+      }
+    }).catch((err) => {
+      log.error(`${_logKey}${func}.promise.catch -`, err);
+      throw err;
+    });
+
+    return p;
+  }
 
   // ........................................................
 
@@ -136,7 +171,10 @@ export class MetaReader extends CrawlerBase {
       if (instance.data.exiftool) {
         instance.data.exiftool.read(file).then((tags) => {
           //log.debug(`${_logKey}${func}: in2 - ${file}`);
-          instance.transformAndDeliverTags(file, tags);
+          const meta = prepareTagsFromExiftool(file, tags, false);
+          const action = slideshowActions.createActionDeliverFileMeta(meta);
+          instance.objects.storeManager.dispatchRemote(action, null);
+
           resolve();
         }).catch((err) => {
           log.error(`${_logKey}${func} - exception - `, err);
@@ -144,8 +182,12 @@ export class MetaReader extends CrawlerBase {
         });
       } else {
         // TODO implement fallback to ExifReader
-        //reject(new Error("exiftool is not initialied (and fallback is not implemented)!"));
-        log.warn(`${_logKey}${func} - exiftool is not initialied (and fallback is not implemented)!`);
+
+        if (_showNoExifToolWarning) {
+          _showNoExifToolWarning = false;
+          //reject(new Error("exiftool is not initialied (and fallback is not implemented)!"));
+          log.warn(`${_logKey}${func} - exiftool is not initialied (and fallback is not implemented)!`);
+        }
         resolve();
       }
 
@@ -156,17 +198,6 @@ export class MetaReader extends CrawlerBase {
 
   // ........................................................
 
-  transformAndDeliverTags(file, tags) {
-    const func = ".transformAndDeliverTags";
-
-    const meta = prepareTagsFromExiftool(file, tags);
-
-    const action = slideshowActions.createActionDeliverFileMeta(meta);
-
-    this.objects.storeManager.dispatchRemote(action, null);
-
-    //log.debug(`${_logKey}${func} - cameraModel=${meta.cameraModel} - file=${file}`);
-  }
 }
 
 // ----------------------------------------------------------------------------------
@@ -182,7 +213,7 @@ export function pushDetails(inputText, addText) {
 
 // ----------------------------------------------------------------------------------
 
-export function prepareTagsFromExiftool(file, tags) {
+export function prepareTagsFromExiftool(file, tags, prepareOnlyCrawlerTags = false) {
   let temp = null;
   const ml = 50; // maxLength
 
@@ -195,56 +226,58 @@ export function prepareTagsFromExiftool(file, tags) {
     dir: sepPath.dir,
   };
 
-  meta.imageHeight = tags.ImageHeight;
-  meta.imageWidth = tags.ImageWidth;
-  meta.imageSize = `${tags.ImageWidth}x${tags.ImageHeight}`;
-
-  meta.cameraModel = shortenString(tags.Model, ml);
-  meta.cameraLens = shortenString(tags.LensID || tags.LensInfo || tags.LensModel || tags.Lens, ml);
-
-  meta.photoShutterSpeed = tags.ShutterSpeedValue || tags.ShutterSpeed || tags.FNumber;
-  meta.photoAperture = tags.ApertureValue || tags.Aperture || tags.FNumber;
-  meta.photoISO = tags.ISO;
-  meta.photoFlash = tags.Flash;
-
-  if (meta.photoShutterSpeed)
-    meta.photoSettings = pushDetails(meta.photoSettings, meta.photoShutterSpeed + "s");
-  if (meta.photoAperture)
-    meta.photoSettings = pushDetails(meta.photoSettings, "f" + meta.photoAperture);
-  if (meta.photoISO)
-    meta.photoSettings = pushDetails(meta.photoSettings, "ISO " + meta.photoISO);
-
-  temp = valiInt(tags.FocalLength);
-  if (temp)
-    meta.photoFocalLength = `${temp} mm`;
-
-  temp = valiInt(tags.UprightFocalLength35mm);
-  if (temp)
-    meta.photoUprightFocalLength35mm = `${temp} mm`;
-
-  meta.gpsAltitude = tags.GPSAltitude; // '255.3837 m'
-  meta.gpsLatitude = tags.GPSLatitude; // 51.02369333
-  meta.gpsLatitudeRef = tags.GPSLatitudeRef; // 'North'
-  meta.gpsLongitude = tags.GPSLongitude; // 13.65431667
-  meta.gpsLongitudeRef = tags.GPSLongitudeRef; // 'East'
-  meta.gpsPosition = tags.GPSPosition; // '51.02369333 N, 13.65431667 E'
-  meta.gpsVersionID = tags.GPSVersionID; // '2.2.0.0'
-
-  meta.gpsCountry = shortenString(tags.Country, ml); // 'Deutschland'
-  meta.gpsProvince = shortenString(tags.State || tags['Province-State'], ml); // 'Sachsen'
-  meta.gpsCity = shortenString(tags.City, ml); // 'Freital'
-
-  meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsCity);
-  meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsProvince);
-  meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsCountry);
-  meta.gpsLocation = shortenString(meta.gpsLocation, ml);
-
+  meta.tags = tags.Keywords;
   meta.rating = tags.Rating;
 
-  meta.date = validateExifDate(tags.DateTimeOriginal) || validateExifDate(tags.DateCreated)
-                                || validateExifDate(tags.CreateDate) || tags.DateTimeCreated;
+  if (prepareOnlyCrawlerTags === false) {
 
-  meta.keywords = tags.Keywords;
+    meta.imageHeight = tags.ImageHeight;
+    meta.imageWidth = tags.ImageWidth;
+    meta.imageSize = `${tags.ImageWidth}x${tags.ImageHeight}`;
+
+    meta.cameraModel = shortenString(tags.Model, ml);
+    meta.cameraLens = shortenString(tags.LensID || tags.LensInfo || tags.LensModel || tags.Lens, ml);
+
+    meta.photoShutterSpeed = tags.ShutterSpeedValue || tags.ShutterSpeed || tags.FNumber;
+    meta.photoAperture = tags.ApertureValue || tags.Aperture || tags.FNumber;
+    meta.photoISO = tags.ISO;
+    meta.photoFlash = tags.Flash;
+
+    if (meta.photoShutterSpeed)
+      meta.photoSettings = pushDetails(meta.photoSettings, meta.photoShutterSpeed + "s");
+    if (meta.photoAperture)
+      meta.photoSettings = pushDetails(meta.photoSettings, "f" + meta.photoAperture);
+    if (meta.photoISO)
+      meta.photoSettings = pushDetails(meta.photoSettings, "ISO " + meta.photoISO);
+
+    temp = valiInt(tags.FocalLength);
+    if (temp)
+      meta.photoFocalLength = `${temp} mm`;
+
+    temp = valiInt(tags.UprightFocalLength35mm);
+    if (temp)
+      meta.photoUprightFocalLength35mm = `${temp} mm`;
+
+    meta.gpsAltitude = tags.GPSAltitude; // '255.3837 m'
+    meta.gpsLatitude = tags.GPSLatitude; // 51.02369333
+    meta.gpsLatitudeRef = tags.GPSLatitudeRef; // 'North'
+    meta.gpsLongitude = tags.GPSLongitude; // 13.65431667
+    meta.gpsLongitudeRef = tags.GPSLongitudeRef; // 'East'
+    meta.gpsPosition = tags.GPSPosition; // '51.02369333 N, 13.65431667 E'
+    meta.gpsVersionID = tags.GPSVersionID; // '2.2.0.0'
+
+    meta.gpsCountry = shortenString(tags.Country, ml); // 'Deutschland'
+    meta.gpsProvince = shortenString(tags.State || tags['Province-State'], ml); // 'Sachsen'
+    meta.gpsCity = shortenString(tags.City, ml); // 'Freital'
+
+    meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsCity);
+    meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsProvince);
+    meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsCountry);
+    meta.gpsLocation = shortenString(meta.gpsLocation, ml);
+
+    meta.date = validateExifDate(tags.DateTimeOriginal) || validateExifDate(tags.DateCreated)
+                                  || validateExifDate(tags.CreateDate) || tags.DateTimeCreated;
+  }
 
   return meta;
 }

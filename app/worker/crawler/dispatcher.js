@@ -32,7 +32,7 @@ export class Dispatcher extends CrawlerBase {
     try {
       const crawlerTasksState = storeManager.crawlerTasksState;
       const nextTask = CrawlerTasksReducer.getNextTask(crawlerTasksState);
-      //log.debug(`${_logKey}${func} - in`, instance.runningTask);
+      //log.debug(`${_logKey}${func} - in`, nextTask);
 
       if (nextTask === null)
         return; // ok
@@ -49,50 +49,11 @@ export class Dispatcher extends CrawlerBase {
       //let countTasks2 = CrawlerReducer.countTasks(crawlerTasksState);
       //log.debug(`${_logKey}${func} - countTasks2=${countTasks2}`);
 
-      const p = new Promise((resolve, reject) => {
-        //log.debug(`${_logKey}${func}.promise - in`);
+      const p = instance.dispatchTask(instance.runningTask).catch((err) => {
 
-        const {metaReader} = instance.objects;
-        const {mediaCrawler} = instance.objects;
-        const {mediaLoader} = instance.objects;
-        const task = instance.runningTask;
+        this.logAndShowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
 
-        let p = null;
-
-        switch (task.type) { // eslint-disable-line default-case
-
-          case constants.AR_WORKER_OPEN:
-            p = mediaLoader.open(task.payload); break;
-            // TODO switch to mediaCrawler: mediaCrawler.addAutoSelectFiles(task.payload.trailNumber)
-
-          case constants.AR_WORKER_DELIVER_META:
-            p = metaReader.deliverMeta(task.payload.file); break;
-
-          case constants.AR_WORKER_INIT_CRAWLE:
-            p = mediaCrawler.initCrawler(); break;
-
-          case constants.AR_WORKER_REMOVE_DIR:
-            p = mediaCrawler.removeDir(action.payload); break;
-
-          case constants.AR_WORKER_RATE_DIR_BY_FILE:
-            p = mediaCrawler.rateDirByFile(task.payload); break;
-
-          case constants.AR_WORKER_UPDATE_FILES:
-            p = mediaCrawler.updateFilesMeta(task.payload); break;
-
-          case constants.AR_WORKER_UPDATE_DIR:
-            p = mediaCrawler.updateDir(task.payload); break;
-        }
-
-        if (!p)
-          reject(new Error(`unknown task type ${task.type}!`));
-        else
-          resolve(p);
-
-      }).then((p2) => {
-        return p2;
-      }).catch((err) => {
-        this.logAndShowError(`${_logKey}${func}.catch(${taskType})`, err);
+        return Promise.resolve();
 
       }).then(() => { // finally
         //log.debug(`${_logKey}${func}.finally - in`);
@@ -103,7 +64,8 @@ export class Dispatcher extends CrawlerBase {
 
         setImmediate(instance.processTask); // check for next task
 
-        return true;
+        return Promise.resolve();
+
       }).catch((err) => { // catch finally
         this.logAndShowError(`${_logKey}${func}.finally.catch(${taskType})`, err);
       });
@@ -114,6 +76,68 @@ export class Dispatcher extends CrawlerBase {
   }
 
   // ........................................................
+
+  dispatchTask(task) {
+    const func = ".dispatchTask";
+
+    if (!task)
+      return Promise.resolve();
+
+    const taskType = task.type;
+    const instance = this;
+
+    const p = new Promise((resolve, reject) => {
+      //log.debug(`${_logKey}${func}.promise - in`);
+
+      const {metaReader} = instance.objects;
+      const {mediaCrawler} = instance.objects;
+      const {mediaLoader} = instance.objects;
+
+      let p = null;
+
+      switch (task.type) { // eslint-disable-line default-case
+
+        case constants.AR_WORKER_OPEN:
+          p = mediaLoader.open(task.payload);
+          break;
+        // TODO switch to mediaCrawler: mediaCrawler.addAutoSelectFiles(task.payload.trailNumber)
+
+        case constants.AR_WORKER_DELIVER_META:
+          p = metaReader.deliverMeta(task.payload.file);
+          break;
+
+        case constants.AR_WORKER_INIT_CRAWLE:
+          p = mediaCrawler.initCrawler();
+          break;
+
+        case constants.AR_WORKER_REMOVE_DIR:
+          p = mediaCrawler.removeDir(task.payload);
+          break;
+
+        case constants.AR_WORKER_RATE_DIR_BY_FILE:
+          p = mediaCrawler.rateDirByFile(task.payload);
+          break;
+
+        case constants.AR_WORKER_UPDATE_FILES:
+          p = mediaCrawler.updateFiles(task.payload.folder, task.payload.fileNames);
+          break;
+
+        case constants.AR_WORKER_UPDATE_DIR:
+          p = mediaCrawler.updateDir(task.payload);
+          break;
+      }
+
+      if (!p)
+        reject(new Error(`unknown task type ${task.type}!`));
+
+      resolve(p);
+
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
+    });
+
+    return p;
+  }
 }
 
 // ----------------------------------------------------------------------------------

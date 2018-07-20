@@ -76,17 +76,17 @@ export class TestManager extends StoreManager {
   // .....................................................
 
   dispatchRemote(action) {
-    this.data.dispatchedActions.push(action);
+    this.dispatchLocal(action);
   }
 
   // ........................................................
 
   dispatchGlobal(action) {
-    this.data.dispatchedActions.push(action);
+    this.dispatchLocal(action);
   }
 
   dispatchTask(action) {
-    this.data.dispatchedActions.push(action);
+    this.dispatchLocal(action);
   }
 }
 
