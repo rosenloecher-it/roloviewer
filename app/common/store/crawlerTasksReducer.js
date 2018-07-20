@@ -55,9 +55,11 @@ export class CrawlerTasksReducer {
           return this.open(state, action);
 
         case constants.AR_WORKER_DELIVER_META:
-        case constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING:
-        case constants.AR_WORKER_DIR_REMOVE_NON_EXISTING:
+        case constants.AR_WORKER_REMOVE_DIR:
           return this.pushGenericTask(state, action);
+
+        case constants.AR_WORKER_UPDATE_DIR:
+          return this.queueDirUpdates(state, action);
 
         default:
           return state;
@@ -85,6 +87,27 @@ export class CrawlerTasksReducer {
 
     const newState = { ...state };
     newState.tasks[prio].push(action);
+
+    return newState;
+  }
+
+  // .....................................................
+
+  queueDirUpdates(state, action) {
+    const func = ".queueDirUpdates";
+
+    const prio = CrawlerTasksReducer.getTaskPrio(action.type);
+
+    if (prio < 0 || prio >= state.tasks.length) {
+      log.error(`${this._logKey}${func} - unknown prio`, action);
+      return state;
+    }
+
+    // TODO implement
+    const newState = { ...state };
+
+    const {dirs} = queueDirUpdates.payload;
+    newState.tasks[prio].push(dirs);
 
     return newState;
   }
@@ -178,19 +201,17 @@ export class CrawlerTasksReducer {
       case constants.AR_WORKER_OPEN:
         return 0;
       case constants.AR_WORKER_DELIVER_META:
+        return 1;
+      case constants.AR_WORKER_INIT_CRAWLE:
         return 2;
-      case constants.AR_WORKER_DEPARTURE:
+      case constants.AR_WORKER_REMOVE_DIR:
         return 3;
-      case constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING:
+      case constants.AR_WORKER_RATE_DIR_BY_FILE:
         return 4;
-      case constants.AR_WORKER_DIR_REMOVE_NON_EXISTING:
+      case constants.AR_WORKER_UPDATE_FILES:
         return 5;
-      case constants.AR_WORKER_DIR_RATE:
+      case constants.AR_WORKER_UPDATE_DIR:
         return 6;
-      case constants.AR_WORKER_FILES_UPDATE:
-        return 7;
-      case constants.AR_WORKER_DIR_UPDATE:
-        return 8;
       default:
         return null;
     }

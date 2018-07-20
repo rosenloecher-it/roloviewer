@@ -56,7 +56,7 @@ function checkRandomSelectFilesFromDir(disposer, countFiles, countSelectDemanded
     const fileName = stringUtils.randomString(10);
     const item = disposer.createFileItem({
       fileName,
-      weight: i, // no extra evaluateFile necessary
+      weight: i, // no extra evaluateFileItem necessary
     });
 
     dir.fileItems.push(item);
@@ -160,7 +160,7 @@ describe('mediaWeigher', () => {
 
   // .......................................................
 
-  it('evaluateFile', () => {
+  it('evaluateFileItem', () => {
 
     const disposer = new MediaComposer();
 
@@ -173,8 +173,8 @@ describe('mediaWeigher', () => {
     item1.rating = 0;
     item2.rating = 0;
 
-    disposer.evaluateFile(item1);
-    disposer.evaluateFile(item2);
+    disposer.evaluateFileItem(item1);
+    disposer.evaluateFileItem(item2);
 
     expect(item1.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
     expect(item2.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
@@ -182,7 +182,7 @@ describe('mediaWeigher', () => {
     expect(item2.weight).toBeGreaterThan(item1.weight);
 
     item2.rating = 2;
-    disposer.evaluateFile(item2);
+    disposer.evaluateFileItem(item2);
 
     expect(item1.weight).toBeGreaterThan(item2.weight);
   });
@@ -204,7 +204,7 @@ describe('mediaWeigher', () => {
     for (let i = 0; i < countFiles; i++) {
       const item = disposer.createFileItem({
         fileName: stringUtils.randomString(10),
-        weight: countFiles - i, // => re-sort necessary, no extra evaluateFile necessary
+        weight: countFiles - i, // => re-sort necessary, no extra evaluateFileItem necessary
       });
 
       dir.fileItems.push(item);

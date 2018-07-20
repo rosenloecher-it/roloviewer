@@ -1,7 +1,7 @@
 import log from 'electron-log';
 import Datastore from 'nedb';
 import path from 'path';
-import {CrawlerBase} from "./CrawlerBase";
+import {CrawlerBase} from "./crawlerBase";
 import * as constants from "../../common/constants";
 import {mkDirWithParents} from "../../common/utils/fileUtils";
 import {CrawlerReducer} from "../../common/store/crawlerReducer";
@@ -144,8 +144,6 @@ export class DbWrapper extends CrawlerBase {
   removeDir(dir) {
     const func = ".removeDir";
 
-    // TODO test
-
     const instance = this;
     const {mediaComposer} = this.objects;
     const wantedId = mediaComposer.convert2Id(dir);
@@ -197,14 +195,12 @@ export class DbWrapper extends CrawlerBase {
 
   // .......................................................
 
-  loadDir(dir) {
-
-    // TODO test
+  loadDir(dirName) {
     const func = ".loadDir";
 
     const instance = this;
     const {mediaComposer} = this.objects;
-    const wantedId = mediaComposer.convert2Id(dir);
+    const wantedId = mediaComposer.convert2Id(dirName);
 
     const p = new Promise((resolve, reject) => {
       instance.dbDir.findOne({ _id: wantedId }, (err, doc) => {

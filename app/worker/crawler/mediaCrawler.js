@@ -5,10 +5,12 @@ import log from 'electron-log';
 import set from 'collections/set';
 import * as constants from "../../common/constants";
 import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
-import {CrawlerBase} from "./CrawlerBase";
+import {CrawlerBase} from "./crawlerBase";
 import * as actionsSlideshow from "../../common/store/slideshowActions";
 import {MediaComposer} from "./mediaComposer";
 import {MediaLoader} from "./mediaLoader";
+import {CrawlerTasksReducer} from "../../common/store/crawlerTasksReducer";
+import {MediaFilter} from "./mediaFilter";
 
 // ----------------------------------------------------------------------------------
 
@@ -20,13 +22,6 @@ export class MediaCrawler extends CrawlerBase {
 
   constructor() {
     super();
-
-    if (process.platform.toLowerCase().indexOf('win') >= 0)
-      this.isFolderBlackListed = this.isFolderBlackListedWindows;
-    else
-      this.isFolderBlackListed = this.isFolderBlackListedStandard;
-
-
 
   }
 
@@ -51,11 +46,6 @@ export class MediaCrawler extends CrawlerBase {
     return p;
 
   }
-
-
-  // ........................................................
-
-
 
   // ........................................................
 
@@ -82,7 +72,7 @@ export class MediaCrawler extends CrawlerBase {
       return dbWrapper.loadDoc(selectedFile);
     }).then((dir) => {
 
-      const files = mediaComposer.randomSelectFilesFromDir(dir, crawlerState.batchCount);
+      const files = mediaComposer.randomSelectFilesFromDir(dir, crawlerState.batchCount, true);
       if (files.length === 0) {
 
         if (trailNumber < 2) {
@@ -118,162 +108,222 @@ export class MediaCrawler extends CrawlerBase {
 
   // ........................................................
 
-  isFolderBlackListedWindows(file, folderBlacklist, folderBlacklistSnippets) {
-    if (!file)
-      return true;
+  saveState() {
 
-    const fileLowerCase = file.toLowerCase();
-
-    for (let i = 0; i < folderBlacklist.length; i++) {
-      if (file.indexOf(folderBlacklist[i].toLowerCase()) === 0)
-        return true;
-    }
-
-    for (let i = 0; i < folderBlacklistSnippets.length; i++) {
-      if (fileLowerCase.indexOf(folderBlacklistSnippets[i].toLowerCase()) >= 0)
-        return true;
-    }
-
-    return false;
-  }
-
-  isFolderBlackListedStandard(file, folderBlacklist, folderBlacklistSnippets) {
-    if (!file)
-      return true;
-
-    for (let i = 0; i < folderBlacklist.length; i++) {
-      if (file.indexOf(folderBlacklist[i]) === 0)
-        return true;
-    }
-
-    const fileLowerCase = file.toLowerCase();
-    for (let i = 0; i < folderBlacklistSnippets.length; i++) {
-      if (fileLowerCase.indexOf(folderBlacklistSnippets[i].toLowerCase()) >= 0)
-        return true;
-    }
-
-    return false;
-  }
-
-  // ........................................................
-
-  addFolderToTaskList(file) {
-    const func = `.addFolderToTaskList`;
-
-    const {storeManager} = this.objects;
+    const instance = this;
+    const {dbWrapper} = instance.objects;
     const crawlerState = storeManager.crawlerState;
+    const tasksState = storeManager.crawlerTasksState;
 
-    if (!file)
-      return;
+    const prio = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
 
-    if (this.isFolderBlackListed(file, crawlerState.folderBlacklist, crawlerState.folderBlacklistSnippets)) {
-      log.debug(`${_logKey}${func} - blacklisted: ${file}`);
-      return;
+    const stateComposed = {
+      lastConfig: crawlerState,
+      lastUpdateDirs: [],
     }
 
-    const action = actionsCrawlerTasks.createActionDirUpdate(file);
-    storeManager.dispatchTask(action);
+    const dirTasks = tasksState.tasks[prio];
+    for (let i = 0; i < dirTasks.length; i++) {
+      const task = dirTask[i];
+      stateComposed.lastUpdateDirs.push(task.payload);
+    }
 
-    // folderBlacklist: [],
-    //   folderBlacklistSnippets: [],
-    //   folderSource: [],
-  }
-  // ........................................................
+    const p = dbWrapper.saveState(stateComposed).then(() => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
 
-  restartCrawler() {
-
-    const {storeManager} = this.objects;
-    const crawlerState = storeManager.crawlerState;
-
-    const action1 = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_FILES_UPDATE);
-    storeManager.dispatchTask(action1);
-
-    const action2 = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_DIR_UPDATE);
-    storeManager.dispatchTask(action2);
-
-    for (let i = 0; i < crawlerState.folderSource.length; i++)
-      this.addFolderToTaskList(crawlerState.folderSource[i]);
-
+    return p;
   }
 
   // ........................................................
 
-  departure() {
-    // AR_WORKER_DEPARTURE
-    const func = '.departure';
+  loadState() {
+    const func = '.loadState';
 
     const instance = this;
     const {dbWrapper} = instance.objects;
     const {storeManager} = instance.objects;
     const crawlerStateCurrent = storeManager.crawlerState;
 
-    // check count dirs < 0 => restart
-    const p = dbWrapper.countDirs().then((countDirs) => {
-      if (!countDirs) {
-        log.info(`${_logKey}${func} - not dirs (${countDirs}) found => restart crawle`);
-        this.restartCrawler();
-        return Promise.resolve();
-      }
+    const p = dbWrapper.loadState().then((stateComposed) => {
 
-      // check current setting with saved settings, when changed => restart
-      return dbWrapper.loadState();
-    }).then((crawlerStateSaved) => {
+      stateComposed.restartCrawle = false;
 
-      if (!MediaCrawler.compareStatus(crawlerStateCurrent, crawlerStateSaved)) {
+      if (!MediaCrawler.compareStatus(crawlerStateCurrent, stateComposed.lastConfig)) {
         log.info(`${_logKey}${func} - config changed => restart crawle`);
-        this.restartCrawler();
+        stateComposed.restartCrawle = true;
+      }
+      return Promise.resolve();
+    });
 
-        return Promise.resolve();
+    return p;
+  }
+
+  // ........................................................
+
+  collectAllFoldersRecursive(dirSet, currentDir, folderBlacklist, folderBlacklistSnippets) {
+    const func = '.addFoldersRecursive';
+
+    if (!currentDir)
+      return;
+    if (MediaFilter.shouldSkipFolder(currentDir, folderBlacklist, folderBlacklistSnippet))
+      return;
+
+    const children = fs.readdirSync(currentDir);
+    for (let k = 0; k < children.length; k++) {
+      const fileShort = children[k];
+      const fileLong = path.join(folder, fileShort);
+      if (fs.lstatSync(fileLong).isDirectory()) {
+        if (MediaFilter.shouldSkipFolder(fileLong, folderBlacklist, folderBlacklistSnippet))
+          log.info(`${_logKey}${func} - skipped: ${fileLong}`);
+        else {
+          dirSet.add(fileLong);
+          addFoldersRecursive(dirSet, fileLong, folderBlacklist, folderBlacklistSnippets);
+        }
+      }
+    }
+  }
+
+  // ........................................................
+
+  collectAllFolders() {
+
+    const dirSet = new Set();
+
+    const {storeManager} = this.objects;
+    const crawlerState = storeManager.crawlerState;
+
+    for (let i = 0; i < crawlerState.folderSource.length; i++) {
+      addFoldersRecursive(dirSet, crawlerState.folderSource[i],
+        crawlerState.folderBlacklist, crawlerState.folderBlacklistSnippets);
+    }
+
+    return dirSet;
+  }
+
+  // ........................................................
+
+  handleNonExistenceDirs(dirItems, dirSet) {
+
+    if (!dirItems || !dirSet)
+      return;
+
+    const {storeManager} = this.object;
+
+    for (let i = 0; i < dirItems.length; i++) {
+      const dirItem = dirItems[i];
+      if (!dirSet.has(dirItem.dir)) {
+        const action = actionsCrawlerTasks.createActionRemoveDir(dirItem.dir);
+        storeManager.dispatchTask(action);
+      }
+    }
+  }
+
+  // ........................................................
+
+  handleNewDirs(dirItems, dirSet) {
+
+    if (!dirItems || !dirSet)
+      return;
+
+    const {storeManager} = this.object;
+
+
+    const dirsFs = dirSet.toArray();
+
+    for (let i = 0; i < dirItems.length; i++) {
+      const dirItem = dirItems[i];
+      if (!dirSet.has(dirItem.dir)) {
+        const action = actionsCrawlerTasks.createActionRemoveDir(dirItem.dir);
+        storeManager.dispatchTask(action);
+      }
+    }
+  }
+
+  // ........................................................
+
+  startCrawler(doFullScan) {
+    const func = '.startCrawler';
+
+    const instance = this;
+    const {dbWrapper} = instance.objects;
+    const {storeManager} = instance.object;
+
+    const p = dbWrapper.listDirsAll().then((dirItems) => {
+
+      const dirsFsSet = instance.collectFoldersInSet();
+
+      instance.handleNonExistenceDirs(dirItems, dirsFsSet);
+
+      let dirs2update = null;
+      if (doFullScan) {
+        dirs2update = dirSet.toArray();
+
+        // reset old tasks
+        const action1 = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_FILES);
+        storeManager.dispatchTask(action1);
+
+        const action2 = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_DIR);
+        storeManager.dispatchTask(action2);
+
+      } else
+        dirs2update = instance.handleNewDirs(dirItems, dirsFs);
+
+      if (dirs2update) {
+        for (let i = 0; i < dirs2update.length; i++) {
+          const action = actionsCrawlerTasks.createActionUpdateDir(dirs2update[i]);
+          storeManager.dispatchTask(action);
+        }
       }
 
-      const action = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING);
-      storeManager.dispatchTask(action);
-
-      const updateDirsAfterMinutes = constants.DEFCONF_CRAWLER_UPDATE_DIR_AFTER_MINUTES;
-      return dbWrapper.listDirsToUpdate(updateDirsAfterMinutes);
-    }).then() ((files) => {
-
-      for (let i = 0; i < files.length; i++)
-        this.addFolderToTaskList(files[i]);
       return Promise.resolve();
 
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
-    return p;
   }
 
-  // .......................................................
+  // ........................................................
 
-  removeNonExistingDirs() {
-    // AR_WORKER_DIRS_REMOVE_NON_EXISTING
-    const func = '.removeNonExistingDirs';
+  initCrawler() {
+    // AR_WORKER_INIT_CRAWLE
+    const func = '.initCrawler';
 
     const instance = this;
     const {dbWrapper} = instance.objects;
     const {storeManager} = instance.objects;
+    const crawlerStateCurrent = storeManager.crawlerState;
 
-    const p = dbWrapper.listDirsAll().then((files) => {
+    const p = this.loadState().then((stateComposed) => {
 
-      for (let i = 0; i < files.length; i++) {
-        const action1 = actionsCrawlerTasks.createActionDirRemoveNonExisting(files[i]);
-        storeManager.dispatchTask(action1);
+      if (stateComposed.restartCrawle === false) {
+        const {lastUpdateDirs} = stateComposed;
+        for (let i = 0; i < lastUpdateDirs.length; i++) {
+          const action = actionsCrawlerTasks.createActionUpdateDir(lastUpdateDirs[i]);
+          storeManager.dispatchTask(action);
+        }
       }
 
-      return Promise.resolve();
+      return instance.startCrawler(stateComposed.restartCrawle);
+
+    }).then(() => {
+
+      return instance.startCrawler(restartCrawle);
 
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
+
+
   }
 
   // .......................................................
 
-  removeNonExistingDir(file) {
-    // AR_WORKER_DIRS_REMOVE_NON_EXISTING
+  removeDir(file) {
+    // AR_WORKER_REMOVE_DIR
     const func = '.removeNonExistingDirs';
 
     const {dbWrapper} = this.objects;
@@ -287,20 +337,28 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  rateDirFromPlayedFile(file) {
-    // AR_WORKER_DIR_RATE
-    const func = '.rateDirFromPlayedFile';
+  rateDirByFile(file) {
+    // AR_WORKER_RATE_DIR_BY_FILE
+    const func = '.rateDirByFile';
 
     const instance = this;
     const {dbWrapper} = this.objects;
     const {mediaComposer} = instance.objects;
 
-    const p = dbWrapper.loadDoc(file).then((dir) => {
+    const dirName = path.dirname(file);
+    const fileName = path.basename(file);
 
-      mediaComposer.evaluateFile(file);
-      mediaComposer.evaluateDir(dir);
+    const p = dbWrapper.loadDoc(dirName).then((dirItem) => {
 
-      return dbWrapper.saveDoc(dir);
+      if (dirItem) {
+        mediaComposer.evaluateFile(dirItem, fileName);
+
+        mediaComposer.evaluateDir(dirItem);
+
+        return dbWrapper.saveDoc(dirItem);
+
+      } else
+        throw new Error(`cannot find parent for item (${file})!`);
 
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
@@ -312,7 +370,7 @@ export class MediaCrawler extends CrawlerBase {
   // .......................................................
 
   updateFilesMeta(folder) {
-    // AR_WORKER_FILES_UPDATE
+    // AR_WORKER_UPDATE_FILES
     const func = '.updateFilesMeta';
 
     // TODO implement updateFilesMeta
@@ -329,32 +387,6 @@ export class MediaCrawler extends CrawlerBase {
     });
 
     return p;
-  }
-
-  // .......................................................
-
-  listChildren(folder) {
-    const func = '.listChildren';
-
-    const fileNames = [];
-    const dirs = [];
-
-    const children = fs.readdirSync(folder);
-    for (let k = 0; k < children.length; k++) {
-      const fileShort = children[k];
-      const fileLong = path.join(folder, fileShort);
-      if (fs.lstatSync(fileLong).isDirectory()) {
-        if (this.skipSourceFolder(fileLong))
-          log.info(`${_logKey}${func} - skipped: ${fileLong}`);
-        else
-          dirs.push(fileLong);
-      } else {
-        if (MediaLoader.isImageFormatSupported(fileShort))
-          fileNames.push(fileShort);
-      }
-    }
-
-    return { fileNames, dirs };
   }
 
   // .......................................................
@@ -416,7 +448,7 @@ export class MediaCrawler extends CrawlerBase {
         for (let i = 0; i < itemUpdate.length; i++) {
           actionItems.push(itemUpdate[i]);
           if (actionItems.length === 10 || i === itemUpdate.length - 1) {
-            const action = actionsCrawlerTasks.createActionFilesUpdate(dirItem.dir, actionItems);
+            const action = actionsCrawlerTasks.createActionUpdateFiles(dirItem.dir, actionItems);
             this.objects.storeManager.dispatchTask(action);
             actionItems = [];
           }
@@ -429,20 +461,8 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  skipSourceFolder(folder) {
-
-    const crawlerState = this.objects.storeManager.crawlerState;
-
-    return MediaLoader.shouldSkipSourceFolder(folder, crawlerState.folderBlacklist, crawlerState.folderBlacklistSnippets);
-
-      //if (MediaLoader.shouldSkipSourceFolder(folder, crawlerState.blacklistFolders, crawlerState.blacklistSnippets))
-  }
-
-
-  // .......................................................
-
   updateDir(folder) {
-    // AR_WORKER_DIR_RATE
+    // AR_WORKER_UPDATE_DIR
     const func = '.updateDir';
 
     if (!folder)
@@ -454,24 +474,23 @@ export class MediaCrawler extends CrawlerBase {
     const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
 
-    if (this.skipSourceFolder(folder)) {
-      log.info(`${_logKey}${func} - skipped: ${folder}`);
+    if (!fs.lstatSync(folder).isDirectory()) {
+      log.info(`${_logKey}${func} - no dir: ${folder}`);
+      return Promise.resolve();
+    }
+    if (MediaFilter.shouldSkipFolder(folder, crawlerState.folderBlacklist, crawlerState.folderBlacklistSnippets)) {
+      log.info(`${_logKey}${func} - blacklisted: ${folder}`);
       return Promise.resolve();
     }
 
-    const children = this.listChildren(folder);
-
-    for (let k = 0; k < children.dirs.length; k++) {
-      const action = actionsCrawlerTasks.createActionDirUpdate(children.dirs[k]);
-      storeManager.dispatchTask(action);
-    }
+    const children = MediaFilter.listFiles(folder);
 
     const p = dbWrapper.loadDir(folder).then((dirItem) => {
 
       if (!dirItem)
         dirItem = mediaComposer.createDirItem({dir: folder});
 
-      if (instance.compareFileItems(dirItem, children.fileNames))
+      if (instance.compareFileItems(dirItem, children))
         return dbWrapper.saveDir(dirItem);
 
       return Promise.resolve();

@@ -5,7 +5,8 @@ import * as constants from "../../common/constants";
 import * as crawlerTasksActions from "../../common/store/crawlerTasksActions";
 import * as actionsSlideshow from "../../common/store/slideshowActions";
 import storeManager from "../../main/store/mainManager";
-import {CrawlerBase} from "./CrawlerBase";
+import {CrawlerBase} from "./crawlerBase";
+import {MediaFilter} from "./mediaFilter";
 
 // ----------------------------------------------------------------------------------
 
@@ -182,58 +183,13 @@ export class MediaLoader extends CrawlerBase {
 
   // ........................................................
 
-  static shouldSkipSourceFolder(sourceFolderIn, blacklistFolders, blacklistSnippets) {
-
-    // blacklistFolders: normalized
-    // blacklistSnippets: .trim.toLowercase
-
-    // https://nodejs.org/api/path.html
-
-    if (!sourceFolderIn)
-      return true;
-
-    const sourceFolder = path.normalize(sourceFolderIn);
-
-     // not testable
-    // if (!fs.lstatSync(sourceFolder).isDirectory())
-    //   return true;
-
-    for (let i = 0; i < blacklistFolders.length; i++) {
-      const found = sourceFolder.indexOf(blacklistFolders[i]);
-      if (found === 0)
-        return true;
-    }
-
-    if (blacklistSnippets.length > 0) {
-      const sourceFolderLowerCase = sourceFolder.toLowerCase();
-      for (let i = 0; i < blacklistSnippets.length; i++) {
-        const found = sourceFolderLowerCase.indexOf(blacklistSnippets[i]);
-        if (found > -1)
-          return true;
-      }
-    }
-
-    return false;
-  }
-
-  // ........................................................
-
-  static isImageFormatSupported(file) {
-    if (!file)
-      return false;
-
-    return (path.extname(file).trim().toLowerCase() === ".jpg");
-  }
-
-  // ........................................................
-
   static loadImagesFromFolder(folder) {
     const images = [];
 
     const children = fs.readdirSync(folder);
     for (let k = 0; k < children.length; k++) {
       const fileShort = children[k];
-      if (MediaLoader.isImageFormatSupported(fileShort)) {
+      if (MediaFilter.isImageFormatSupported(fileShort)) {
         const fileLong = path.join(folder, fileShort);
         if (!fs.lstatSync(fileLong).isDirectory())
           images.push(fileLong)
@@ -308,7 +264,7 @@ export class MediaLoader extends CrawlerBase {
         const fileLong = path.join(sourceFolder, fileShort);
         if (fs.lstatSync(fileLong).isDirectory()) {
 
-          if (MediaLoader.shouldSkipSourceFolder(fileLong, blacklistFolders, blacklistSnippets)) {
+          if (MediaFilter.shouldSkipFolder(fileLong, blacklistFolders, blacklistSnippets)) {
             //console.log(`${_logKey}${func} - skip child folder -`, fileLong);
           } else {
             //console.log(`${_logKey}${func} - analyse child folder -`, fileLong);
@@ -316,7 +272,7 @@ export class MediaLoader extends CrawlerBase {
             childFolders.push(...subChildFolders);
           }
         } else {
-          if (MediaLoader.isImageFormatSupported(fileShort))
+          if (MediaFilter.isImageFormatSupported(fileShort))
               countJpg++;
         }
       }

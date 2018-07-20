@@ -2,41 +2,9 @@ import {MediaLoader} from "../../../app/worker/crawler/mediaLoader";
 import * as vali from "../../../app/common/utils/validate";
 import {TestManager} from "../../common/store/testManager";
 import * as constants from '../../../app/common/constants';
+import {MediaFilter} from "../../../app/worker/crawler/mediaFilter";
 
 describe('MediaLoader', () => {
-
-  it('shouldSkipFolder', () => {
-
-    //const mediaLoader = new MediaLoader();
-
-    const folderParent = "/home/data/mymedia/201x/2011/";
-    const folderChild = "/home/data/mymedia/201x/2011/20110224-S95-Test";
-
-    // shouldSkipSourceFolder(sourceFolderIn, blacklistFolders, blacklistSnippets)
-
-    expect(MediaLoader.shouldSkipSourceFolder(folderParent, [folderChild], [])).toBe(false);
-    expect(MediaLoader.shouldSkipSourceFolder(folderChild, [folderParent], [])).toBe(true);
-
-    expect(MediaLoader.shouldSkipSourceFolder(folderChild, [], [ "s95" ])).toBe(true);
-    expect(MediaLoader.shouldSkipSourceFolder(folderChild, [], [ "test" ])).toBe(true);
-    expect(MediaLoader.shouldSkipSourceFolder(folderChild, [], [ "notexist" ])).toBe(false);
-
-
-
-  });
-
-
-  it('isImageFormatSupported', () => {
-
-    expect(MediaLoader.isImageFormatSupported('/ggg/1.jpg')).toBe(true);
-    expect(MediaLoader.isImageFormatSupported('/ggg/1.Jpg')).toBe(true);
-    expect(MediaLoader.isImageFormatSupported('/ggg/1.jPG')).toBe(true);
-
-    expect(MediaLoader.isImageFormatSupported('/ggg/1.doc')).toBe(false);
-
-  });
-
-
 
   it('listImageFolderRecursive', () => {
 
@@ -58,45 +26,6 @@ describe('MediaLoader', () => {
     console.log("searchFolders", searchFolders);
 
     // TODO change after implementation database version
-
-
-  });
-
-  it('openAutoSelect - simple mode', () => {
-
-    // const state = {
-    //   crawler: {
-    //
-    //   }
-    // }
-    //
-    // config.crawlerFolderBlacklist
-    // config.crawlerFolderBlacklistSnippets
-    //
-    //
-    // const storeManager = new TestManager();
-    //
-    // expect(config.crawlerBatchCount).toBe(constants.DEFCONF_CRAWLER_BATCHCOUNT);
-    //
-    // config.crawlerFolderSource = [ "/home/data/mymedia/201x/2011" ];
-    //
-    // console.log(`config.crawlerBlacklistFolders`, storeManager.crawlerFolderBlacklist);
-    // console.log(`config.crawlerBlacklistSnippets`, storeManager.crawlerFolderBlacklistSnippets);
-    // console.log(`config.crawlerBatchCount`, storeManager.crawlerBatchCount);
-    //
-    // const mediaLoader = new MediaLoader();
-    // mediaLoader.coupleObjects({ storeManager });
-    // // init not needed at moment
-    //
-    // mediaLoader.openAutoSelect();
-    // //mediaLoader.open("/home/data/mymedia/201x/2018/20180401_ostern");
-    // //mediaLoader.open({ container: "/home/data/mymedia/201x/2018/20180401_ostern" });
-    //
-    // console.log(`connector.messages`, connector.messages);
-    //
-    // expect(connector.messages.length).toBeGreaterThan(0);
-
-
 
 
   });

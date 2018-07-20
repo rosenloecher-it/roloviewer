@@ -134,33 +134,24 @@ export const AR_WORKER_REMOVE_TASKTYPES = 'AR_WORKER_REMOVE_TASKTYPES';
 
 export const AR_WORKER_OPEN = 'AR_WORKER_OPEN';
   // switched by dispatcher
-  // loads directories/playlist by mediaLoader
-  // or by crawler
+  // loads directories/playlist by mediaLoader || or by crawler
 
 export const AR_WORKER_DELIVER_META = 'AR_WORKER_DELIVER_META';
 
-export const AR_WORKER_DEPARTURE = 'AR_WORKER_DEPARTURE';
-  // Prüfe Konfiguration: Wenn Änderungen zum gespeichertem Stand alles wegwerfen und komplett neu aufsetzen
-  //   => AR_CRAWLERTASK_RESTART_SCAN
-  // Task wird vom System beim Start neu eingestellt
-  // reset cache status:
+export const AR_WORKER_INIT_CRAWLE = 'AR_WORKER_INIT_CRAWLE';
+  // load and check config, eventually restart
+  // restore last update-dir-tasks
 
-export const AR_WORKER_DIRS_REMOVE_NON_EXISTING = 'AR_WORKER_DIRS_REMOVE_NON_EXISTING';
-  // remove no-existing dirs
-export const AR_WORKER_DIR_REMOVE_NON_EXISTING = 'AR_WORKER_DIR_REMOVE_NON_EXISTING';
+export const AR_WORKER_REMOVE_DIR = 'AR_WORKER_REMOVE_DIR';
 // remove no-existing dirs
 
-export const AR_WORKER_DIR_RATE = 'AR_WORKER_DIR_RATE';
-  // 	Neu-Berechnung Verzeichnis anhand gespeicherter Daten
-  //  Argument: aktuell angezeigte Datei
+export const AR_WORKER_RATE_DIR_BY_FILE = 'AR_WORKER_RATE_DIR_BY_FILE';
+  // 	re-rate file => re-rate dir
 
-export const AR_WORKER_FILES_UPDATE = 'AR_WORKER_FILES_UPDATE';
-  // Meta-Daten einlesen und speichern
-  // Arguments: begrenzte Anzahl Dateien
-  // in klusive
-  // triggered: AR_WORKER_DIR_RATE
+export const AR_WORKER_UPDATE_FILES = 'AR_WORKER_UPDATE_FILES';
+  // load dirItem and update list of files => re-rate dir
 
-export const AR_WORKER_DIR_UPDATE = 'AR_WORKER_DIR_UPDATE';
+export const AR_WORKER_UPDATE_DIR = 'AR_WORKER_UPDATE_DIR';
   // update single folder (only files, no subdirs; remove non existent, add new ones)
 
 

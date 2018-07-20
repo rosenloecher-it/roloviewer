@@ -40,25 +40,19 @@ export const createActionDeliverMeta = (file) => ({
   taskId: getNextTaskId()
 });
 
-
 export const createActionCrawlerStart = () => ({
-  type: constants.AR_WORKER_DEPARTURE,
+  type: constants.AR_WORKER_INIT_CRAWLE,
   taskId: getNextTaskId()
 });
 
-export const createActionDirsRemoveNonExisting = () => ({
-  type: constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING,
-  taskId: getNextTaskId()
-});
-
-export const createActionDirRemoveNonExisting = (file) => ({
-  type: constants.AR_WORKER_DIR_REMOVE_NON_EXISTING,
+export const createActionRemoveDir = (file) => ({
+  type: constants.AR_WORKER_REMOVE_DIR,
   payload: {file},
   taskId: getNextTaskId()
 });
 
-export const createActionFilesUpdate = (folder, fileNames) => ({
-  type: constants.AR_WORKER_FILES_UPDATE,
+export const createActionUpdateFiles = (folder, fileNames) => ({
+  type: constants.AR_WORKER_UPDATE_FILES,
   payload: {
     folder,
     fileNames, // array of fileNames (without leading path)
@@ -66,9 +60,8 @@ export const createActionFilesUpdate = (folder, fileNames) => ({
   taskId: getNextTaskId()
 });
 
-
-export const createActionDirUpdate = (file) => ({
-  type: constants.AR_WORKER_DIR_UPDATE,
+export const createActionUpdateDir = (file) => ({
+  type: constants.AR_WORKER_UPDATE_DIR,
   payload: {file},
   taskId: getNextTaskId()
 });

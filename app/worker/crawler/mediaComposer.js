@@ -1,7 +1,9 @@
 import log from 'electron-log';
+import path from 'path';
+import fs from 'fs';
 import * as constants from "../../common/constants";
 import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
-import {CrawlerBase} from "./CrawlerBase";
+import {CrawlerBase} from "./crawlerBase";
 import * as actionsSlideshow from "../../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------
@@ -108,7 +110,7 @@ export class MediaComposer extends CrawlerBase {
 
   // ........................................................
 
-  evaluateFile(fileItem) {
+  evaluateFileItem(fileItem) {
 
     if (!fileItem)
       return;
@@ -125,6 +127,25 @@ export class MediaComposer extends CrawlerBase {
     const weightRating = -1 * rating * data.factorRating;
 
     fileItem.weight = weightTime + weightRating;
+  }
+
+  // .......................................................
+
+  evaluateFile(dirItem, fileName) {
+    const func = 'evaluateFile';
+
+    if (!dirItem || !fileName)
+      return;
+
+    for (let i = 0; i < dirItem.fileItems.length; i++) {
+      const fileItem = dirItem.fileItems[i];
+      if (fileItem.fileName === fileName) {
+        this.evaluateFileItem(fileItem);
+        return;
+      }
+    }
+
+    throw new Error(`${_logKey}${func} - could not find fileName (${fileName})!`);
   }
 
   // .......................................................
@@ -166,12 +187,12 @@ export class MediaComposer extends CrawlerBase {
 
   // .......................................................
 
-  randomSelectFilesFromDir(dir, selectionCount) {
+  randomSelectFilesFromDir(dirItem, selectionCount, checkExistence = false) {
 
-    if (!dir || !dir.fileItems)
+    if (!dirItem || !dirItem.fileItems)
       return null;
 
-    const {fileItems} = dir;
+    const {fileItems} = dirItem;
 
     if (!selectionCount || fileItems.length === 0)
       return [];
@@ -184,17 +205,45 @@ export class MediaComposer extends CrawlerBase {
     const maxSelections = Math.min(selectionCount, candidates.length);
 
     const selections = [];
-    for (let i = 0; i < maxSelections; i++) {
+    // for (let i = 0; i < maxSelections; i++) {
+    //
+    //   // TODO check existence (while loop)
+    //
+    //   const random = this.randomWeighted(candidates.length - 1);
+    //   const currentIndex = candidates.length - 1 - random;
+    //   const currentSelection = candidates[currentIndex];
+    //   selections.push(currentSelection);
+    //
+    //   candidates.splice(currentIndex, 1);
+    // }
 
-      // TODO check existence (while loop)
+
+
+    do {
 
       const random = this.randomWeighted(candidates.length - 1);
       const currentIndex = candidates.length - 1 - random;
       const currentSelection = candidates[currentIndex];
-      selections.push(currentSelection);
+
+      let doAdd = true;
+      if (checkExistence) {
+        const fullPath = path.join(dirItem.dir, currentSelection.fileName);
+        if (!fs.existsSync(fullPath))
+          doAdd = false; // next try
+      }
+
+      if (doAdd)
+        selections.push(currentSelection);
 
       candidates.splice(currentIndex, 1);
-    }
+
+      if (selections.length >= maxSelections)
+        break;
+      if (candidates.length === 0)
+        break;
+
+    } while (true);
+
 
     return selections;
   }

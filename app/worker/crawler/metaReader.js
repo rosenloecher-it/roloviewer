@@ -6,7 +6,7 @@ import { shortenString } from "../../common/utils/stringUtils";
 import { valiInt } from '../../common/utils/validate';
 import {separateFilePath} from "../../common/utils/transfromPath";
 import * as slideshowActions from "../../common/store/slideshowActions";
-import {CrawlerBase} from "./CrawlerBase";
+import {CrawlerBase} from "./crawlerBase";
 
 // ----------------------------------------------------------------------------------
 

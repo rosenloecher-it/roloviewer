@@ -2,7 +2,7 @@ import log from 'electron-log';
 import * as constants from "../../common/constants";
 import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
 import {CrawlerTasksReducer} from "../../common/store/crawlerTasksReducer";
-import {CrawlerBase} from "./CrawlerBase";
+import {CrawlerBase} from "./crawlerBase";
 
 // ----------------------------------------------------------------------------------
 
@@ -68,22 +68,19 @@ export class Dispatcher extends CrawlerBase {
           case constants.AR_WORKER_DELIVER_META:
             p = metaReader.deliverMeta(task.payload.file); break;
 
-          case constants.AR_WORKER_DEPARTURE:
-            p = mediaCrawler.departure(); break;
+          case constants.AR_WORKER_INIT_CRAWLE:
+            p = mediaCrawler.initCrawler(); break;
 
-          case constants.AR_WORKER_DIRS_REMOVE_NON_EXISTING:
-            p = mediaCrawler.removeNonExistingDirs(); break;
+          case constants.AR_WORKER_REMOVE_DIR:
+            p = mediaCrawler.removeDir(action.payload); break;
 
-          case constants.AR_WORKER_DIR_REMOVE_NON_EXISTING:
-            p = mediaCrawler.removeNonExistingDir(action.payload); break;
+          case constants.AR_WORKER_RATE_DIR_BY_FILE:
+            p = mediaCrawler.rateDirByFile(task.payload); break;
 
-          case constants.AR_WORKER_DIR_RATE:
-            p = mediaCrawler.rateDirFromPlayedFile(task.payload); break;
-
-          case constants.AR_WORKER_FILES_UPDATE:
+          case constants.AR_WORKER_UPDATE_FILES:
             p = mediaCrawler.updateFilesMeta(task.payload); break;
 
-          case constants.AR_WORKER_DIR_UPDATE:
+          case constants.AR_WORKER_UPDATE_DIR:
             p = mediaCrawler.updateDir(task.payload); break;
         }
 

@@ -22,7 +22,7 @@ function createTestDirItem(mediaComposer, countFiles) {
     const fileName = stringUtils.randomString(12);
     const item = mediaComposer.createFileItem({
       fileName,
-      weight: i, // => re-sort necessary, no extra evaluateFile necessary
+      weight: i, // => re-sort necessary, no extra evaluateFileItem necessary
     });
 
     dir.fileItems.push(item);
@@ -45,7 +45,7 @@ describe('dbWrapper', () => {
 
   // .......................................................
 
-  it('load/save status', () => {
+  it('load/save state', () => {
 
     const storeManager = new TestManager();
     //const crawlerReducer = new CrawlerReducer('test');

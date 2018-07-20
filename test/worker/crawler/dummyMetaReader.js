@@ -1,4 +1,4 @@
-import {CrawlerBase} from "../../../app/worker/crawler/CrawlerBase";
+import {CrawlerBase} from "../../../app/worker/crawler/crawlerBase";
 
 export class DummyMetaReader extends CrawlerBase {
 
