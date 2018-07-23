@@ -23,6 +23,10 @@ export class MediaCrawler extends CrawlerBase {
   constructor() {
     super();
 
+    this.data = {
+      cacheScanFsDirs: null,
+    }
+
   }
 
   // ........................................................
@@ -147,141 +151,25 @@ export class MediaCrawler extends CrawlerBase {
 
     const p = dbWrapper.loadState().then((stateComposed) => {
 
-      stateComposed.restartCrawle = false;
+      let rescanAll = false;
 
       if (!MediaCrawler.compareStatus(crawlerStateCurrent, stateComposed.lastConfig)) {
         log.info(`${_logKey}${func} - config changed => restart crawle`);
-        stateComposed.restartCrawle = true;
+        rescanAll = true;
       }
-      return Promise.resolve();
-    });
 
-    return p;
-  }
-
-  // ........................................................
-
-  collectAllFoldersRecursive(dirSet, currentDir, folderBlacklist, folderBlacklistSnippets) {
-    const func = '.addFoldersRecursive';
-
-    if (!currentDir)
-      return;
-    if (MediaFilter.shouldSkipFolder(currentDir, folderBlacklist, folderBlacklistSnippet))
-      return;
-
-    const children = fs.readdirSync(currentDir);
-    for (let k = 0; k < children.length; k++) {
-      const fileShort = children[k];
-      const fileLong = path.join(folder, fileShort);
-      if (fs.lstatSync(fileLong).isDirectory()) {
-        if (MediaFilter.shouldSkipFolder(fileLong, folderBlacklist, folderBlacklistSnippet))
-          log.info(`${_logKey}${func} - skipped: ${fileLong}`);
-        else {
-          dirSet.add(fileLong);
-          addFoldersRecursive(dirSet, fileLong, folderBlacklist, folderBlacklistSnippets);
-        }
-      }
-    }
-  }
-
-  // ........................................................
-
-  collectAllFolders() {
-
-    const dirSet = new Set();
-
-    const {storeManager} = this.objects;
-    const crawlerState = storeManager.crawlerState;
-
-    for (let i = 0; i < crawlerState.folderSource.length; i++) {
-      addFoldersRecursive(dirSet, crawlerState.folderSource[i],
-        crawlerState.folderBlacklist, crawlerState.folderBlacklistSnippets);
-    }
-
-    return dirSet;
-  }
-
-  // ........................................................
-
-  handleNonExistenceDirs(dirItems, dirSet) {
-
-    if (!dirItems || !dirSet)
-      return;
-
-    const {storeManager} = this.object;
-
-    for (let i = 0; i < dirItems.length; i++) {
-      const dirItem = dirItems[i];
-      if (!dirSet.has(dirItem.dir)) {
-        const action = actionsCrawlerTasks.createActionRemoveDir(dirItem.dir);
-        storeManager.dispatchTask(action);
-      }
-    }
-  }
-
-  // ........................................................
-
-  handleNewDirs(dirItems, dirSet) {
-
-    if (!dirItems || !dirSet)
-      return;
-
-    const {storeManager} = this.object;
-
-
-    const dirsFs = dirSet.toArray();
-
-    for (let i = 0; i < dirItems.length; i++) {
-      const dirItem = dirItems[i];
-      if (!dirSet.has(dirItem.dir)) {
-        const action = actionsCrawlerTasks.createActionRemoveDir(dirItem.dir);
-        storeManager.dispatchTask(action);
-      }
-    }
-  }
-
-  // ........................................................
-
-  startCrawler(doFullScan) {
-    const func = '.startCrawler';
-
-    const instance = this;
-    const {dbWrapper} = instance.objects;
-    const {storeManager} = instance.object;
-
-    const p = dbWrapper.listDirsAll().then((dirItems) => {
-
-      const dirsFsSet = instance.collectFoldersInSet();
-
-      instance.handleNonExistenceDirs(dirItems, dirsFsSet);
-
-      let dirs2update = null;
-      if (doFullScan) {
-        dirs2update = dirSet.toArray();
-
-        // reset old tasks
-        const action1 = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_FILES);
-        storeManager.dispatchTask(action1);
-
-        const action2 = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_DIR);
-        storeManager.dispatchTask(action2);
-
-      } else
-        dirs2update = instance.handleNewDirs(dirItems, dirsFs);
-
-      if (dirs2update) {
-        for (let i = 0; i < dirs2update.length; i++) {
-          const action = actionsCrawlerTasks.createActionUpdateDir(dirs2update[i]);
+      if (stateComposed.lastUpdateDirs) {
+        const {lastUpdateDirs} = stateComposed;
+        for (let i = 0; i < lastUpdateDirs.length; i++) {
+          const action = actionsCrawlerTasks.createActionUpdateDirs(lastUpdateDirs[i]);
           storeManager.dispatchTask(action);
         }
       }
 
-      return Promise.resolve();
-
-    }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      return Promise.resolve({rescanAll});
     });
 
+    return p;
   }
 
   // ........................................................
@@ -293,42 +181,89 @@ export class MediaCrawler extends CrawlerBase {
     const instance = this;
     const {dbWrapper} = instance.objects;
     const {storeManager} = instance.objects;
-    const crawlerStateCurrent = storeManager.crawlerState;
+    const crawlerState = storeManager.crawlerState;
 
-    const p = this.loadState().then((stateComposed) => {
+    const p = this.loadState().then((argsLoadState) => {
 
-      if (stateComposed.restartCrawle === false) {
-        const {lastUpdateDirs} = stateComposed;
-        for (let i = 0; i < lastUpdateDirs.length; i++) {
-          const action = actionsCrawlerTasks.createActionUpdateDir(lastUpdateDirs[i]);
-          storeManager.dispatchTask(action);
-        }
+      let action = null;
+
+      action = actionsCrawlerTasks.createActionReloadDirs(argsLoadState.rescanAll);
+      storeManager.dispatchTask(action);
+
+      return dbWrapper.listDirsAll();
+
+    }).then((dirItems) => {
+
+      log.debug(`${_logKey}${func}.promise.2: dirItems=`, dirItems);
+
+      let action = null;
+
+      instance.data.cacheScanFsDirs = new Set();
+
+      const dirs = [];
+      for (let i = 0; i < dirItems.length; i++) {
+        const dirItem = dirItems[i];
+        dirs.push(dirItem.dir);
+        instance.data.cacheScanFsDirs.add(dirItem.dir);
       }
 
-      return instance.startCrawler(stateComposed.restartCrawle);
+      action = actionsCrawlerTasks.createActionRemoveDirs(dirs);
+      storeManager.dispatchTask(action);
 
-    }).then(() => {
+      for (let i = 0; i < crawlerState.folderSource.length; i++) {
+        action = actionsCrawlerTasks.createActionScanFsDir(crawlerState.folderSource[i]);
+        storeManager.dispatchTask(action);
+      }
 
-      return instance.startCrawler(restartCrawle);
+      return Promise.resolve();
 
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
-
-
   }
 
   // .......................................................
 
-  removeDir(file) {
-    // AR_WORKER_REMOVE_DIR
-    const func = '.removeNonExistingDirs';
+  reloadDirs({rescanAll}) {
+    // AR_WORKER_RELOAD_DIRS
+    const func = '.reloadDirs';
 
-    const {dbWrapper} = this.objects;
+    const instance = this;
+    const {dbWrapper} = instance.objects;
+    const {storeManager} = instance.objects;
 
-    const p = dbWrapper.removeDir(file).catch((err) => {
+    const lastUpdatedInMinutes = 60 * 24 * 2;
+
+    let p = null;
+
+    if (rescanAll)
+      p = dbWrapper.listDirsAll();
+    else
+      p = dbWrapper.listDirsToUpdate(lastUpdatedInMinutes);
+
+    p.then((dirItems) => {
+
+      let action = null;
+
+      if (rescanAll) {
+        // reset old tasks
+        action = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_FILES);
+        storeManager.dispatchTask(action);
+        action = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_DIR);
+        storeManager.dispatchTask(action);
+      }
+
+      for (let i = 0; i < dirItems.length; i++) {
+        const dirItem = dirItems[i];
+        action = actionsCrawlerTasks.createActionUpdateDir(dirItem.dir);
+        storeManager.dispatchTask(action);
+      }
+
+      return Promise.resolve();
+
+    }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
@@ -337,7 +272,93 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  rateDirByFile(file) {
+  removeDirs({dirs}) {
+    // AR_WORKER_REMOVE_DIRS
+    const func = '.removeDirs';
+
+    const instance = this;
+    const {dbWrapper} = instance.objects;
+    const {storeManager} = instance.objects;
+    const crawlerState = storeManager.crawlerState;
+    const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
+
+    const maxCheckCount = 20;
+    let dirRemove = null;
+    let loopCounter = 0;
+    const loopMax = Math.min(maxCheckCount, dirs.length);
+
+    for (loopCounter = 0; loopCounter < loopMax; loopCounter++) {
+      const dir = dirs[loopCounter];
+
+      if (!fs.lstatSync(dir).isDirectory()) {
+        dirRemove = dir;
+        break;
+      }
+
+      if (MediaFilter.shouldSkipFolder(dir, folderBlacklist, folderBlacklistSnippets)) {
+        dirRemove = dir;
+        break;
+      }
+    }
+
+    if (loopCounter < dirs.length) {
+      const dirsNew = dirs.slice(loopCounter + 1);
+      const action = actionsCrawlerTasks.createActionRemoveDirs(dirsNew);
+      storeManager.dispatchTask(action);
+    }
+
+    let p = null;
+
+    if (!dirRemove) {
+      p = dbWrapper.removeDir(dirRemove).catch((err) => {
+        this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      });
+    } else
+      p = Promise.resolve();
+
+    return p;
+  }
+
+  // .......................................................
+
+  scanFsDir(dir) {
+    // AR_WORKER_SCAN_FSDIR
+    const func = '.scanFsDir';
+
+    const instance = this;
+    const {storeManager} = instance.objects;
+    const crawlerState = storeManager.crawlerState;
+    const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
+
+    const children = fs.readdirSync(dir);
+    for (let k = 0; k < children.length; k++) {
+      const fileShort = children[k];
+      const fileLong = path.join(dir, fileShort);
+      if (fs.lstatSync(fileLong).isDirectory()) {
+        if (MediaFilter.shouldSkipFolder(fileLong, folderBlacklist, folderBlacklistSnippets))
+          log.info(`${_logKey}${func} - skipped: ${fileLong}`);
+        else {
+
+          if (!instance.data.cacheScanFsDirs.has(fileLong)) {
+            let action = null;
+
+            action = actionsCrawlerTasks.createActionScanFsDir(fileLong);
+            storeManager.dispatchTask(action);
+
+            action = actionsCrawlerTasks.createActionUpdateDir(fileLong);
+            storeManager.dispatchTask(action);
+
+          } // else: do nothing - dir exists already in db
+        }
+      }
+    }
+
+    return Promise.resolve();
+  }
+
+  // .......................................................
+
+  rateDirByFile({file}) {
     // AR_WORKER_RATE_DIR_BY_FILE
     const func = '.rateDirByFile';
 
@@ -369,9 +390,11 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  updateFiles(folder, fileNames) {
+  updateFiles(payload) {
     // AR_WORKER_UPDATE_FILES - only updates or add files - no remove!
     const func = '.updateFiles';
+
+    const {folder, fileNames} = payload;
 
     const instance = this;
     const {dbWrapper} = instance.objects;
@@ -411,7 +434,7 @@ export class MediaCrawler extends CrawlerBase {
       }
       mediaComposer.evaluateDir(dirItem);
 
-      return dbWrapper.saveDoc(dirItem);
+      return dbWrapper.saveDir(dirItem);
 
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
@@ -496,6 +519,8 @@ export class MediaCrawler extends CrawlerBase {
     // AR_WORKER_UPDATE_DIR
     const func = '.updateDir';
 
+    log.info(`${_logKey}${func} - in: ${folder}`);
+
     if (!folder)
       return Promise.resolve();
 
@@ -516,30 +541,24 @@ export class MediaCrawler extends CrawlerBase {
 
     const children = MediaFilter.listFiles(folder);
 
-    let p = null;
+    const p = dbWrapper.loadDir(folder).then((dirItem) => {
 
-    if (children.length === 0)
-      p = dbWrapper.removeDir(folder);
-    else {
-      p = dbWrapper.loadDir(folder).then((dirItem) => {
+      if (!dirItem)
+        dirItem = mediaComposer.createDirItem({dir: folder});
 
-        if (!dirItem)
-          dirItem = mediaComposer.createDirItem({dir: folder});
+      //log.debug(`${_logKey}${func} - dirItem:`, dirItem);
+      //log.debug(`${_logKey}${func} - children:`, children);
 
-        log.debug(`${_logKey}${func} - dirItem:`, dirItem);
-        log.debug(`${_logKey}${func} - children:`, children);
+      if (instance.checkAndHandleChangedFileItems(dirItem, children))
+        return dbWrapper.saveDir(dirItem);
 
-        if (instance.checkAndHandleChangedFileItems(dirItem, children))
-          return dbWrapper.saveDir(dirItem);
+      return Promise.resolve();
 
-        return Promise.resolve();
-
-      });
-    }
-
-    return p.catch((err) => {
+    }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
+
+    return p;
   }
 
 }

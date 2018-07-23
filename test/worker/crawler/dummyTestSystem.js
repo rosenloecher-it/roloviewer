@@ -74,7 +74,7 @@ export class DummyTestSystem {
           const subDir = path.join(basePath, subDirName);
           if (fs.existsSync(subDir))
             continue;
-          this.createDir(subDir);
+          this.createTestDir(subDir);
           this.createFileSystemStructure(subDir, width, depth - 1, fileCountPerFolder);
 
         } while (false);
@@ -94,14 +94,14 @@ export class DummyTestSystem {
         const subDir = path.join(basePath, subDirName);
         if (fs.existsSync(subDir))
           continue;
-        this.createDir(subDir);
+        this.createTestDir(subDir);
       } while (false);
     }
   }
 
   // ........................................................
 
-  createDir(dir) {
+  createTestDir(dir) {
     fs.mkdirsSync(dir);
 
     if (!fs.lstatSync(dir).isDirectory())
@@ -125,11 +125,8 @@ export class DummyTestSystem {
         if (fs.existsSync(filePath))
           continue;
 
-        const fileItem = this.mediaComposer.createFileItem({ fileName });
-
-        fileItem.rating = Math.floor(5 * Math.random());
-
-        DummyTestSystem.saveDummyFile(filePath, fileItem);
+        const rating = Math.floor(5 * Math.random());
+        this.saveTestFile(dir, fileName, rating);
 
         this.files.push(filePath);
       } while (false);
@@ -138,35 +135,37 @@ export class DummyTestSystem {
 
   // ........................................................
 
-  static saveDummyFile(filePath, fileItem) {
+  saveTestFile(dir, fileName, rating = 0, tags = null) {
+
+    if (!tags)
+      tags = [];
+
+    const fileItem = this.mediaComposer.createFileItem({ fileName, rating, tags});
+
+    const filePath = path.join(dir, fileName);
     fs.writeFileSync(filePath, JSON.stringify(fileItem), 'utf8');
-  }
 
-
-  // ........................................................
-
-  static readDummyFile(filePath) {
-
-    fs.readFileSync(filePath)
-
-    const data = JSON.parse(fs.readFileSync('file', 'utf8'));
-
-    return data;
-
-
-    // fs.readFile('/path/to/file.json', 'utf8', function (err, data) {
-    //   if (err) throw err; // we'll not consider error handling for now
-    //   var obj = JSON.parse(data);
-    // });
-    //
-    // fileItem
-
-    fs.writeFileSync(filePath, JSON.stringify(fileItem));
+    this.files.push(filePath);
   }
 
   // ........................................................
 
-  getRandomImageExt() {
+  static readTestFile(pathPart1, pathPart2) {
+
+    let filePath = null;
+    if (!pathPart2)
+      filePath = pathPart1;
+    else
+      filePath = path.join(pathPart1, pathPart2);
+
+    const fileItem = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+    return fileItem;
+  }
+
+  // ........................................................
+
+  static getRandomImageExt() {
     const exts = [
       'jpg', 'JPG', 'jpG'
     ];

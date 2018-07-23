@@ -11,16 +11,6 @@ function getNextTaskId() {
 
 // ----------------------------------------------------------------------------------
 
-export const createActionOpen = (container = null, selectFile = null, trailNumber = 1) => ({
-  type: constants.AR_WORKER_OPEN,
-  payload: {
-    container, // null == autoSelect
-    selectFile,
-    trailNumber, // file action again, when auto-selction fails
-  },
-  taskId: getNextTaskId()
-});
-
 export const createActionRemoveTask = (obsoleteAction) => ({
   type: constants.AR_WORKER_REMOVE_TASK,
   payload: deepmerge.all([ obsoleteAction, {} ]),
@@ -34,20 +24,58 @@ export const createActionRemoveTaskTypes = (taskType) => ({
   taskId: getNextTaskId()
 });
 
+// ----------------------------------------------------------------------------------
+// crawler tasks
+
+export const createActionOpen = (container = null, selectFile = null, trailNumber = 1) => ({
+  type: constants.AR_WORKER_OPEN,
+  payload: {
+    container, // null == autoSelect
+    selectFile,
+    trailNumber, // file action again, when auto-selction fails
+  },
+  taskId: getNextTaskId()
+});
+
+
 export const createActionDeliverMeta = (file) => ({
   type: constants.AR_WORKER_DELIVER_META,
   payload: {file},
   taskId: getNextTaskId()
 });
 
-export const createActionCrawlerStart = () => ({
+export const createActionInitCrawler = () => ({
   type: constants.AR_WORKER_INIT_CRAWLE,
   taskId: getNextTaskId()
 });
 
-export const createActionRemoveDir = (file) => ({
-  type: constants.AR_WORKER_REMOVE_DIR,
-  payload: {file},
+export const createActionRemoveDir = (dir) => ({
+  type: constants.AR_WORKER_REMOVE_DIRS,
+  payload: { dirs: [dir] },
+  taskId: getNextTaskId()
+});
+
+export const createActionRemoveDirs = (dirs) => ({
+  type: constants.AR_WORKER_REMOVE_DIRS,
+  payload: {dirs},
+  taskId: getNextTaskId()
+});
+
+export const createActionScanFsDir = (dir) => ({
+  type: constants.AR_WORKER_SCAN_FSDIR,
+  payload: dir,
+  taskId: getNextTaskId()
+});
+
+export const createActionReloadDirs = (rescanAll = false) => ({
+  type: constants.AR_WORKER_RELOAD_DIRS,
+  payload: { rescanAll },
+  taskId: getNextTaskId()
+});
+
+export const createActionRateDirByFile = (file) => ({
+  type: constants.AR_WORKER_RATE_DIR_BY_FILE,
+  payload: file,
   taskId: getNextTaskId()
 });
 
@@ -60,10 +88,8 @@ export const createActionUpdateFiles = (folder, fileNames) => ({
   taskId: getNextTaskId()
 });
 
-export const createActionUpdateDir = (file) => ({
+export const createActionUpdateDir = (dir) => ({
   type: constants.AR_WORKER_UPDATE_DIR,
-  payload: {file},
+  payload: dir,
   taskId: getNextTaskId()
 });
-
-

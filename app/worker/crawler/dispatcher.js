@@ -100,7 +100,7 @@ export class Dispatcher extends CrawlerBase {
         case constants.AR_WORKER_OPEN:
           p = mediaLoader.open(task.payload);
           break;
-        // TODO switch to mediaCrawler: mediaCrawler.addAutoSelectFiles(task.payload.trailNumber)
+          // TODO switch to mediaCrawler: mediaCrawler.addAutoSelectFiles(task.payload.trailNumber)
 
         case constants.AR_WORKER_DELIVER_META:
           p = metaReader.deliverMeta(task.payload.file);
@@ -110,8 +110,12 @@ export class Dispatcher extends CrawlerBase {
           p = mediaCrawler.initCrawler();
           break;
 
-        case constants.AR_WORKER_REMOVE_DIR:
-          p = mediaCrawler.removeDir(task.payload);
+        case constants.AR_WORKER_REMOVE_DIRS:
+          p = mediaCrawler.removeDirs(task.payload);
+          break;
+
+        case constants.AR_WORKER_SCAN_FSDIR:
+          p = mediaCrawler.scanFsDir(task.payload);
           break;
 
         case constants.AR_WORKER_RATE_DIR_BY_FILE:
@@ -119,13 +123,18 @@ export class Dispatcher extends CrawlerBase {
           break;
 
         case constants.AR_WORKER_UPDATE_FILES:
-          p = mediaCrawler.updateFiles(task.payload.folder, task.payload.fileNames);
+          p = mediaCrawler.updateFiles(task.payload);
           break;
 
         case constants.AR_WORKER_UPDATE_DIR:
           p = mediaCrawler.updateDir(task.payload);
           break;
+
+        case constants.AR_WORKER_RELOAD_DIRS:
+          p = mediaCrawler.reloadDirs(task.payload);
+          break;
       }
+
 
       if (!p)
         reject(new Error(`unknown task type ${task.type}!`));

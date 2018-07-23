@@ -18,10 +18,10 @@ export class DummyMetaReader extends CrawlerBase {
   loadMeta(file) {
     const p = new Promise((resolve, reject) => {
 
-      const fileItem = DummyTestSystem.readDummyFile(file);
-
-      if (fs.existsSync(file))
+      if (!fs.existsSync(file))
         reject(new Error('file does not exist!'));
+
+      const fileItem = DummyTestSystem.readTestFile(file);
 
       const sepPath = separateFilePath(file, 4);
       const meta = {
@@ -30,8 +30,8 @@ export class DummyMetaReader extends CrawlerBase {
         dir: sepPath.dir,
       };
 
-      meta.tags = fileItem.rating || 0;
-      meta.rating = fileItem.tags || [];
+      meta.rating = fileItem.rating || 0;
+      meta.tags = fileItem.tags || [];
 
       resolve(meta);
     });

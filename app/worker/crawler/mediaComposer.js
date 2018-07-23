@@ -68,11 +68,14 @@ export class MediaComposer extends CrawlerBase {
 
   createFileItem(input) {
 
+    if (!input.fileName)
+      throw new Error('(createFileItem) no fileName!');
+
     const doc = {
       id: this.convert2Id(input.fileName),
       fileName: input.fileName,
-      rating: 0,
-      tags: [],
+      rating: input.rating || 0,
+      tags: input.tags || [],
       lastShown: null,
       lastModified: null,
       weight: (input.weight === null || input.weight === undefined) ? constants.CRAWLER_MAX_WEIGHT : input.weight,

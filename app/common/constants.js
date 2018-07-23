@@ -139,11 +139,33 @@ export const AR_WORKER_OPEN = 'AR_WORKER_OPEN';
 export const AR_WORKER_DELIVER_META = 'AR_WORKER_DELIVER_META';
 
 export const AR_WORKER_INIT_CRAWLE = 'AR_WORKER_INIT_CRAWLE';
-  // load and check config, eventually restart
+  // load and check config, eventually restart => AR_WORKER_RELOAD_DIRS(true)
   // restore last update-dir-tasks
 
-export const AR_WORKER_REMOVE_DIR = 'AR_WORKER_REMOVE_DIR';
-// remove no-existing dirs
+  // restart: remove all AR_WORKER_UPDATE_FILES + AR_WORKER_UPDATE_DIR
+
+  // load dirs from db into
+  //   crawer.data.removeDirList: read by AR_WORKER_REMOVE_DIRS
+  //   crawer.data.scanDirMap: read by AR_WORKER_SCAN_FSDIR
+  // push AR_WORKER_SCAN_FSDIR with source folders
+
+
+export const AR_WORKER_REMOVE_DIRS = 'AR_WORKER_REMOVE_DIRS';
+  // remove non-existing dirs from crawer.data.removeDirList
+  // loop max 10x dirs from crawer.data.removeDirList
+  //   check for existence => remove from DB
+  // removes the items from  crawer.data.removeDirList
+  // if crawer.data.removeDirList still contains data => AR_WORKER_REMOVE_DIRS
+
+export const AR_WORKER_SCAN_FSDIR = 'AR_WORKER_SCAN_FSDIR';
+  // scan 1 dir for subdirs (existing dir or source folder)
+  // exists not in map, new => AR_WORKER_UPDATE_DIR
+  // for children => AR_WORKER_SCAN_FSDIR
+
+export const AR_WORKER_RELOAD_DIRS = 'AR_WORKER_RELOAD_DIRS';
+  // para: all == true means all dirs; false means: only update old ones
+  // pushes AR_WORKER_UPDATE_DIR per folder
+
 
 export const AR_WORKER_RATE_DIR_BY_FILE = 'AR_WORKER_RATE_DIR_BY_FILE';
   // 	re-rate file => re-rate dir
@@ -153,6 +175,7 @@ export const AR_WORKER_UPDATE_FILES = 'AR_WORKER_UPDATE_FILES';
 
 export const AR_WORKER_UPDATE_DIR = 'AR_WORKER_UPDATE_DIR';
   // update single folder (only files, no subdirs; remove non existent, add new ones)
+  // adding: check if task already exists
 
 
 // --------------------------------------------------------------------------

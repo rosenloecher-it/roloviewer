@@ -164,17 +164,17 @@ export class DbWrapper extends CrawlerBase {
 
   // ........................................................
 
-  saveDir(doc) {
+  saveDir(dirItem) {
     const func = ".saveDir";
 
     const instance = this;
     const options = { upsert: true };
 
     const p = new Promise((resolve, reject) => {
-      if (!doc || ! doc._id)
+      if (!dirItem || ! dirItem._id)
         reject(new Error('wrong args!'));
 
-      instance.dbDir.update({ _id: doc._id }, doc, options, (err, numReplaced) => {
+      instance.dbDir.update({ _id: dirItem._id }, dirItem, options, (err, numReplaced) => {
         if (err)
           reject(new Error(err));
 
@@ -364,6 +364,9 @@ export class DbWrapper extends CrawlerBase {
 
         if (err)
           reject(new Error(err));
+
+        if (!doc)
+          doc = {};
 
         resolve(doc);
       });

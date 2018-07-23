@@ -156,7 +156,7 @@ export function activateChild(ipcMsg) {
       //log.debug(`${_logKey}${func} - actionOpen:`, actionOpen);
       storeManager.dispatchGlobal(actionOpen);
 
-      const actionCrawlerInit = actionsCrawlerTasks.createActionCrawlerStart();
+      const actionCrawlerInit = actionsCrawlerTasks.createActionInitCrawler();
       //log.debug(`${_logKey}${func} - actionCrawlerInit:`, actionCrawlerInit);
       storeManager.dispatchGlobal(actionCrawlerInit);
 

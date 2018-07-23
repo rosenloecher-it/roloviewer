@@ -55,11 +55,14 @@ export class CrawlerTasksReducer {
           return this.open(state, action);
 
         case constants.AR_WORKER_DELIVER_META:
-        case constants.AR_WORKER_REMOVE_DIR:
-          return this.pushGenericTask(state, action);
-
+        case constants.AR_WORKER_INIT_CRAWLE:
+        case constants.AR_WORKER_RATE_DIR_BY_FILE:
+        case constants.AR_WORKER_RELOAD_DIRS:
+        case constants.AR_WORKER_REMOVE_DIRS:
+        case constants.AR_WORKER_SCAN_FSDIR:
         case constants.AR_WORKER_UPDATE_DIR:
-          return this.queueDirUpdates(state, action);
+        case constants.AR_WORKER_UPDATE_FILES:
+          return this.pushGenericTask(state, action);
 
         default:
           return state;
@@ -93,27 +96,6 @@ export class CrawlerTasksReducer {
 
   // .....................................................
 
-  queueDirUpdates(state, action) {
-    const func = ".queueDirUpdates";
-
-    const prio = CrawlerTasksReducer.getTaskPrio(action.type);
-
-    if (prio < 0 || prio >= state.tasks.length) {
-      log.error(`${this._logKey}${func} - unknown prio`, action);
-      return state;
-    }
-
-    // TODO implement
-    const newState = { ...state };
-
-    const {dirs} = queueDirUpdates.payload;
-    newState.tasks[prio].push(dirs);
-
-    return newState;
-  }
-
-  // .....................................................
-
   open(state, action) {
     const func = ".open";
     //log.debug(`${this._logKey}${func} - in`, action);
@@ -132,6 +114,8 @@ export class CrawlerTasksReducer {
 
     return newState;
   }
+
+  // .....................................................
 
   static sliceItemFromArray(oldItems, index) {
 
@@ -204,18 +188,21 @@ export class CrawlerTasksReducer {
         return 1;
       case constants.AR_WORKER_INIT_CRAWLE:
         return 2;
-      case constants.AR_WORKER_REMOVE_DIR:
+      case constants.AR_WORKER_REMOVE_DIRS:
         return 3;
-      case constants.AR_WORKER_RATE_DIR_BY_FILE:
+      case constants.AR_WORKER_SCAN_FSDIR:
         return 4;
-      case constants.AR_WORKER_UPDATE_FILES:
+      case constants.AR_WORKER_RELOAD_DIRS:
         return 5;
-      case constants.AR_WORKER_UPDATE_DIR:
+      case constants.AR_WORKER_RATE_DIR_BY_FILE:
         return 6;
+      case constants.AR_WORKER_UPDATE_FILES:
+        return 7;
+      case constants.AR_WORKER_UPDATE_DIR:
+        return 8;
       default:
         return null;
     }
-
   }
 
   // .....................................................
