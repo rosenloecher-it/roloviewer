@@ -205,7 +205,7 @@ export class MediaComposer extends CrawlerBase {
     for (let i = 0; i < scanCount; i++)
       weightSum += dirItem.fileItems[i].weight;
 
-    const weightFilesAverage = -1.0 * weightSum / scanCount;
+    const weightFilesAverage = weightSum / scanCount;
 
     const weightFilesCount = -1.0 / (dirItem.fileItems.length || 1);
 

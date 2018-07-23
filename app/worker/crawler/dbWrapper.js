@@ -301,7 +301,6 @@ export class DbWrapper extends CrawlerBase {
 
     const minLastUpdate = Date.now() - lastUpdatedInMinutes * 60;
 
-
     const p = new Promise((resolve, reject) => {
       //log.silly(`${_logKey}${func}`);
 

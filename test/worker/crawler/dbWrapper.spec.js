@@ -148,6 +148,7 @@ describe('dbWrapper', () => {
       docMaxWeight.lastUpdate = Date.now() - 2 * lastUpdatedInMinutes * 60;
 
       promises.push(dbWrapper.saveDir(docMaxWeight));
+      promises.push(dbWrapper.saveDir(docMaxWeight)); // 2. to test unique
 
       return Promise.all(promises);
     }).then(() => {

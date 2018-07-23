@@ -36,9 +36,11 @@ export class CrawlerReducer {
       folderBlacklist: [],
       folderBlacklistSnippets: [],
       folderSource: [],
+      maxFilesPerFolder: constants.DEFCONF_CRAWLER_MAX_FILES_PER_FOLDER,
       showRating: [],
       tagBlacklist: [],
       tagShow: [],
+      updateDirsAfterMinutes: constants.DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES,
     }
   }
 
@@ -76,14 +78,14 @@ export class CrawlerReducer {
     const {
       batchCount, databasePath,
       folderBlacklist, folderBlacklistSnippets, folderSource,
-      showRating, tagBlacklist, tagShow,
+      maxFilesPerFolder, showRating, tagBlacklist, tagShow, updateDirsAfterMinutes,
     } = action.payload;
 
     const newState = {
       ...state,
       batchCount, databasePath,
       folderBlacklist, folderBlacklistSnippets, folderSource,
-      showRating, tagBlacklist, tagShow,
+      maxFilesPerFolder, showRating, tagBlacklist, tagShow, updateDirsAfterMinutes,
     };
 
     //log.debug(`${this._logKey}${func} - out`, action);

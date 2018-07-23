@@ -81,6 +81,9 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
       null,
       valiInt(iniData.crawler.maxFilesPerFolder));
 
+  actionData.updateDirsAfterMinutes = mergeConfigItem(constants.DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES,
+    null,
+    valiInt(iniData.crawler.updateDirsAfterMinutes));
 
   for (let i = 0; i < actionData.folderBlacklist.length; i++) {
     actionData.folderBlacklist[i] = path.normalize(actionData.folderBlacklist[i]);

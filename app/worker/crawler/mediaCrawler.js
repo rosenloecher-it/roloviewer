@@ -1,4 +1,5 @@
 import deepEquals from 'deep-equal';
+import deepmerge from 'deepmerge';
 import path from 'path';
 import fs from 'fs-extra';
 import log from 'electron-log';
@@ -105,7 +106,25 @@ export class MediaCrawler extends CrawlerBase {
 
   // ........................................................
 
-  static compareStatus(status1, status2) {
+  static prepareStateNoRescan(statusIn) {
+
+    if (!statusIn)
+      return null;
+
+    const status = deepmerge.all([ statusIn, {} ]);
+
+    if (status.batchCount !== undefined)
+      delete status.batchCount;
+    if (status.updateDirsAfterMinutes !== undefined)
+      delete status.updateDirsAfterMinutes;
+
+    return status;
+  }
+
+  static equalsStateNoRescan(status1In, status2In) {
+
+    const status1 = MediaCrawler.prepareStateNoRescan(status1In);
+    const status2 = MediaCrawler.prepareStateNoRescan(status2In);
 
     return deepEquals(status1, status2);
   }
@@ -113,9 +132,11 @@ export class MediaCrawler extends CrawlerBase {
   // ........................................................
 
   saveState() {
+    const func = '.saveState';
 
     const instance = this;
     const {dbWrapper} = instance.objects;
+    const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
     const tasksState = storeManager.crawlerTasksState;
 
@@ -128,11 +149,11 @@ export class MediaCrawler extends CrawlerBase {
 
     const dirTasks = tasksState.tasks[prio];
     for (let i = 0; i < dirTasks.length; i++) {
-      const task = dirTask[i];
+      const task = dirTasks[i];
       stateComposed.lastUpdateDirs.push(task.payload);
     }
 
-    const p = dbWrapper.saveState(stateComposed).then(() => {
+    const p = dbWrapper.saveState(stateComposed).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
@@ -153,15 +174,20 @@ export class MediaCrawler extends CrawlerBase {
 
       let rescanAll = false;
 
-      if (!MediaCrawler.compareStatus(crawlerStateCurrent, stateComposed.lastConfig)) {
+      if (!MediaCrawler.equalsStateNoRescan(crawlerStateCurrent, stateComposed.lastConfig)) {
         log.info(`${_logKey}${func} - config changed => restart crawle`);
         rescanAll = true;
       }
 
       if (stateComposed.lastUpdateDirs) {
+        let action = null;
+
+        action = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_DIR);
+        storeManager.dispatchTask(action);
+
         const {lastUpdateDirs} = stateComposed;
         for (let i = 0; i < lastUpdateDirs.length; i++) {
-          const action = actionsCrawlerTasks.createActionUpdateDirs(lastUpdateDirs[i]);
+          action = actionsCrawlerTasks.createActionUpdateDir(lastUpdateDirs[i]);
           storeManager.dispatchTask(action);
         }
       }
@@ -233,15 +259,14 @@ export class MediaCrawler extends CrawlerBase {
     const instance = this;
     const {dbWrapper} = instance.objects;
     const {storeManager} = instance.objects;
-
-    const lastUpdatedInMinutes = 60 * 24 * 2;
+    const crawlerState = storeManager.crawlerState;
 
     let p = null;
 
     if (rescanAll)
       p = dbWrapper.listDirsAll();
     else
-      p = dbWrapper.listDirsToUpdate(lastUpdatedInMinutes);
+      p = dbWrapper.listDirsToUpdate(crawlerState.updateDirsAfterMinutes);
 
     p.then((dirItems) => {
 
@@ -358,7 +383,7 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  rateDirByFile({file}) {
+  rateDirByFile(file) {
     // AR_WORKER_RATE_DIR_BY_FILE
     const func = '.rateDirByFile';
 
@@ -369,14 +394,16 @@ export class MediaCrawler extends CrawlerBase {
     const dirName = path.dirname(file);
     const fileName = path.basename(file);
 
-    const p = dbWrapper.loadDoc(dirName).then((dirItem) => {
+    const p = dbWrapper.loadDir(dirName).then((dirItem) => {
 
       if (dirItem) {
-        mediaComposer.evaluateFile(dirItem, fileName);
 
+        const fileItem = mediaComposer.findFileItem(dirItem, fileName);
+        fileItem.lastShown = Date.now();
+        mediaComposer.evaluateFileItem(fileItem);
         mediaComposer.evaluateDir(dirItem);
 
-        return dbWrapper.saveDoc(dirItem);
+        return dbWrapper.saveDir(dirItem);
 
       } else
         throw new Error(`cannot find parent for item (${file})!`);
@@ -400,6 +427,8 @@ export class MediaCrawler extends CrawlerBase {
     const {dbWrapper} = instance.objects;
     const {mediaComposer} = instance.objects;
     const {metaReader} = instance.objects;
+    const {storeManager} = instance.objects;
+    const crawlerState = storeManager.crawlerState;
 
     let dirItem = null;
 
@@ -408,6 +437,8 @@ export class MediaCrawler extends CrawlerBase {
       dirItem = dirItemDb;
       if (!dirItem)
         dirItem = mediaComposer.createDirItem(folder);
+
+      //TODO maxFilesPerFolder
 
       const promises = [];
 
@@ -422,6 +453,11 @@ export class MediaCrawler extends CrawlerBase {
         const filePath = path.join(dirItem.dir, fileItem.fileName);
         fileItem.lastModified = MediaComposer.lastModifiedFromFile(filePath);
         promises.push(metaReader.loadMeta(filePath));
+
+        if (dirItem.fileItems.length >= crawlerState.maxFilesPerFolder) {
+          log.warn(`${_logKey}${func} - maxFilesPerFolder (${crawlerState.maxFilesPerFolder} => skip remaining files!!`);
+          break;
+        }
       }
 
       return Promise.all(promises);

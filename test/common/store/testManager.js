@@ -8,7 +8,7 @@ import {SlideshowReducer} from "../../../app/common/store/slideshowReducer";
 import {StoreManager} from "../../../app/common/store/storeManager";
 import {SystemReducer} from "../../../app/common/store/systemReducer";
 import {WorkerManager} from "../../../app/worker/store/workerManager";
-import {CrawlerTasksReducer} from "../../../app/common/store/crawlerTasksReducer";
+import {CrawlerTasksReducer, PRIO_LENGTH} from "../../../app/common/store/crawlerTasksReducer";
 
 
 // ----------------------------------------------------------------------------------
@@ -25,10 +25,20 @@ export class TestManager extends WorkerManager {
 
   // ........................................................
 
-  clearTasks() {
+  clearTasks(taskType = null) {
     const state = this.crawlerTasksState;
+    const {tasks} = state;
 
-    state.tasks = CrawlerTasksReducer.defaultState();
+    if (!taskType) {
+      for (let i = 0; i < tasks.length; i++)
+        tasks[i] = [];
+    } else {
+
+      const prio = CrawlerTasksReducer.getTaskPrio(taskType);
+      if (prio < 0 || prio >= tasks.length)
+        throw new Error('(clearTasks) wrong task prio!');
+      tasks[prio] = [];
+    }
   }
 
   // ........................................................

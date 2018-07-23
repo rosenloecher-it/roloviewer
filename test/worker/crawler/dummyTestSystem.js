@@ -34,7 +34,7 @@ export class DummyTestSystem {
 
     this.factory = new Factory(this.storeManager);
 
-  }F
+  }
 
   // ........................................................
 
@@ -101,13 +101,20 @@ export class DummyTestSystem {
 
   // ........................................................
 
-  createTestDir(dir) {
-    fs.mkdirsSync(dir);
+  createTestDir(pathPart1, pathPart2) {
 
-    if (!fs.lstatSync(dir).isDirectory())
-      throw new Error(`${_logkey}.createDir - cannot create directory '${dir}'!`);
+    let fullPath = null;
+    if (!pathPart2)
+      fullPath = pathPart1;
+    else
+      fullPath = path.join(pathPart1, pathPart2);
 
-    this.dirs.push(dir);
+    fs.mkdirsSync(fullPath);
+
+    if (!fs.lstatSync(fullPath).isDirectory())
+      throw new Error(`${_logkey}.createDir - cannot create directory '${fullPath}'!`);
+
+    this.dirs.push(fullPath);
   }
 
   // ........................................................
