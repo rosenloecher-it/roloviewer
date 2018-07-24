@@ -72,6 +72,7 @@ export class MediaComposer extends CrawlerBase {
 
     const doc = {
       id: this.convert2Id(input.fileName),
+      repeated: 0,
       fileName: input.fileName,
       rating: input.rating || 0,
       tags: input.tags || [],
@@ -137,18 +138,20 @@ export class MediaComposer extends CrawlerBase {
       return;
 
     const crawlerState = this.objects.storeManager.crawlerState;
-    const {weightingRating} = crawlerState;
+    const {weightingRating, weightingRepeated} = crawlerState;
 
     if (!fileItem.lastShown)
       fileItem.lastShown = DAY0;
     const diffDays = MediaComposer.time2days(fileItem.lastShown - DAY0);
 
     const rating = fileItem.rating || 0;
+    const repeated = fileItem.repeated || 0;
 
     const weightTime = diffDays;
     const weightRating = -1 * rating * weightingRating;
+    const weightRepeated = repeated * weightingRepeated;
 
-    fileItem.weight = weightTime + weightRating;
+    fileItem.weight = weightTime + weightRating + weightRepeated;
   }
 
   // .......................................................
@@ -189,6 +192,10 @@ export class MediaComposer extends CrawlerBase {
 
     const fileItem = this.findFileItem(dirItem, fileName);
     fileItem.lastShown = Date.now();
+    if (!fileItem.repeated)
+      fileItem.repeated = 1;
+    else
+      fileItem.repeated++;
     this.evaluateFileItem(fileItem);
     dirItem.lastShown = Date.now();
     this.evaluateDir(dirItem);
@@ -280,7 +287,9 @@ export class MediaComposer extends CrawlerBase {
 
     do {
 
-      const random = this.randomWeighted(candidates.length - 1);
+      //const random = this.randomWeighted(candidates.length - 1);
+      //const random = this.randomWeighted(candidates.length / 2 - 1);
+      const random = 0;
       const currentIndex = candidates.length - 1 - random;
       const currentSelection = candidates[currentIndex];
 

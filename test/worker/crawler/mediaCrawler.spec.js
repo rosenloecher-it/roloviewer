@@ -1,13 +1,11 @@
 import path from 'path';
 import deepmerge from 'deepmerge';
-import map from 'collections/map';
 import fs from 'fs';
 import * as constants from '../../../app/common/constants';
 import * as testUtils from '../../common/utils/testUtils';
 import * as stringUtils from "../../../app/common/utils/stringUtils";
 import {DummyTestSystem} from "./dummyTestSystem";
 import * as actionsCrawlerTasks from "../../../app/common/store/crawlerTasksActions";
-import {CrawlerTasksReducer} from "../../../app/common/store/crawlerTasksReducer";
 import {MediaCrawler} from "../../../app/worker/crawler/mediaCrawler";
 import {CrawlerReducer} from "../../../app/common/store/crawlerReducer";
 
@@ -21,7 +19,7 @@ let _testBaseDirMedia = null;
 let _testDirDb = null;
 let _testDirMedia = null;
 
-const _useNewTestDirEveryTime = true;
+const _useNewTestDirEveryTime = false;
 
 // ----------------------------------------------------------------------------------
 
@@ -661,7 +659,8 @@ describe(_logKey, () => {
 
     crawlerState.batchCount = 3;
     crawlerState.weightingRating = 0;
-    crawlerState.weightingSelPow = 4;
+    crawlerState.weightingRepeated = 100;
+    crawlerState.weightingSelPow = 5;
 
     const dirWidth = 3;
     const dirDepth = 2;
@@ -727,8 +726,9 @@ describe(_logKey, () => {
           for (let k = 0; k < slideshowItem.length; k++) {
             const {file} = slideshowItem[k];
 
-            //console.log(`simulate mediaCrawler.rateDirByFile: ${file}`)
-            promisesInner.push(testSystem.mediaCrawler.rateDirByFile(file));
+            console.log(`simulate mediaCrawler.rateDirByFile: ${file}`)
+            const p2 = testSystem.mediaCrawler.rateDirByFile(file)
+            promisesInner.push(p2);
           }
 
           return Promise.all(promisesInner);
@@ -847,6 +847,9 @@ describe(_logKey, () => {
       console.dir(statistics);
 
       expect(globalActions.length).toBe(deliverLoopCount);
+
+      expect(fileCountLess1).toBeLessThan(files.length / 4);
+      expect(dirCountLess1).toBeLessThan(countImageDirsExpected / 4);
 
       return Promise.resolve();
 

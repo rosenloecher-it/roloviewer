@@ -85,6 +85,7 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
   actionData.updateDirsAfterMinutes = mergeIntItem(constants.DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES, iniData.crawler.updateDirsAfterMinutes);
 
   actionData.weightingRating = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_RATING, iniData.crawler.weightingRating);
+  actionData.weightingRepeated = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_REPEATED, iniData.crawler.weightingRepeated);
   actionData.weightingSeason = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SEASON, iniData.crawler.weightingSeason);
   actionData.weightingSelPow = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SELPOW, iniData.crawler.weightingSelPow);
 

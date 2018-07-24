@@ -81,7 +81,10 @@ export class MediaCrawler extends CrawlerBase {
         if (dirItems.length < 3 || counterPreventLastProposal >= 3)
           break;
 
-      } while (selectedDir === instance.data.lastAutoSelectedDir);
+        if (selectedDir === instance.data.lastAutoSelectedDir)
+          continue;
+
+      } while (false);
 
       instance.data.lastAutoSelectedDir = selectedDir;
 
