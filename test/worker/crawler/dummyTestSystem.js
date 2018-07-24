@@ -124,7 +124,7 @@ export class DummyTestSystem {
     const instance = this;
 
     for (let i = 0; i < fileCount; i++) {
-      const ext = this.getRandomImageExt();
+      const ext = DummyTestSystem.getRandomImageExt();
 
       do {
         const fileName = `${stringUtils.randomString(8)}.${ext}`;
@@ -135,7 +135,6 @@ export class DummyTestSystem {
         const rating = Math.floor(5 * Math.random());
         this.saveTestFile(dir, fileName, rating);
 
-        this.files.push(filePath);
       } while (false);
     }
   }

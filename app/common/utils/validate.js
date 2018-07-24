@@ -188,10 +188,25 @@ export function valiTagArray(input) {
 
 // ----------------------------------------------------------------------------------
 
-export function mergeConfigItem(valueDef, valuePrio1, valuePrio2) {
+export function mergeConfigItem(valueDef, valuePrio1, valuePrio2 = null) {
 
   if (typeof(valueDef) === typeof(valuePrio1))
     return valuePrio1;
+  if (typeof(valueDef) === typeof(valuePrio2))
+    return valuePrio2;
+
+  return valueDef;
+}
+
+// ----------------------------------------------------------------------------------
+
+export function mergeIntItem(valueDef, valuePrio1In, valuePrio2In = null) {
+
+  const valuePrio1 = valiInt(valuePrio1In);
+  if (typeof(valueDef) === typeof(valuePrio1))
+    return valuePrio1;
+
+  const valuePrio2 = valiInt(valuePrio2In);
   if (typeof(valueDef) === typeof(valuePrio2))
     return valuePrio2;
 

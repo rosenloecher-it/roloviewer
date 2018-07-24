@@ -3,7 +3,7 @@ import log from 'electron-log';
 import path from 'path';
 import * as constants from "../common/constants";
 import {
-  mergeConfigItem,
+  mergeConfigItem, mergeIntItem,
   valiBoolean, valiInt, valiLogLevel, valiRatingArray, valiString, valiTagArray,
   valiFolderArray, valiBlacklistSnippets, valiUrl, valiDir
 } from "../common/utils/validate";
@@ -69,25 +69,24 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
     null,
     iniData.crawler.databasePath);
 
-  actionData.batchCount = mergeConfigItem(constants.DEFCONF_CRAWLER_BATCHCOUNT, valiInt(iniData.crawler.batchCount), null);
+  actionData.batchCount = mergeIntItem(constants.DEFCONF_CRAWLER_BATCHCOUNT, iniData.crawler.batchCount);
   actionData.showRating = valiRatingArray(iniData.crawler.showRating);
   actionData.tagShow = valiTagArray(iniData.crawler.tagShow);
   actionData.tagBlacklist = valiTagArray(iniData.crawler.tagBlacklist);
   actionData.folderSource = valiFolderArray(iniData.crawler.folderSource);
+
   actionData.folderBlacklist = valiFolderArray(iniData.crawler.folderBlacklist);
-  actionData.folderBlacklistSnippets = valiBlacklistSnippets(iniData.crawler.folderBlacklistSnippets);
-
-  actionData.maxFilesPerFolder = mergeConfigItem(constants.DEFCONF_CRAWLER_MAX_FILES_PER_FOLDER,
-      null,
-      valiInt(iniData.crawler.maxFilesPerFolder));
-
-  actionData.updateDirsAfterMinutes = mergeConfigItem(constants.DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES,
-    null,
-    valiInt(iniData.crawler.updateDirsAfterMinutes));
-
   for (let i = 0; i < actionData.folderBlacklist.length; i++) {
     actionData.folderBlacklist[i] = path.normalize(actionData.folderBlacklist[i]);
   }
+
+  actionData.folderBlacklistSnippets = valiBlacklistSnippets(iniData.crawler.folderBlacklistSnippets);
+  actionData.maxFilesPerFolder = mergeIntItem(constants.DEFCONF_CRAWLER_MAX_FILES_PER_FOLDER, iniData.crawler.maxFilesPerFolder);
+  actionData.updateDirsAfterMinutes = mergeIntItem(constants.DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES, iniData.crawler.updateDirsAfterMinutes);
+
+  actionData.weightingRating = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_RATING, iniData.crawler.weightingRating);
+  actionData.weightingSeason = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SEASON, iniData.crawler.weightingSeason);
+  actionData.weightingSelPow = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SELPOW, iniData.crawler.weightingSelPow);
 
   const action = actionsCrawler.createActionInit(actionData);
 
@@ -134,17 +133,9 @@ export function createSlideshowAction(iniDataIn, context) {
     null,
     iniData.slideshow.autoPlay);
 
-  actionData.transitionTimeAutoPlay = mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY,
-    null,
-    valiInt(iniData.slideshow.transitionTimeAutoPlay));
-
-  actionData.transitionTimeManual = mergeConfigItem(constants.DEFCONF_TRANSITION_TIME_MANUAL,
-    null,
-    valiInt(iniData.slideshow.transitionTimeManual));
-
-  actionData.timer = mergeConfigItem(constants.DEFCONF_TIMER,
-    null,
-    valiInt(iniData.slideshow.timer));
+  actionData.transitionTimeAutoPlay = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY, iniData.slideshow.transitionTimeAutoPlay);
+  actionData.transitionTimeManual = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_MANUAL, iniData.slideshow.transitionTimeManual);
+  actionData.timer = mergeIntItem(constants.DEFCONF_TIMER, iniData.slideshow.timer);
 
   actionData.random = mergeConfigItem(false,
     null,
@@ -197,9 +188,7 @@ export function createSystemAction(iniDataIn, context, defaultLogFile, defaultEx
 
   actionData.exiftool = defaultExifTool;
 
-  actionData.powerSaveBlockTime = mergeConfigItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME,
-    null,
-    valiInt(iniData.system.powerSaveBlockTime));
+  actionData.powerSaveBlockTime = mergeIntItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME, iniData.system.powerSaveBlockTime);
 
   actionData.lastDialogFolder = valiDir(iniData.system.lastDialogFolder);
 

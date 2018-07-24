@@ -1,5 +1,6 @@
 import path from 'path';
 import deepmerge from 'deepmerge';
+import map from 'collections/map';
 import fs from 'fs';
 import * as constants from '../../../app/common/constants';
 import * as testUtils from '../../common/utils/testUtils';
@@ -15,12 +16,16 @@ import {CrawlerReducer} from "../../../app/common/store/crawlerReducer";
 
 const _logKey = 'test-mediaCrawler';
 
+let _testBaseDirDb = null;
+let _testBaseDirMedia = null;
 let _testDirDb = null;
 let _testDirMedia = null;
 
+const _useNewTestDirEveryTime = true;
+
 // ----------------------------------------------------------------------------------
 
-function createTestSystemWithMediaDir() {
+function createTestSystemWithMediaDir(countDirs = 0, countFiles = 0) {
   const testSystem = new DummyTestSystem();
 
   const state = testSystem.crawlerState;
@@ -28,7 +33,7 @@ function createTestSystemWithMediaDir() {
   state.batchCount = 3;
   state.folderSource.push(_testDirMedia);
 
-  testSystem.createSingleDir(_testDirMedia, 0, 0);
+  testSystem.createSingleDir(_testDirMedia, countDirs, countFiles);
 
   return testSystem;
 }
@@ -60,25 +65,28 @@ describe(_logKey, () => {
     // _testDirDb = testUtils.ensureEmptyTestDir(path.join(subdir,'mediaCrawlerDb'));
     // _testDirMedia = testUtils.ensureEmptyTestDir(path.join(subdir,'mediaCrawlerMedia'));
 
-    _testDirDb = testUtils.ensureEmptyTestDir('mediaCrawlerDb');
-    _testDirMedia = testUtils.ensureEmptyTestDir('mediaCrawlerMedia');
+    if (_useNewTestDirEveryTime) {
+      _testBaseDirDb = testUtils.ensureEmptyTestDir('mediaCrawlerDb');
+      _testBaseDirMedia = testUtils.ensureEmptyTestDir('mediaCrawlerMedia');
+    }
 
-    return true;
-
+    return Promise.resolve();
   });
 
   // ........................................................
 
   beforeEach(() => {
 
-    const subdir = stringUtils.randomString(8);
-    _testDirDb = testUtils.ensureEmptyTestDir(path.join('mediaCrawlerDb', subdir));
-    _testDirMedia = testUtils.ensureEmptyTestDir(path.join('mediaCrawlerMedia', subdir));
+    if (_useNewTestDirEveryTime) {
+      const subdir = stringUtils.randomString(8);
+      _testDirDb = testUtils.ensureEmptyTestDir(path.join('mediaCrawlerDb', subdir));
+      _testDirMedia = testUtils.ensureEmptyTestDir(path.join('mediaCrawlerMedia', subdir));
+    } else {
+      _testDirDb = testUtils.ensureEmptyTestDir('mediaCrawlerDb');
+      _testDirMedia = testUtils.ensureEmptyTestDir('mediaCrawlerMedia');
+    }
 
-    // _testDirDb = testUtils.ensureEmptyTestDir('mediaCrawlerDb');
-    // _testDirMedia = testUtils.ensureEmptyTestDir('mediaCrawlerMedia');
-
-    return true;
+    return Promise.resolve();
 
   });
 
@@ -159,6 +167,7 @@ describe(_logKey, () => {
     const p = testSystem.init().then(() => {
       testSystem.mediaCrawler.checkAndHandleChangedFileItems(dirItem, fileItems);
 
+      return Promise.resolve();
     }).then(() => {
 
       const tasks = testSystem.storeManager.tasks;
@@ -239,7 +248,7 @@ describe(_logKey, () => {
 
     }).then((dirItem) => {
 
-      console.log('dirItem', dirItem);
+      //console.log('dirItem', dirItem);
 
       expect(dirItem).not.toBeNull();
 
@@ -315,6 +324,8 @@ describe(_logKey, () => {
       // old task have to get deleted before filling the new ones (from db)
       expect(testSystem.storeManager.countTypeTasks(constants.AR_WORKER_UPDATE_DIR)).toBe(1);
       expect(stateComposed.rescanAll).toBe(true);
+
+      return Promise.resolve();
 
     }).then(() => {
 
@@ -441,7 +452,6 @@ describe(_logKey, () => {
       count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_UPDATE_DIR);
       expect(count).toBe(countOld);
 
-
       return testSystem.mediaCrawler.reloadDirs({rescanAll: true});
 
     }).then(() => {
@@ -563,6 +573,8 @@ describe(_logKey, () => {
       const count = dirItems.length;
       expect(count).toBe(0);
 
+      return Promise.resolve();
+
     }).then(() => {
 
       return testSystem.shutdown();
@@ -612,7 +624,7 @@ describe(_logKey, () => {
       count = testSystem.storeManager.countTasks();
       expect(count).toBe(0);
 
-      return testSystem.dbWrapper.loadDir(_testDirMedia)
+      return testSystem.dbWrapper.loadDir(_testDirMedia);
 
     }).then((dirItem) => {
 
@@ -624,7 +636,7 @@ describe(_logKey, () => {
       return testSystem.mediaCrawler.rateDirByFile(filePath1);
 
     }).then(() => {
-      return testSystem.dbWrapper.loadDir(_testDirMedia)
+      return testSystem.dbWrapper.loadDir(_testDirMedia);
 
     }).then((dirItem) => {
 
@@ -639,4 +651,215 @@ describe(_logKey, () => {
   });
 
   // ........................................................
+
+  it('addAutoSelectFiles', () => {
+    const func = '.addAutoSelectFiles';
+    const lineOffset = '\n  ';
+
+    const testSystem = createTestSystemWithMediaDir();
+    const crawlerState = testSystem.crawlerState;
+
+    crawlerState.batchCount = 3;
+    crawlerState.weightingRating = 0;
+    crawlerState.weightingSelPow = 4;
+
+    const dirWidth = 3;
+    const dirDepth = 2;
+    const filesPerDir = 9;
+    const countImageFiles = dirWidth**dirDepth * filesPerDir;
+    let deliverLoopCount = Math.floor(countImageFiles / crawlerState.batchCount) * 2;
+    const countImageDirsExpected = 9;
+
+    testSystem.createFileSystemStructure(_testDirMedia, dirWidth, dirDepth, filesPerDir);
+
+    const p = testSystem.init().then(() => {
+      const action = actionsCrawlerTasks.createActionInitCrawler();
+      return testSystem.dispatcher.dispatchTask(action);
+      //return mediaCrawler.updateDir(_testDirMedia);
+
+    }).then(() => {
+      testSystem.storeManager.clearTasks();
+      const promises = [];
+      for (let i = 0; i < testSystem.dirs.length; i++) {
+        const dir = testSystem.dirs[i];
+        const action = actionsCrawlerTasks.createActionUpdateDir(dir);
+        promises.push(testSystem.dispatcher.dispatchTask(action));
+      }
+      return Promise.all(promises);
+
+    }).then(() => {
+      return dispatchAll(testSystem);
+
+    }).then(() => {
+      return testSystem.dbWrapper.listDirsWeigthSorted();
+
+    }).then((dirItems) => {
+
+      console.log(`formatDirItemsWeightList:\n${testUtils.formatDirItemsWeightList(dirItems)}`);
+      expect(dirItems.length).toBe(countImageDirsExpected);
+
+      return Promise.resolve();
+
+    }).then(() => {
+      testSystem.storeManager.clearTasks();
+      testSystem.storeManager.clearGlobalActions();
+
+      let p = Promise.resolve();
+
+      for (let i = 0; i < deliverLoopCount; i++) {
+
+        // selections
+        p = p.then(() => {
+          return testSystem.mediaCrawler.addAutoSelectFiles();
+        });
+
+        // rateDirByFile
+        p = p.then(() => {
+          const globalActions = testSystem.storeManager.data.globalDispatchedActions;
+
+          expect(globalActions.length).toBeGreaterThan(0);
+          const lastAction = globalActions[globalActions.length - 1];
+          expect(lastAction.type).toBe(constants.AR_SLIDESHOW_ADD_AUTO_FILES);
+
+          const promisesInner = [];
+
+          const slideshowItem = lastAction.payload.items;
+          for (let k = 0; k < slideshowItem.length; k++) {
+            const {file} = slideshowItem[k];
+
+            //console.log(`simulate mediaCrawler.rateDirByFile: ${file}`)
+            promisesInner.push(testSystem.mediaCrawler.rateDirByFile(file));
+          }
+
+          return Promise.all(promisesInner);
+        });
+
+      }
+
+      return p;
+
+    // }).then(() => {
+    //   deliverLoopCount++;
+    //   return testSystem.mediaCrawler.addAutoSelectFiles();
+
+    }).then(() => {
+
+      return testSystem.dbWrapper.listDirsWeigthSorted();
+
+    }).then((dirItems) => {
+
+      console.log(`formatDirItemsWeightList:\n${testUtils.formatDirItemsWeightList(dirItems)}`);
+
+      const mapFiles = new Map();
+      const mapDirs = new Map(); // TODO
+
+      expect(dirItems.length).toBe(countImageDirsExpected);
+
+      for (let i = 0; i < dirItems.length; i++) {
+        const dirItem = dirItems[i];
+        mapDirs.set(dirItem.dir, { count: 0});
+      }
+
+      const globalActions = testSystem.storeManager.data.globalDispatchedActions;
+
+      let countDeliveredItem = 0;
+
+      for (let i = 0; i < globalActions.length; i++) {
+        const action = globalActions[i];
+        expect(action.type).toBe(constants.AR_SLIDESHOW_ADD_AUTO_FILES);
+
+        const slideshowItem = action.payload.items;
+        for (let k = 0; k < slideshowItem.length; k++) {
+          const {file} = slideshowItem[k];
+          countDeliveredItem++;
+
+          let data = mapFiles.get(file);
+          if (!data)
+            data = { count: 0 };
+          data.count++;
+          mapFiles.set(file, data);
+          //console.log('file', file);
+
+          const dirName = path.dirname(file);
+          const dataDir = mapDirs.get(dirName);
+          expect(dataDir).not.toBeNull();
+          dataDir.count++;
+          mapDirs.set(dirName, dataDir);
+        }
+      }
+
+      let fileHitsSum = 0, fileHitsMin = Number.MAX_VALUE, fileHitsMax = -Number.MAX_VALUE;
+      let fileCountLess1 = 0, fileCountMore1 = 0;
+
+      const {files} = testSystem;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const data = mapFiles.get(file) || { count: 0 };
+        const {count} = data;
+
+        fileHitsSum += count;
+        if (fileHitsMin > count) fileHitsMin = count;
+        if (fileHitsMax < count) fileHitsMax = count;
+
+        if (count === 0) fileCountLess1++;
+        if (count > 1) fileCountMore1++;
+      }
+
+      let dirHitsSum = 0, dirHitsMin = Number.MAX_VALUE, dirHitsMax = -Number.MAX_VALUE;
+      let dirCountLess1 = 0, dirCountMore1 = 0;
+
+      for (let entry of mapDirs.entries()) {
+        const dir = entry[0];
+        const data = entry[1];
+        const {count} = data;
+
+        dirHitsSum += count;
+        if (dirHitsMin > count) dirHitsMin = count;
+        if (dirHitsMax < count) dirHitsMax = count;
+
+        if (count === 0) dirCountLess1++;
+        if (count > 1) dirCountMore1++;
+      }
+
+      let statistics = `${_logKey}${func} - statitics:`;
+
+      statistics += `${lineOffset}countImageDirsExpected = ${countImageDirsExpected}`;
+      statistics += `${lineOffset}deliverLoopCount       = ${deliverLoopCount}`;
+
+      statistics += `${lineOffset}count created files                     = ${files.length}`;
+      statistics += `${lineOffset}count countDeliveredItem (incl doubles) = ${countDeliveredItem}`;
+      statistics += `${lineOffset}count delivered files (no doubles)      = ${mapFiles.length}`;
+
+      const fileHitsAvg = fileHitsSum / mapFiles.length;
+      statistics += `${lineOffset}fileHitsAvg     = ${fileHitsAvg}`;
+      statistics += `${lineOffset}fileHitsMax     = ${fileHitsMax}`;
+      statistics += `${lineOffset}fileHitsMin     = ${fileHitsMin}`;
+      statistics += `${lineOffset}fileCountLess1  = ${fileCountLess1}`;
+      statistics += `${lineOffset}fileCountMore1  = ${fileCountMore1}`;
+
+      const dirHitsAvg = dirHitsSum / mapDirs.length;
+      statistics += `${lineOffset}dirHitsAvg     = ${dirHitsAvg}`;
+      statistics += `${lineOffset}dirHitsMax     = ${dirHitsMax}`;
+      statistics += `${lineOffset}dirHitsMin     = ${dirHitsMin}`;
+      statistics += `${lineOffset}dirCountLess1  = ${dirCountLess1}`;
+      statistics += `${lineOffset}dirCountMore1  = ${dirCountMore1}`;
+
+      console.dir(statistics);
+
+      expect(globalActions.length).toBe(deliverLoopCount);
+
+      return Promise.resolve();
+
+    }).then(() => {
+
+      return testSystem.shutdown();
+    });
+
+    // TODO too much variation: some files gets hit 6 other 0 !? => punish via lastShown as array...
+
+    return p;
+  });
+
+// ........................................................
 });
+

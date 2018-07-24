@@ -1,6 +1,8 @@
 import * as constants from '../../../app/common/constants';
 import * as stringUtils from "../../../app/common/utils/stringUtils";
 import {MediaComposer} from "../../../app/worker/crawler/mediaComposer";
+import {DbWrapper} from "../../../app/worker/crawler/dbWrapper";
+import {TestManager} from "../../common/store/testManager";
 
 // ----------------------------------------------------------------------------------
 
@@ -44,7 +46,7 @@ function checkRandomWeight(disposer, countTest) {
 }
 // ----------------------------------------------------------------------------------
 
-function checkRandomSelectFilesFromDir(disposer, countFiles, countSelectDemanded) {
+function checkRandomSelectFilesFromDir(composer, countFiles, countSelectDemanded) {
 
   console.log(`checkRandomSelectFilesFromDir(countFiles=${countFiles}, countSelectDemanded=${countSelectDemanded})`);
   // prepare
@@ -54,7 +56,7 @@ function checkRandomSelectFilesFromDir(disposer, countFiles, countSelectDemanded
 
   for (let i = 0; i < countFiles; i++) {
     const fileName = stringUtils.randomString(10);
-    const item = disposer.createFileItem({
+    const item = composer.createFileItem({
       fileName,
       weight: i, // no extra evaluateFileItem necessary
     });
@@ -62,11 +64,11 @@ function checkRandomSelectFilesFromDir(disposer, countFiles, countSelectDemanded
     dir.fileItems.push(item);
   }
 
-  disposer.evaluateDir(dir);
+  composer.evaluateDir(dir);
 
   // start test
 
-  const selections = disposer.randomSelectFilesFromDir(dir, countSelectDemanded);
+  const selections = composer.randomSelectFilesFromDir(dir, countSelectDemanded);
 
   const countSelect = Math.min(countSelectDemanded, countFiles);
 
@@ -122,21 +124,23 @@ function checkRandomSelectFilesFromDir(disposer, countFiles, countSelectDemanded
 
 // ----------------------------------------------------------------------------------
 
-describe('mediaWeigher', () => {
+describe('mediaComposer', () => {
 
   it('randomWeighted', () => {
 
-    const disposer = new MediaComposer();
+    const storeManager = new TestManager();
+    const composer = new MediaComposer();
+    composer.coupleObjects({storeManager});
 
-    checkRandomWeight(disposer, 20);
+    checkRandomWeight(composer, 20);
 
-    checkRandomWeight(disposer, 2);
+    checkRandomWeight(composer, 2);
 
-    expect(disposer.randomWeighted(null)).toBe(null);
-    expect(disposer.randomWeighted(0)).toBe(null);
+    expect(composer.randomWeighted(null)).toBe(null);
+    expect(composer.randomWeighted(0)).toBe(null);
 
     for (let i = 0; i < 3; i++)
-      expect(disposer.randomWeighted(1)).toBe(0);
+      expect(composer.randomWeighted(1)).toBe(0);
 
   });
 
@@ -162,10 +166,12 @@ describe('mediaWeigher', () => {
 
   it('evaluateFileItem', () => {
 
-    const disposer = new MediaComposer();
+    const storeManager = new TestManager();
+    const composer = new MediaComposer();
+    composer.coupleObjects({storeManager});
 
-    const item1 = disposer.createFileItem({ fileName: stringUtils.randomString(10) });
-    const item2 = disposer.createFileItem({ fileName: stringUtils.randomString(10) });
+    const item1 = composer.createFileItem({ fileName: stringUtils.randomString(10) });
+    const item2 = composer.createFileItem({ fileName: stringUtils.randomString(10) });
 
     item1.lastShown = new Date().getTime();
     item2.lastShown = item1.lastShown + 1 * 24 * 60 * 60 * 1000 * 60; // plus 1 day
@@ -173,8 +179,8 @@ describe('mediaWeigher', () => {
     item1.rating = 0;
     item2.rating = 0;
 
-    disposer.evaluateFileItem(item1);
-    disposer.evaluateFileItem(item2);
+    composer.evaluateFileItem(item1);
+    composer.evaluateFileItem(item2);
 
     expect(item1.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
     expect(item2.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
@@ -182,35 +188,39 @@ describe('mediaWeigher', () => {
     expect(item2.weight).toBeGreaterThan(item1.weight);
 
     item2.rating = 2;
-    disposer.evaluateFileItem(item2);
+    composer.evaluateFileItem(item2);
 
     expect(item1.weight).toBeGreaterThan(item2.weight);
   });
 
   // .......................................................
 
-  it('evaluateDir', () => {
+  it('evaluateDir - base', () => {
 
     const countFiles = 30;
     const countSelect = 10;
 
-    const disposer = new MediaComposer();
+    const storeManager = new TestManager();
+    const composer = new MediaComposer();
+    composer.coupleObjects({storeManager});
 
     // prepare
     const dir = {
       fileItems: []
     };
 
+    // test -
     for (let i = 0; i < countFiles; i++) {
-      const item = disposer.createFileItem({
+      const item = composer.createFileItem({
         fileName: stringUtils.randomString(10),
+        rating: 0,
         weight: countFiles - i, // => re-sort necessary, no extra evaluateFileItem necessary
       });
 
       dir.fileItems.push(item);
     }
 
-    disposer.evaluateDir(dir);
+    composer.evaluateDir(dir);
 
     expect(dir.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
 
@@ -222,11 +232,72 @@ describe('mediaWeigher', () => {
       lastWeight = fileItem.weight;
     }
 
-    //console.log('evaluateDir', dir);
-
+    // test - max weight for dirs without images files
     dir.fileItems = [];
-    disposer.evaluateDir(dir);
+    composer.evaluateDir(dir);
     expect(dir.weight).toBe(constants.CRAWLER_MAX_WEIGHT);
+
+  });
+
+  // .......................................................
+
+  it('evaluate', () => {
+
+    const countFiles = 20;
+
+    const storeManager = new TestManager();
+    const composer = new MediaComposer();
+    composer.coupleObjects({storeManager});
+
+    // prepare
+    const dirItem = {
+      fileItems: []
+    };
+
+    const timeNew = Date.now();
+    const timeOld = timeNew - 1000 * 60 * 60 * 24; // -1 days
+
+    // test -
+    for (let i = 0; i < countFiles; i++) {
+      const item = composer.createFileItem({
+        fileName: stringUtils.randomString(10),
+        rating: 0,
+        lastShown: timeOld,
+        weight: 0, // => re-sort necessary, no extra evaluateFileItem necessary
+      });
+
+      dirItem.fileItems.push(item);
+    }
+
+    composer.evaluate(dirItem);
+
+    const weightDirOld = dirItem.weight;
+
+    const lastFileItem = dirItem.fileItems[0];
+    lastFileItem.lastShown = timeNew;
+
+    composer.rateDirByShownFile(dirItem, lastFileItem.fileName);
+
+    const weightDirNew = dirItem.weight;
+
+    console.log(`weightDirNew=${weightDirNew}\nweightDirOld=${weightDirOld}`);
+
+    expect(weightDirNew).toBeGreaterThan(weightDirOld);
+
+    let lastWeight = 0;
+    for (let i = 0; i < countFiles; i++) {
+      const fileItem = dirItem.fileItems[i];
+      if (i > 0) {
+        //console.log(`expect(fileItem.weight == ${fileItem.weight}).toBeGreaterThanOrEqual(lastWeight == ${lastWeight})`);
+        expect(fileItem.weight).toBeGreaterThanOrEqual(lastWeight);
+      }
+      lastWeight = fileItem.weight;
+    }
+
+    // test - max weight for dirs without images files
+    dirItem.fileItems = [];
+    composer.evaluate(dirItem);
+    expect(dirItem.weight).toBe(constants.CRAWLER_MAX_WEIGHT);
 
   });
 
@@ -234,11 +305,18 @@ describe('mediaWeigher', () => {
 
   it('randomSelectFilesFromDir', () => {
 
-    const disposer = new MediaComposer();
+    const storeManager = new TestManager();
+    const composer = new MediaComposer();
+    composer.coupleObjects({storeManager});
 
-    checkRandomSelectFilesFromDir(disposer, 30, 10);
-    checkRandomSelectFilesFromDir(disposer, 10, 10);
-    checkRandomSelectFilesFromDir(disposer, 4, 6);
+    const crawlerState = storeManager.crawlerState;
+    crawlerState.batchCount = 3;
+    crawlerState.weightingRating = 0;
+    crawlerState.weightingSelPow = 3;
+
+    checkRandomSelectFilesFromDir(composer, 30, 10);
+    checkRandomSelectFilesFromDir(composer, 10, 10);
+    checkRandomSelectFilesFromDir(composer, 4, 6);
 
 
   });

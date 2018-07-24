@@ -6,12 +6,14 @@ export const createActionInit = ({
   batchCount, databasePath,
   folderBlacklist, folderBlacklistSnippets, folderSource,
   maxFilesPerFolder, showRating, tagBlacklist, tagShow, updateDirsAfterMinutes,
-  }) => ({
+  weightingRating, weightingSeason, weightingSelPow,
+}) => ({
   type: constants.AR_WORKER_INIT,
   payload: {
     batchCount, databasePath,
     folderBlacklist, folderBlacklistSnippets, folderSource,
     maxFilesPerFolder, showRating, tagBlacklist, tagShow, updateDirsAfterMinutes,
+    weightingRating, weightingSeason, weightingSelPow,
   }
 });
 

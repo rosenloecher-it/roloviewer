@@ -33,9 +33,12 @@ export const DEFCONF_TRANSITION_TIME_MANUAL = 600;
 export const DEFCONF_TIMER = 7000;
 export const DEFCONF_POWER_SAVE_BLOCK_TIME = 30;
 export const DEFCONF_DBNAME = 'crawler.db';
+
 export const DEFCONF_CRAWLER_MAX_FILES_PER_FOLDER = 1000;
 export const DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES = 24 * 60;
-
+export const DEFCONF_CRAWLER_WEIGHTING_RATING = 60;
+export const DEFCONF_CRAWLER_WEIGHTING_SEASON = 0;
+export const DEFCONF_CRAWLER_WEIGHTING_SELPOW = 3;
 
 export const DEFCONF_LOG = '.';
 export const DEFCONF_LOGNAME = 'roloslider.log';

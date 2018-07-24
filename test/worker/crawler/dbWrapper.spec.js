@@ -215,6 +215,7 @@ describe('dbWrapper', () => {
 
     const storeManager = new TestManager();
     const mediaComposer = new MediaComposer();
+    mediaComposer.coupleObjects({storeManager});
     //const crawlerReducer = new CrawlerReducer('test');
 
     const stateIn = storeManager.crawlerState;

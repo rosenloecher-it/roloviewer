@@ -8,7 +8,7 @@ import * as actionsSlideshow from "../../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "mediaWeigher";
+const _logKey = "mediaComposer";
 
 const DAY0 = 0;
 
@@ -21,10 +21,9 @@ export class MediaComposer extends CrawlerBase {
 
     // TODO settings from storeManager.state
     this.data = {
-      selPow: 3,
 
-      factorTime: 1,
-      factorRating: 60, // 1 point equalizes 1 days
+      weightingRating: 60, // 1 point equalizes 1 days
+      weightingSeason: 0,
 
 
       batchCount: 10,
@@ -76,8 +75,8 @@ export class MediaComposer extends CrawlerBase {
       fileName: input.fileName,
       rating: input.rating || 0,
       tags: input.tags || [],
-      lastShown: null,
-      lastModified: null,
+      lastShown: input.lastShown || null,
+      lastModified: input.lastModified || null,
       weight: (input.weight === null || input.weight === undefined) ? constants.CRAWLER_MAX_WEIGHT : input.weight,
     };
 
@@ -93,10 +92,11 @@ export class MediaComposer extends CrawlerBase {
     if (length === 1)
       return 0;
 
-    const {selPow} = this.data;
+    const crawlerState = this.objects.storeManager.crawlerState;
+    const {weightingSelPow} = crawlerState;
 
-    const maxRandom = length ** selPow;
-    const selected = Math.floor(length - (maxRandom * Math.random()) ** (1/selPow));
+    const maxRandom = length ** weightingSelPow;
+    const selected = Math.floor(length - (maxRandom * Math.random()) ** (1/weightingSelPow));
 
     return selected;
   }
@@ -131,11 +131,13 @@ export class MediaComposer extends CrawlerBase {
   // ........................................................
 
   evaluateFileItem(fileItem) {
+    const func = '.evaluateFileItem';
 
     if (!fileItem)
       return;
 
-    const {data} = this;
+    const crawlerState = this.objects.storeManager.crawlerState;
+    const {weightingRating} = crawlerState;
 
     if (!fileItem.lastShown)
       fileItem.lastShown = DAY0;
@@ -144,7 +146,7 @@ export class MediaComposer extends CrawlerBase {
     const rating = fileItem.rating || 0;
 
     const weightTime = diffDays;
-    const weightRating = -1 * rating * data.factorRating;
+    const weightRating = -1 * rating * weightingRating;
 
     fileItem.weight = weightTime + weightRating;
   }
@@ -152,7 +154,7 @@ export class MediaComposer extends CrawlerBase {
   // .......................................................
 
   evaluateFile(dirItem, fileName) {
-    const func = 'evaluateFile';
+    const func = '.evaluateFile';
 
     const fileItem = this.findFileItem(dirItem, fileName);
     if (fileItem) {
@@ -166,7 +168,7 @@ export class MediaComposer extends CrawlerBase {
   // .......................................................
 
   updateFileMeta(dirItem, meta) {
-    const func = 'updateFileMeta';
+    const func = '.updateFileMeta';
 
     if (!meta)
       return;
@@ -183,38 +185,75 @@ export class MediaComposer extends CrawlerBase {
 
   // ........................................................
 
+  rateDirByShownFile(dirItem, fileName) {
+
+    const fileItem = this.findFileItem(dirItem, fileName);
+    fileItem.lastShown = Date.now();
+    this.evaluateFileItem(fileItem);
+    dirItem.lastShown = Date.now();
+    this.evaluateDir(dirItem);
+  }
+
+  // ........................................................
+
   evaluateDir(dirItem) {
+    const func = '.evaluateDir';
 
     if (!dirItem)
       return;
 
-    if (!dirItem.fileItems || dirItem.fileItems.length === 0) {
-      dirItem.weight = constants.CRAWLER_MAX_WEIGHT;
+    //log.debug(`${_logKey}${func} - in - weight=`, dirItem.weight);
+
+    do {
+      if (!dirItem.fileItems || dirItem.fileItems.length === 0) {
+        dirItem.weight = constants.CRAWLER_MAX_WEIGHT;
+        break;
+      }
+
+      const crawlerState = this.objects.storeManager.crawlerState;
+      const {batchCount} = crawlerState;
+
+      dirItem.fileItems.sort((fileItem1, fileItem2) => {
+        return (fileItem1.weight - fileItem2.weight);
+      });
+
+      const scanCount = Math.min(dirItem.fileItems.length, batchCount);
+
+      let weightSum = 0;
+      for (let i = 0; i < scanCount; i++)
+        weightSum += dirItem.fileItems[i].weight;
+
+      const weightFilesAverage = weightSum / scanCount;
+
+      const weightFilesCount = -1.0 / (dirItem.fileItems.length || 1);
+
+      if (!dirItem.lastShown)
+        dirItem.lastShown = DAY0;
+      const diffDays = MediaComposer.time2days(dirItem.lastShown - DAY0);
+      const weightTime = diffDays;
+
+      dirItem.weight = weightTime + weightFilesAverage + weightFilesCount;
+
+    } while (false);
+
+    //log.debug(`${_logKey}${func} - out - weight=`, dirItem.weight);
+
+  }
+
+  // .......................................................
+
+  evaluate(dirItem) {
+    const func = '.evaluate';
+
+    if (!dirItem)
       return;
+
+    for (let i = 0; i < dirItem.fileItems.length; i++) {
+      const fileItem = dirItem.fileItems[i];
+      this.evaluateFileItem(fileItem);
     }
 
-    const {data} = this;
-
-    dirItem.fileItems.sort((fileItem1, fileItem2) => {
-      return (fileItem1.weight - fileItem2.weight);
-    });
-
-    const scanCount = Math.min(dirItem.fileItems.length, data.batchCount);
-
-    let weightSum = 0;
-    for (let i = 0; i < scanCount; i++)
-      weightSum += dirItem.fileItems[i].weight;
-
-    const weightFilesAverage = weightSum / scanCount;
-
-    const weightFilesCount = -1.0 / (dirItem.fileItems.length || 1);
-
-    if (!dirItem.lastShown)
-      dirItem.lastShown = DAY0;
-    const diffDays = MediaComposer.time2days(dirItem.lastShown - DAY0);
-    const weightTime = diffDays;
-
-    dirItem.weight = weightTime + weightFilesAverage + weightFilesCount;
+    this.evaluateDir(dirItem);
 
   }
 
@@ -232,6 +271,7 @@ export class MediaComposer extends CrawlerBase {
 
     const candidates = [];
 
+    // select from behind - reduce costs for removing elements
     for (let i = fileItems.length - 1 ; i >= 0; i--)
       candidates.push(fileItems[i]);
 
@@ -273,7 +313,7 @@ export class MediaComposer extends CrawlerBase {
     if (!fullPath)
       return null;
 
-    return fs.lstatSync(fullPath).mtimeMs;;
+    return fs.lstatSync(fullPath).mtimeMs;
   }
 
 }

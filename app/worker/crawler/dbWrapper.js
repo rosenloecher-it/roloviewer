@@ -45,8 +45,6 @@ export class DbWrapper extends CrawlerBase {
       instance.dbDir = new Datastore({ filename: fileDbDir, autoload: true });
       instance.dbState = new Datastore({ filename: fileDbState, autoload: true });
 
-      log.debug(`${_logKey}${func} - open (in "${databasePath}")`);
-
       resolve();
 
     }).catch((err) => {
@@ -183,7 +181,6 @@ export class DbWrapper extends CrawlerBase {
 
         resolve();
       });
-
 
     }).catch((err) => {
       instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);

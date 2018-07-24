@@ -26,6 +26,7 @@ export class MediaCrawler extends CrawlerBase {
 
     this.data = {
       cacheScanFsDirs: null,
+      lastAutoSelectedDir: null,
     }
 
   }
@@ -64,21 +65,31 @@ export class MediaCrawler extends CrawlerBase {
     const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
 
+    const p = dbWrapper.listDirsWeigthSorted().then((dirItems) => {
 
-    const p = dbWrapper.listDirsWeigthSorted().then((files) => {
+      if (0 === dirItems.length)
+        throw new Error('auto-selection failed (no dirs available)!');
 
-      if (0 === files.length)
-        throw new Error('auto-selection failed (no dirs delivered)!');
+      let selectedDir = null;
+      let counterPreventLastProposal = 0;
+      do {
+        const selected = mediaComposer.randomWeighted(dirItems.length);
 
-      const selected = mediaComposer.randomWeighted(files.length);
+        selectedDir = dirItems[selected].dir;
+        counterPreventLastProposal++;
 
-      const selectedFile = files[selected];
+        if (dirItems.length < 3 || counterPreventLastProposal >= 3)
+          break;
 
-      return dbWrapper.loadDoc(selectedFile);
-    }).then((dir) => {
+      } while (selectedDir === instance.data.lastAutoSelectedDir);
 
-      const files = mediaComposer.randomSelectFilesFromDir(dir, crawlerState.batchCount, true);
-      if (files.length === 0) {
+      instance.data.lastAutoSelectedDir = selectedDir;
+
+      return dbWrapper.loadDir(selectedDir);
+    }).then((dirItem) => {
+
+      const fileItems = mediaComposer.randomSelectFilesFromDir(dirItem, crawlerState.batchCount, true);
+      if (fileItems.length === 0) {
 
         if (trailNumber < 2) {
           const newAction = actionsCrawlerTasks.createActionOpen (null, null, trailNumber + 1);
@@ -87,8 +98,11 @@ export class MediaCrawler extends CrawlerBase {
           throw new Error(`auto-selection failed (no items delivered - ${trailNumber}x)!`);
 
       } else {
-        const items = actionsSlideshow.createItems(files);
-        const action = actionsSlideshow.createActionAddAutoFiles(items);
+        const files = [];
+        for (let i = 0; i < fileItems.length; i++)
+          files.push(path.join(dirItem.dir, fileItems[i].fileName));
+        const slideshowItems = actionsSlideshow.createItems(files);
+        const action = actionsSlideshow.createActionAddAutoFiles(slideshowItems);
         storeManager.dispatchGlobal(action);
       }
 
@@ -219,8 +233,6 @@ export class MediaCrawler extends CrawlerBase {
       return dbWrapper.listDirsAll();
 
     }).then((dirItems) => {
-
-      log.debug(`${_logKey}${func}.promise.2: dirItems=`, dirItems);
 
       let action = null;
 
@@ -394,19 +406,17 @@ export class MediaCrawler extends CrawlerBase {
     const dirName = path.dirname(file);
     const fileName = path.basename(file);
 
+    //log.debug(`${_logKey}${func} - in:`, file);
+
     const p = dbWrapper.loadDir(dirName).then((dirItem) => {
 
       if (dirItem) {
-
-        const fileItem = mediaComposer.findFileItem(dirItem, fileName);
-        fileItem.lastShown = Date.now();
-        mediaComposer.evaluateFileItem(fileItem);
-        mediaComposer.evaluateDir(dirItem);
-
+        mediaComposer.rateDirByShownFile(dirItem, fileName);
         return dbWrapper.saveDir(dirItem);
+      }
 
-      } else
-        throw new Error(`cannot find parent for item (${file})!`);
+      log.error(`${_logKey}${func}.promise - cannot find parent for item (${file})!`);
+      return Promise.resolve();
 
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
@@ -437,8 +447,6 @@ export class MediaCrawler extends CrawlerBase {
       dirItem = dirItemDb;
       if (!dirItem)
         dirItem = mediaComposer.createDirItem(folder);
-
-      //TODO maxFilesPerFolder
 
       const promises = [];
 
@@ -531,7 +539,7 @@ export class MediaCrawler extends CrawlerBase {
 
       this.objects.mediaComposer.evaluateDir(dirItem); // fileItems will be sorted
 
-      dirItem.lastModified = new Date().getTime();
+      dirItem.lastUpdate = new Date().getTime();
 
       if (itemUpdate.length > 0) {
         let actionItems = [];
@@ -555,7 +563,7 @@ export class MediaCrawler extends CrawlerBase {
     // AR_WORKER_UPDATE_DIR
     const func = '.updateDir';
 
-    log.info(`${_logKey}${func} - in: ${folder}`);
+    //log.debug(`${_logKey}${func} - in: ${folder}`);
 
     if (!folder)
       return Promise.resolve();

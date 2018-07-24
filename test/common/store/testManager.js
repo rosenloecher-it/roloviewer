@@ -21,6 +21,10 @@ export class TestManager extends WorkerManager {
 
   constructor() {
     super();
+
+    this.data = {
+      globalDispatchedActions: []
+    };
   }
 
   // ........................................................
@@ -95,9 +99,16 @@ export class TestManager extends WorkerManager {
 
   // .....................................................
 
+  clearGlobalActions() {
+    this.data.globalDispatchedActions = [];
+  }
+
+  // .....................................................
+
   dispatchRemote(action, destinationsIn = null) {
 
     // do nothing
+    this.data.globalDispatchedActions.push(action);
 
   }
 

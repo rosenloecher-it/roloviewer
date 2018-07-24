@@ -41,6 +41,9 @@ export class CrawlerReducer {
       tagBlacklist: [],
       tagShow: [],
       updateDirsAfterMinutes: constants.DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES,
+      weightingRating: constants.DEFCONF_CRAWLER_WEIGHTING_RATING,
+      weightingSeason: constants.DEFCONF_CRAWLER_WEIGHTING_SEASON,
+      weightingSelPow: constants.DEFCONF_CRAWLER_WEIGHTING_SELPOW,
     }
   }
 
@@ -79,6 +82,7 @@ export class CrawlerReducer {
       batchCount, databasePath,
       folderBlacklist, folderBlacklistSnippets, folderSource,
       maxFilesPerFolder, showRating, tagBlacklist, tagShow, updateDirsAfterMinutes,
+      weightingRating, weightingSeason, weightingSelPow,
     } = action.payload;
 
     const newState = {
@@ -86,6 +90,7 @@ export class CrawlerReducer {
       batchCount, databasePath,
       folderBlacklist, folderBlacklistSnippets, folderSource,
       maxFilesPerFolder, showRating, tagBlacklist, tagShow, updateDirsAfterMinutes,
+      weightingRating, weightingSeason, weightingSelPow,
     };
 
     //log.debug(`${this._logKey}${func} - out`, action);

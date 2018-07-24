@@ -61,4 +61,19 @@ describe('validate', () => {
 
   });
 
+  it('mergeIntItem', () => {
+
+    let output = null;
+
+    output = vali.mergeIntItem(1, '2');
+    expect(output).toBe(2);
+
+    output = vali.mergeIntItem(1, 'sadfsaf', '3');
+    expect(output).toBe(3);
+
+    output = vali.mergeIntItem(1, null, '3');
+    expect(output).toBe(3);
+
+  });
+
 });
