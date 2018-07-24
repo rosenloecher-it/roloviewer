@@ -108,10 +108,16 @@ export class SlideshowReducer {
         case constants.AR_SLIDESHOW_ABOUT_CLOSE:
           return { ...state, aboutShow: false };
 
-        case constants.ACTION_DETAILS_MOVE:
+        case constants.AR_SLIDESHOW_DETAILS_MOVE:
           return this.detailsMove(state, action);
         case constants.AR_SLIDESHOW_DETAILS_TOOGLE:
           return this.detailsToogle(state, action);
+
+        case constants.AR_ACTION_CRAWLERINFO_MOVE:
+          return this.crawlerInfoMove(state, action);
+        case constants.AR_SLIDESHOW_CRAWLERINFO_TOOGLE:
+          return { ...state, crawlerInfoShow: !state.crawlerInfoShow };
+
 
         case constants.AR_SLIDESHOW_CURSOR_HIDE:
           return {...state, cursorHide: true};
@@ -435,6 +441,15 @@ export class SlideshowReducer {
     return {
       ...state,
       detailsPosition: SlideshowReducer.getValidFreeCornerPosition(state.detailsPosition, true)
+    };
+  }
+
+  // .....................................................
+
+  crawlerInfoMove(state) {
+    return {
+      ...state,
+      crawlerInfoPosition: SlideshowReducer.getValidFreeCornerPosition(state.crawlerInfoPosition, true)
     };
   }
 

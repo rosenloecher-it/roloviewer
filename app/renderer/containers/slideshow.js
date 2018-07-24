@@ -7,6 +7,7 @@ import MessageDialog from './MessageDialog';
 import AboutOverlay from './aboutOverlay';
 import HelpOverlay from './helpOverlay';
 import DetailsOverlay from './detailsOverlay';
+import CrawlerInfoOverlay from './crawlerInfoOverlay';
 import * as actions from "../../common/store/slideshowActions";
 import storeManager from "../store/rendererManager";
 import * as constants from "../../common/constants";
@@ -203,6 +204,14 @@ class Slideshow extends React.Component {
       case 39: // arrow right
       case 40: // arrow down
         this.goNext(); break;
+
+      case 67: // c
+        if (event.ctrlKey)
+          storeManager.dispatchGlobal(actions.createActionCrawlerInfoMove());
+        else
+          storeManager.dispatchGlobal(actions.createActionCrawlerInfoToogle());
+        break;
+
       case 73: // i
         if (event.ctrlKey)
           storeManager.dispatchGlobal(actions.createActionDetailsMove());
@@ -211,7 +220,7 @@ class Slideshow extends React.Component {
         break;
 
       default:
-        //log.silly(`${_logKey}${func} - keyCode=${event.keyCode}`);
+        log.silly(`${_logKey}${func} - keyCode=${event.keyCode}`);
         break;
     }
   }
@@ -294,6 +303,7 @@ class Slideshow extends React.Component {
       <div className={cssConstants.CSS_MAINPANE}>
         <ImagePane />
         <DetailsOverlay />
+        <CrawlerInfoOverlay />
         {dialogOverlay}
         <MessageDialog />
 

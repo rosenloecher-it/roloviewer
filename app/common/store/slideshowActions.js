@@ -102,7 +102,10 @@ export const createActionHelpClose = () => ({ type: constants.AR_SLIDESHOW_HELP_
 export const createActionHelpToogle = () => ({ type: constants.AR_SLIDESHOW_HELP_TOOGLE });
 
 export const createActionDetailsToogle = () => ({ type: constants.AR_SLIDESHOW_DETAILS_TOOGLE });
-export const createActionDetailsMove = () => ({ type: constants.ACTION_DETAILS_MOVE });
+export const createActionDetailsMove = () => ({ type: constants.AR_SLIDESHOW_DETAILS_MOVE });
+
+export const createActionCrawlerInfoToogle = () => ({ type: constants.AR_SLIDESHOW_CRAWLERINFO_TOOGLE });
+export const createActionCrawlerInfoMove = () => ({ type: constants.AR_SLIDESHOW_CRAWLERINFO_MOVE });
 
 export const createActionCursorHide = () => ({ type: constants.AR_SLIDESHOW_CURSOR_HIDE });
 export const createActionCursorShow = () => ({ type: constants.AR_SLIDESHOW_CURSOR_SHOW });

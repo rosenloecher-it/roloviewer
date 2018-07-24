@@ -98,9 +98,11 @@ export class Dispatcher extends CrawlerBase {
       switch (task.type) { // eslint-disable-line default-case
 
         case constants.AR_WORKER_OPEN:
-          p = mediaLoader.open(task.payload);
+          if (task.payload.container)
+            p = mediaLoader.open(task.payload);
+          else
+            p = mediaCrawler.addAutoSelectFiles();
           break;
-          // TODO switch to mediaCrawler: mediaCrawler.addAutoSelectFiles(task.payload.trailNumber)
 
         case constants.AR_WORKER_DELIVER_META:
           p = metaReader.deliverMeta(task.payload.file);

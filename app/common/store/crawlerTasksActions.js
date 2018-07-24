@@ -27,12 +27,11 @@ export const createActionRemoveTaskTypes = (taskType) => ({
 // ----------------------------------------------------------------------------------
 // crawler tasks
 
-export const createActionOpen = (container = null, selectFile = null, trailNumber = 1) => ({
+export const createActionOpen = (container = null, selectFile = null) => ({
   type: constants.AR_WORKER_OPEN,
   payload: {
     container, // null == autoSelect
     selectFile,
-    trailNumber, // file action again, when auto-selction fails
   },
   taskId: getNextTaskId()
 });

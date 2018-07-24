@@ -866,8 +866,6 @@ describe(_logKey, () => {
 
   it('onTimerProgressDb', () => {
 
-    // onTimerProgressDb({file})
-
     let count = null;
 
     const testSystem = createTestSystemWithMediaDir();

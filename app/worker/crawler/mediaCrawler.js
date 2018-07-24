@@ -91,7 +91,7 @@ export class MediaCrawler extends CrawlerBase {
 
   // ........................................................
 
-  addAutoSelectFiles(trailNumber) {
+  addAutoSelectFiles() {
     // AR_WORKER_OPEN
     const func = '.addAutoSelectFiles';
 
@@ -129,12 +129,7 @@ export class MediaCrawler extends CrawlerBase {
 
       const fileItems = mediaComposer.randomSelectFilesFromDir(dirItem, crawlerState.batchCount, true);
       if (fileItems.length === 0) {
-
-        if (trailNumber < 2) {
-          const newAction = actionsCrawlerTasks.createActionOpen (null, null, trailNumber + 1);
-          storeManager.dispatchTask(newAction);
-        } else
-          throw new Error(`auto-selection failed (no items delivered - ${trailNumber}x)!`);
+        throw new Error(`auto-selection failed (no items delivered)!`);
 
       } else {
         const files = [];
@@ -412,7 +407,7 @@ export class MediaCrawler extends CrawlerBase {
     const crawlerState = storeManager.crawlerState;
     const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
 
-    this.setProgressScanFs();
+    this.setProgressScanFs(dir);
 
     const children = fs.readdirSync(dir);
     for (let k = 0; k < children.length; k++) {
@@ -680,6 +675,8 @@ export class MediaCrawler extends CrawlerBase {
 
     data.progressCurrentTask = 'Initialising';
     data.progressCurrentDir = null;
+
+    log.debug(`${_logKey} - ${data.progressCurrentTask}`);
   }
 
   setProgressRemoveDirs() {
@@ -689,15 +686,19 @@ export class MediaCrawler extends CrawlerBase {
 
     data.progressCurrentTask = 'Removing folders';
     data.progressCurrentDir = null;
+
+    log.debug(`${_logKey} - ${data.progressCurrentTask}`);
   }
 
-  setProgressScanFs() {
+  setProgressScanFs(dir) {
     const { data } = this
 
     this.setProgressCommon();
 
     data.progressCurrentTask = 'Scanning folders';
     data.progressCurrentDir = null;
+
+    log.debug(`${_logKey} - ${data.progressCurrentTask}(${dir})`);
   }
 
   setProgressUpdate(dir) {
@@ -707,6 +708,8 @@ export class MediaCrawler extends CrawlerBase {
 
     data.progressCurrentTask = 'Updating folders';
     data.progressCurrentDir = dir;
+
+    log.debug(`${_logKey} - ${data.progressCurrentTask}(${dir})`);
   }
 
   setProgressReady() {
@@ -716,6 +719,8 @@ export class MediaCrawler extends CrawlerBase {
 
     data.progressCurrentTask = 'Ready';
     data.progressCurrentDir = null;
+
+    log.debug(`${_logKey} - ${data.progressCurrentTask}`);
   }
 
   // ........................................................

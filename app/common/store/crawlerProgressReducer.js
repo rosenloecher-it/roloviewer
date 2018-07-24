@@ -18,13 +18,11 @@ export class CrawlerProgressReducer {
 
   static defaultState() {
     return {
-      currentTask: null,
-      currentDir: null,
-      remainingDirs: null,
-
       countDbDirs: null,
       countDbFiles: null,
-
+      currentDir: null,
+      currentTask: null,
+      remainingDirs: null,
     }
   }
 
@@ -39,7 +37,7 @@ export class CrawlerProgressReducer {
       //log.debug(`${this._logKey}${func}(${actionType}) - in`);
 
       switch (action.type) {
-        case constants.AR_CRAWLERPROGRESS_DB: {
+        case constants.AR_CRAWLERPROGRESS_RUNNING: {
           const {currentTask, currentDir, remainingDirs} = action.payload;
           return {
             ...state,
