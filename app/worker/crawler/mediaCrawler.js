@@ -6,6 +6,7 @@ import log from 'electron-log';
 import set from 'collections/set';
 import * as constants from "../../common/constants";
 import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
+import * as crawlerProgressActions from "../../common/store/crawlerProgressActions";
 import {CrawlerBase} from "./crawlerBase";
 import * as actionsSlideshow from "../../common/store/slideshowActions";
 import {MediaComposer} from "./mediaComposer";
@@ -27,7 +28,42 @@ export class MediaCrawler extends CrawlerBase {
     this.data = {
       cacheScanFsDirs: null,
       lastAutoSelectedDir: null,
+
+      progressDbSend: false,
+      progressRunningSend: false,
+
+      progressCurrentTask: null,
+      progressCurrentDir: null,
+      progressRemainingDirs: null,
+
+      timerProgressRunning: null,
+      timerProgressDb: null,
     }
+
+    this.onTimerProgressRunning = this.onTimerProgressRunning.bind(this);
+    this.onTimerProgressDb = this.onTimerProgressDb.bind(this);
+
+
+  }
+
+  // ........................................................
+
+  init() {
+
+    const {data} = this;
+
+    const p = super.init().then(() => {
+
+      data.timerProgressRunning = setInterval(this.onTimerProgressRunning, 1000);
+      data.timerProgressDb = setInterval(this.onTimerProgressDb, 5000);
+
+      return Promise.resolve();
+
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
 
   }
 
@@ -226,6 +262,8 @@ export class MediaCrawler extends CrawlerBase {
     const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
 
+    this.setProgressInit();
+
     const p = this.loadState().then((argsLoadState) => {
 
       let action = null;
@@ -276,6 +314,8 @@ export class MediaCrawler extends CrawlerBase {
     const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
 
+    this.setProgressInit();
+
     let p = null;
 
     if (rescanAll)
@@ -321,6 +361,8 @@ export class MediaCrawler extends CrawlerBase {
     const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
     const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
+
+    this.setProgressRemoveDirs();
 
     const maxCheckCount = 20;
     let dirRemove = null;
@@ -369,6 +411,8 @@ export class MediaCrawler extends CrawlerBase {
     const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
     const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
+
+    this.setProgressScanFs();
 
     const children = fs.readdirSync(dir);
     for (let k = 0; k < children.length; k++) {
@@ -435,6 +479,8 @@ export class MediaCrawler extends CrawlerBase {
     const func = '.updateFiles';
 
     const {folder, fileNames} = payload;
+
+    this.setProgressUpdate(folder);
 
     const instance = this;
     const {dbWrapper} = instance.objects;
@@ -537,10 +583,12 @@ export class MediaCrawler extends CrawlerBase {
       doFileItemsSave = true;
     }
 
+    // TODO save also when: dirItem.lastUpdate < xxxx (weigth season)
+
     if (doFileItemsSave) {
       dirItem.fileItems = fileItemsNew;
 
-      this.objects.mediaComposer.evaluateDir(dirItem); // fileItems will be sorted
+      this.objects.mediaComposer.evaluate(dirItem); // fileItems will be sorted
 
       dirItem.lastUpdate = new Date().getTime();
 
@@ -570,6 +618,8 @@ export class MediaCrawler extends CrawlerBase {
 
     if (!folder)
       return Promise.resolve();
+
+    this.setProgressUpdate(folder);
 
     const instance = this;
     const {dbWrapper} = instance.objects;
@@ -607,6 +657,118 @@ export class MediaCrawler extends CrawlerBase {
 
     return p;
   }
+
+  // .......................................................
+
+  setProgressCommon() {
+    const { data } = this
+    const crawlerTasksState = this.objects.storeManager.crawlerTasksState;
+
+    const prio = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
+
+    data.progressRemainingDirs = crawlerTasksState.tasks[prio].length;
+
+    data.progressDbSend = true;
+    data.progressRunningSend = true;
+
+  }
+
+  setProgressInit() {
+    const { data } = this
+
+    this.setProgressCommon();
+
+    data.progressCurrentTask = 'Initialising';
+    data.progressCurrentDir = null;
+  }
+
+  setProgressRemoveDirs() {
+    const { data } = this
+
+    this.setProgressCommon();
+
+    data.progressCurrentTask = 'Removing folders';
+    data.progressCurrentDir = null;
+  }
+
+  setProgressScanFs() {
+    const { data } = this
+
+    this.setProgressCommon();
+
+    data.progressCurrentTask = 'Scanning folders';
+    data.progressCurrentDir = null;
+  }
+
+  setProgressUpdate(dir) {
+    const { data } = this;
+
+    this.setProgressCommon();
+
+    data.progressCurrentTask = 'Updating folders';
+    data.progressCurrentDir = dir;
+  }
+
+  setProgressReady() {
+    const { data } = this;
+
+    this.setProgressCommon();
+
+    data.progressCurrentTask = 'Ready';
+    data.progressCurrentDir = null;
+  }
+
+  // ........................................................
+
+  onTimerProgressRunning() {
+
+    if (this.progressRunningSend) {
+      const { progressRemainingDirs, progressCurrentTask, progressCurrentDir } = this.data;
+
+      const action = crawlerProgressActions.createActionRunning(progressCurrentTask, progressCurrentDir, progressRemainingDirs);
+      this.objects.storeManager.dispatchTask(action);
+
+      this.progressRunningSend = false;
+    }
+  }
+
+  // ........................................................
+
+  onTimerProgressDb() {
+    const func = '.onTimerProgressDb';
+
+    const instance = this;
+    const {data} = instance;
+    const {dbWrapper} = instance.objects;
+    const {storeManager} = instance.objects;
+
+    if (!data.progressDbSend)
+      return Promise.resolve();
+    data.progressDbSend = false;
+
+    let countDbDirs = null;
+
+    const p = dbWrapper.countDirs().then((count) => {
+
+      countDbDirs = count;
+      return dbWrapper.countFiles();
+
+    }).then((countDbFiles) => {
+
+      const action = crawlerProgressActions.createActionDb(countDbDirs, countDbFiles);
+      storeManager.dispatchTask(action);
+
+      return Promise.resolve();
+
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+
+  }
+
+  // ........................................................
 
 }
 

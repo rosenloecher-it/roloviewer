@@ -182,6 +182,9 @@ export const AR_WORKER_UPDATE_DIR = 'AR_WORKER_UPDATE_DIR';
   // adding: check if task already exists
 
 
+export const AR_CRAWLERPROGRESS_RUNNING = 'AR_CRAWLERPROGRESS_RUNNING';
+export const AR_CRAWLERPROGRESS_DB = 'AR_CRAWLERPROGRESS_DB';
+
 // --------------------------------------------------------------------------
 // actions - mainwindow
 

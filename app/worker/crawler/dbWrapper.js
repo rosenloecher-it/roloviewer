@@ -235,6 +235,36 @@ export class DbWrapper extends CrawlerBase {
 
   // ........................................................
 
+  countFiles() {
+    const func = '.countFiles';
+
+    const instance = this;
+
+    const p = new Promise((resolve, reject) => {
+
+      instance.dbDir.find({}, { dir: 1, fileItems: 1 }, (err, dirItems) => {
+
+        if (err)
+          reject(new Error(err));
+
+        let count = 0;
+        for (let i = 0; i < dirItems.length; i++) {
+          const dirItem = dirItems[i];
+          count += dirItem.fileItems.length;
+        }
+
+        resolve(count);
+      });
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
   listDirsAll() {
     const func = '.listDirsAll';
 

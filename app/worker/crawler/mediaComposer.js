@@ -151,6 +151,8 @@ export class MediaComposer extends CrawlerBase {
     const weightRating = -1 * rating * weightingRating;
     const weightRepeated = repeated * weightingRepeated;
 
+    // TODO weightSeason
+
     fileItem.weight = weightTime + weightRating + weightRepeated;
   }
 
@@ -279,8 +281,11 @@ export class MediaComposer extends CrawlerBase {
     const candidates = [];
 
     // select from behind - reduce costs for removing elements
-    for (let i = fileItems.length - 1 ; i >= 0; i--)
-      candidates.push(fileItems[i]);
+    for (let i = fileItems.length - 1 ; i >= 0; i--) {
+      const fileItem = fileItems[i];
+      if (fileItem.weight < constants.CRAWLER_MAX_WEIGHT)
+        candidates.push(fileItem);
+    }
 
     const maxSelections = Math.min(selectionCount, candidates.length);
     const selections = [];

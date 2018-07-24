@@ -19,7 +19,7 @@ let _testBaseDirMedia = null;
 let _testDirDb = null;
 let _testDirMedia = null;
 
-const _useNewTestDirEveryTime = false;
+const _useNewTestDirEveryTime = true;
 
 // ----------------------------------------------------------------------------------
 
@@ -862,6 +862,78 @@ describe(_logKey, () => {
 
     return p;
   });
+
+
+  it('onTimerProgressDb', () => {
+
+    // onTimerProgressDb({file})
+
+    let count = null;
+
+    const testSystem = createTestSystemWithMediaDir();
+
+    const fileName1 = `${stringUtils.randomString(8)}.${DummyTestSystem.getRandomImageExt()}`;
+    const fileName2 = `${stringUtils.randomString(8)}.${DummyTestSystem.getRandomImageExt()}`;
+    const fileName3 = `${stringUtils.randomString(8)}.${DummyTestSystem.getRandomImageExt()}`;
+
+    testSystem.saveTestFile(_testDirMedia, fileName1, 0);
+    testSystem.saveTestFile(_testDirMedia, fileName2, 0);
+    testSystem.saveTestFile(_testDirMedia, fileName3, 0);
+
+    const p = testSystem.init().then(() => {
+
+      const action = actionsCrawlerTasks.createActionUpdateDir(_testDirMedia);
+      return testSystem.dispatcher.dispatchTask(action);
+      //return mediaCrawler.updateDir(_testDirMedia);
+
+    }).then(() => {
+
+      const tasks = testSystem.storeManager.tasks;
+      const task = tasks[0];
+      expect(task.type).toBe(constants.AR_WORKER_UPDATE_FILES);
+
+      testSystem.storeManager.clearTasks();
+      return testSystem.dispatcher.dispatchTask(task); // AR_WORKER_UPDATE_FILES
+
+    }).then(() => {
+
+      count = testSystem.storeManager.countTasks();
+      expect(count).toBe(0);
+
+      return testSystem.dbWrapper.loadDir(_testDirMedia);
+
+    }).then((dirItem) => {
+
+      testSystem.storeManager.clearGlobalActions();
+
+      testSystem.mediaCrawler.data.progressDbSend = true;
+      return testSystem.mediaCrawler.onTimerProgressDb();
+
+    }).then(() => {
+
+      const globalActions = testSystem.storeManager.data.globalDispatchedActions;
+      //console.log('globalActions', globalActions);
+
+      expect(globalActions.length).toBe(1);
+      const action = globalActions[0];
+      expect(action.type).toBe(constants.AR_CRAWLERPROGRESS_DB);
+
+      expect(action.payload.countDbDirs).toBe(1);
+      expect(action.payload.countDbFiles).toBe(3);
+
+      return Promise.resolve();
+
+    }).then((dirItem) => {
+
+      return testSystem.shutdown();
+    });
+
+    return p;
+  });
+
+  // ........................................................
+
+
 
 // ........................................................
 });
