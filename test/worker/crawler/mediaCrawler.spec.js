@@ -126,8 +126,6 @@ describe(_logKey, () => {
       const count = dirItems.length;
       expect(count).toBe(0);
 
-    }).then(() => {
-
       return testSystem.shutdown();
     });
 

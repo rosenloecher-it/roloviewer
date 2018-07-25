@@ -112,17 +112,14 @@ export class MetaReaderExiftool extends CrawlerBase {
     const func = ".readMeta";
     const instance = this;
 
-    const p = new Promise((resolve, reject) => {
+    if (!instance.data.exiftool)
+      return Promise.reject(new Error('no exiftool'));
 
-      if (!instance.data.exiftool)
-        reject(new Error('no exiftool'));
+    const p = instance.data.exiftool.read(file).then((tags) => {
 
-      return instance.data.exiftool.read(file).then((tags) => {
+      const meta = MetaReaderExiftool.prepareTagsFromExiftool(file, tags, prepareOnlyCrawlerTags);
 
-        const meta = MetaReaderExiftool.prepareTagsFromExiftool(file, tags, prepareOnlyCrawlerTags);
-
-        resolve(meta);
-      });
+      return Promise.resolve(meta);
 
     }).catch((err) => {
       log.error(`${_logKey}${func}.promise.catch -`, err);
@@ -266,7 +263,7 @@ export class MetaReaderExiftool extends CrawlerBase {
       meta.gpsLocation = MetaReader.pushDetails(meta.gpsLocation, meta.gpsCountry);
       meta.gpsLocation = shortenString(meta.gpsLocation, ml);
 
-      meta.date = MetaReader.validateExifDate(tags.DateTimeOriginal) || validateExifDate(tags.DateCreated)
+      meta.date = MetaReader.validateExifDate(tags.DateTimeOriginal) || MetaReader.validateExifDate(tags.DateCreated)
         || MetaReader.validateExifDate(tags.CreateDate) || tags.DateTimeCreated;
     }
 

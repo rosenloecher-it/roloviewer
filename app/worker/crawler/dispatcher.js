@@ -104,7 +104,7 @@ export class Dispatcher extends CrawlerBase {
       const nextTask = WorkerReducer.getNextTask(workerState);
       //log.debug(`${_logKey}${func} - in`, nextTask);
 
-      this.setProgress(nextTask);
+      this.setStatus(nextTask);
 
       if (nextTask === null)
         return; // ok
@@ -226,8 +226,8 @@ export class Dispatcher extends CrawlerBase {
 
   // .......................................................
 
-  setProgress(task) {
-    const func = '.setProgress';
+  setStatus(task) {
+    const func = '.setStatus';
 
     try {
       const taskTypeNone = 'none';

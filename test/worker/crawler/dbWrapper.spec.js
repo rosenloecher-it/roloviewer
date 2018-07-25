@@ -97,7 +97,6 @@ describe('dbWrapper', () => {
     }).then((count) => {
       expect(count).toBe(0);
 
-    }).then(() => {
       return dbWrapper.shutdown();
     });
 
@@ -202,7 +201,6 @@ describe('dbWrapper', () => {
     }).then((count) => {
       expect(count).toBe(0);
 
-    }).then(() => {
       return dbWrapper.shutdown();
     });
 
@@ -300,7 +298,6 @@ describe('dbWrapper', () => {
 
       expect(doc).toBe(null); // test loading non existing
 
-    }).then(() => {
       return dbWrapper.shutdown();
     });
 
