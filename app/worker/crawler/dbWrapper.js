@@ -56,23 +56,6 @@ export class DbWrapper extends CrawlerBase {
 
   // ........................................................
 
-  shutdown() {
-    const func = ".shutdown";
-
-    const instance = this;
-
-    const p = new Promise((resolve, reject) => {
-      resolve();
-
-    }).catch((err) => {
-      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
-    });
-
-    return p;
-  }
-
-  // ........................................................
-
   clearDb () {
     const func = ".clearDbDir";
 

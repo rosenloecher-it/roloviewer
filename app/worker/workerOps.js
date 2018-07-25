@@ -26,13 +26,16 @@ export function init() {
         if (!_dispatcher)
           throw new Error("no dispatcher!");
         storeManager.dispatcher = _dispatcher;
+
+        ipc.send(constants.IPC_MAIN, constants.AI_CHILD_IS_READY, null);
+
+        return Promise.resolve();
+
       }).catch((err) => {
         log.error(`${_logKey}${func} - error loading objects - `, err);
         storeManager.showMessage(constants.MSG_TYPE_ERROR, `${_logKey}${func} - initialising worker failed! - ${err}`);
       });
     }
-
-    ipc.send(constants.IPC_MAIN, constants.AI_CHILD_IS_READY, null);
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);

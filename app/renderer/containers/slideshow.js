@@ -327,11 +327,8 @@ class Slideshow extends React.Component {
 
     new Promise((resolve) => {
 
-
       if (currentItemFile && data.lastImageFile !== currentItemFile || data.lastContainer !== props.container)
         Slideshow.persistLastItem(storeManager, props.containerType, props.container, currentItemFile);
-        //ops.persistLastItem(currentItemFile, props.container);
-
 
       data.lastImageFile = currentItemFile;
       data.lastContainer = props.container;

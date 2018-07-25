@@ -130,6 +130,8 @@ export class MetaReader extends CrawlerBase {
         instance.objects.storeManager.dispatchRemote(action, null);
       }
 
+      return Promise.resolve();
+
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });

@@ -19,17 +19,20 @@ export class Dispatcher extends CrawlerBase {
     this.data = {
       runningTask: null,
 
-      lastStatusCrawlerTask: null,
+      lastStatusTaskType: null,
+      lastSkippedTaskId: null,
 
       statusExistDataDb: false,
       statusExistDataCrawler: false,
       statusCrawlerTask: null,
       statusCrawlerDir: null,
 
+      timerProcessForgotten: null,
       timerStatusCrawler: null,
       timerStatusDb: null,
     };
 
+    this.onTimerProcessForgotten = this.onTimerProcessForgotten.bind(this);
     this.onTimerStatusDb = this.onTimerStatusDb.bind(this);
     this.onTimerStatusCrawler = this.onTimerStatusCrawler.bind(this);
     this.processTask = this.processTask.bind(this);
@@ -58,6 +61,7 @@ export class Dispatcher extends CrawlerBase {
   initTimer() {
     const {data} = this;
 
+    data.timerStatusCrawler = setInterval(this.onTimerProcessForgotten, 300);
     data.timerStatusCrawler = setInterval(this.onTimerStatusCrawler, 1000);
     data.timerStatusDb = setInterval(this.onTimerStatusDb, 5000);
   }
@@ -67,6 +71,8 @@ export class Dispatcher extends CrawlerBase {
   shutdownTimer() {
     const {data} = this;
 
+    if (data.onTimerProcessForgotten)
+      clearInterval(data.onTimerProcessForgotten);
     if (data.timerStatusCrawler)
       clearInterval(data.timerStatusCrawler);
     if (data.timerStatusDb)
@@ -104,7 +110,11 @@ export class Dispatcher extends CrawlerBase {
         return; // ok
 
       if (data.runningTask !== null) {
-        log.debug(`${_logKey}${func} - active runningTask => skip`);
+        const {taskId} = data.runningTask;
+        if (taskId === data.lastSkippedTaskId) {
+          log.debug(`${_logKey}${func} - active runningTask => skip (taskId=${taskId}, type=${data.runningTask.type})`);
+        }
+        data.lastSkippedTaskId = taskId;
         return; // async processing aktive
       }
 
@@ -202,11 +212,10 @@ export class Dispatcher extends CrawlerBase {
           break;
       }
 
-
       if (!p)
         reject(new Error(`unknown task type ${task.type}!`));
-
-      resolve(p);
+      else
+        resolve(p);
 
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
@@ -225,7 +234,7 @@ export class Dispatcher extends CrawlerBase {
       const taskType = task ? task.type : taskTypeNone;
       const { data } = this;
 
-      if (taskType === taskTypeNone && taskType === data.lastStatusCrawlerTask)
+      if (taskType === taskTypeNone && taskType === data.lastStatusTaskType)
         return; // do nothing
 
       const skipActionTypes = [
@@ -285,7 +294,7 @@ export class Dispatcher extends CrawlerBase {
       else
         data.statusCrawlerDir = null;
 
-      data.lastStatusCrawlerTask = data.statusCrawlerTask;
+      data.lastStatusTaskType = taskType;
 
       if (logInfo)
         log.debug(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}:`, logInfo);
@@ -295,6 +304,12 @@ export class Dispatcher extends CrawlerBase {
     } catch(err) {
       log.error(`${_logKey}${func} -`, err);
     }
+  }
+
+  // ........................................................
+
+  onTimerProcessForgotten() {
+    this.processTask();
   }
 
   // ........................................................

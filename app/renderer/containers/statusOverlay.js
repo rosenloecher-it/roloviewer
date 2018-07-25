@@ -46,8 +46,8 @@ class StatusOverlay extends React.Component {
     this.pushTableLine(tableLines, 'Crawler status', props.currentTask || '?');
 
     const shortenedDir = shortenPathElements(props.currentDir, props.pathShortenElements);
-    this.pushTableLine(tableLines, 'Current folder', shortenedDir);
-    this.pushTableLine(tableLines, 'Remaining folder', props.remainingDirs);
+    //this.pushTableLine(tableLines, 'Current folder', shortenedDir);
+    this.pushTableLine(tableLines, 'Remaining folders', props.remainingDirs);
 
     this.pushTableLine(tableLines, 'Crawled folders', props.countDbDirs);
     this.pushTableLine(tableLines, 'Crawled files', props.countDbFiles);
