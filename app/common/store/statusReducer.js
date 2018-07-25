@@ -37,7 +37,7 @@ export class StatusReducer {
       //log.debug(`${this._logKey}${func}(${actionType}) - in`);
 
       switch (action.type) {
-        case constants.AR_CRAWLERPROGRESS_RUNNING: {
+        case constants.AR_STATUS_RUNNING: {
           const {currentTask, currentDir, remainingDirs} = action.payload;
           return {
             ...state,
@@ -45,7 +45,7 @@ export class StatusReducer {
           };
         }
 
-        case constants.AR_CRAWLERPROGRESS_DB: {
+        case constants.AR_STATUS_DB: {
           const {countDbDirs, countDbFiles} = action.payload;
           return {
             ...state,

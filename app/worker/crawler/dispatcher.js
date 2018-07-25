@@ -3,7 +3,7 @@ import * as constants from "../../common/constants";
 import * as workerActions from "../../common/store/workerActions";
 import {WorkerReducer} from "../../common/store/workerReducer";
 import {CrawlerBase} from "./crawlerBase";
-import * as crawlerProgressActions from "../../common/store/statusActions";
+import * as statusActions from "../../common/store/statusActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -19,21 +19,19 @@ export class Dispatcher extends CrawlerBase {
     this.data = {
       runningTask: null,
 
-      progressExistDataDb: false,
-      progressExistDataRunning: false,
+      lastStatusCrawlerTask: null,
 
-      lastCurrentTask: null,
+      statusExistDataDb: false,
+      statusExistDataCrawler: false,
+      statusCrawlerTask: null,
+      statusCrawlerDir: null,
 
-      progressCurrentTask: null,
-      progressCurrentDir: null,
-      progressRemainingDirs: null,
-
-      timerProgressRunning: null,
-      timerProgressDb: null,
+      timerStatusCrawler: null,
+      timerStatusDb: null,
     };
 
-    this.onTimerProgressDb = this.onTimerProgressDb.bind(this);
-    this.onTimerProgressRunning = this.onTimerProgressRunning.bind(this);
+    this.onTimerStatusDb = this.onTimerStatusDb.bind(this);
+    this.onTimerStatusCrawler = this.onTimerStatusCrawler.bind(this);
     this.processTask = this.processTask.bind(this);
   }
 
@@ -41,6 +39,8 @@ export class Dispatcher extends CrawlerBase {
   // ........................................................
 
   init() {
+    const func = 'init';
+
     const p = super.init().then(() => {
 
       this.initTimer();
@@ -51,7 +51,6 @@ export class Dispatcher extends CrawlerBase {
     });
 
     return p;
-
   }
 
   // ........................................................
@@ -59,8 +58,8 @@ export class Dispatcher extends CrawlerBase {
   initTimer() {
     const {data} = this;
 
-    data.timerProgressRunning = setInterval(this.onTimerProgressRunning, 1000);
-    data.timerProgressDb = setInterval(this.onTimerProgressDb, 5000);
+    data.timerStatusCrawler = setInterval(this.onTimerStatusCrawler, 1000);
+    data.timerStatusDb = setInterval(this.onTimerStatusDb, 5000);
   }
 
   // ........................................................
@@ -68,10 +67,10 @@ export class Dispatcher extends CrawlerBase {
   shutdownTimer() {
     const {data} = this;
 
-    if (data.timerProgressRunning)
-      clearInterval(data.timerProgressRunning);
-    if (data.timerProgressDb)
-      clearInterval(data.timerProgressDb);
+    if (data.timerStatusCrawler)
+      clearInterval(data.timerStatusCrawler);
+    if (data.timerStatusDb)
+      clearInterval(data.timerStatusDb);
   }
 
   // ........................................................
@@ -225,9 +224,8 @@ export class Dispatcher extends CrawlerBase {
       const taskTypeNone = 'none';
       const taskType = task ? task.type : taskTypeNone;
       const { data } = this;
-      const workerState = this.objects.storeManager.workerState;
 
-      if (taskType === taskTypeNone && taskType === data.lastCurrentTask)
+      if (taskType === taskTypeNone && taskType === data.lastStatusCrawlerTask)
         return; // do nothing
 
       const skipActionTypes = [
@@ -238,11 +236,8 @@ export class Dispatcher extends CrawlerBase {
       if (skipActionTypes.includes(taskType))
         return; // do nothing
 
-      data.progressExistDataDb = true;
-      data.progressExistDataRunning = true;
-
-      const prio = WorkerReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
-      data.progressRemainingDirs = workerState.tasks[prio].length;
+      data.statusExistDataDb = true;
+      data.statusExistDataCrawler = true;
 
       let showFolder = null;
       let logInfo = null;
@@ -250,49 +245,49 @@ export class Dispatcher extends CrawlerBase {
       switch (taskType) { // eslint-disable-line default-case
 
         case taskTypeNone:
-          data.progressCurrentTask = 'Up-to-date';
+          data.statusCrawlerTask = 'Up-to-date';
           break;
 
         case constants.AR_WORKER_RELOAD_DIRS:
         case constants.AR_WORKER_INIT_CRAWLE:
-          data.progressCurrentTask = 'Initialising';
+          data.statusCrawlerTask = 'Initialising';
           break;
 
         case constants.AR_WORKER_REMOVE_DIRS:
-          data.progressCurrentTask = 'Removing folders';
+          data.statusCrawlerTask = 'Removing folders';
           logInfo = task.payload;
           break;
 
         case constants.AR_WORKER_SCAN_FSDIR:
-          data.progressCurrentTask = 'Scanning folders';
+          data.statusCrawlerTask = 'Scanning folders';
           logInfo = task.payload;
           break;
 
         case constants.AR_WORKER_UPDATE_FILES:
-          data.progressCurrentTask = 'Updating folders';
+          data.statusCrawlerTask = 'Updating folders';
           showFolder = task.payload.folder;
           logInfo = showFolder;
           break;
 
         case constants.AR_WORKER_UPDATE_DIR:
-          data.progressCurrentTask = 'Updating folders';
+          data.statusCrawlerTask = 'Updating folders';
           showFolder = task.payload;
           logInfo = showFolder;
           break;
 
         default:
-          data.progressCurrentTask = 'Unknown task!!!';
+          data.statusCrawlerTask = 'Unknown task!!!';
           break;
       }
 
       if (showFolder)
-        data.progressCurrentDir = showFolder;
+        data.statusCrawlerDir = showFolder;
       else
-        data.progressCurrentDir = null;
+        data.statusCrawlerDir = null;
 
-      data.lastCurrentTask = data.progressCurrentTask;
+      data.lastStatusCrawlerTask = data.statusCrawlerTask;
 
-      log.debug(`${_logKey}${func}(${taskType}) - ${data.progressCurrentTask}${logInfo ? `: ${logInfo}` : ''}`);
+      log.debug(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}${logInfo ? `: ${logInfo}` : ''}`);
     } catch(err) {
       log.error(`${_logKey}${func} -`, err);
     }
@@ -300,33 +295,38 @@ export class Dispatcher extends CrawlerBase {
 
   // ........................................................
 
-  onTimerProgressRunning() {
+  onTimerStatusCrawler() {
+    const func = '.onTimerStatusCrawler';
 
     const { data } = this;
 
-    if (data.progressExistDataRunning) {
-      const { progressRemainingDirs, progressCurrentTask, progressCurrentDir } = this.data;
+    if (data.statusExistDataCrawler) {
+      const { statusCrawlerTask, statusCrawlerDir } = this.data;
+      const workerState = this.objects.storeManager.workerState;
 
-      const action = crawlerProgressActions.createActionRunning(progressCurrentTask, progressCurrentDir, progressRemainingDirs);
+      const prio = WorkerReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
+      const statusRemainingDirs = workerState.tasks[prio].length;
+
+      const action = statusActions.createActionRunning(statusCrawlerTask, statusCrawlerDir, statusRemainingDirs);
       this.objects.storeManager.dispatchTask(action);
 
-      data.progressExistDataRunning = false;
+      data.statusExistDataCrawler = false;
     }
   }
 
   // ........................................................
 
-  onTimerProgressDb() {
-    const func = '.onTimerProgressDb';
+  onTimerStatusDb() {
+    const func = '.onTimerStatusDb';
 
     const instance = this;
     const {data} = instance;
     const {dbWrapper} = instance.objects;
     const {storeManager} = instance.objects;
 
-    if (!data.progressExistDataDb)
+    if (!data.statusExistDataDb)
       return Promise.resolve();
-    data.progressExistDataDb = false;
+    data.statusExistDataDb = false;
 
     let countDbDirs = null;
 
@@ -337,7 +337,7 @@ export class Dispatcher extends CrawlerBase {
 
     }).then((countDbFiles) => {
 
-      const action = crawlerProgressActions.createActionDb(countDbDirs, countDbFiles);
+      const action = statusActions.createActionDb(countDbDirs, countDbFiles);
       storeManager.dispatchTask(action);
 
       return Promise.resolve();

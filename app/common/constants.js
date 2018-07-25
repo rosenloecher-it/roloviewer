@@ -182,9 +182,6 @@ export const AR_WORKER_UPDATE_DIR = 'AR_WORKER_UPDATE_DIR';
   // adding: check if task already exists
 
 
-export const AR_CRAWLERPROGRESS_RUNNING = 'AR_CRAWLERPROGRESS_RUNNING';
-export const AR_CRAWLERPROGRESS_DB = 'AR_CRAWLERPROGRESS_DB';
-
 // --------------------------------------------------------------------------
 // actions - mainwindow
 
@@ -201,6 +198,13 @@ export const AR_MESSAGE_ADD = 'AR_MESSAGE_ADD'; // error, warning, info
 export const AR_MESSAGE_REMOVE_FIRST = 'AR_MESSAGE_REMOVE_FIRST';
 export const AR_MESSAGE_REMOVE_ALL = 'AR_MESSAGE_REMOVE_ALL';
 export const AR_MESSAGE_CLOSE_DIALOG = 'AR_MESSAGE_CLOSE_DIALOG';
+
+// --------------------------------------------------------------------------
+// actions - status
+
+export const AR_STATUS_RUNNING = 'AR_STATUS_RUNNING';
+export const AR_STATUS_DB = 'AR_STATUS_DB';
+
 
 // --------------------------------------------------------------------------
 // actions - slideshow

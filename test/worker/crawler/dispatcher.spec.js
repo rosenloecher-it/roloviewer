@@ -67,7 +67,7 @@ describe(_logKey, () => {
 
   // .......................................................
 
-  it('onTimerProgressDb', () => {
+  it('onTimerStatusDb', () => {
 
     let count = null;
 
@@ -107,8 +107,8 @@ describe(_logKey, () => {
 
       testSystem.storeManager.clearGlobalActions();
 
-      testSystem.dispatcher.data.progressExistDataDb = true;
-      return testSystem.dispatcher.onTimerProgressDb();
+      testSystem.dispatcher.data.statusExistDataDb = true;
+      return testSystem.dispatcher.onTimerStatusDb();
 
     }).then(() => {
 
@@ -117,7 +117,7 @@ describe(_logKey, () => {
 
       expect(globalActions.length).toBe(1);
       const action = globalActions[0];
-      expect(action.type).toBe(constants.AR_CRAWLERPROGRESS_DB);
+      expect(action.type).toBe(constants.AR_STATUS_DB);
 
       expect(action.payload.countDbDirs).toBe(1);
       expect(action.payload.countDbFiles).toBe(3);

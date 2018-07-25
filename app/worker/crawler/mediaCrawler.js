@@ -26,38 +26,7 @@ export class MediaCrawler extends CrawlerBase {
     this.data = {
       cacheScanFsDirs: null,
       lastAutoSelectedDir: null,
-
-      progressDbSend: false,
-      progressRunningSend: false,
-
-      progressCurrentTask: null,
-      progressCurrentDir: null,
-      progressRemainingDirs: null,
-
-      timerProgressRunning: null,
-      timerProgressDb: null,
     };
-
-  }
-
-  // ........................................................
-
-  init() {
-
-    const {data} = this;
-
-    const p = super.init().then(() => {
-
-      data.timerProgressRunning = setInterval(this.onTimerProgressRunning, 1000);
-      data.timerProgressDb = setInterval(this.onTimerProgressDb, 5000);
-
-      return Promise.resolve();
-
-    }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
-    });
-
-    return p;
 
   }
 
@@ -80,7 +49,6 @@ export class MediaCrawler extends CrawlerBase {
     });
 
     return p;
-
   }
 
   // ........................................................
@@ -171,11 +139,19 @@ export class MediaCrawler extends CrawlerBase {
   }
 
   static equalsStateNoRescan(status1In, status2In) {
+    const func = 'equalsStateNoRescan';
 
     const status1 = MediaCrawler.prepareStateNoRescan(status1In);
     const status2 = MediaCrawler.prepareStateNoRescan(status2In);
 
-    return deepEquals(status1, status2);
+    const result = deepEquals(status1, status2);
+
+    if (!result) {
+      log.debug(`${_logKey}${func} - config changed - status1=`, status1);
+      log.debug(`${_logKey}${func} - config changed - status2=`, status2);
+    }
+
+    return result;
   }
 
   // ........................................................
