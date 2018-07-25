@@ -3,6 +3,7 @@ import * as constants from "../../common/constants";
 import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
 import {CrawlerTasksReducer} from "../../common/store/crawlerTasksReducer";
 import {CrawlerBase} from "./crawlerBase";
+import * as crawlerProgressActions from "../../common/store/crawlerProgressActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -15,9 +16,72 @@ export class Dispatcher extends CrawlerBase {
   constructor() {
     super();
 
-    this.runningTask = null;
+    this.data = {
+      runningTask: null,
 
+      progressDbSend: false,
+      progressRunningSend: false,
+
+      lastCurrentTask: null,
+
+      progressCurrentTask: null,
+      progressCurrentDir: null,
+      progressRemainingDirs: null,
+
+      timerProgressRunning: null,
+      timerProgressDb: null,
+    };
+
+    this.onTimerProgressDb = this.onTimerProgressDb.bind(this);
+    this.onTimerProgressRunning = this.onTimerProgressRunning.bind(this);
     this.processTask = this.processTask.bind(this);
+  }
+
+
+  // ........................................................
+
+  init() {
+    const p = super.init().then(() => {
+
+      this.initTimer();
+      return Promise.resolve();
+
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+
+  }
+
+  // ........................................................
+
+  initTimer() {
+    const {data} = this;
+
+    data.timerProgressRunning = setInterval(this.onTimerProgressRunning, 1000);
+    data.timerProgressDb = setInterval(this.onTimerProgressDb, 5000);
+  }
+
+  // ........................................................
+
+  shutdownTimer() {
+    const {data} = this;
+
+    if (data.timerProgressRunning)
+      clearInterval(data.timerProgressRunning);
+    if (data.timerProgressDb)
+      clearInterval(data.timerProgressDb);
+  }
+
+  // ........................................................
+
+  shutdown() {
+    const func = '.shutdown';
+
+    this.shutdownTimer();
+
+    return super.shutdown();
   }
 
   // ........................................................
@@ -27,6 +91,7 @@ export class Dispatcher extends CrawlerBase {
 
     const instance = this;
     const {storeManager} = instance.objects;
+    const {data} = instance;
     let taskType = null;
 
     try {
@@ -34,22 +99,23 @@ export class Dispatcher extends CrawlerBase {
       const nextTask = CrawlerTasksReducer.getNextTask(crawlerTasksState);
       //log.debug(`${_logKey}${func} - in`, nextTask);
 
+      this.setProgress(nextTask);
+
       if (nextTask === null)
         return; // ok
 
-
-      if (this.runningTask !== null) {
+      if (data.runningTask !== null) {
         log.debug(`${_logKey}${func} - active runningTask => skip`);
         return; // async processing aktive
       }
 
-      this.runningTask = nextTask;
-      taskType = instance.runningTask.type;
+      data.runningTask = nextTask;
+      taskType = data.runningTask.type;
 
       //let countTasks2 = CrawlerReducer.countTasks(crawlerTasksState);
       //log.debug(`${_logKey}${func} - countTasks2=${countTasks2}`);
 
-      const p = instance.dispatchTask(instance.runningTask).catch((err) => {
+      const p = instance.dispatchTask(data.runningTask).catch((err) => {
 
         this.logAndShowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
 
@@ -57,8 +123,8 @@ export class Dispatcher extends CrawlerBase {
 
       }).then(() => { // finally
         //log.debug(`${_logKey}${func}.finally - in`);
-        const localRunningTask = instance.runningTask;
-        instance.runningTask = null;
+        const localRunningTask = data.runningTask;
+        data.runningTask = null;
         const removeTaskAction = actionsCrawlerTasks.createActionRemoveTask(localRunningTask);
         storeManager.dispatchTask(removeTaskAction);
 
@@ -149,6 +215,138 @@ export class Dispatcher extends CrawlerBase {
 
     return p;
   }
+
+  // .......................................................
+
+  setProgress(nextTask) {
+    const func = 'setProgress';
+
+    const taskTypeNone = 'none';
+    const taskType = nextTask ? nextTask.type : taskTypeNone;
+
+    const skipActionTypes = [
+      constants.AR_WORKER_OPEN,
+      constants.AR_WORKER_DELIVER_META,
+      constants.AR_WORKER_RATE_DIR_BY_FILE,
+    ];
+
+    if (taskType in skipActionTypes)
+      return; // do nothing
+
+    const { data } = this;
+    const crawlerTasksState = this.objects.storeManager.crawlerTasksState;
+
+    if (taskType === taskTypeNone && taskType === data.lastCurrentTask)
+      return; // do nothing
+
+    data.progressDbSend = true;
+    data.progressRunningSend = true;
+
+    const prio = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
+    data.progressRemainingDirs = crawlerTasksState.tasks[prio].length;
+
+    let logInfo = null;
+
+    switch (taskType) { // eslint-disable-line default-case
+
+      case taskTypeNone:
+        data.progressCurrentTask = 'Ready';
+        data.progressCurrentDir = null;
+        break;
+
+      case constants.AR_WORKER_INIT_CRAWLE:
+        data.progressCurrentTask = 'Initialising';
+        data.progressCurrentDir = null;
+        break;
+
+      case constants.AR_WORKER_REMOVE_DIRS:
+        data.progressCurrentTask = 'Removing folders';
+        data.progressCurrentDir = null;
+        logInfo = task.payload;
+        break;
+
+      case constants.AR_WORKER_SCAN_FSDIR:
+        data.progressCurrentTask = 'Scanning folders';
+        data.progressCurrentDir = null;
+        logInfo = task.payload;
+        break;
+
+
+      case constants.AR_WORKER_UPDATE_FILES:
+        data.progressCurrentTask = 'Updating folders';
+        data.progressCurrentDir = task.payload.folder;
+        logInfo = data.progressCurrentDir;
+        break;
+
+      case constants.AR_WORKER_UPDATE_DIR:
+        data.progressCurrentTask = 'Updating folders';
+        data.progressCurrentDir = task.payload;
+        logInfo = data.progressCurrentDir;
+        break;
+
+      case constants.AR_WORKER_RELOAD_DIRS:
+        break;
+
+      default:
+        break;
+    }
+
+    data.lastCurrentTask = data.progressCurrentTask;
+
+    log.debug(`${_logKey}${func} - ${data.progressCurrentTask}${logInfo ? '(' + logInfo + ')' : ''}`);
+  }
+
+  // ........................................................
+
+  onTimerProgressRunning() {
+
+    if (this.progressRunningSend) {
+      const { progressRemainingDirs, progressCurrentTask, progressCurrentDir } = this.data;
+
+      const action = crawlerProgressActions.createActionRunning(progressCurrentTask, progressCurrentDir, progressRemainingDirs);
+      this.objects.storeManager.dispatchTask(action);
+
+      this.progressRunningSend = false;
+    }
+  }
+
+  // ........................................................
+
+  onTimerProgressDb() {
+    const func = '.onTimerProgressDb';
+
+    const instance = this;
+    const {data} = instance;
+    const {dbWrapper} = instance.objects;
+    const {storeManager} = instance.objects;
+
+    if (!data.progressDbSend)
+      return Promise.resolve();
+    data.progressDbSend = false;
+
+    let countDbDirs = null;
+
+    const p = dbWrapper.countDirs().then((count) => {
+
+      countDbDirs = count;
+      return dbWrapper.countFiles();
+
+    }).then((countDbFiles) => {
+
+      const action = crawlerProgressActions.createActionDb(countDbDirs, countDbFiles);
+      storeManager.dispatchTask(action);
+
+      return Promise.resolve();
+
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+
+  }
+
+  // ........................................................
 }
 
 // ----------------------------------------------------------------------------------

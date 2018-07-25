@@ -90,7 +90,7 @@ export class Factory {
     /* eslint-disable arrow-body-style */
 
     // order crucial!
-    return objects.mediaComposer.init().then(() => {
+    const p = objects.mediaComposer.init().then(() => {
       return objects.dbWrapper.init();
     }).then(() => {
       return objects.metaReader.init();
@@ -107,6 +107,7 @@ export class Factory {
 
     /* eslint-enable arrow-body-style */
 
+    return p;
   }
 
   // ........................................................
