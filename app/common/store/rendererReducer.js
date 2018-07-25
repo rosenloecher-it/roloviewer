@@ -44,9 +44,9 @@ export class RendererReducer {
           return this.goTo(state, state.itemIndex - 1);
         case constants.AR_RENDERER_GO_NEXT:
           return this.goTo(state, state.itemIndex + 1);
-        case constants.AR_SLIDESHOW_GO_JUMP:
+        case constants.AR_RENDERER_GO_JUMP:
           return this.goJump(state, action);
-        case constants.AR_SLIDESHOW_GO_PAGE:
+        case constants.AR_RENDERER_GO_PAGE:
           return this.goPage(state, action);
         case constants.AR_RENDERER_GO_POS1:
           return this.goTo(state, 0);

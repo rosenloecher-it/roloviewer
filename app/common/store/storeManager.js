@@ -222,13 +222,13 @@ export class StoreManager {
   }
 
   // ........................................................
-  // crawlerTasks
+  // progress
 
-  get crawlerTasksState() {
-    const {crawlerTasks} = this.state;
-    if (!crawlerTasks)
+  get workerState() {
+    const {worker} = this.state;
+    if (!worker)
       return {};
-    return crawlerTasks;
+    return worker;
   }
 
 

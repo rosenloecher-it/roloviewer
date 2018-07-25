@@ -3,11 +3,11 @@ import * as constants from '../constants';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "crawlerProgressReducer";
+const _logKey = "statusReducer";
 
 // ----------------------------------------------------------------------------------
 
-export class CrawlerProgressReducer {
+export class StatusReducer {
   constructor(name) {
     this._logKey = `${_logKey}(${name})`;
 
@@ -28,7 +28,7 @@ export class CrawlerProgressReducer {
 
   // .....................................................
 
-  reduce(state = CrawlerProgressReducer.defaultState(), action) {
+  reduce(state = StatusReducer.defaultState(), action) {
     const func = ".reduce";
     let actionType = '???';
 

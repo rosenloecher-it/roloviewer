@@ -2,7 +2,7 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import * as constants from "../../common/constants";
-import * as crawlerTasksActions from "../../common/store/crawlerTasksActions";
+import * as workerActions from "../../common/store/workerActions";
 import * as rendererActions from "../../common/store/rendererActions";
 import {CrawlerBase} from "./crawlerBase";
 import {MediaFilter} from "./mediaFilter";
@@ -173,7 +173,7 @@ export class MediaLoader extends CrawlerBase {
 
     for (let i = 0; i < files.length; i++) {
 
-      const action = crawlerTasksActions.createActionDeliverMeta(files[i]);
+      const action = workerActions.createActionDeliverMeta(files[i]);
       //log.debug(`${_logKey}.addTasksDeliverFileMeta - action:`, action);
       this.objects.storeManager.dispatchGlobal(action);
 

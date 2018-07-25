@@ -4,7 +4,7 @@ import {MediaComposer} from "../../../app/worker/crawler/mediaComposer";
 import {Dispatcher} from "../../../app/worker/crawler/dispatcher";
 import {TestManager} from "../../common/store/testManager";
 import {DummyTestSystem} from "./dummyTestSystem";
-import * as actionsCrawlerTasks from "../../../app/common/store/crawlerTasksActions";
+import * as workerActions from "../../../app/common/store/workerActions";
 import * as testUtils from "../../common/utils/testUtils";
 import path from "path";
 
@@ -83,7 +83,7 @@ describe(_logKey, () => {
 
     const p = testSystem.init().then(() => {
 
-      const action = actionsCrawlerTasks.createActionUpdateDir(_testDirMedia);
+      const action = workerActions.createActionUpdateDir(_testDirMedia);
       return testSystem.dispatcher.dispatchTask(action);
       //return mediaCrawler.updateDir(_testDirMedia);
 

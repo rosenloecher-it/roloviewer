@@ -11,7 +11,7 @@ const _logKey = "crawlerOverlay";
 
 // ----------------------------------------------------------------------------------
 
-class CrawlerInfoOverlay extends React.Component {
+class StatusOverlay extends React.Component {
 
   constructor(props) {
     super(props);
@@ -66,15 +66,15 @@ class CrawlerInfoOverlay extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  countDbDirs: state.crawlerProgress.countDbDirs,
-  countDbFiles: state.crawlerProgress.countDbFiles,
-  currentDir: state.crawlerProgress.currentDir,
-  currentTask: state.crawlerProgress.currentTask,
-  remainingDirs: state.crawlerProgress.remainingDirs,
+  countDbDirs: state.status.countDbDirs,
+  countDbFiles: state.status.countDbFiles,
+  currentDir: state.status.currentDir,
+  currentTask: state.status.currentTask,
+  remainingDirs: state.status.remainingDirs,
 
   crawlerInfoPosition: state.slideshow.crawlerInfoPosition,
   crawlerInfoShow: state.slideshow.crawlerInfoShow,
 });
 
 
-export default connect( mapStateToProps )(CrawlerInfoOverlay);
+export default connect( mapStateToProps )(StatusOverlay);

@@ -1,9 +1,9 @@
 import log from 'electron-log';
 import * as constants from "../../common/constants";
-import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
-import {CrawlerTasksReducer} from "../../common/store/crawlerTasksReducer";
+import * as workerActions from "../../common/store/workerActions";
+import {WorkerReducer} from "../../common/store/workerReducer";
 import {CrawlerBase} from "./crawlerBase";
-import * as crawlerProgressActions from "../../common/store/crawlerProgressActions";
+import * as crawlerProgressActions from "../../common/store/statusActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -95,8 +95,8 @@ export class Dispatcher extends CrawlerBase {
     let taskType = null;
 
     try {
-      const crawlerTasksState = storeManager.crawlerTasksState;
-      const nextTask = CrawlerTasksReducer.getNextTask(crawlerTasksState);
+      const workerState = storeManager.workerState;
+      const nextTask = WorkerReducer.getNextTask(workerState);
       //log.debug(`${_logKey}${func} - in`, nextTask);
 
       this.setProgress(nextTask);
@@ -112,7 +112,7 @@ export class Dispatcher extends CrawlerBase {
       data.runningTask = nextTask;
       taskType = data.runningTask.type;
 
-      //let countTasks2 = CrawlerReducer.countTasks(crawlerTasksState);
+      //let countTasks2 = CrawlerReducer.countTasks(workerState);
       //log.debug(`${_logKey}${func} - countTasks2=${countTasks2}`);
 
       const p = instance.dispatchTask(data.runningTask).catch((err) => {
@@ -125,7 +125,7 @@ export class Dispatcher extends CrawlerBase {
         //log.debug(`${_logKey}${func}.finally - in`);
         const localRunningTask = data.runningTask;
         data.runningTask = null;
-        const removeTaskAction = actionsCrawlerTasks.createActionRemoveTask(localRunningTask);
+        const removeTaskAction = workerActions.createActionRemoveTask(localRunningTask);
         storeManager.dispatchTask(removeTaskAction);
 
         setImmediate(instance.processTask); // check for next task
@@ -225,7 +225,7 @@ export class Dispatcher extends CrawlerBase {
       const taskTypeNone = 'none';
       const taskType = task ? task.type : taskTypeNone;
       const { data } = this;
-      const crawlerTasksState = this.objects.storeManager.crawlerTasksState;
+      const workerState = this.objects.storeManager.workerState;
 
       if (taskType === taskTypeNone && taskType === data.lastCurrentTask)
         return; // do nothing
@@ -241,8 +241,8 @@ export class Dispatcher extends CrawlerBase {
       data.progressExistDataDb = true;
       data.progressExistDataRunning = true;
 
-      const prio = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
-      data.progressRemainingDirs = crawlerTasksState.tasks[prio].length;
+      const prio = WorkerReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
+      data.progressRemainingDirs = workerState.tasks[prio].length;
 
       let showFolder = null;
       let logInfo = null;

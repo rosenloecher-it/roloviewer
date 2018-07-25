@@ -8,7 +8,7 @@ import {SlideshowReducer} from "../../../app/common/store/slideshowReducer";
 import {StoreManager} from "../../../app/common/store/storeManager";
 import {SystemReducer} from "../../../app/common/store/systemReducer";
 import {WorkerManager} from "../../../app/worker/store/workerManager";
-import {CrawlerTasksReducer, PRIO_LENGTH} from "../../../app/common/store/crawlerTasksReducer";
+import {WorkerReducer, PRIO_LENGTH} from "../../../app/common/store/workerReducer";
 
 
 // ----------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ export class TestManager extends WorkerManager {
   // ........................................................
 
   clearTasks(taskType = null) {
-    const state = this.crawlerTasksState;
+    const state = this.workerState;
     const {tasks} = state;
 
     if (!taskType) {
@@ -38,7 +38,7 @@ export class TestManager extends WorkerManager {
         tasks[i] = [];
     } else {
 
-      const prio = CrawlerTasksReducer.getTaskPrio(taskType);
+      const prio = WorkerReducer.getTaskPrio(taskType);
       if (prio < 0 || prio >= tasks.length)
         throw new Error('(clearTasks) wrong task prio!');
       tasks[prio] = [];
@@ -48,7 +48,7 @@ export class TestManager extends WorkerManager {
   // ........................................................
 
   get tasks() {
-    const state = this.crawlerTasksState;
+    const state = this.workerState;
 
     const actions = [];
 
@@ -66,9 +66,9 @@ export class TestManager extends WorkerManager {
 
   countTasks() {
 
-    const state = this.crawlerTasksState;
+    const state = this.workerState;
 
-    const count = CrawlerTasksReducer.countTasks(state);
+    const count = WorkerReducer.countTasks(state);
     return count;
   }
 

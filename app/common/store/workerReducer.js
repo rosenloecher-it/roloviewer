@@ -3,13 +3,13 @@ import * as constants from '../constants';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "crawlerTasksReducer";
+const _logKey = "workerReducer";
 
 export const PRIO_LENGTH = 9;
 
 // ----------------------------------------------------------------------------------
 
-export class CrawlerTasksReducer {
+export class WorkerReducer {
   constructor(name) {
     this._logKey = `${_logKey}(${name})`;
 
@@ -29,13 +29,13 @@ export class CrawlerTasksReducer {
 
   static defaultState() {
     return {
-      tasks: CrawlerTasksReducer.defaultTaskArray()
+      tasks: WorkerReducer.defaultTaskArray()
     }
   }
 
   // .....................................................
 
-  reduce(state = CrawlerTasksReducer.defaultState(), action) {
+  reduce(state = WorkerReducer.defaultState(), action) {
     const func = ".reduce";
     let actionType = '???';
 
@@ -81,7 +81,7 @@ export class CrawlerTasksReducer {
     const func = ".handleGenericTask";
     //log.debug(`${this._logKey}${func} - in`, action);
 
-    const prio = CrawlerTasksReducer.getTaskPrio(action.type);
+    const prio = WorkerReducer.getTaskPrio(action.type);
 
     if (prio < 0 || prio >= state.tasks.length) {
       log.error(`${this._logKey}${func} - unknown prio`, action);
@@ -102,11 +102,11 @@ export class CrawlerTasksReducer {
 
     const newState = { ...state };
 
-    const prioOpen = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_OPEN);
+    const prioOpen = WorkerReducer.getTaskPrio(constants.AR_WORKER_OPEN);
     newState.tasks[prioOpen] = [action];
 
     if (action.payload.container !== null) { // folder or playlist
-      const prioMeta = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_DELIVER_META);
+      const prioMeta = WorkerReducer.getTaskPrio(constants.AR_WORKER_DELIVER_META);
       newState.tasks[prioMeta] = [];
     }
 
@@ -147,7 +147,7 @@ export class CrawlerTasksReducer {
 
         if (foundIndex >= 0) {
           const newState = { ...state };
-          newState.tasks[i] = CrawlerTasksReducer.sliceItemFromArray(newState.tasks[i], foundIndex);
+          newState.tasks[i] = WorkerReducer.sliceItemFromArray(newState.tasks[i], foundIndex);
           return newState;
         }
 
@@ -163,7 +163,7 @@ export class CrawlerTasksReducer {
   removeTaskTypes(state, action) {
     const func = ".removeTaskTypes";
 
-    const prio = CrawlerTasksReducer.getTaskPrio(action.payload);
+    const prio = WorkerReducer.getTaskPrio(action.payload);
 
     if (prio < 0 || prio >= state.tasks.length) {
       log.error(`${this._logKey}${func} - unknown prio`, action);

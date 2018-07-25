@@ -146,12 +146,10 @@ export class MainManager extends StoreManager {
     const clonedState = deepmerge.all([ currentState, {} ]);
 
     if (clonedState.context !== undefined) delete clonedState.context;
-
-    if (clonedState.crawlerTasks !== undefined) delete clonedState.crawlerTasks;
-
     if (clonedState.messages !== undefined) delete clonedState.messages;
-
     if (clonedState.renderer !== undefined) delete clonedState.renderer;
+    if (clonedState.status !== undefined) delete clonedState.status;
+    if (clonedState.workerState !== undefined) delete clonedState.workerState;
 
     return clonedState;
   }

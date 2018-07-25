@@ -5,7 +5,7 @@ import * as constants from '../../../app/common/constants';
 import * as testUtils from '../../common/utils/testUtils';
 import * as stringUtils from "../../../app/common/utils/stringUtils";
 import {DummyTestSystem} from "./dummyTestSystem";
-import * as actionsCrawlerTasks from "../../../app/common/store/crawlerTasksActions";
+import * as workerActions from "../../../app/common/store/workerActions";
 import {MediaCrawler} from "../../../app/worker/crawler/mediaCrawler";
 import {CrawlerReducer} from "../../../app/common/store/crawlerReducer";
 
@@ -94,7 +94,7 @@ describe(_logKey, () => {
 
     const p = testSystem.init().then(() => {
 
-      const action = actionsCrawlerTasks.createActionInitCrawler();
+      const action = workerActions.createActionInitCrawler();
       return testSystem.dispatcher.dispatchTask(action);
       //return testSystem.mediaCrawler.initCrawler();
 
@@ -207,7 +207,7 @@ describe(_logKey, () => {
 
     const p = testSystem.init().then(() => {
 
-      const action = actionsCrawlerTasks.createActionUpdateDir(_testDirMedia);
+      const action = workerActions.createActionUpdateDir(_testDirMedia);
       return testSystem.dispatcher.dispatchTask(action);
       //return mediaCrawler.updateDir(_testDirMedia);
 
@@ -277,13 +277,13 @@ describe(_logKey, () => {
     const testSystem = createTestSystemWithMediaDir(); //empty
 
     const crawlerState = testSystem.crawlerState;
-    const crawlerTasksState = testSystem.crawlerTasksState;
+    const workerState = testSystem.workerState;
 
     crawlerState.tagBlacklist.push('tag1');
 
     const p = testSystem.init().then(() => {
 
-      const action = actionsCrawlerTasks.createActionUpdateDir(_testDirMedia);
+      const action = workerActions.createActionUpdateDir(_testDirMedia);
       testSystem.storeManager.dispatchTask(action);
 
       const count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_UPDATE_DIR);
@@ -509,7 +509,7 @@ describe(_logKey, () => {
 
     const p = testSystem.init().then(() => {
 
-      const action = actionsCrawlerTasks.createActionInitCrawler();
+      const action = workerActions.createActionInitCrawler();
       return testSystem.dispatcher.dispatchTask(action);
       //return testSystem.mediaCrawler.initCrawler();
 
@@ -596,7 +596,7 @@ describe(_logKey, () => {
 
     const p = testSystem.init().then(() => {
 
-      const action = actionsCrawlerTasks.createActionUpdateDir(_testDirMedia);
+      const action = workerActions.createActionUpdateDir(_testDirMedia);
       return testSystem.dispatcher.dispatchTask(action);
       //return mediaCrawler.updateDir(_testDirMedia);
 
@@ -621,7 +621,7 @@ describe(_logKey, () => {
       dirWeight1 = dirItem.weight;
       expect(dirWeight1).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
 
-      // const action = actionsCrawlerTasks.createActionRateDirByFile(filePath1);
+      // const action = workerActions.createActionRateDirByFile(filePath1);
       // return testSystem.dispatcher.dispatchTask(action);
       return testSystem.mediaCrawler.rateDirByFile(filePath1);
 
@@ -664,7 +664,7 @@ describe(_logKey, () => {
     testSystem.createFileSystemStructure(_testDirMedia, dirWidth, dirDepth, filesPerDir);
 
     const p = testSystem.init().then(() => {
-      const action = actionsCrawlerTasks.createActionInitCrawler();
+      const action = workerActions.createActionInitCrawler();
       return testSystem.dispatcher.dispatchTask(action);
       //return mediaCrawler.updateDir(_testDirMedia);
 
@@ -673,7 +673,7 @@ describe(_logKey, () => {
       const promises = [];
       for (let i = 0; i < testSystem.dirs.length; i++) {
         const dir = testSystem.dirs[i];
-        const action = actionsCrawlerTasks.createActionUpdateDir(dir);
+        const action = workerActions.createActionUpdateDir(dir);
         promises.push(testSystem.dispatcher.dispatchTask(action));
       }
       return Promise.all(promises);

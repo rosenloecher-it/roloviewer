@@ -5,11 +5,11 @@ import fs from 'fs-extra';
 import log from 'electron-log';
 import set from 'collections/set';
 import * as constants from "../../common/constants";
-import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
+import * as workerActions from "../../common/store/workerActions";
 import {CrawlerBase} from "./crawlerBase";
 import * as rendererActions from "../../common/store/rendererActions";
 import {MediaComposer} from "./mediaComposer";
-import {CrawlerTasksReducer} from "../../common/store/crawlerTasksReducer";
+import {WorkerReducer} from "../../common/store/workerReducer";
 import {MediaFilter} from "./mediaFilter";
 
 // ----------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ export class MediaCrawler extends CrawlerBase {
         storeManager.dispatchGlobal(action);
 
         for (let i = 0; i < files.length; i++) {
-          action = actionsCrawlerTasks.createActionDeliverMeta(files[i]);
+          action = workerActions.createActionDeliverMeta(files[i]);
           //log.debug(`${_logKey}${func} - action:`, action);
           storeManager.dispatchGlobal(action);
         }
@@ -187,9 +187,9 @@ export class MediaCrawler extends CrawlerBase {
     const {dbWrapper} = instance.objects;
     const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
-    const tasksState = storeManager.crawlerTasksState;
+    const tasksState = storeManager.workerState;
 
-    const prio = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
+    const prio = WorkerReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
 
     const stateComposed = {
       lastConfig: crawlerState,
@@ -231,12 +231,12 @@ export class MediaCrawler extends CrawlerBase {
       if (stateComposed.lastUpdateDirs) {
         let action = null;
 
-        action = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_DIR);
+        action = workerActions.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_DIR);
         storeManager.dispatchTask(action);
 
         const {lastUpdateDirs} = stateComposed;
         for (let i = 0; i < lastUpdateDirs.length; i++) {
-          action = actionsCrawlerTasks.createActionUpdateDir(lastUpdateDirs[i]);
+          action = workerActions.createActionUpdateDir(lastUpdateDirs[i]);
           storeManager.dispatchTask(action);
         }
       }
@@ -262,7 +262,7 @@ export class MediaCrawler extends CrawlerBase {
 
       let action = null;
 
-      action = actionsCrawlerTasks.createActionReloadDirs(argsLoadState.rescanAll);
+      action = workerActions.createActionReloadDirs(argsLoadState.rescanAll);
       storeManager.dispatchTask(action);
 
       return dbWrapper.listDirsAll();
@@ -280,11 +280,11 @@ export class MediaCrawler extends CrawlerBase {
         instance.data.cacheScanFsDirs.add(dirItem.dir);
       }
 
-      action = actionsCrawlerTasks.createActionRemoveDirs(dirs);
+      action = workerActions.createActionRemoveDirs(dirs);
       storeManager.dispatchTask(action);
 
       for (let i = 0; i < crawlerState.folderSource.length; i++) {
-        action = actionsCrawlerTasks.createActionScanFsDir(crawlerState.folderSource[i]);
+        action = workerActions.createActionScanFsDir(crawlerState.folderSource[i]);
         storeManager.dispatchTask(action);
       }
 
@@ -321,15 +321,15 @@ export class MediaCrawler extends CrawlerBase {
 
       if (rescanAll) {
         // reset old tasks
-        action = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_FILES);
+        action = workerActions.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_FILES);
         storeManager.dispatchTask(action);
-        action = actionsCrawlerTasks.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_DIR);
+        action = workerActions.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_DIR);
         storeManager.dispatchTask(action);
       }
 
       for (let i = 0; i < dirItems.length; i++) {
         const dirItem = dirItems[i];
-        action = actionsCrawlerTasks.createActionUpdateDir(dirItem.dir);
+        action = workerActions.createActionUpdateDir(dirItem.dir);
         storeManager.dispatchTask(action);
       }
 
@@ -377,7 +377,7 @@ export class MediaCrawler extends CrawlerBase {
 
     if (loopCounter < dirs.length) {
       const dirsNew = dirs.slice(loopCounter + 1);
-      const action = actionsCrawlerTasks.createActionRemoveDirs(dirsNew);
+      const action = workerActions.createActionRemoveDirs(dirsNew);
       storeManager.dispatchTask(action);
     }
 
@@ -416,10 +416,10 @@ export class MediaCrawler extends CrawlerBase {
           if (!instance.data.cacheScanFsDirs.has(fileLong)) {
             let action = null;
 
-            action = actionsCrawlerTasks.createActionScanFsDir(fileLong);
+            action = workerActions.createActionScanFsDir(fileLong);
             storeManager.dispatchTask(action);
 
-            action = actionsCrawlerTasks.createActionUpdateDir(fileLong);
+            action = workerActions.createActionUpdateDir(fileLong);
             storeManager.dispatchTask(action);
 
           } // else: do nothing - dir exists already in db
@@ -585,7 +585,7 @@ export class MediaCrawler extends CrawlerBase {
         for (let i = 0; i < itemUpdate.length; i++) {
           actionItems.push(itemUpdate[i]);
           if (actionItems.length === 10 || i === itemUpdate.length - 1) {
-            const action = actionsCrawlerTasks.createActionUpdateFiles(dirItem.dir, actionItems);
+            const action = workerActions.createActionUpdateFiles(dirItem.dir, actionItems);
             this.objects.storeManager.dispatchTask(action);
             actionItems = [];
           }

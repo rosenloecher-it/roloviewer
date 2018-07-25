@@ -48,12 +48,12 @@ export const createActionGoNext = () => ({ type: constants.AR_RENDERER_GO_NEXT }
 export const createActionGoBack = () => ({ type: constants.AR_RENDERER_GO_BACK });
 
 export const createActionJump = (jumpWidth) => ({
-  type: constants.AR_SLIDESHOW_GO_JUMP,
+  type: constants.AR_RENDERER_GO_JUMP,
   payload: jumpWidth
 });
 
 export const createActionGoPage = (direction) => ({
-  type: constants.AR_SLIDESHOW_GO_PAGE,
+  type: constants.AR_RENDERER_GO_PAGE,
   payload: direction
 });
 

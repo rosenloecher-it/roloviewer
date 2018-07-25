@@ -112,7 +112,7 @@ export const AI_CHILD_REQUESTS_CONFIG = 'AI_CHILD_REQUESTS_CONFIG'; // 1. child 
 export const AI_MAIN_PUSHED_CONFIG = 'AI_MAIN_PUSHED_CONFIG'; // 2. main has pushed config via redux (AI_SPREAD_REDUX_ACTION)
 export const AI_CHILD_IS_READY = 'AI_CHILD_IS_READY'; // 3. cilds ready
 
-export const AI_SHUTDOWN = 'AI_SHUTDOWN'; // main to worker + renderer
+export const AI_SHUTDOWN = 'AI_SHUTDOWN'; // main to workerState + renderer
 
 export const AI_DUMMY = "AI_DUMMY";
 
@@ -129,7 +129,7 @@ export const AR_CONTEXT_INIT = 'AR_CONTEXT_INIT';
 export const AR_CONTEXT_SET_VERSION_EXIFREADER = 'AR_CONTEXT_SET_VERSION_EXIFREADER';
 
 // --------------------------------------------------------------------------
-// actions - worker
+// actions - workerState
 
 export const AR_WORKER_INIT = 'AR_WORKER_INIT';
 
@@ -207,16 +207,27 @@ export const AR_MESSAGE_CLOSE_DIALOG = 'AR_MESSAGE_CLOSE_DIALOG';
 
 export const AR_SLIDESHOW_INIT = 'AR_SLIDESHOW_INIT';
 
-export const AR_RENDERER_GO_NEXT = 'AR_RENDERER_GO_NEXT';
-export const AR_RENDERER_GO_BACK = 'AR_RENDERER_GO_BACK';
-export const AR_SLIDESHOW_GO_PAGE = 'AR_SLIDESHOW_GO_PAGE';
-export const AR_SLIDESHOW_GO_JUMP = 'AR_SLIDESHOW_GO_JUMP';
-export const AR_RENDERER_GO_POS1 = 'AR_RENDERER_GO_POS1';
-export const AR_RENDERER_GO_END = 'AR_RENDERER_GO_END';
-
 export const AR_SLIDESHOW_AUTOPLAY_START = 'AR_SLIDESHOW_AUTOPLAY_START';
 export const AR_SLIDESHOW_AUTOPLAY_STOP = 'AR_SLIDESHOW_AUTOPLAY_STOP';
 export const AR_SLIDESHOW_AUTOPLAY_TOGGLE = 'AR_SLIDESHOW_AUTOPLAY_TOGGLE';
+
+export const AR_SLIDESHOW_DETAILS_TOOGLE = 'AR_SLIDESHOW_DETAILS_TOOGLE';
+export const AR_SLIDESHOW_DETAILS_MOVE = 'AR_SLIDESHOW_DETAILS_MOVE';
+
+export const AR_SLIDESHOW_CRAWLERINFO_TOOGLE = 'AR_SLIDESHOW_CRAWLERINFO_TOOGLE';
+export const AR_SLIDESHOW_CRAWLERINFO_MOVE = 'AR_SLIDESHOW_CRAWLERINFO_MOVE';
+
+export const AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER = 'AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER';
+
+// --------------------------------------------------------------------------
+// actions - renderer
+
+export const AR_RENDERER_GO_NEXT = 'AR_RENDERER_GO_NEXT';
+export const AR_RENDERER_GO_BACK = 'AR_RENDERER_GO_BACK';
+export const AR_RENDERER_GO_PAGE = 'AR_RENDERER_GO_PAGE';
+export const AR_RENDERER_GO_JUMP = 'AR_RENDERER_GO_JUMP';
+export const AR_RENDERER_GO_POS1 = 'AR_RENDERER_GO_POS1';
+export const AR_RENDERER_GO_END = 'AR_RENDERER_GO_END';
 
 export const AR_RENDERER_CURSOR_HIDE = 'AR_RENDERER_CURSOR_HIDE';
 export const AR_RENDERER_CURSOR_SHOW = 'AR_RENDERER_CURSOR_SHOW';
@@ -227,22 +238,9 @@ export const AR_RENDERER_ABOUT_CLOSE = 'AR_RENDERER_ABOUT_CLOSE';
 export const AR_RENDERER_HELP_CLOSE = 'AR_RENDERER_HELP_CLOSE';
 export const AR_RENDERER_HELP_TOOGLE = 'AR_RENDERER_HELP_TOOGLE';
 
-export const AR_SLIDESHOW_DETAILS_TOOGLE = 'AR_SLIDESHOW_DETAILS_TOOGLE';
-export const AR_SLIDESHOW_DETAILS_MOVE = 'AR_SLIDESHOW_DETAILS_MOVE';
-
-export const AR_SLIDESHOW_CRAWLERINFO_TOOGLE = 'AR_SLIDESHOW_CRAWLERINFO_TOOGLE';
-export const AR_SLIDESHOW_CRAWLERINFO_MOVE = 'AR_SLIDESHOW_CRAWLERINFO_MOVE';
-
 export const AR_RENDERER_SHOW_CONTAINER_FILES = 'AR_RENDERER_SHOW_CONTAINER_FILES';   // args: container: dir or file; when null "auto-mode" + items[]
 export const AR_RENDERER_ADD_AUTO_FILES = 'AR_RENDERER_ADD_AUTO_FILES';     // auto-select-mode
 export const AR_RENDERER_DELIVER_META = "AR_RENDERER_DELIVER_META";     // add meta info for (one) file
-
-export const AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER = 'AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER';
-
-// --------------------------------------------------------------------------
-// actions - renderer
-
-// TODO move renderer actions
 
 // --------------------------------------------------------------------------
 // actions - system

@@ -7,12 +7,12 @@ import MessageDialog from './MessageDialog';
 import AboutOverlay from './aboutOverlay';
 import HelpOverlay from './helpOverlay';
 import DetailsOverlay from './detailsOverlay';
-import CrawlerInfoOverlay from './crawlerInfoOverlay';
+import StatusOverlay from './statusOverlay';
 import * as slideshowActions from "../../common/store/slideshowActions";
 import * as rendererActions from "../../common/store/rendererActions";
 import storeManager from "../store/rendererManager";
 import * as constants from "../../common/constants";
-import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
+import * as workerActions from "../../common/store/workerActions";
 import * as ops from "../rendererOps";
 
 // ----------------------------------------------------------------------------------
@@ -302,7 +302,7 @@ class Slideshow extends React.Component {
       <div className={cssConstants.CSS_MAINPANE}>
         <ImagePane />
         <DetailsOverlay />
-        <CrawlerInfoOverlay />
+        <StatusOverlay />
         {dialogOverlay}
         <MessageDialog />
 
@@ -353,7 +353,7 @@ class Slideshow extends React.Component {
           break; // already send
         }
 
-        const action = actionsCrawlerTasks.createActionOpen(null, null);
+        const action = workerActions.createActionOpen(null, null);
         storeManager.dispatchGlobal(action);
 
         data.lastRequestKey = requestKey;
