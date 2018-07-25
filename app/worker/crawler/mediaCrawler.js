@@ -6,11 +6,9 @@ import log from 'electron-log';
 import set from 'collections/set';
 import * as constants from "../../common/constants";
 import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
-import * as crawlerProgressActions from "../../common/store/crawlerProgressActions";
 import {CrawlerBase} from "./crawlerBase";
 import * as actionsSlideshow from "../../common/store/slideshowActions";
 import {MediaComposer} from "./mediaComposer";
-import {MediaLoader} from "./mediaLoader";
 import {CrawlerTasksReducer} from "../../common/store/crawlerTasksReducer";
 import {MediaFilter} from "./mediaFilter";
 
@@ -128,12 +126,19 @@ export class MediaCrawler extends CrawlerBase {
         throw new Error(`auto-selection failed (no items delivered)!`);
 
       } else {
+        let action = null;
         const files = [];
         for (let i = 0; i < fileItems.length; i++)
           files.push(path.join(dirItem.dir, fileItems[i].fileName));
         const slideshowItems = actionsSlideshow.createItems(files);
-        const action = actionsSlideshow.createActionAddAutoFiles(slideshowItems);
+        action = actionsSlideshow.createActionAddAutoFiles(slideshowItems);
         storeManager.dispatchGlobal(action);
+
+        for (let i = 0; i < files.length; i++) {
+          action = actionsCrawlerTasks.createActionDeliverMeta(files[i]);
+          //log.debug(`${_logKey}${func} - action:`, action);
+          storeManager.dispatchGlobal(action);
+        }
       }
 
       return Promise.resolve();
@@ -327,6 +332,8 @@ export class MediaCrawler extends CrawlerBase {
         action = actionsCrawlerTasks.createActionUpdateDir(dirItem.dir);
         storeManager.dispatchTask(action);
       }
+
+      log.debug(`${_logKey}${func} - ${dirItems.length} folder queued for update (rescan=${rescanAll})`);
 
       return Promise.resolve();
 

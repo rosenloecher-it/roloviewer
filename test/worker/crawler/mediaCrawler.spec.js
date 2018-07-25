@@ -92,9 +92,6 @@ describe(_logKey, () => {
     testSystem.createTestDir(_testDirMedia, 'dir1');
     testSystem.saveTestFile(_testDirMedia, 'file1.jpg');
 
-    const crawlerState = testSystem.storeManager.crawlerState;
-    const crawlerTasksState = testSystem.storeManager.crawlerTasksState;
-
     const p = testSystem.init().then(() => {
 
       const action = actionsCrawlerTasks.createActionInitCrawler();
@@ -689,7 +686,7 @@ describe(_logKey, () => {
 
     }).then((dirItems) => {
 
-      console.log(`formatDirItemsWeightList:\n${testUtils.formatDirItemsWeightList(dirItems)}`);
+      //console.log(`formatDirItemsWeightList:\n${testUtils.formatDirItemsWeightList(dirItems)}`);
       expect(dirItems.length).toBe(countImageDirsExpected);
 
       return Promise.resolve();
@@ -712,7 +709,8 @@ describe(_logKey, () => {
           const globalActions = testSystem.storeManager.data.globalDispatchedActions;
 
           expect(globalActions.length).toBeGreaterThan(0);
-          const lastAction = globalActions[globalActions.length - 1];
+          const lastAction = testSystem.storeManager.getLastGlobalAction(constants.AR_SLIDESHOW_ADD_AUTO_FILES);
+
           expect(lastAction.type).toBe(constants.AR_SLIDESHOW_ADD_AUTO_FILES);
 
           const promisesInner = [];
@@ -721,7 +719,6 @@ describe(_logKey, () => {
           for (let k = 0; k < slideshowItem.length; k++) {
             const {file} = slideshowItem[k];
 
-            console.log(`simulate mediaCrawler.rateDirByFile: ${file}`)
             const p2 = testSystem.mediaCrawler.rateDirByFile(file)
             promisesInner.push(p2);
           }
@@ -758,10 +755,14 @@ describe(_logKey, () => {
       const globalActions = testSystem.storeManager.data.globalDispatchedActions;
 
       let countDeliveredItem = 0;
+      let deliveredAutoFileActions = 0;
 
       for (let i = 0; i < globalActions.length; i++) {
         const action = globalActions[i];
-        expect(action.type).toBe(constants.AR_SLIDESHOW_ADD_AUTO_FILES);
+        if (action.type !== constants.AR_SLIDESHOW_ADD_AUTO_FILES)
+          continue;
+
+        deliveredAutoFileActions++;
 
         const slideshowItem = action.payload.items;
         for (let k = 0; k < slideshowItem.length; k++) {
@@ -841,7 +842,7 @@ describe(_logKey, () => {
 
       console.dir(statistics);
 
-      expect(globalActions.length).toBe(deliverLoopCount);
+      expect(deliveredAutoFileActions).toBe(deliverLoopCount);
 
       expect(fileCountLess1).toBeLessThan(files.length / 4);
       expect(dirCountLess1).toBeLessThan(countImageDirsExpected / 4);

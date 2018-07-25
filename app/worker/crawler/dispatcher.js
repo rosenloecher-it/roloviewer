@@ -19,8 +19,8 @@ export class Dispatcher extends CrawlerBase {
     this.data = {
       runningTask: null,
 
-      progressDbSend: false,
-      progressRunningSend: false,
+      progressExistDataDb: false,
+      progressExistDataRunning: false,
 
       lastCurrentTask: null,
 
@@ -218,95 +218,99 @@ export class Dispatcher extends CrawlerBase {
 
   // .......................................................
 
-  setProgress(nextTask) {
-    const func = 'setProgress';
+  setProgress(task) {
+    const func = '.setProgress';
 
-    const taskTypeNone = 'none';
-    const taskType = nextTask ? nextTask.type : taskTypeNone;
+    try {
+      const taskTypeNone = 'none';
+      const taskType = task ? task.type : taskTypeNone;
+      const { data } = this;
+      const crawlerTasksState = this.objects.storeManager.crawlerTasksState;
 
-    const skipActionTypes = [
-      constants.AR_WORKER_OPEN,
-      constants.AR_WORKER_DELIVER_META,
-      constants.AR_WORKER_RATE_DIR_BY_FILE,
-    ];
+      if (taskType === taskTypeNone && taskType === data.lastCurrentTask)
+        return; // do nothing
 
-    if (taskType in skipActionTypes)
-      return; // do nothing
+      const skipActionTypes = [
+        constants.AR_WORKER_OPEN,
+        constants.AR_WORKER_DELIVER_META,
+        constants.AR_WORKER_RATE_DIR_BY_FILE,
+      ];
+      if (skipActionTypes.includes(taskType))
+        return; // do nothing
 
-    const { data } = this;
-    const crawlerTasksState = this.objects.storeManager.crawlerTasksState;
+      data.progressExistDataDb = true;
+      data.progressExistDataRunning = true;
 
-    if (taskType === taskTypeNone && taskType === data.lastCurrentTask)
-      return; // do nothing
+      const prio = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
+      data.progressRemainingDirs = crawlerTasksState.tasks[prio].length;
 
-    data.progressDbSend = true;
-    data.progressRunningSend = true;
+      let showFolder = null;
+      let logInfo = null;
 
-    const prio = CrawlerTasksReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
-    data.progressRemainingDirs = crawlerTasksState.tasks[prio].length;
+      switch (taskType) { // eslint-disable-line default-case
 
-    let logInfo = null;
+        case taskTypeNone:
+          data.progressCurrentTask = 'Up-to-date';
+          break;
 
-    switch (taskType) { // eslint-disable-line default-case
+        case constants.AR_WORKER_RELOAD_DIRS:
+        case constants.AR_WORKER_INIT_CRAWLE:
+          data.progressCurrentTask = 'Initialising';
+          break;
 
-      case taskTypeNone:
-        data.progressCurrentTask = 'Ready';
+        case constants.AR_WORKER_REMOVE_DIRS:
+          data.progressCurrentTask = 'Removing folders';
+          logInfo = task.payload;
+          break;
+
+        case constants.AR_WORKER_SCAN_FSDIR:
+          data.progressCurrentTask = 'Scanning folders';
+          logInfo = task.payload;
+          break;
+
+        case constants.AR_WORKER_UPDATE_FILES:
+          data.progressCurrentTask = 'Updating folders';
+          showFolder = task.payload.folder;
+          logInfo = showFolder;
+          break;
+
+        case constants.AR_WORKER_UPDATE_DIR:
+          data.progressCurrentTask = 'Updating folders';
+          showFolder = task.payload;
+          logInfo = showFolder;
+          break;
+
+        default:
+          data.progressCurrentTask = 'Unknown task!!!';
+          break;
+      }
+
+      if (showFolder)
+        data.progressCurrentDir = showFolder;
+      else
         data.progressCurrentDir = null;
-        break;
 
-      case constants.AR_WORKER_INIT_CRAWLE:
-        data.progressCurrentTask = 'Initialising';
-        data.progressCurrentDir = null;
-        break;
+      data.lastCurrentTask = data.progressCurrentTask;
 
-      case constants.AR_WORKER_REMOVE_DIRS:
-        data.progressCurrentTask = 'Removing folders';
-        data.progressCurrentDir = null;
-        logInfo = task.payload;
-        break;
-
-      case constants.AR_WORKER_SCAN_FSDIR:
-        data.progressCurrentTask = 'Scanning folders';
-        data.progressCurrentDir = null;
-        logInfo = task.payload;
-        break;
-
-
-      case constants.AR_WORKER_UPDATE_FILES:
-        data.progressCurrentTask = 'Updating folders';
-        data.progressCurrentDir = task.payload.folder;
-        logInfo = data.progressCurrentDir;
-        break;
-
-      case constants.AR_WORKER_UPDATE_DIR:
-        data.progressCurrentTask = 'Updating folders';
-        data.progressCurrentDir = task.payload;
-        logInfo = data.progressCurrentDir;
-        break;
-
-      case constants.AR_WORKER_RELOAD_DIRS:
-        break;
-
-      default:
-        break;
+      log.debug(`${_logKey}${func}(${taskType}) - ${data.progressCurrentTask}${logInfo ? `: ${logInfo}` : ''}`);
+    } catch(err) {
+      log.error(`${_logKey}${func} -`, err);
     }
-
-    data.lastCurrentTask = data.progressCurrentTask;
-
-    log.debug(`${_logKey}${func} - ${data.progressCurrentTask}${logInfo ? '(' + logInfo + ')' : ''}`);
   }
 
   // ........................................................
 
   onTimerProgressRunning() {
 
-    if (this.progressRunningSend) {
+    const { data } = this;
+
+    if (data.progressExistDataRunning) {
       const { progressRemainingDirs, progressCurrentTask, progressCurrentDir } = this.data;
 
       const action = crawlerProgressActions.createActionRunning(progressCurrentTask, progressCurrentDir, progressRemainingDirs);
       this.objects.storeManager.dispatchTask(action);
 
-      this.progressRunningSend = false;
+      data.progressExistDataRunning = false;
     }
   }
 
@@ -320,9 +324,9 @@ export class Dispatcher extends CrawlerBase {
     const {dbWrapper} = instance.objects;
     const {storeManager} = instance.objects;
 
-    if (!data.progressDbSend)
+    if (!data.progressExistDataDb)
       return Promise.resolve();
-    data.progressDbSend = false;
+    data.progressExistDataDb = false;
 
     let countDbDirs = null;
 

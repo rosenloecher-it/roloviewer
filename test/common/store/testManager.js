@@ -99,6 +99,28 @@ export class TestManager extends WorkerManager {
 
   // .....................................................
 
+  getLastGlobalAction(actionType = null) {
+
+    const {globalDispatchedActions} = this.data;
+
+    if (globalDispatchedActions.length <= 0)
+      return null;
+
+    if (!actionType) {
+      return globalDispatchedActions[globalDispatchedActions.length - 1];
+    }
+
+    for (let i = globalDispatchedActions.length - 1; i >= 0; i--) {
+      const action = globalDispatchedActions[i];
+      if (action.type === actionType)
+        return action;
+    }
+
+    return null;
+  }
+
+  // .....................................................
+
   clearGlobalActions() {
     this.data.globalDispatchedActions = [];
   }
@@ -114,25 +136,6 @@ export class TestManager extends WorkerManager {
 
   // .....................................................
 
-  // dispatchLocal(action) {
-  //   this.data.dispatchedActions.push(action);
-  // }
-  //
-  // // .....................................................
-  //
-  // dispatchRemote(action) {
-  //   this.dispatchLocal(action);
-  // }
-  //
-  // // ........................................................
-  //
-  // dispatchGlobal(action) {
-  //   this.dispatchLocal(action);
-  // }
-  //
-  // dispatchTask(action) {
-  //   this.dispatchLocal(action);
-  // }
 }
 
 // ----------------------------------------------------------------------------------

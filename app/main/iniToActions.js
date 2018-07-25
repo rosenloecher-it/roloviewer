@@ -3,7 +3,7 @@ import log from 'electron-log';
 import path from 'path';
 import * as constants from "../common/constants";
 import {
-  mergeConfigItem, mergeIntItem,
+  mergeBoolItem, mergeConfigItem, mergeIntItem,
   valiBoolean, valiInt, valiLogLevel, valiRatingArray, valiString, valiTagArray,
   valiFolderArray, valiBlacklistSnippets, valiUrl, valiDir
 } from "../common/utils/validate";
@@ -107,9 +107,9 @@ export function createMainWindowAction(iniDataIn, context) {
     y: valiInt(iniData.mainWindow.y),
     height: valiInt(iniData.mainWindow.height),
     width: valiInt(iniData.mainWindow.width),
-    maximized: mergeConfigItem(false, valiBoolean(iniData.mainWindow.maximized) || false, null),
-    fullscreen: mergeConfigItem(false, valiBoolean(iniData.mainWindow.fullscreen), null),
-    activeDevtool: mergeConfigItem(false, valiBoolean(iniData.mainWindow.activeDevtool), null),
+    maximized: mergeBoolItem(false, iniData.mainWindow.maximized),
+    fullscreen: mergeBoolItem(false, iniData.mainWindow.fullscreen),
+    activeDevtool: mergeBoolItem(false, iniData.mainWindow.activeDevtool),
   };
 
   if (context.tempCliFullscreen === true)
@@ -130,23 +130,20 @@ export function createSlideshowAction(iniDataIn, context) {
 
   const actionData = {};
 
-  actionData.autoPlay = mergeConfigItem(false,
-    null,
-    iniData.slideshow.autoPlay);
+  actionData.autoPlay = mergeBoolItem(false, iniData.slideshow.autoPlay);
 
   actionData.transitionTimeAutoPlay = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY, iniData.slideshow.transitionTimeAutoPlay);
   actionData.transitionTimeManual = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_MANUAL, iniData.slideshow.transitionTimeManual);
   actionData.timer = mergeIntItem(constants.DEFCONF_TIMER, iniData.slideshow.timer);
 
-  actionData.random = mergeConfigItem(false,
-    null,
-    valiBoolean(iniData.slideshow.random));
+  actionData.random = mergeBoolItem(false, iniData.slideshow.random);
 
   actionData.detailsPosition = SlideshowReducer.valiDetailsPosition(valiString(iniData.slideshow.detailsPosition));
   actionData.detailsState = SlideshowReducer.getValidDetailsState(valiString(iniData.slideshow.detailsState), false);
 
-  actionData.crawlerInfoPosition = SlideshowReducer.valiCrawlerInfoPosition(valiString(iniData.slideshow.crawlerInfoPosition), actionData.detailsPosition);
-  actionData.crawlerInfoShow = mergeConfigItem(false, null, valiBoolean(iniData.slideshow.crawlerInfoPosition));
+  const tempCrawlerInfoPosition = valiString(iniData.slideshow.crawlerInfoPosition);
+  actionData.crawlerInfoPosition = SlideshowReducer.valiCrawlerInfoPosition(tempCrawlerInfoPosition, actionData.detailsPosition);
+  actionData.crawlerInfoShow = mergeBoolItem(false, iniData.slideshow.crawlerInfoShow);
 
   if (context.tempCliAutoselect) {
     actionData.lastContainerType = constants.CONTAINER_AUTOSELECT;
@@ -160,7 +157,7 @@ export function createSlideshowAction(iniDataIn, context) {
         actionData.lastContainer = context.tempCliOpenContainer;
         actionData.lastItem = null;
       } else {
-        log.info(`${_logKey}createSlideshowAction - last file/dir doesn't exist (${context.tempCliOpenContainer})!`);
+        log.info(`${_logKey}.createSlideshowAction - last file/dir doesn't exist (${context.tempCliOpenContainer})!`);
         actionData.lastContainerType = null;
         actionData.lastContainer = null;
         actionData.lastItem = null;
@@ -199,11 +196,9 @@ export function createSystemAction(iniDataIn, context, defaultLogFile, defaultEx
     valiLogLevel(iniData.system.logLevelFile));
 
   actionData.logLevelConsole = mergeConfigItem(constants.DEFCONF_LOGLEVEL_FILE,
-    null,
     valiLogLevel(iniData.system.logLevelConsole));
 
   actionData.mapUrlFormat = mergeConfigItem(constants.DEFCONF_META2MAPURL_FORMAT,
-    null,
     valiUrl(iniData.system.mapUrlFormat));
 
   actionData.logfile = null;

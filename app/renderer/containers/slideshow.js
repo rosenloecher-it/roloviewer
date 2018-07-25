@@ -204,19 +204,17 @@ class Slideshow extends React.Component {
       case 39: // arrow right
       case 40: // arrow down
         this.goNext(); break;
-
-      case 67: // c
-        if (event.ctrlKey)
-          storeManager.dispatchGlobal(actions.createActionCrawlerInfoMove());
-        else
-          storeManager.dispatchGlobal(actions.createActionCrawlerInfoToogle());
-        break;
-
       case 73: // i
         if (event.ctrlKey)
           storeManager.dispatchGlobal(actions.createActionDetailsMove());
         else
           storeManager.dispatchGlobal(actions.createActionDetailsToogle());
+        break;
+      case 87: // w
+        if (event.ctrlKey)
+          storeManager.dispatchGlobal(actions.createActionCrawlerInfoMove());
+        else
+          storeManager.dispatchGlobal(actions.createActionCrawlerInfoToogle());
         break;
 
       default:

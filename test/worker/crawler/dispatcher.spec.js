@@ -107,7 +107,7 @@ describe(_logKey, () => {
 
       testSystem.storeManager.clearGlobalActions();
 
-      testSystem.dispatcher.data.progressDbSend = true;
+      testSystem.dispatcher.data.progressExistDataDb = true;
       return testSystem.dispatcher.onTimerProgressDb();
 
     }).then(() => {

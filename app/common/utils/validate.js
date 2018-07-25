@@ -215,6 +215,21 @@ export function mergeIntItem(valueDef, valuePrio1In, valuePrio2In = null) {
 
 // ----------------------------------------------------------------------------------
 
+export function mergeBoolItem(valueDef, valuePrio1In, valuePrio2In = null) {
+
+  const valuePrio1 = valiBoolean(valuePrio1In);
+  if (typeof(valueDef) === typeof(valuePrio1))
+    return valuePrio1;
+
+  const valuePrio2 = valiBoolean(valuePrio2In);
+  if (typeof(valueDef) === typeof(valuePrio2))
+    return valuePrio2;
+
+  return valueDef;
+}
+
+// ----------------------------------------------------------------------------------
+
 export function mergeStringItem(valueDef, valuePrio1, valuePrio2) {
 
   if (typeof("str") === typeof(valuePrio1) && valuePrio1 !== "undefined")

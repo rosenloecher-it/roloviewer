@@ -190,9 +190,9 @@ export class CrawlerTasksReducer {
         return 2;
       case constants.AR_WORKER_REMOVE_DIRS:
         return 3;
-      case constants.AR_WORKER_SCAN_FSDIR:
-        return 4;
       case constants.AR_WORKER_RELOAD_DIRS:
+        return 4;
+      case constants.AR_WORKER_SCAN_FSDIR:
         return 5;
       case constants.AR_WORKER_RATE_DIR_BY_FILE:
         return 6;

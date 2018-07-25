@@ -27,8 +27,8 @@ class HelpOverlay extends React.Component {
         <table className="popover-table">
           <tbody>
 
-            <tr><td>crawler info - toogle</td><td>C</td></tr>
-            <tr><td>crawler info - move</td><td>CTRL + C</td></tr>
+            <tr><td>crawler info - toogle</td><td>W</td></tr>
+            <tr><td>crawler info - move</td><td>CTRL + W</td></tr>
 
             <tr><td>details - toogle</td><td>I</td></tr>
             <tr><td>details - move</td><td>CTRL + I</td></tr>

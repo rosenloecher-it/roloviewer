@@ -113,7 +113,7 @@ export class SlideshowReducer {
         case constants.AR_SLIDESHOW_DETAILS_TOOGLE:
           return this.detailsToogle(state, action);
 
-        case constants.AR_ACTION_CRAWLERINFO_MOVE:
+        case constants.AR_SLIDESHOW_CRAWLERINFO_MOVE:
           return this.crawlerInfoMove(state, action);
         case constants.AR_SLIDESHOW_CRAWLERINFO_TOOGLE:
           return { ...state, crawlerInfoShow: !state.crawlerInfoShow };
@@ -438,18 +438,24 @@ export class SlideshowReducer {
 // --------------------------------------------------------------------------------
 
   detailsMove(state) {
+
+    const newPosition = SlideshowReducer.getValidFreeCornerPosition(state.detailsPosition, true, state.crawlerInfoPosition);
+
     return {
       ...state,
-      detailsPosition: SlideshowReducer.getValidFreeCornerPosition(state.detailsPosition, true)
+      detailsPosition: newPosition
     };
   }
 
   // .....................................................
 
   crawlerInfoMove(state) {
+
+    const newPosition = SlideshowReducer.getValidFreeCornerPosition(state.crawlerInfoPosition, true, state.detailsPosition);
+
     return {
       ...state,
-      crawlerInfoPosition: SlideshowReducer.getValidFreeCornerPosition(state.crawlerInfoPosition, true)
+      crawlerInfoPosition: newPosition,
     };
   }
 
