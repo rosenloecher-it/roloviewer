@@ -33,8 +33,6 @@ class DetailsOverlay extends React.Component {
 
   render() {
 
-    const shortenPathNum = 4;
-
     const {props} = this;
     const cssTableClass = "popover-table";
     const cssPositionClass = props.detailsPosition;
@@ -52,7 +50,7 @@ class DetailsOverlay extends React.Component {
       tableLines.push(<tr key="autoPlay"><td><Icon icon="play" /></td></tr>);
 
     if (props.detailsState !== constants.DETAILS_STATE_OFF && item && item.file) {
-      const itemPath = determinePathAndFilename(item, shortenPathNum);
+      const itemPath = determinePathAndFilename(item, props.pathShortenElements);
       const numberText = `${props.itemIndex + 1}/${props.items.length}`;
       const autoPlayIcon = (props.combinedAutoPlay && <Icon icon="play" />);
 
@@ -122,8 +120,9 @@ const mapStateToProps = state => ({
   containerType: state.renderer.containerType,
   detailsPosition: state.slideshow.detailsPosition,
   detailsState: state.slideshow.detailsState,
-  items: state.renderer.items,
   itemIndex: state.renderer.itemIndex,
+  items: state.renderer.items,
+  pathShortenElements: state.slideshow.pathShortenElements,
 });
 
 

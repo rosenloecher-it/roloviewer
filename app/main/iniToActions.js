@@ -132,18 +132,20 @@ export function createSlideshowAction(iniDataIn, context) {
 
   actionData.autoPlay = mergeBoolItem(false, iniData.slideshow.autoPlay);
 
-  actionData.transitionTimeAutoPlay = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY, iniData.slideshow.transitionTimeAutoPlay);
-  actionData.transitionTimeManual = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_MANUAL, iniData.slideshow.transitionTimeManual);
-  actionData.timer = mergeIntItem(constants.DEFCONF_TIMER, iniData.slideshow.timer);
-
-  actionData.random = mergeBoolItem(false, iniData.slideshow.random);
-
   actionData.detailsPosition = SlideshowReducer.valiDetailsPosition(valiString(iniData.slideshow.detailsPosition));
   actionData.detailsState = SlideshowReducer.getValidDetailsState(valiString(iniData.slideshow.detailsState), false);
 
   const tempCrawlerInfoPosition = valiString(iniData.slideshow.crawlerInfoPosition);
   actionData.crawlerInfoPosition = SlideshowReducer.valiCrawlerInfoPosition(tempCrawlerInfoPosition, actionData.detailsPosition);
   actionData.crawlerInfoShow = mergeBoolItem(false, iniData.slideshow.crawlerInfoShow);
+
+  actionData.pathShortenElements = mergeIntItem(constants.DEFCONF_PATH_SHORTEN_ELEMENTS, iniData.slideshow.pathShortenElements);
+  actionData.random = mergeBoolItem(false, iniData.slideshow.random);
+
+  actionData.transitionTimeAutoPlay = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY, iniData.slideshow.transitionTimeAutoPlay);
+  actionData.transitionTimeManual = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_MANUAL, iniData.slideshow.transitionTimeManual);
+  actionData.timer = mergeIntItem(constants.DEFCONF_TIMER, iniData.slideshow.timer);
+
 
   if (context.tempCliAutoselect) {
     actionData.lastContainerType = constants.CONTAINER_AUTOSELECT;

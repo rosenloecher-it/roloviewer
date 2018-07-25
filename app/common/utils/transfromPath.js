@@ -4,8 +4,10 @@ import path from 'path';
 
 export function shortenPathElements(fullpath, shortenPathNum) {
 
-  if (!shortenPathNum || !fullpath)
-    return path;
+  if (!fullpath)
+    return null;
+  if (!shortenPathNum)
+    return fullpath;
 
   const elements = fullpath.split(path.sep);
 

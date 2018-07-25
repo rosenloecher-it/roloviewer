@@ -23,14 +23,6 @@ export function getDefaultCachePath() {
 
 //----------------------------------------------------------------------------
 
-export function getDefaultCrawlerDb() {
-  const configPath = getDefaultCachePath();
-  const configFile = path.join(configPath, constants.DEFCONF_DBNAME);
-  return configFile;
-}
-
-//----------------------------------------------------------------------------
-
 export function getDefaultLogFile() {
   const configPath = getDefaultCachePath();
   const configFile = path.join(configPath, constants.DEFCONF_LOGNAME);

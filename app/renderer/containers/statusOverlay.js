@@ -1,9 +1,8 @@
 import React from 'react';
 import {connect} from "react-redux";
-import { Icon } from '@blueprintjs/core';
 import log from 'electron-log';
 import * as constants from "../../common/constants";
-import {determinePathAndFilename} from "../../common/utils/transfromPath";
+import {shortenPathElements} from "../../common/utils/transfromPath";
 
 // ----------------------------------------------------------------------------------
 
@@ -23,10 +22,12 @@ class StatusOverlay extends React.Component {
   // .......................................................
 
   pushTableLine(tableLines, description, text) {
-    if (!text)
+    if (!text || !description)
       return;
 
-    tableLines.push( <tr key={description}><td>{description}</td><td>{text}</td></tr> );
+    const key = description;
+
+    tableLines.push( <tr key={key}><td>{description}</td><td>{text}</td></tr> );
   }
 
   // ......................................................
@@ -44,11 +45,12 @@ class StatusOverlay extends React.Component {
 
     this.pushTableLine(tableLines, 'Crawler status', props.currentTask || '?');
 
-    this.pushTableLine(tableLines, 'Current folder', props.currentDir);
+    const shortenedDir = shortenPathElements(props.currentDir, props.pathShortenElements);
+    this.pushTableLine(tableLines, 'Current folder', shortenedDir);
     this.pushTableLine(tableLines, 'Remaining folder', props.remainingDirs);
 
-    this.pushTableLine(tableLines, 'Database - count folders', props.countDbDirs);
-    this.pushTableLine(tableLines, 'Database - count files', props.countDbFiles);
+    this.pushTableLine(tableLines, 'Crawled folders', props.countDbDirs);
+    this.pushTableLine(tableLines, 'Crawled files', props.countDbFiles);
 
     //log.debug(`${_logKey}.render - state=${state}, showAll=${showAll}, showPath=${showPath}, itemPath=`, itemPath);
 
@@ -68,12 +70,12 @@ class StatusOverlay extends React.Component {
 const mapStateToProps = state => ({
   countDbDirs: state.status.countDbDirs,
   countDbFiles: state.status.countDbFiles,
-  currentDir: state.status.currentDir,
-  currentTask: state.status.currentTask,
-  remainingDirs: state.status.remainingDirs,
-
   crawlerInfoPosition: state.slideshow.crawlerInfoPosition,
   crawlerInfoShow: state.slideshow.crawlerInfoShow,
+  currentDir: state.status.currentDir,
+  currentTask: state.status.currentTask,
+  pathShortenElements: state.slideshow.pathShortenElements,
+  remainingDirs: state.status.remainingDirs,
 });
 
 

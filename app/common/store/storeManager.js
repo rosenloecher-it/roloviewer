@@ -76,7 +76,13 @@ export class StoreManager {
   // .....................................................
 
   dispatchLocalByRemote(action) {
-    return this.dispatchLocal(action, true);
+    const func = '.dispatchLocalByRemote';
+    try {
+      return this.dispatchLocal(action, true);
+    } catch (err) {
+      log.error(`${this._logKey}${func} - exception -`, err);
+      log.debug(`${this._logKey}${func} - action -`, action);
+    }
   }
 
   // .....................................................
