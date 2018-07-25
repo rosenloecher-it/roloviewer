@@ -8,7 +8,8 @@ import AboutOverlay from './aboutOverlay';
 import HelpOverlay from './helpOverlay';
 import DetailsOverlay from './detailsOverlay';
 import CrawlerInfoOverlay from './crawlerInfoOverlay';
-import * as actions from "../../common/store/slideshowActions";
+import * as slideshowActions from "../../common/store/slideshowActions";
+import * as rendererActions from "../../common/store/rendererActions";
 import storeManager from "../store/rendererManager";
 import * as constants from "../../common/constants";
 import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
@@ -31,7 +32,7 @@ class Slideshow extends React.Component {
       //log.debug(`${_logKey}${func} - lastItem=${lastItemFile}, lastContainer=${lastContainer}`);
 
       if (currentFile) {
-        const action = actions.createActionSetLastItemContainer(containerType, container, currentFile);
+        const action = slideshowActions.createActionSetLastItemContainer(containerType, container, currentFile);
         manager.dispatchGlobal(action);
       }
 
@@ -138,20 +139,20 @@ class Slideshow extends React.Component {
   // .......................................................
 
   goBack() {
-    this.dispatchGotoAction(actions.createActionGoBack());
+    this.dispatchGotoAction(rendererActions.createActionGoBack());
   }
 
   goNext() {
     //log.debug(`${_logKey}.goNext`);
-    this.dispatchGotoAction(actions.createActionGoNext());
+    this.dispatchGotoAction(rendererActions.createActionGoNext());
   }
 
   goPageBack() {
     let action;
     if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
-      action = actions.createActionGoPage(-1);
+      action = rendererActions.createActionGoPage(-1);
     else
-      action = actions.createActionJump(-storeManager.slideshowJumpWidth);
+      action = rendererActions.createActionJump(-storeManager.slideshowJumpWidth);
 
     this.dispatchGotoAction(action);
   }
@@ -161,9 +162,9 @@ class Slideshow extends React.Component {
 
     let action;
     if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
-      action = actions.createActionGoPage(1);
+      action = rendererActions.createActionGoPage(1);
     else
-      action = actions.createActionJump(storeManager.slideshowJumpWidth);
+      action = rendererActions.createActionJump(storeManager.slideshowJumpWidth);
 
     //log.debug(`${_logKey}.goPageNext`, action);
 
@@ -189,15 +190,15 @@ class Slideshow extends React.Component {
 
     switch (event.keyCode) {
       case 32: // space
-        storeManager.dispatchGlobal(actions.createActionToogleAutoPlay()); break;
+        storeManager.dispatchGlobal(slideshowActions.createActionToogleAutoPlay()); break;
       case 33: // page up
         this.goPageBack(); break;
       case 34: // page down
         this.goPageNext(); break;
       case 35: // end
-        this.dispatchGotoAction(actions.createActionGoEnd()); break;
+        this.dispatchGotoAction(rendererActions.createActionGoEnd()); break;
       case 36: // pos1
-        this.dispatchGotoAction(actions.createActionGoPos1()); break;
+        this.dispatchGotoAction(rendererActions.createActionGoPos1()); break;
       case 37: // arrow left
       case 38: // arrow up
         this.goBack(); break;
@@ -206,15 +207,15 @@ class Slideshow extends React.Component {
         this.goNext(); break;
       case 73: // i
         if (event.ctrlKey)
-          storeManager.dispatchGlobal(actions.createActionDetailsMove());
+          storeManager.dispatchGlobal(slideshowActions.createActionDetailsMove());
         else
-          storeManager.dispatchGlobal(actions.createActionDetailsToogle());
+          storeManager.dispatchGlobal(slideshowActions.createActionDetailsToogle());
         break;
       case 87: // w
         if (event.ctrlKey)
-          storeManager.dispatchGlobal(actions.createActionCrawlerInfoMove());
+          storeManager.dispatchGlobal(slideshowActions.createActionCrawlerInfoMove());
         else
-          storeManager.dispatchGlobal(actions.createActionCrawlerInfoToogle());
+          storeManager.dispatchGlobal(slideshowActions.createActionCrawlerInfoToogle());
         break;
 
       default:
@@ -227,7 +228,7 @@ class Slideshow extends React.Component {
 
   onMouseMove() {
     if (this.props.cursorHide)
-      storeManager.dispatchLocal(actions.createActionCursorShow());
+      storeManager.dispatchLocal(rendererActions.createActionCursorShow());
 
     this.data.lastMouseMove = new Date();
   }
@@ -240,7 +241,7 @@ class Slideshow extends React.Component {
 
     if (!this.props.cursorHide && diffTime > 5000) {
       //log.debug(`${_logKey}.onTimerHideCursor - hide cursor: cursorHide=${this.props.cursorHide}, diffTime=${diffTime}`);
-      storeManager.dispatchLocal(actions.createActionCursorHide());
+      storeManager.dispatchLocal(rendererActions.createActionCursorHide());
     }
   }
 
@@ -374,14 +375,14 @@ class Slideshow extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  aboutShow: state.slideshow.aboutShow,
+  aboutShow: state.renderer.aboutShow,
   combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
-  container: state.slideshow.container,
-  containerType: state.slideshow.containerType,
-  cursorHide: state.slideshow.cursorHide,
-  helpShow: state.slideshow.helpShow,
-  items: state.slideshow.items,
-  itemIndex: state.slideshow.itemIndex,
+  container: state.renderer.container,
+  containerType: state.renderer.containerType,
+  cursorHide: state.renderer.cursorHide,
+  helpShow: state.renderer.helpShow,
+  items: state.renderer.items,
+  itemIndex: state.renderer.itemIndex,
   isScreensaver: state.context.isScreensaver,
 });
 

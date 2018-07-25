@@ -3,8 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import * as constants from "../../common/constants";
 import * as crawlerTasksActions from "../../common/store/crawlerTasksActions";
-import * as actionsSlideshow from "../../common/store/slideshowActions";
-import storeManager from "../../main/store/mainManager";
+import * as rendererActions from "../../common/store/rendererActions";
 import {CrawlerBase} from "./crawlerBase";
 import {MediaFilter} from "./mediaFilter";
 
@@ -86,7 +85,7 @@ export class MediaLoader extends CrawlerBase {
     images.sort();
 
     const items = this.createItems(images);
-    const action = actionsSlideshow.createActionShowFiles(folder, constants.CONTAINER_FOLDER, items, selectFile);
+    const action = rendererActions.createActionShowFiles(folder, constants.CONTAINER_FOLDER, items, selectFile);
     this.objects.storeManager.dispatchGlobal(action);
 
     this.addTasksDeliverFileMeta(images);
@@ -144,7 +143,7 @@ export class MediaLoader extends CrawlerBase {
       autoFiles.sort();
 
       const items = this.createItems(autoFiles);
-      const action = actionsSlideshow.createActionAddAutoFiles(items);
+      const action = rendererActions.createActionAddAutoFiles(items);
       //log.debug(`${_logKey}${func} - action:`, action);
 
       storeManager.dispatchGlobal(action);
@@ -161,7 +160,7 @@ export class MediaLoader extends CrawlerBase {
   createItems(files) {
     const items = [];
     for (let i = 0; i < files.length; i++) {
-      const item = actionsSlideshow.createItem(files[i]);
+      const item = rendererActions.createMediaItem(files[i]);
       if (item)
         items.push(item);
     }

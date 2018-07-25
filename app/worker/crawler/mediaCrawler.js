@@ -7,7 +7,7 @@ import set from 'collections/set';
 import * as constants from "../../common/constants";
 import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
 import {CrawlerBase} from "./crawlerBase";
-import * as actionsSlideshow from "../../common/store/slideshowActions";
+import * as rendererActions from "../../common/store/rendererActions";
 import {MediaComposer} from "./mediaComposer";
 import {CrawlerTasksReducer} from "../../common/store/crawlerTasksReducer";
 import {MediaFilter} from "./mediaFilter";
@@ -130,8 +130,8 @@ export class MediaCrawler extends CrawlerBase {
         const files = [];
         for (let i = 0; i < fileItems.length; i++)
           files.push(path.join(dirItem.dir, fileItems[i].fileName));
-        const slideshowItems = actionsSlideshow.createItems(files);
-        action = actionsSlideshow.createActionAddAutoFiles(slideshowItems);
+        const slideshowItems = rendererActions.createMediaItems(files);
+        action = rendererActions.createActionAddAutoFiles(slideshowItems);
         storeManager.dispatchGlobal(action);
 
         for (let i = 0; i < files.length; i++) {

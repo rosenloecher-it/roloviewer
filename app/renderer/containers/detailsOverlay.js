@@ -119,11 +119,11 @@ class DetailsOverlay extends React.Component {
 
 const mapStateToProps = state => ({
   combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
-  containerType: state.slideshow.containerType,
+  containerType: state.renderer.containerType,
   detailsPosition: state.slideshow.detailsPosition,
   detailsState: state.slideshow.detailsState,
-  items: state.slideshow.items,
-  itemIndex: state.slideshow.itemIndex,
+  items: state.renderer.items,
+  itemIndex: state.renderer.itemIndex,
 });
 
 

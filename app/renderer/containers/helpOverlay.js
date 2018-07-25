@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from "react-redux";
 import { Button, Icon } from '@blueprintjs/core';
 import storeManager from "../store/rendererManager";
-import * as actions from "../../common/store/slideshowActions";
+import * as rendererActions from "../../common/store/rendererActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ class HelpOverlay extends React.Component {
   }
 
   onClose() {
-    const action = actions.createActionHelpClose();
+    const action = rendererActions.createActionHelpClose();
     storeManager.dispatchGlobal(action);
   }
 

@@ -293,7 +293,7 @@ export function hitEscKey() {
 
 export function toogleHelp() {
   log.debug('toogleHelp');
-  //ipc.send(constants.IPC_RENDERER, constants.AR_SLIDESHOW_HELP_TOOGLE, null);
+  //ipc.send(constants.IPC_RENDERER, constants.AR_RENDERER_HELP_TOOGLE, null);
 
   const action = actionsSls.createActionHelpToogle();
   storeManager.dispatchGlobal(action);

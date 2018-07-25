@@ -34,7 +34,7 @@ export class RendererManager extends StoreManager {
   dispatchLocalByRemote(action) {
     super.dispatchLocalByRemote(action);
 
-    // if (action.type === constants.AR_SLIDESHOW_DELIVER_META)
+    // if (action.type === constants.AR_RENDERER_DELIVER_META)
     //   log.debug(`${_logKey}.dispatchLocalByRemote - action:`, action);
   }
 

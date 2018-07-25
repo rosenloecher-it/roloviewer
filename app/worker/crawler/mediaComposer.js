@@ -2,9 +2,7 @@ import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import * as constants from "../../common/constants";
-import * as actionsCrawlerTasks from "../../common/store/crawlerTasksActions";
 import {CrawlerBase} from "./crawlerBase";
-import * as actionsSlideshow from "../../common/store/slideshowActions";
 
 // ----------------------------------------------------------------------------------
 

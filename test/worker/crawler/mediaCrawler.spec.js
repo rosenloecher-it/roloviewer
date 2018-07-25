@@ -709,9 +709,9 @@ describe(_logKey, () => {
           const globalActions = testSystem.storeManager.data.globalDispatchedActions;
 
           expect(globalActions.length).toBeGreaterThan(0);
-          const lastAction = testSystem.storeManager.getLastGlobalAction(constants.AR_SLIDESHOW_ADD_AUTO_FILES);
+          const lastAction = testSystem.storeManager.getLastGlobalAction(constants.AR_RENDERER_ADD_AUTO_FILES);
 
-          expect(lastAction.type).toBe(constants.AR_SLIDESHOW_ADD_AUTO_FILES);
+          expect(lastAction.type).toBe(constants.AR_RENDERER_ADD_AUTO_FILES);
 
           const promisesInner = [];
 
@@ -759,7 +759,7 @@ describe(_logKey, () => {
 
       for (let i = 0; i < globalActions.length; i++) {
         const action = globalActions[i];
-        if (action.type !== constants.AR_SLIDESHOW_ADD_AUTO_FILES)
+        if (action.type !== constants.AR_RENDERER_ADD_AUTO_FILES)
           continue;
 
         deliveredAutoFileActions++;

@@ -2,7 +2,7 @@ import fs from 'fs';
 import {CrawlerBase} from "../../../app/worker/crawler/crawlerBase";
 import {DummyTestSystem} from "./dummyTestSystem";
 import {separateFilePath} from "../../../app/common/utils/transfromPath";
-import * as slideshowActions from "../../../app/common/store/slideshowActions";
+import * as rendererActions from "../../../app/common/store/rendererActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ export class DummyMetaReader extends CrawlerBase {
       meta.tags = fileItem.rating || 0;
       meta.rating = fileItem.tags || [];
 
-      const action = slideshowActions.createActionDeliverFileMeta(meta);
+      const action = rendererActions.createActionDeliverFileMeta(meta);
       instance.objects.storeManager.dispatchRemote(action, null);
 
       resolve({});

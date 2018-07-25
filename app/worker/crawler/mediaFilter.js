@@ -1,12 +1,6 @@
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
-import * as constants from "../../common/constants";
-import * as crawlerTasksActions from "../../common/store/crawlerTasksActions";
-import * as actionsSlideshow from "../../common/store/slideshowActions";
-import storeManager from "../../main/store/mainManager";
-import {CrawlerBase} from "./crawlerBase";
-import {MediaLoader} from "./mediaLoader";
 
 // ----------------------------------------------------------------------------------
 

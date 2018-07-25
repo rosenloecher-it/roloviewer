@@ -5,7 +5,7 @@ import * as constants from "../../common/constants";
 import { shortenString } from "../../common/utils/stringUtils";
 import { valiInt } from '../../common/utils/validate';
 import {separateFilePath} from "../../common/utils/transfromPath";
-import * as slideshowActions from "../../common/store/slideshowActions";
+import * as rendererActions from "../../common/store/rendererActions";
 import {CrawlerBase} from "./crawlerBase";
 
 // ----------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ export class MetaReader extends CrawlerBase {
         instance.data.exiftool.read(file).then((tags) => {
           //log.debug(`${_logKey}${func}: in2 - ${file}`);
           const meta = prepareTagsFromExiftool(file, tags, false);
-          const action = slideshowActions.createActionDeliverFileMeta(meta);
+          const action = rendererActions.createActionDeliverFileMeta(meta);
           instance.objects.storeManager.dispatchRemote(action, null);
 
           resolve();

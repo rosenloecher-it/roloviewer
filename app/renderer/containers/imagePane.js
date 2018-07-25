@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import log from 'electron-log';
 import ExifOrientationImg from 'react-exif-orientation-img'
 import * as cssConstants from '../style/cssConstants';
-import * as actions from "../../common/store/slideshowActions";
+import * as rendererActions from "../../common/store/rendererActions";
 import storeManager from "../store/rendererManager";
 import * as ops from "../rendererOps";
 
@@ -44,12 +44,12 @@ class ImagePane extends React.Component {
   // .......................................................
 
   goBack() {
-    this.props.dispatch(actions.createActionGoBack());
+    this.props.dispatch(rendererActions.createActionGoBack());
   }
 
   goNext() {
     //log.debug(`${_logKey}.goNext`);
-    this.props.dispatch(actions.createActionGoNext());
+    this.props.dispatch(rendererActions.createActionGoNext());
   }
 
   // .......................................................
@@ -163,9 +163,9 @@ class ImagePane extends React.Component {
 
 const mapStateToProps = state => ({
   combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
-  cursorHide: state.slideshow.cursorHide,
-  items: state.slideshow.items,
-  itemIndex: state.slideshow.itemIndex,
+  cursorHide: state.renderer.cursorHide,
+  items: state.renderer.items,
+  itemIndex: state.renderer.itemIndex,
   isScreensaver: state.context.isScreensaver,
 });
 

@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import log from 'electron-log';
 import { Button, Icon } from '@blueprintjs/core';
 import * as constants from "../../common/constants";
-import * as actions from "../../common/store/slideshowActions";
+import * as rendererActions from "../../common/store/rendererActions";
 import storeManager from "../store/rendererManager";
 import * as ops from "../rendererOps";
 
@@ -27,7 +27,7 @@ class AboutOverlay extends React.Component {
   }
 
   onClose() {
-    const action = actions.createActionAboutClose();
+    const action = rendererActions.createActionAboutClose();
     storeManager.dispatchGlobal(action);
   }
 
