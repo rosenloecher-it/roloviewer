@@ -44,7 +44,7 @@
   "build": {
     "productName": "Roloslider",
     "appId": "com.rosenloecher-it.roloslider",
-    "fileItems": [
+    "files": [
       "dist/",
       "node_modules/",
       "renderer/app.html",

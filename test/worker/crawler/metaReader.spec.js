@@ -1,13 +1,8 @@
-import * as metaReader from '../../../app/worker/crawler/metaReader';
+import {MetaReader} from '../../../app/worker/crawler/metaReader';
+import {isWinOs} from "../../../app/common/utils/systemUtils";
+import fs from "fs";
 
-// export const LATI_ABS = "<LATI_ABS>";
-// export const LATI_NUM = "<LATI_NUM>";
-// export const LATI_REF = "<LATI_REF>";
-// export const LATI_REL = "<LATI_REL>";
-// export const LONG_ABS = "<LONG_ABS>";
-// export const LONG_NUM = "<LONG_NUM>";
-// export const LONG_REF = "<LONG_REF>";
-// export const LONG_REL = "<LONG_REL>";
+// ----------------------------------------------------------------------------------
 
 describe('metaReader', () => {
 
@@ -27,7 +22,7 @@ describe('metaReader', () => {
 
     format = 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M'
 
-    url = metaReader.formatGpsMeta(meta, format);
+    url = MetaReader.formatGpsMeta(meta, format);
     console.log('formatGpsMeta', url);
 
     expect(url).not.toBeNull();
@@ -46,5 +41,6 @@ describe('metaReader', () => {
     //   });
 
   });
+
 
 });

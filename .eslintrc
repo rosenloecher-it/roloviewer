@@ -32,6 +32,7 @@
     "no-plusplus": "off",
     "no-underscore-dangle": "off",
     "no-use-before-define": "off",
+    "one-var": "off",
     "prefer-destructuring": "off",
     "promise/always-return": "error",
     "promise/catch-or-return": "error",

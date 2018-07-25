@@ -139,7 +139,7 @@ export class MediaCrawler extends CrawlerBase {
   }
 
   static equalsStateNoRescan(status1In, status2In) {
-    const func = 'equalsStateNoRescan';
+    const func = '.equalsStateNoRescan';
 
     const status1 = MediaCrawler.prepareStateNoRescan(status1In);
     const status2 = MediaCrawler.prepareStateNoRescan(status2In);

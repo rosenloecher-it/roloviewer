@@ -1,18 +1,20 @@
 import {ExifTool} from "exiftool-vendored";
+import { exec } from 'child_process';
 import log from 'electron-log';
 import fs from 'fs';
 import * as constants from "../../common/constants";
 import { shortenString } from "../../common/utils/stringUtils";
+import { isWinOs } from "../../common/utils/systemUtils";
 import { valiInt } from '../../common/utils/validate';
 import {separateFilePath} from "../../common/utils/transfromPath";
 import * as rendererActions from "../../common/store/rendererActions";
 import {CrawlerBase} from "./crawlerBase";
+import {MetaReaderExiftool} from "./metaReaderExiftool";
+import {MetaReaderIntern} from "./metaReaderIntern";
 
 // ----------------------------------------------------------------------------------
 
 const _logKey = "metaReader";
-
-let _showNoExifToolWarning = true;
 
 // ----------------------------------------------------------------------------------
 
@@ -22,6 +24,8 @@ export class MetaReader extends CrawlerBase {
     super();
 
     this.data.exiftoolInitialized = false;
+    this.data.reader = null;
+
     this.data.exiftool = null;
     this.data.exiftoolFallback = true;
 
@@ -32,42 +36,38 @@ export class MetaReader extends CrawlerBase {
   init() {
     const func = ".init";
 
-    super.init();
-
     const instance = this;
+    const {data} = instance;
 
-    const p = new Promise(function initPromise(resolve, reject) {
+    const p = super.init().then(() => {
 
-      if (instance.data.exiftoolInitialized || instance.data.exiftool) {
-        resolve();
-        return;
-      }
-
-      log.silly(`${_logKey}${func}`);
+      if (data.exiftoolInitialized || data.reader)
+        return Promise.resolve();
 
       instance.data.exiftoolInitialized = true;
-      instance.data.exiftoolFallback = false; //instance.data.config....exiftoolFallback;
 
-      try {
-        const exiftool = MetaReader.createNewExifTool(instance.objects.storeManager.exiftoolPath);
+      const systemState = instance.objects.storeManager.systemState;
 
-        exiftool.version()
-          .then((version) => {
-            log.info(`${_logKey}${func} - success - ExifTool v${version}`);
-            instance.data.exiftool = exiftool;
-            resolve();
-          })
-          .catch((err) => {
-            log.error(`${_logKey}${func} - failed - `, err);
-            reject();
-          });
+      return MetaReaderExiftool.determineExifToolPath(systemState);
 
-      } catch (err) {
-        log.error(`${_logKey}${func} - exception:`, err);
-        reject();
-      }
+    }).then((exifToolPath) => {
 
-      resolve();
+      if (exifToolPath)
+        data.reader = MetaReaderExiftool.createReader(exifToolPath);
+      else
+        data.reader = MetaReaderIntern.createReader();
+
+      if (data.reader)
+        return data.reader.init();
+
+      log.warn(`${_logKey}${func} - no exif reader available!`);
+      return Promise.resolve();
+
+    }).catch((err) => {
+      this.logAndShowError(`${_logKey}${func}.promise.catch`, err);
+      data.reader = null;
+
+      return Promise.resolve();
     });
 
     return p;
@@ -78,12 +78,20 @@ export class MetaReader extends CrawlerBase {
   shutdown() {
     const func = ".shutdown";
 
-    const p = new Promise((resolve, reject) => {
+    const {data} = this;
+
+    const p = new Promise(() => {
       //log.silly(`${_logKey}${func}`);
-      if (this.data.exiftool)
-        this.data.exiftool.end();
-      this.data.exiftool = null;
-      resolve();
+
+      if (data.reader)
+        return data.reader.shutdown();
+
+      return Promise.resolve();
+
+    }).then(() => {
+      return super.shutdown();
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -91,68 +99,27 @@ export class MetaReader extends CrawlerBase {
 
   // ........................................................
 
-  static createNewExifTool(exiftoolPath) {
-    const func = ".createNewExifTool";
+  readMeta(file, prepareOnlyCrawlerTags) {
+    const func = ".readMeta";
 
-    let exiftool = null;
+    const {data} = this;
 
-    if (exiftoolPath && fs.existsSync(exiftoolPath)) {
+    if (!data.reader)
+      return Promise.resolve(null);
 
-      /* eslint-disable no-void */
-      const maxProcs = void(0);
-      const maxTasksPerProcess = void(0);
-      const spawnTimeoutMillis = void(0);
-      const taskTimeoutMillis = void(0);
-      const onIdleIntervalMillis = void(0);
-      const taskRetries = void(0);
-      const batchClusterOpts = void(0);
-      /* eslint-enable no-void */
+    const p = data.reader.readMeta(file, prepareOnlyCrawlerTags).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
 
-      //const exiftoolPath = '/usr/bin/exiftool';
-
-      exiftool = new ExifTool(maxProcs, maxTasksPerProcess, spawnTimeoutMillis, taskTimeoutMillis, onIdleIntervalMillis, taskRetries, batchClusterOpts
-        , exiftoolPath);
-      log.debug(`${_logKey}${func} - path ${exiftoolPath}`);
-    } else {
-      exiftool = new ExifTool();
-      log.debug(`${_logKey}${func} - without path!`);
-    }
-
-    return exiftool;
+    return p;
   }
 
   // ........................................................
 
   loadMeta(file) {
-    const func = ".loadMeta"; // for crawler
 
-    const instance = this;
+    return this.readMeta(file, true); // (file, prepareOnlyCrawlerTags)
 
-    const p = new Promise((resolve, reject) => {
-
-      if (instance.data.exiftool) {
-        return instance.data.exiftool.read(file).then((tags) => {
-
-          const meta = prepareTagsFromExiftool(file, tags, true);
-
-          resolve(meta);
-        });
-
-      } else {
-        // TODO implement fallback to ExifReader
-        if (_showNoExifToolWarning) {
-          _showNoExifToolWarning = false;
-          //reject(new Error("exiftool is not initialied (and fallback is not implemented)!"));
-          log.warn(`${_logKey}${func} - exiftool is not initialied (and fallback is not implemented)!`);
-        }
-        resolve(null);
-      }
-    }).catch((err) => {
-      log.error(`${_logKey}${func}.promise.catch -`, err);
-      throw err;
-    });
-
-    return p;
   }
 
   // ........................................................
@@ -160,37 +127,18 @@ export class MetaReader extends CrawlerBase {
   deliverMeta(file) {
     const func = ".deliverMeta";
 
-    //log.debug(`${_logKey}${func} - in`, file);
-
     const instance = this;
-    const {storeManager} = instance.data;
 
-    const p = new Promise((resolve, reject) => {
+    // readMeta(file, prepareOnlyCrawlerTags)
+    const p = this.readMeta(file, false).then((meta) => {
 
-      //log.debug(`${_logKey}${func}: in - ${file}`);
-      if (instance.data.exiftool) {
-        instance.data.exiftool.read(file).then((tags) => {
-          //log.debug(`${_logKey}${func}: in2 - ${file}`);
-          const meta = prepareTagsFromExiftool(file, tags, false);
-          const action = rendererActions.createActionDeliverFileMeta(meta);
-          instance.objects.storeManager.dispatchRemote(action, null);
-
-          resolve();
-        }).catch((err) => {
-          log.error(`${_logKey}${func} - exception - `, err);
-          reject(err);
-        });
-      } else {
-        // TODO implement fallback to ExifReader
-
-        if (_showNoExifToolWarning) {
-          _showNoExifToolWarning = false;
-          //reject(new Error("exiftool is not initialied (and fallback is not implemented)!"));
-          log.warn(`${_logKey}${func} - exiftool is not initialied (and fallback is not implemented)!`);
-        }
-        resolve();
+      if (meta) {
+        const action = rendererActions.createActionDeliverFileMeta(meta);
+        instance.objects.storeManager.dispatchRemote(action, null);
       }
 
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -198,213 +146,112 @@ export class MetaReader extends CrawlerBase {
 
   // ........................................................
 
-}
+  static pushDetails(inputText, addText) {
+    if (!addText)
+      return inputText;
+    if (!inputText)
+      return addText;
 
-// ----------------------------------------------------------------------------------
-
-export function pushDetails(inputText, addText) {
-  if (!addText)
-    return inputText;
-  if (!inputText)
-    return addText;
-  else
-    return inputText + " | " + addText;
-}
-
-// ----------------------------------------------------------------------------------
-
-export function prepareTagsFromExiftool(file, tags, prepareOnlyCrawlerTags = false) {
-  let temp = null;
-  const ml = 50; // maxLength
-
-  //log.debug(`${_logKey}.prepareTagsFromExiftool - file=${file}`, tags);
-
-  const sepPath = separateFilePath(file, 4);
-  const meta = {
-    file,
-    filename: sepPath.filename,
-    dir: sepPath.dir,
-  };
-
-  meta.tags = tags.Keywords;
-  meta.rating = tags.Rating;
-
-  if (prepareOnlyCrawlerTags === false) {
-
-    meta.imageHeight = tags.ImageHeight;
-    meta.imageWidth = tags.ImageWidth;
-    meta.imageSize = `${tags.ImageWidth}x${tags.ImageHeight}`;
-
-    meta.cameraModel = shortenString(tags.Model, ml);
-    meta.cameraLens = shortenString(tags.LensID || tags.LensInfo || tags.LensModel || tags.Lens, ml);
-
-    meta.photoShutterSpeed = tags.ShutterSpeedValue || tags.ShutterSpeed || tags.FNumber;
-    meta.photoAperture = tags.ApertureValue || tags.Aperture || tags.FNumber;
-    meta.photoISO = tags.ISO;
-    meta.photoFlash = tags.Flash;
-
-    if (meta.photoShutterSpeed)
-      meta.photoSettings = pushDetails(meta.photoSettings, meta.photoShutterSpeed + "s");
-    if (meta.photoAperture)
-      meta.photoSettings = pushDetails(meta.photoSettings, "f" + meta.photoAperture);
-    if (meta.photoISO)
-      meta.photoSettings = pushDetails(meta.photoSettings, "ISO " + meta.photoISO);
-
-    temp = valiInt(tags.FocalLength);
-    if (temp)
-      meta.photoFocalLength = `${temp} mm`;
-
-    temp = valiInt(tags.UprightFocalLength35mm);
-    if (temp)
-      meta.photoUprightFocalLength35mm = `${temp} mm`;
-
-    meta.gpsAltitude = tags.GPSAltitude; // '255.3837 m'
-    meta.gpsLatitude = tags.GPSLatitude; // 51.02369333
-    meta.gpsLatitudeRef = tags.GPSLatitudeRef; // 'North'
-    meta.gpsLongitude = tags.GPSLongitude; // 13.65431667
-    meta.gpsLongitudeRef = tags.GPSLongitudeRef; // 'East'
-    meta.gpsPosition = tags.GPSPosition; // '51.02369333 N, 13.65431667 E'
-    meta.gpsVersionID = tags.GPSVersionID; // '2.2.0.0'
-
-    meta.gpsCountry = shortenString(tags.Country, ml); // 'Deutschland'
-    meta.gpsProvince = shortenString(tags.State || tags['Province-State'], ml); // 'Sachsen'
-    meta.gpsCity = shortenString(tags.City, ml); // 'Freital'
-
-    meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsCity);
-    meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsProvince);
-    meta.gpsLocation = pushDetails(meta.gpsLocation, meta.gpsCountry);
-    meta.gpsLocation = shortenString(meta.gpsLocation, ml);
-
-    meta.date = validateExifDate(tags.DateTimeOriginal) || validateExifDate(tags.DateCreated)
-                                  || validateExifDate(tags.CreateDate) || tags.DateTimeCreated;
+    return `${inputText} | ${addText}`;
   }
 
-  return meta;
-}
+  // ........................................................
 
-// ----------------------------------------------------------------------------------
+  static validateExifDate(input) {
 
-export function validateExifDate(input) {
+    if (!input)
+      return null;
 
-  if (!input)
+    if (input.year && input.month && input.day && input.hour && input.minute) {
+      const date = new Date();
+
+      date.setFullYear(input.year);
+      date.setMonth(input.month - 1);
+      date.setDate(input.day);
+
+      date.setHours(input.hour);
+      date.setMinutes(input.minute);
+      date.setSeconds(input.second || 0);
+      date.setMilliseconds(input.millis || 0);
+
+      // log.debug("validateExifDate", date.toISOString());
+
+      return date.valueOf();
+    }
+
     return null;
-
-  if (input.year && input.month && input.day && input.hour && input.minute) {
-    const date = new Date();
-
-    date.setFullYear(input.year);
-    date.setMonth(input.month - 1);
-    date.setDate(input.day);
-
-    date.setHours(input.hour);
-    date.setMinutes(input.minute);
-    date.setSeconds(input.second || 0);
-    date.setMilliseconds(input.millis || 0);
-
-    // log.debug("validateExifDate", date.toISOString());
-
-    return date.valueOf();
   }
 
-  return null;
-}
+  // ........................................................
 
-// ----------------------------------------------------------------------------------
+  static formatGpsMeta(meta, format) {
+    const func = '.formatGpsMeta';
 
-export function formatGpsMeta(meta, format) {
-  const func = '.formatGpsMeta';
+    if (!format)
+      return null;
 
-  if (!format)
-    return null;
+    let url =  null;
 
-  let url =  null;
-  let file = ";"
+    do {
 
-  do {
+      if (!meta || !meta.gpsLatitude || !meta.gpsLatitudeRef || !meta.gpsLongitude || !meta.gpsLongitudeRef) {
+        let file = '';
+        if (meta.file)
+          file = ` (${meta.file})`;
+        log.warn(`${_logKey}${func} - missing meta${file}!`);
+        break;
+      }
 
-    if (!meta || !meta.gpsLatitude || !meta.gpsLatitudeRef || !meta.gpsLongitude || !meta.gpsLongitudeRef) {
-      if (meta.file)
-        file = ` (${meta.file})`;
-      log.warn(`${_logKey}${func} - missing meta!`);
-      break;
-    }
+      const latiRel = `${meta.gpsLatitudeRef.trim().toLowerCase()}`;
+      const longRel = `${meta.gpsLongitudeRef.trim().toLowerCase()}`;
 
-    file = ` (${meta.file})`;
+      let latiMinus = '', longMinus = '', latiRef = '', longRef = '';
 
-    const latiRel = `${meta.gpsLatitudeRef.trim().toLowerCase()}`;
-    const longRel = `${meta.gpsLongitudeRef.trim().toLowerCase()}`;
+      if (latiRel === 'north') {
+        latiRef = 'n';
+        latiMinus = '';
+      } else if (latiRel === 'south') {
+        latiRef = 's';
+        latiMinus = '-';
+      } else {
+        log.warn(`${_logKey}${func} - unknown gpsLatitudeRef (${latiRel})!`);
+        break;
+      }
 
-    let latiMinus = '', longMinus = '', latiRef = '', longRef = '';
+      if (longRel === 'east') {
+        longRef = 'e';
+        longMinus = '';
+      } else if (longRel === 'west') {
+        longRef = 'w';
+        longMinus = '-';
+      } else {
+        log.warn(`${_logKey}${func} - unknown gpsLongitudeRef (${longRel})!`);
+        break;
+      }
 
-    if (latiRel === 'north') {
-      latiRef = 'n';
-      latiMinus = '';
-    } else if (latiRel === 'south') {
-      latiRef = 's';
-      latiMinus = '-';
-    } else {
-      log.warn(`${_logKey}${func} - unknown gpsLatitudeRef (${latiRel})!`);
-      break;
-    }
+      const latitude = Math.abs(meta.gpsLatitude);
+      const longitude = Math.abs(meta.gpsLongitude);
 
-    if (longRel === 'east') {
-      latiRef = 'e';
-      latiMinus = '';
-    } else if (longRel === 'west') {
-      latiRef = 'w';
-      latiMinus = '-';
-    } else {
-      log.warn(`${_logKey}${func} - unknown gpsLongitudeRef (${longRel})!`);
-      break;
-    }
+      const latiAbs = `${latitude}`;
+      const latiNum = `${latiMinus}${latitude}`;
+      const longAbs = `${longitude}`;
+      const longNum = `${longMinus}${longitude}`;
 
-    const latitude = Math.abs(meta.gpsLatitude);
-    const longitude = Math.abs(meta.gpsLongitude);
+      let temp = format;
+      temp = temp.replace(constants.LATI_ABS, latiAbs);
+      temp = temp.replace(constants.LATI_NUM, latiNum);
+      temp = temp.replace(constants.LATI_REF, latiRef);
+      temp = temp.replace(constants.LATI_REL, latiRel);
+      temp = temp.replace(constants.LONG_ABS, longAbs);
+      temp = temp.replace(constants.LONG_NUM, longNum);
+      temp = temp.replace(constants.LONG_REF, longRef);
+      temp = temp.replace(constants.LONG_REL, longRel);
+      url = temp;
 
-    const latiAbs = `${latitude}`;
-    const latiNum = `${latiMinus}${latitude}`;
-    const longAbs = `${longitude}`;
-    const longNum = `${longMinus}${longitude}`;
+    } while (false);
 
-    let temp = format;
-    temp = temp.replace(constants.LATI_ABS, latiAbs);
-    temp = temp.replace(constants.LATI_NUM, latiNum);
-    temp = temp.replace(constants.LATI_REF, latiRef);
-    temp = temp.replace(constants.LATI_REL, latiRel);
-    temp = temp.replace(constants.LONG_ABS, longAbs);
-    temp = temp.replace(constants.LONG_NUM, longNum);
-    temp = temp.replace(constants.LONG_REF, longRef);
-    temp = temp.replace(constants.LONG_REL, longRel);
-    url = temp;
-
-  } while (false);
-
-  return url;
-
-
-  //var str = "Visit Microsoft!";
-  //var res = str.replace("Microsoft", "W3Schools");
-
-//log.debug(`${_logKey}${func} - meta`, currentItem.meta);
-
-
-  // London: http://www.openstreetmap.org/?mlat=52.51858&mlon=13.37603&zoom=15&layers=M
-  // Queentown: http://www.openstreetmap.org/?mlat=-45.01815333&mlon=168.71480833&zoom=15&layers=M
-
-  // gpsLatitude: 60.88714333,
-  // gpsLatitudeRef: 'North',
-  // gpsLongitude: 6.853205,
-  // gpsLongitudeRef: 'East',
-  // gpsPosition: '60.88714333 N, 6.85320500 E',
-
-  // samples: /home/data/mymedia/200x/2007/20070201 New Zealand Trip/20070303 Glenorgy
-
-
-
-
-
-
-
+    return url;
+  }
 }
 
 // ----------------------------------------------------------------------------------

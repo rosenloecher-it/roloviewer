@@ -255,7 +255,7 @@ export class Dispatcher extends CrawlerBase {
 
         case constants.AR_WORKER_REMOVE_DIRS:
           data.statusCrawlerTask = 'Removing folders';
-          logInfo = task.payload;
+          //logInfo = task.payload; // list of all folders
           break;
 
         case constants.AR_WORKER_SCAN_FSDIR:
@@ -287,7 +287,11 @@ export class Dispatcher extends CrawlerBase {
 
       data.lastStatusCrawlerTask = data.statusCrawlerTask;
 
-      log.debug(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}${logInfo ? `: ${logInfo}` : ''}`);
+      if (logInfo)
+        log.debug(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}:`, logInfo);
+      else
+        log.debug(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}`);
+
     } catch(err) {
       log.error(`${_logKey}${func} -`, err);
     }
