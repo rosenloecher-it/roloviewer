@@ -7,7 +7,7 @@ import * as windows from './windows';
 import {mkDirWithParents} from "../common/utils/fileUtils";
 import * as ipc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
-import * as actionsSls from "../common/store/slideshowActions";
+import * as rendererActions from "../common/store/rendererActions";
 import storeManager from './store/mainManager';
 import * as actionsMainWindow from "../common/store/mainWindowActions";
 import * as workerActions from "../common/store/workerActions";
@@ -265,12 +265,12 @@ export function hitEscKey() {
 
     const slideshowState = storeManager.slideshowState;
     if (slideshowState.helpShow) {
-      const action = actionsSls.createActionHelpClose();
+      const action = rendererActions.createActionHelpClose();
       storeManager.dispatchGlobal(action);
       return;
     }
     if (slideshowState.aboutShow) {
-      const action = actionsSls.createActionAboutClose();
+      const action = rendererActions.createActionAboutClose();
       storeManager.dispatchGlobal(action);
       return;
     }
@@ -295,7 +295,7 @@ export function toogleHelp() {
   log.debug('toogleHelp');
   //ipc.send(constants.IPC_RENDERER, constants.AR_RENDERER_HELP_TOOGLE, null);
 
-  const action = actionsSls.createActionHelpToogle();
+  const action = rendererActions.createActionHelpToogle();
   storeManager.dispatchGlobal(action);
 }
 
@@ -304,7 +304,7 @@ export function toogleHelp() {
 export function showAbout() {
   log.debug('showAbout');
 
-  const action = actionsSls.createActionAboutOpen();
+  const action = rendererActions.createActionAboutOpen();
   storeManager.dispatchGlobal(action);
 }
 
@@ -365,7 +365,7 @@ export function debug1() {
   log.debug('debug1');
   //storeManager.showMessage(constants.MSG_TYPE_INFO, "msgText - info");
 
-  const action = actionsSls.createActionAboutOpen();
+  const action = rendererActions.createActionAboutOpen();
   storeManager.dispatchGlobal(action);
 }
 

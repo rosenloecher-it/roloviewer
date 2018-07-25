@@ -1,12 +1,5 @@
-import {ExifTool} from "exiftool-vendored";
-import { exec } from 'child_process';
 import log from 'electron-log';
-import fs from 'fs';
 import * as constants from "../../common/constants";
-import { shortenString } from "../../common/utils/stringUtils";
-import { isWinOs } from "../../common/utils/systemUtils";
-import { valiInt } from '../../common/utils/validate';
-import {separateFilePath} from "../../common/utils/transfromPath";
 import * as rendererActions from "../../common/store/rendererActions";
 import {CrawlerBase} from "./crawlerBase";
 import {MetaReaderExiftool} from "./metaReaderExiftool";

@@ -219,7 +219,7 @@ class Slideshow extends React.Component {
         break;
 
       default:
-        log.silly(`${_logKey}${func} - keyCode=${event.keyCode}`);
+        //log.silly(`${_logKey}${func} - keyCode=${event.keyCode}`);
         break;
     }
   }
