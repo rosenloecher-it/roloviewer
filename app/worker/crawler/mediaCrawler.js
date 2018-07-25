@@ -36,13 +36,10 @@ export class MediaCrawler extends CrawlerBase {
     const func = '.shutdown';
 
     const instance = this;
-    const {dbWrapper} = instance.objects;
-    const {storeManager} = instance.objects;
-    const crawlerState = storeManager.crawlerState;
 
     const p = super.shutdown().then(() => {
 
-      return dbWrapper.saveState(crawlerState);
+      return this.saveState();
 
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
@@ -163,16 +160,16 @@ export class MediaCrawler extends CrawlerBase {
     const {dbWrapper} = instance.objects;
     const {storeManager} = instance.objects;
     const crawlerState = storeManager.crawlerState;
-    const tasksState = storeManager.workerState;
+    const workerState = storeManager.workerState;
 
     const prio = WorkerReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
 
     const stateComposed = {
       lastConfig: crawlerState,
       lastUpdateDirs: [],
-    }
+    };
 
-    const dirTasks = tasksState.tasks[prio];
+    const dirTasks = workerState.tasks[prio];
     for (let i = 0; i < dirTasks.length; i++) {
       const task = dirTasks[i];
       stateComposed.lastUpdateDirs.push(task.payload);

@@ -80,15 +80,15 @@ export class MetaReader extends CrawlerBase {
 
     const {data} = this;
 
-    const p = new Promise(() => {
-      //log.silly(`${_logKey}${func}`);
+    //log.debug(`${_logKey}${func} - after metaReader`);
 
-      if (data.reader)
-        return data.reader.shutdown();
+    let p = null;
+    if (data.reader)
+      p = data.reader.shutdown();
+    else
+      p = Promise.resolve();
 
-      return Promise.resolve();
-
-    }).then(() => {
+    p = p.then(() => {
       return super.shutdown();
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
