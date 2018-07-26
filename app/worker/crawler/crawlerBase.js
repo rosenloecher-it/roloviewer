@@ -13,7 +13,9 @@ export class CrawlerBase {
   constructor() {
     const func = ".constructor";
 
-    this.data = {};
+    this.data = {
+      processingStopped: false,
+    };
 
     this.objects = {
       dbWrapper: null,
@@ -58,8 +60,16 @@ export class CrawlerBase {
   // ........................................................
 
   shutdown() {
+    this.stopProcessing();
+
     // overwrite by subclass
     return Promise.resolve();
+  }
+
+  // .....................................................
+
+  stopProcessing() {
+    this.data.processingStopped = true;
   }
 
   // ........................................................

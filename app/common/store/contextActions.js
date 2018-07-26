@@ -1,12 +1,12 @@
 import * as constants from "../constants";
 
-export const createActionInit = ({
+export const createActionInitReducer = ({
   isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
   configFile, configIsReadOnly,
   tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer,
   versionElectron
 }) => ({
-  type: constants.AR_CONTEXT_INIT,
+  type: constants.AR_CONTEXT_INIT_REDUCER,
   payload: {
     isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
     configIsReadOnly, configFile,

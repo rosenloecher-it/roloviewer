@@ -2,7 +2,7 @@ import * as constants from "../constants";
 
 // ----------------------------------------------------------------------------------
 
-export const createActionInit = ({
+export const createActionInitReducer = ({
                                    autoPlay,
                                    crawlerInfoPosition,
                                    crawlerInfoShow,
@@ -17,7 +17,7 @@ export const createActionInit = ({
                                    transitionTimeAutoPlay,
                                    transitionTimeManual,
 }) => ({
-  type: constants.AR_SLIDESHOW_INIT,
+  type: constants.AR_SLIDESHOW_INIT_REDUCER,
   payload: {
     autoPlay,
     crawlerInfoPosition,

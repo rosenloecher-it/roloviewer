@@ -2,12 +2,12 @@ import * as constants from "../constants";
 import {valiBoolean, valiInt} from "../utils/validate";
 import * as configUtils from "../utils/fileUtils";
 
-export const createActionInit = ({
+export const createActionInitReducer = ({
   x, y, height, width,
   fullscreen, maximized,
   activeDevtool,
 }) => ({
-  type: constants.AR_MAINWINDOW_INIT,
+  type: constants.AR_MAINWINDOW_INIT_REDUCER,
   payload: {
     x, y, height, width,
     fullscreen, maximized,

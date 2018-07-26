@@ -81,8 +81,8 @@ export class SlideshowReducer {
         case constants.AR_SLIDESHOW_CRAWLERINFO_TOOGLE:
           return { ...state, crawlerInfoShow: !state.crawlerInfoShow };
 
-        case constants.AR_SLIDESHOW_INIT:
-          return this.init(state, action);
+        case constants.AR_SLIDESHOW_INIT_REDUCER:
+          return this.initReducer(state, action);
 
         default:
           return state;
@@ -97,7 +97,7 @@ export class SlideshowReducer {
 
   // .....................................................
 
-  init(state, action) {
+  initReducer(state, action) {
     //const func = ".init";
     //log.debug(`${this._logKey}${func} - in`);
 

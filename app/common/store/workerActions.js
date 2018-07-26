@@ -43,8 +43,10 @@ export const createActionDeliverMeta = (file) => ({
   taskId: getNextTaskId()
 });
 
-export const createActionInitCrawler = () => ({
+export const createActionInitWorker = (container = null, selectFile = null) => ({
   type: constants.AR_WORKER_INIT_CRAWLE,
+  container, // null == autoSelect
+  selectFile,
   taskId: getNextTaskId()
 });
 

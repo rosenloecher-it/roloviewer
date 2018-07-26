@@ -41,18 +41,22 @@ class DetailsOverlay extends React.Component {
     if (props.itemIndex >= 0 && props.itemIndex < props.items.length)
       item = props.items[props.itemIndex];
 
-    if (props.detailsState === constants.DETAILS_STATE_OFF && !props.combinedAutoPlay)
+    const showIcons = props.combinedAutoPlay || props.random;
+
+    if (props.detailsState === constants.DETAILS_STATE_OFF && !showIcons)
       return null; // show nothing
 
     const tableLines = [];
 
-    if (props.detailsState === constants.DETAILS_STATE_OFF && props.combinedAutoPlay)
-      tableLines.push(<tr key="autoPlay"><td><Icon icon="play" /></td></tr>);
+    const iconAutoPlay = (props.combinedAutoPlay && <Icon icon="play" />);
+    const iconRandom = (props.random && <Icon icon="random" />);
+
+    if (props.detailsState === constants.DETAILS_STATE_OFF && showIcons)
+      tableLines.push(<tr key="autoPlay"><td>{iconAutoPlay} {iconRandom}</td></tr>);
 
     if (props.detailsState !== constants.DETAILS_STATE_OFF && item && item.file) {
       const itemPath = determinePathAndFilename(item, props.pathShortenElements);
       const numberText = `${props.itemIndex + 1}/${props.items.length}`;
-      const autoPlayIcon = (props.combinedAutoPlay && <Icon icon="play" />);
 
       let conainterIcon = null;
       switch (props.containerType) {
@@ -62,7 +66,7 @@ class DetailsOverlay extends React.Component {
         default: conainterIcon = <Icon icon="help" />; break;
       }
 
-      this.pushTableLine(tableLines, "Status", <div>{conainterIcon} {numberText} {autoPlayIcon}</div>);
+      this.pushTableLine(tableLines, "Status", <div>{conainterIcon} {numberText} {iconAutoPlay} {iconRandom}</div>);
       this.pushTableLine(tableLines, "Folder", itemPath.dir);
       this.pushTableLine(tableLines, "Filename", itemPath.filename);
     }
@@ -92,10 +96,6 @@ class DetailsOverlay extends React.Component {
       this.pushTableLine(tableLines, "Lens", meta.cameraLens);
 
       this.pushTableLine(tableLines, "Settings", meta.photoSettings);
-      // this.pushTableLine(tableLines, "ShutterSpeed", meta.photoShutterSpeed);
-      // this.pushTableLine(tableLines, "Aperture", meta.photoAperture);
-      // this.pushTableLine(tableLines, "ISO", meta.photoISO);
-      //this.pushTableLine(tableLines, "Flash", meta.photoFlash);
       this.pushTableLine(tableLines, "Location", meta.gpsLocation);
       this.pushTableLine(tableLines, "GPS-Position", meta.gpsPosition);
 
@@ -123,6 +123,7 @@ const mapStateToProps = state => ({
   itemIndex: state.renderer.itemIndex,
   items: state.renderer.items,
   pathShortenElements: state.slideshow.pathShortenElements,
+  random: state.slideshow.random,
 });
 
 

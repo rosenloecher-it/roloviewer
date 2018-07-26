@@ -125,13 +125,13 @@ export const AI_QUIT_SCREENSAVER = 'AI_QUIT_SCREENSAVER'; // send to main
 // --------------------------------------------------------------------------
 // actions - context
 
-export const AR_CONTEXT_INIT = 'AR_CONTEXT_INIT';
+export const AR_CONTEXT_INIT_REDUCER = 'AR_CONTEXT_INIT_REDUCER';
 export const AR_CONTEXT_SET_VERSION_EXIFREADER = 'AR_CONTEXT_SET_VERSION_EXIFREADER';
 
 // --------------------------------------------------------------------------
 // actions - workerState
 
-export const AR_WORKER_INIT = 'AR_WORKER_INIT';
+export const AR_WORKER_INIT_REDUCER = 'AR_WORKER_INIT_REDUCER';
 
 export const AR_WORKER_REMOVE_TASK = 'AR_WORKER_REMOVE_TASK';
 export const AR_WORKER_REMOVE_TASKTYPES = 'AR_WORKER_REMOVE_TASKTYPES';
@@ -185,7 +185,7 @@ export const AR_WORKER_UPDATE_DIR = 'AR_WORKER_UPDATE_DIR';
 // --------------------------------------------------------------------------
 // actions - mainwindow
 
-export const AR_MAINWINDOW_INIT = 'AR_MAINWINDOW_INIT';
+export const AR_MAINWINDOW_INIT_REDUCER = 'AR_MAINWINDOW_INIT_REDUCER';
 export const AR_MAINWINDOW_SET_ACTIVE_DEVTOOL = 'AR_MAINWINDOW_SET_ACTIVE_DEVTOOL';
 
 export const AR_MAINWINDOW_SET_FULLSCREEN = 'AR_MAINWINDOW_SET_FULLSCREEN';
@@ -209,7 +209,7 @@ export const AR_STATUS_DB = 'AR_STATUS_DB';
 // --------------------------------------------------------------------------
 // actions - slideshow
 
-export const AR_SLIDESHOW_INIT = 'AR_SLIDESHOW_INIT';
+export const AR_SLIDESHOW_INIT_REDUCER = 'AR_SLIDESHOW_INIT_REDUCER';
 
 export const AR_SLIDESHOW_AUTOPLAY_START = 'AR_SLIDESHOW_AUTOPLAY_START';
 export const AR_SLIDESHOW_AUTOPLAY_STOP = 'AR_SLIDESHOW_AUTOPLAY_STOP';
@@ -249,7 +249,7 @@ export const AR_RENDERER_DELIVER_META = "AR_RENDERER_DELIVER_META";     // add m
 // --------------------------------------------------------------------------
 // actions - system
 
-export const AR_SYSTEM_INIT = 'AR_SYSTEM_INIT';
+export const AR_SYSTEM_INIT_REDUCER = 'AR_SYSTEM_INIT_REDUCER';
 export const AR_SYSTEM_SET_LAST_DIALOG_FOLDER = 'AR_SYSTEM_SET_LAST_DIALOG_FOLDER';
 
 // --------------------------------------------------------------------------

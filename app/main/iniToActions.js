@@ -50,7 +50,7 @@ export function createContextAction(appContext, cliData, defaultConfigFile) {
   else
     actionData.tempCliOpenContainer = null;
 
-  const action = actionsContext.createActionInit(actionData);
+  const action = actionsContext.createActionInitReducer(actionData);
 
   return action;
 }
@@ -89,7 +89,7 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
   actionData.weightingSeason = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SEASON, iniData.crawler.weightingSeason);
   actionData.weightingSelPow = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SELPOW, iniData.crawler.weightingSelPow);
 
-  const action = actionsCrawler.createActionInit(actionData);
+  const action = actionsCrawler.createActionInitReducer(actionData);
 
   return action;
 }
@@ -115,7 +115,7 @@ export function createMainWindowAction(iniDataIn, context) {
   if (context.tempCliFullscreen === true)
     actionData.fullscreen = true;
 
-  const action = actionsMainWindow.createActionInit(actionData);
+  const action = actionsMainWindow.createActionInitReducer(actionData);
 
   return action;
 }
@@ -171,14 +171,14 @@ export function createSlideshowAction(iniDataIn, context) {
     }
   }
 
-  const action = actionsSlideshow.createActionInit(actionData);
+  const action = actionsSlideshow.createActionInitReducer(actionData);
 
   return action;
 }
 
 // ----------------------------------------------------------------------------------
 
-export function createSystemAction(iniDataIn, context, defaultLogFile, defaultExifTool) {
+export function createSystemAction(iniDataIn, context, defaultLogFile) {
 
   const iniData = iniDataIn;
   if (!iniData.system)
@@ -186,7 +186,7 @@ export function createSystemAction(iniDataIn, context, defaultLogFile, defaultEx
 
   const actionData = {};
 
-  actionData.exiftool = defaultExifTool;
+  actionData.exiftool = valiString(iniData.system.exiftool);
 
   actionData.powerSaveBlockTime = mergeIntItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME, iniData.system.powerSaveBlockTime);
 
@@ -209,7 +209,7 @@ export function createSystemAction(iniDataIn, context, defaultLogFile, defaultEx
   else if (!actionData.logfile)
     actionData.logfile = iniData.system.logfile;
 
-  const action = actionsSystem.createActionInit(actionData);
+  const action = actionsSystem.createActionInitReducer(actionData);
 
   return action;
 }

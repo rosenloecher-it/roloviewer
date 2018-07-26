@@ -19,6 +19,8 @@ export class Dispatcher extends CrawlerBase {
     this.data = {
       runningTask: null,
 
+      processingStopped: false,
+
       lastStatusTaskType: null,
       lastSkippedTaskId: null,
 
@@ -91,6 +93,29 @@ export class Dispatcher extends CrawlerBase {
 
   // ........................................................
 
+  stopProcessingObject(object) {
+    if (object)
+      object.stopProcessing();
+  }
+
+  // ........................................................
+
+  stopProcessing() {
+
+    this.data.processingStopped = true;
+
+    this.stopProcessingObject(this.objects.dbWrapper);
+    this.stopProcessingObject(this.objects.mediaCrawler);
+    this.stopProcessingObject(this.objects.mediaComposer);
+    this.stopProcessingObject(this.objects.mediaLoader);
+    this.stopProcessingObject(this.objects.metaReader);
+    this.stopProcessingObject(this.objects.storeManager);
+
+    log.debug(`${_logKey}.stopProcessing`);
+  }
+
+  // ........................................................
+
   processTask() {
     const func = ".processTask";
 
@@ -100,6 +125,11 @@ export class Dispatcher extends CrawlerBase {
     let taskType = null;
 
     try {
+      if (data.processingStopped) {
+        log.debug(`${_logKey}${func} - processing stopped => skipped`);
+        return;
+      }
+
       const workerState = storeManager.workerState;
       const nextTask = WorkerReducer.getNextTask(workerState);
       //log.debug(`${_logKey}${func} - in`, nextTask);

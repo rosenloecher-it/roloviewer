@@ -50,10 +50,14 @@ export function shutdown() {
   try {
     ipc.unregisterListener();
 
+    if (_dispatcher)
+      _dispatcher.stopProcessing();
+
     _dispatcher = null;
     if (_factory)
       _factory.shutdown();
     _factory = null;
+
   } catch (err) {
     log.error(`${_logKey}.shutdown - exception -`, err);
   }

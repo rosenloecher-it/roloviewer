@@ -45,8 +45,8 @@ export class ContextReducer {
       //log.debug(`${this._logKey}${func}(${actionType}) - in`);
 
       switch (action.type) {
-        case constants.AR_CONTEXT_INIT:
-          return this.init(state, action);
+        case constants.AR_CONTEXT_INIT_REDUCER:
+          return this.initReducer(state, action);
 
         case constants.AR_CONTEXT_SET_VERSION_EXIFREADER:
           return {...state, versionExifReader: action.payload};
@@ -64,7 +64,7 @@ export class ContextReducer {
 
   // .....................................................
 
-  init(state, action) {
+  initReducer(state, action) {
     const func = ".init";
     //log.debug(`${this._logKey}${func} - in`);
 

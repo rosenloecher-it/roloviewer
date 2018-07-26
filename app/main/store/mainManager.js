@@ -166,21 +166,21 @@ export class MainManager extends StoreManager {
       //log.debug(`${_logKey}${func} - destinations:`, destinations);
       //log.debug(`${_logKey}${func} - currentState:`, currentState);
 
-      action = actionsContext.createActionInit(currentState.context);
+      action = actionsContext.createActionInitReducer(currentState.context);
       this.dispatchRemote(action, destinations);
 
-      action = actionsSystem.createActionInit(currentState.system);
-      //log.debug(`${_logKey}${func} - createActionInit(system) -`, action);
+      action = actionsSystem.createActionInitReducer(currentState.system);
+      //log.debug(`${_logKey}${func} - createActionInitReducer(system) -`, action);
       this.dispatchRemote(action);
 
-      action = actionsMainWindow.createActionInit(currentState.mainWindow);
+      action = actionsMainWindow.createActionInitReducer(currentState.mainWindow);
       this.dispatchRemote(action);
 
-      action = actionsSlideshow.createActionInit(currentState.slideshow);
-      //log.debug(`${_logKey}${func} - createActionInit(slideshow) -`, action);
+      action = actionsSlideshow.createActionInitReducer(currentState.slideshow);
+      //log.debug(`${_logKey}${func} - createActionInitReducer(slideshow) -`, action);
       this.dispatchRemote(action);
 
-      action = actionsCrawler.createActionInit(currentState.crawler);
+      action = actionsCrawler.createActionInitReducer(currentState.crawler);
       this.dispatchRemote(action);
 
 

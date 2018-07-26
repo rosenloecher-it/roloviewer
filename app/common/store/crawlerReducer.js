@@ -60,8 +60,8 @@ export class CrawlerReducer {
 
       switch (action.type) {
 
-        case constants.AR_WORKER_INIT:
-          return this.init(state, action);
+        case constants.AR_WORKER_INIT_REDUCER:
+          return this.initReducer(state, action);
 
         default:
           return state;
@@ -76,7 +76,7 @@ export class CrawlerReducer {
 
   // .....................................................
 
-  init(state, action) {
+  initReducer(state, action) {
     const func = ".init";
 
     const {

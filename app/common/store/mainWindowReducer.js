@@ -39,8 +39,8 @@ export class MainWindowReducer {
       //log.debug(`${this._logKey}${func}(${actionType}) - in`, action);
 
       switch (action.type) {
-        case constants.AR_MAINWINDOW_INIT:
-          return this.init(state, action);
+        case constants.AR_MAINWINDOW_INIT_REDUCER:
+          return this.initReducer(state, action);
         case constants.AR_MAINWINDOW_SET_ACTIVE_DEVTOOL:
           return { ...state, activeDevtool: !!action.payload };
         case constants.AR_MAINWINDOW_SET_FULLSCREEN:
@@ -61,7 +61,7 @@ export class MainWindowReducer {
 
   // .....................................................
 
-  init(state, action) {
+  initReducer(state, action) {
     const func = ".init";
     //log.debug(`${this._logKey}${func} - action`, action);
 

@@ -38,8 +38,8 @@ export class SystemReducer {
       //log.debug(`${this._logKey}${func}(${actionType}) - in`);
 
       switch (action.type) {
-        case constants.AR_SYSTEM_INIT:
-          return this.init(state, action);
+        case constants.AR_SYSTEM_INIT_REDUCER:
+          return this.initReducer(state, action);
         case constants.AR_SYSTEM_SET_LAST_DIALOG_FOLDER:
           return {...state, lastDialogFolder: action.payload};
 
@@ -56,7 +56,7 @@ export class SystemReducer {
 
   // .....................................................
 
-  init(state, action) {
+  initReducer(state, action) {
     const func = ".init";
     //log.debug(`${this._logKey}${func} - in`);
 

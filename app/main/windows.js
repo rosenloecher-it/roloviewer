@@ -91,7 +91,7 @@ function storeMainWindowState() {
         actionData.maximized = false;
         actionData.activeDevtool = storeManager.activeDevtool;
 
-        action = actionsMainWindow.createActionInit(actionData);
+        action = actionsMainWindow.createActionInitReducer(actionData);
       }
     }
 

@@ -1,11 +1,11 @@
 import * as constants from "../constants";
 
-export const createActionInit = ({
+export const createActionInitReducer = ({
   exiftool, lastDialogFolder,
   logfile, logLevelConsole, logLevelFile,
   mapUrlFormat, powerSaveBlockTime
 }) => ({
-  type: constants.AR_SYSTEM_INIT,
+  type: constants.AR_SYSTEM_INIT_REDUCER,
   payload: {
     exiftool, lastDialogFolder,
     logfile, logLevelConsole, logLevelFile,

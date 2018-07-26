@@ -18,6 +18,7 @@ export class StoreManager {
     this._sender = null;
     this._store = null;
     this._targets = targets;
+    this._processingStopped = false;
 
     this.dispatchLocal = this.dispatchLocal.bind(this);
     this.dispatchGlobal = this.dispatchGlobal.bind(this);
@@ -31,6 +32,12 @@ export class StoreManager {
     this._sender = null;
     this._store = null;
     this._targets = null;
+  }
+
+  // .....................................................
+
+  stopProcessing() {
+    this._processingStopped = true;
   }
 
   // .....................................................
@@ -54,7 +61,7 @@ export class StoreManager {
   dispatchLocal(action, invokeHook = false) {
     const func = ".dispatchLocal";
 
-    if (!action)
+    if (!action || this._processingStopped)
       return;
 
     try {
@@ -94,7 +101,7 @@ export class StoreManager {
     if (destinations === null)
       destinations = this._targets;
 
-    if (!action || !destinations)
+    if (!action || !destinations || this._processingStopped)
       return;
 
     try {
@@ -117,7 +124,7 @@ export class StoreManager {
   dispatchGlobal(action) {
     const func = ".dispatchGlobal";
 
-    if (!action)
+    if (!action || this._processingStopped)
       return;
 
     try {
