@@ -46,7 +46,7 @@ function checkRandomWeight(disposer, countTest) {
 }
 // ----------------------------------------------------------------------------------
 
-function checkRandomSelectFilesFromDir(composer, countFiles, countSelectDemanded) {
+function checkRandomSelectFilesFromDir(composer, countFiles, countSelectDemanded, randomOrder) {
 
   console.log(`checkRandomSelectFilesFromDir(countFiles=${countFiles}, countSelectDemanded=${countSelectDemanded})`);
   // prepare
@@ -119,6 +119,43 @@ function checkRandomSelectFilesFromDir(composer, countFiles, countSelectDemanded
   if (selections.length >= 8 && selections.length > 2 * countSelectDemanded) {
     expect(averageNorm).toBeLessThan(0.4);
   }
+
+  // checkOrder
+  let sortLarger = 0;
+  let sortSmaller = 0;
+  let fileItemLast = null;
+  for (let i = 0; i < selections.length; i++) {
+    const fileItem = selections[i];
+
+    if (i > 0) {
+
+      const fileName = fileItem.fileName.toLowerCase();
+      const fileNameLast = fileItemLast.fileName.toLowerCase();
+
+      if (fileName > fileNameLast)
+        sortLarger++;
+      else if (fileName < fileNameLast)
+        sortSmaller++;
+    }
+
+    fileItemLast = fileItem;
+  }
+
+  if (countSelect > 5)  {
+    //console.log(`selections=`, selections);
+    if (randomOrder) {
+      console.log(`randomOrder=${randomOrder}: sortLarger=${sortLarger}, sortSmaller=${sortSmaller}`);
+      expect(sortLarger + sortSmaller).toBe(selections.length - 1); // no fileName ===
+      expect(sortLarger).toBeGreaterThan(0);
+      expect(sortSmaller).toBeGreaterThan(0);
+    } else {
+      console.log(`randomOrder=${randomOrder}: sortLarger=${sortLarger}, sortSmaller=${sortSmaller}`);
+      expect(sortLarger + sortSmaller).toBe(selections.length - 1); // no fileName ===
+      expect(sortLarger).toBe(selections.length - 1);
+      expect(sortSmaller).toBe(0);
+    }
+  }
+
 
 }
 
@@ -305,21 +342,31 @@ describe('mediaComposer', () => {
 
   it('randomSelectFilesFromDir', () => {
 
+    let randomOrder = false;
+
     const storeManager = new TestManager();
-    const composer = new MediaComposer();
-    composer.coupleObjects({storeManager});
+    const mediaComposer = new MediaComposer();
+    mediaComposer.coupleObjects({mediaComposer, storeManager});
 
     const crawlerState = storeManager.crawlerState;
     crawlerState.batchCount = 3;
     crawlerState.weightingRating = 0;
     crawlerState.weightingSelPow = 3;
 
-    checkRandomSelectFilesFromDir(composer, 30, 10);
-    checkRandomSelectFilesFromDir(composer, 10, 10);
-    checkRandomSelectFilesFromDir(composer, 4, 6);
+    randomOrder = true;
+    storeManager.slideshowState.random = randomOrder;
+    checkRandomSelectFilesFromDir(mediaComposer, 30, 10, randomOrder);
+    checkRandomSelectFilesFromDir(mediaComposer, 10, 10, randomOrder);
+    checkRandomSelectFilesFromDir(mediaComposer, 4, 6, randomOrder);
 
-
+    randomOrder = false;
+    storeManager.slideshowState.random = randomOrder;
+    checkRandomSelectFilesFromDir(mediaComposer, 30, 10, randomOrder);
+    checkRandomSelectFilesFromDir(mediaComposer, 10, 10, randomOrder);
+    checkRandomSelectFilesFromDir(mediaComposer, 4, 6, randomOrder);
   });
+
+  // .......................................................
 
 
 });

@@ -140,7 +140,7 @@ export function createSlideshowAction(iniDataIn, context) {
   actionData.crawlerInfoShow = mergeBoolItem(false, iniData.slideshow.crawlerInfoShow);
 
   actionData.pathShortenElements = mergeIntItem(constants.DEFCONF_PATH_SHORTEN_ELEMENTS, iniData.slideshow.pathShortenElements);
-  actionData.random = mergeBoolItem(false, iniData.slideshow.random);
+  actionData.random = mergeBoolItem(constants.DEFCONF_RANDOM, iniData.slideshow.random);
 
   actionData.transitionTimeAutoPlay = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY, iniData.slideshow.transitionTimeAutoPlay);
   actionData.transitionTimeManual = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_MANUAL, iniData.slideshow.transitionTimeManual);

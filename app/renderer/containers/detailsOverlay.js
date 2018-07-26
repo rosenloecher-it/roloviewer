@@ -48,11 +48,15 @@ class DetailsOverlay extends React.Component {
 
     const tableLines = [];
 
-    const iconAutoPlay = (props.combinedAutoPlay && <Icon icon="play" />);
-    const iconRandom = (props.random && <Icon icon="random" />);
+    const iconSize = 16;
+    const colorDefault = 'white';
+    const colorInactive = 'grey';
+    const colorRandom = props.combinedAutoPlay ? colorDefault : colorInactive;
+    const iconAutoPlay = (props.combinedAutoPlay && <Icon icon="play" iconSize={iconSize} color={colorDefault} />);
+    const iconRandom = (props.random && <Icon icon="random" iconSize={iconSize} color={colorRandom} />);
 
     if (props.detailsState === constants.DETAILS_STATE_OFF && showIcons)
-      tableLines.push(<tr key="autoPlay"><td>{iconAutoPlay} {iconRandom}</td></tr>);
+      tableLines.push(<tr key="autoPlay"><td>{iconRandom} {iconAutoPlay}</td></tr>);
 
     if (props.detailsState !== constants.DETAILS_STATE_OFF && item && item.file) {
       const itemPath = determinePathAndFilename(item, props.pathShortenElements);
@@ -66,7 +70,7 @@ class DetailsOverlay extends React.Component {
         default: conainterIcon = <Icon icon="help" />; break;
       }
 
-      this.pushTableLine(tableLines, "Status", <div>{conainterIcon} {numberText} {iconAutoPlay} {iconRandom}</div>);
+      this.pushTableLine(tableLines, "Status", <div>{conainterIcon} {numberText} {iconRandom} {iconAutoPlay}</div>);
       this.pushTableLine(tableLines, "Folder", itemPath.dir);
       this.pushTableLine(tableLines, "Filename", itemPath.filename);
     }

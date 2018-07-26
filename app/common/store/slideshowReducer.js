@@ -39,7 +39,7 @@ export class SlideshowReducer {
       lastContainer: null,
       lastContainerType: constants.CONTAINER_FOLDER,
       lastItem: null,
-      random: false,
+      random: constants.DEFCONF_RANDOM,
       timer: constants.DEFCONF_TIMER,
       transitionTimeAutoPlay: constants.DEFCONF_TRANSITION_TIME_AUTOPLAY,
       transitionTimeManual: constants.DEFCONF_TRANSITION_TIME_MANUAL,
@@ -67,6 +67,9 @@ export class SlideshowReducer {
           return {...state, autoPlay: false};
         case constants.AR_SLIDESHOW_AUTOPLAY_TOGGLE:
           return {...state, autoPlay: !state.autoPlay};
+
+        case constants.AR_SLIDESHOW_RANDOM_TOOGLE:
+          return {...state, random: !state.random};
 
         case constants.AR_SLIDESHOW_DETAILS_MOVE:
           return this.detailsMove(state, action);

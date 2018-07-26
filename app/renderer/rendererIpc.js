@@ -8,11 +8,12 @@ import storeManager from "./store/rendererManager";
 
 const _logKey = "rendererIpc";
 const _ipcMyself = constants.IPC_RENDERER;
+let _shutdownIpc = false;
 
 // ----------------------------------------------------------------------------------
 
-export function registerListener() {
-  //log.debug(`${_logKey}.initListener`);
+export function initIpc() {
+  //log.debug(`${_logKey}.initIpc`);
   ipcRenderer.on(_ipcMyself, listenRendererChannel);
 
   send(constants.IPC_MAIN, constants.AI_CHILD_REQUESTS_CONFIG, null);
@@ -20,8 +21,9 @@ export function registerListener() {
 
 // ----------------------------------------------------------------------------------
 
-export function unregisterListener() {
-  //log.debug(`${_logKey}unregisterListener`);
+export function shutdownIpc() {
+  //log.debug(`${_logKey}shutdownIpc`);
+  _shutdownIpc = true;
   ipcRenderer.removeAllListeners(_ipcMyself);
 }
 
@@ -72,8 +74,11 @@ function dispatchRendererActions(ipcMsg) {
 function sendRaw(ipcMsg) {
   const func = ".sendRaw";
 
+  if (_shutdownIpc)
+    return;
+
   if (!ipcMsg) {
-    log.error(`${_logKey}${func} - invalid payload: `);
+    log.error(`${_logKey}${func} - invalid ipcMsg (undefined)`);
     return;
   }
 

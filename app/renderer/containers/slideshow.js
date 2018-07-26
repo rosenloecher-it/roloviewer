@@ -209,6 +209,9 @@ class Slideshow extends React.Component {
         else
           storeManager.dispatchGlobal(slideshowActions.createActionDetailsToogle());
         break;
+      case 82: // r
+        storeManager.dispatchGlobal(slideshowActions.createActionRandomToogle());
+        break;
       case 87: // w
         if (event.ctrlKey)
           storeManager.dispatchGlobal(slideshowActions.createActionCrawlerInfoMove());
@@ -217,7 +220,7 @@ class Slideshow extends React.Component {
         break;
 
       default:
-        //log.silly(`${_logKey}${func} - keyCode=${event.keyCode}`);
+        //log.debug(`${_logKey}${func} - keyCode=${event.keyCode}`);
         break;
     }
   }

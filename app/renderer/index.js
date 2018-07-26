@@ -13,7 +13,7 @@ render(
   document.getElementById('root')
 );
 
-ipc.registerListener();
+ipc.initIpc();
 
 if (module.hot) {
   module.hot.accept('./containers/root', () => {

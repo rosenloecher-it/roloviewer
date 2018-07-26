@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import * as constants from "../../common/constants";
 import {CrawlerBase} from "./crawlerBase";
+import {MediaLoader} from "./mediaLoader";
 
 // ----------------------------------------------------------------------------------
 
@@ -289,10 +290,7 @@ export class MediaComposer extends CrawlerBase {
     const selections = [];
 
     do {
-
-      //const random = this.randomWeighted(candidates.length - 1);
-      //const random = this.randomWeighted(candidates.length / 2 - 1);
-      const random = 0;
+      const random = this.randomWeighted(candidates.length - 1);
       const currentIndex = candidates.length - 1 - random;
       const currentSelection = candidates[currentIndex];
 
@@ -314,6 +312,13 @@ export class MediaComposer extends CrawlerBase {
         break;
 
     } while (true);
+
+    const randomOrder = this.objects.storeManager.slideshowState.random;
+    if (!randomOrder) {
+      selections.sort((fileItem1, fileItem2) => {
+        return MediaLoader.sortFilename(fileItem1.fileName, fileItem2.fileName);
+      });
+    }
 
     return selections;
   }

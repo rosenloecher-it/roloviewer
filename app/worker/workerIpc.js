@@ -9,11 +9,12 @@ import * as ops from "./workerOps";
 
 const _logKey = "workerIpc";
 const _ipcMyself = constants.IPC_WORKER;
+let _shutdownIpc = false;
 
 // ----------------------------------------------------------------------------------
 
-export function initListener() {
-  //log.debug(`${_logKey}.initListener`);
+export function initIpc() {
+  //log.debug(`${_logKey}.initIpc`);
   ipcRenderer.on(_ipcMyself, listenWorkerChannel);
 
   send(constants.IPC_MAIN, constants.AI_CHILD_REQUESTS_CONFIG, null);
@@ -21,8 +22,9 @@ export function initListener() {
 
 // ----------------------------------------------------------------------------------
 
-export function unregisterListener() {
-  //log.debug(`${_logKey}unregisterListener`);
+export function shutdownIpc() {
+  //log.debug(`${_logKey}shutdownIpc`);
+  _shutdownIpc = true;
   ipcRenderer.removeAllListeners(_ipcMyself);
 }
 
@@ -72,6 +74,9 @@ function dispatchWorkerActions(ipcMsg) {
 
 function sendRaw(ipcMsg) {
   const func = ".sendRaw";
+
+  if (_shutdownIpc)
+    return;
 
   if (!ipcMsg) {
     log.error(`${_logKey}${func} - invalid ipcMsg (undefined)`);

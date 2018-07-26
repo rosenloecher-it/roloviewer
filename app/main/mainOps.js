@@ -249,6 +249,8 @@ export function quitApp() {
     ipc.send(constants.IPC_RENDERER, constants.AI_SHUTDOWN, null);
     ipc.send(constants.IPC_WORKER, constants.AI_SHUTDOWN, null);
 
+    ipc.shutdownIpc();
+
     app.quit();
   }
 }

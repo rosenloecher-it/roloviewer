@@ -28,7 +28,7 @@ export function init(ipcMsg) {
 export function shutdown(ipcMsg) {
 
   try {
-    ipc.unregisterListener();
+    ipc.shutdownIpc();
   } catch (err) {
     log.error(`${_logKey}.shutdown - exception -`, err);
   }

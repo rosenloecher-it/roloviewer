@@ -176,17 +176,11 @@ export class StoreManager {
   // context
 
   get contextState() {
-    const {context} = this.state;
-    if (!context)
-      return {};
-    return context;
+    return this.state.context;
   }
 
   get configFile() {
-    const {context} = this.state;
-    if (!context)
-      return null;
-    return context.configFile;
+    return this.state.context.configFile;
   }
 
   get isDevelopment() {
@@ -221,77 +215,48 @@ export class StoreManager {
   // crawler
 
   get crawlerState() {
-    const {crawler} = this.state;
-    if (!crawler)
-      return {};
-    return crawler;
+    return this.state.crawler;
   }
 
   get databasePath() {
-    const {crawler} = this.state;
-    if (!crawler)
-      return {};
-    return crawler.databasePath;
+    return this.state.crawler.databasePath;
   }
 
   // ........................................................
   // progress
 
   get workerState() {
-    const {worker} = this.state;
-    if (!worker)
-      return {};
-    return worker;
+    return this.state.worker;
   }
-
-
 
   // ........................................................
   // mainWindow
 
   get mainWindowState() {
-    const {mainWindow} = this.state;
-    if (!mainWindow)
-      return {};
-    return mainWindow;
+    return this.state.mainWindow;
   }
 
   get activeDevtool() {
-    const {mainWindow} = this.state;
-    if (!mainWindow)
-      return false;
-    return mainWindow.activeDevtool;
+    return this.state.mainWindow.activeDevtool;
   }
 
   // ........................................................
   // slideshow
 
   get slideshowState() {
-    const {slideshow} = this.state;
-    if (!slideshow)
-      return {};
-    return slideshow;
+    return this.state.slideshow;
   }
 
   get slideshowTimer() {
-    const {slideshow} = this.state;
-    if (!slideshow)
-      return constants.DEFCONF_TIMER;
-    return slideshow.timer || constants.DEFCONF_TIMER;
+    return this.state.slideshow.timer;
   }
 
   get slideshowTransitionTimeAutoPlay() {
-    const {slideshow} = this.state;
-    if (!slideshow)
-      return constants.DEFCONF_TRANSITION_TIME_AUTOPLAY;
-    return slideshow.transitionTimeAutoPlay || constants.DEFCONF_TRANSITION_TIME_AUTOPLAY;
+    return this.state.slideshow.transitionTimeAutoPlay
   }
 
   get slideshowTransitionTimeManual() {
-    const {slideshow} = this.state;
-    if (!slideshow)
-      return constants.DEFCONF_TRANSITION_TIME_MANUAL;
-    return slideshow.transitionTimeManual || constants.DEFCONF_TRANSITION_TIME_MANUAL;
+    return this.state.slideshow.transitionTimeManual;
   }
 
   get slideshowJumpWidth() {
@@ -311,34 +276,19 @@ export class StoreManager {
   // system
 
   get systemState() {
-    const {system} = this.state;
-    if (!system)
-      return {};
-    return system;
+    return this.state.system;
   }
 
   get exiftoolPath() {
-    const {system} = this.state;
-    if (!system)
-      return null;
-    return system.exiftool;
+    return this.state.system.exiftool;
   }
 
   get lastDialogFolder() {
-
-    const {system} = this.state;
-    if (!system)
-      return null;
-
-    return system.lastDialogFolder;
+    return this.state.system.lastDialogFolder;
   }
 
   get logConfig() {
-
     const {system} = this.state;
-    if (!system)
-      return null;
-
     return {
       logLevelFile: system.logLevelFile,
       logLevelConsole: system.logLevelConsole,
@@ -347,17 +297,11 @@ export class StoreManager {
   }
 
   get powerSaveBlockTime() {
-    const {system} = this.state;
-    if (!system)
-      return constants.DEFCONF_POWER_SAVE_BLOCK_TIME;
-    return system.powerSaveBlockTime;
+    return this.state.system.powerSaveBlockTime;
   }
 
   get meta2MapUrlFormat() {
-    const {system} = this.state;
-    if (!system)
-      return constants.DEFCONF_META2MAPURL_FORMAT;
-    return system.mapUrlFormat;
+    return this.state.system.mapUrlFormat;
   }
 
 }

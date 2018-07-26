@@ -82,7 +82,9 @@ export class MediaLoader extends CrawlerBase {
     log.debug(`${_logKey}${func} - folder=${folder}, selectFile=${selectFile}`);
 
     const images = MediaLoader.loadImagesFromFolder(folder);
-    images.sort();
+    images.sort((file1, file2) => {
+      return MediaLoader.sortFilename(file1, file2);
+    });
 
     const items = this.createItems(images);
     const action = rendererActions.createActionShowFiles(folder, constants.CONTAINER_FOLDER, items, selectFile);
@@ -284,9 +286,13 @@ export class MediaLoader extends CrawlerBase {
     return resultFolders;
   }
 
-
   // ........................................................
 
+  static sortFilename(filename1, filename2) {
+    return (filename1.toLowerCase() > filename2.toLowerCase());
+  }
+
+  // ........................................................
 }
 
 // ----------------------------------------------------------------------------------

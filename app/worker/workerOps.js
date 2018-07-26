@@ -48,7 +48,7 @@ export function init() {
 export function shutdown() {
 
   try {
-    ipc.unregisterListener();
+    ipc.shutdownIpc();
 
     const currentDispatcher = _dispatcher;
     const currentFactory = _factory;

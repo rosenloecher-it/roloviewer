@@ -42,6 +42,8 @@ export const createActionToogleAutoPlay = () => ({ type: constants.AR_SLIDESHOW_
 export const createActionDetailsToogle = () => ({ type: constants.AR_SLIDESHOW_DETAILS_TOOGLE });
 export const createActionDetailsMove = () => ({ type: constants.AR_SLIDESHOW_DETAILS_MOVE });
 
+export const createActionRandomToogle = () => ({ type: constants.AR_SLIDESHOW_RANDOM_TOOGLE });
+
 export const createActionCrawlerInfoToogle = () => ({ type: constants.AR_SLIDESHOW_CRAWLERINFO_TOOGLE });
 export const createActionCrawlerInfoMove = () => ({ type: constants.AR_SLIDESHOW_CRAWLERINFO_MOVE });
 

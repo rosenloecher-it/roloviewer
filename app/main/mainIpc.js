@@ -11,18 +11,20 @@ import {quitApp} from "./mainOps";
 
 const _logKey = "mainIpc";
 const _ipcMyself = constants.IPC_MAIN;
+let _shutdownIpc = false;
 
 // ----------------------------------------------------------------------------------
 
-export function registerListener() {
-  //log.debug(`${_logKey}.initListener`);
+export function initIpc() {
+  //log.debug(`${_logKey}.initIpc`);
   ipcMain.on(_ipcMyself, listenMainChannel);
 }
 
 // ----------------------------------------------------------------------------------
 
-export function unregisterListener() {
-  //log.debug(`${_logKey}.unregisterListener`);
+export function shutdownIpc() {
+  //log.debug(`${_logKey}.shutdownIpc`);
+  _shutdownIpc = true;
   ipcMain.removeAllListeners(_ipcMyself);
 }
 
@@ -84,8 +86,10 @@ function dispatchMainActions(ipcMsg) {
 // ----------------------------------------------------------------------------------
 
 function sendRaw(ipcMsg) {
-
   const func = ".sendRaw";
+
+  if (_shutdownIpc)
+    return;
 
   if (!ipcMsg) {
     log.error(`${_logKey}${func} - invalid payload: `);

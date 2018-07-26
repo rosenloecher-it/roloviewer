@@ -50,7 +50,7 @@ function allWindowsClosed() {
 function onAppWillQuit() {
   try {
     log.debug(`${_logKey}.onAppWillQuit`);
-    mainIpc.unregisterListener();
+    mainIpc.shutdownIpc();
     storeManager.saveIniFile();
 
   } catch (err) {
@@ -113,7 +113,7 @@ function startApp(cli) {
       await installExtensions();
     }
 
-    mainIpc.registerListener();
+    mainIpc.initIpc();
     storeManager.sender = mainIpc;
 
     windows.createWorkerWindow();

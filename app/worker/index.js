@@ -1,6 +1,6 @@
 import * as ipc from './workerIpc';
 
-ipc.initListener();
+ipc.initIpc();
 
 
 

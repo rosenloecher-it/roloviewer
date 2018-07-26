@@ -17,14 +17,13 @@ export class WorkerManager extends StoreManager {
 
     try {
       this._store = configureStore();
+      this._store.dispatch({type: `${_logKey}_init_reducer_type_should_not_exists!(${Math.random()})`});
+
     } catch (err) {
       log.error(`${_logKey}${func} - creation store failed -`, err);
       throw (err);
     }
-    if (!this._store)
-      throw new Error(`${_logKey}${func} - cannot create store!`);
   }
-
 
   // .....................................................
 
