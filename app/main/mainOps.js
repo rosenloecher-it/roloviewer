@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import * as constants from "../common/constants";
 import * as windows from './windows';
-import {mkDirWithParents} from "../common/utils/fileUtils";
+import * as fileUtils from "../common/utils/fileUtils";
 import * as ipc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
 import * as rendererActions from "../common/store/rendererActions";
@@ -36,7 +36,7 @@ export function configLogger() {
 
       const parentDir = path.dirname(logConfig.logfile);
       if (!fs.existsSync(parentDir)) {
-        mkDirWithParents(parentDir);
+        fileUtils.mkDirWithParents(parentDir);
       }
 
       log.transports.file.file = logConfig.logfile;
@@ -118,6 +118,10 @@ export function initChildConfig(ipcMsg) {
   //log.debug(`${_logKey}${func}`, ipcMsg);
 
   const ipcDest = ipcMsg.source;
+
+  // // TODO remove db-deletion on start-up
+  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderDir.db');
+  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderStatus.db');
 
   storeManager.dispatchFullState([ ipcDest ]);
 

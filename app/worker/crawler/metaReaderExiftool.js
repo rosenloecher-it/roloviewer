@@ -139,17 +139,24 @@ export class MetaReaderExiftool extends CrawlerBase {
   // ........................................................
 
   static determineExifToolPath(systemState) {
+    const func = '.determineExifToolPath';
 
-    if (systemState.exiftool === '-')
+    try {
+      if (systemState.exiftool === '-')
+        return Promise.resolve(null);
+
+      if (systemState.exiftool) {
+        const isFile = fs.lstatSync(systemState.exiftool).isFile();
+        if (isFile)
+          return Promise.resolve(systemState.exiftool);
+      }
+
+      return MetaReaderExiftool.findExifTool();
+
+    } catch (err) {
+      log.error(`${_logKey}${func} -`, err);
       return Promise.resolve(null);
-
-    if (!systemState.exiftool) {
-      const isFile = fs.lstatSync(systemState.exiftool).isFile();
-      if (isFile)
-        return Promise.resolve(systemState.exiftool);
     }
-
-    return MetaReaderExiftool.findExifTool();
   }
 
   // ........................................................

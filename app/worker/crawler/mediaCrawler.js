@@ -256,6 +256,9 @@ export class MediaCrawler extends CrawlerBase {
       action = workerActions.createActionRemoveDirs(dirs);
       storeManager.dispatchTask(action);
 
+      if (crawlerState.folderSource.length === 0)
+        log.warn(`${_logKey}${func} - no source folder configured!`);
+
       for (let i = 0; i < crawlerState.folderSource.length; i++) {
         action = workerActions.createActionScanFsDir(crawlerState.folderSource[i]);
         storeManager.dispatchTask(action);

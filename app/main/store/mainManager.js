@@ -90,8 +90,7 @@ export class MainManager extends StoreManager {
       //log.debug(`${_logKey}${func} - context -`, context);
 
       const defaultConfigFile = fileTools.getDefaultLogFile();
-      const defaultExifTool = fileTools.findExifTool(iniData.system ? iniData.system.exiftool : null);
-      action = iniToActions.createSystemAction(iniData, context, defaultConfigFile, defaultExifTool);
+      action = iniToActions.createSystemAction(iniData, context, defaultConfigFile);
       this.dispatchLocal(action);
 
       action = iniToActions.createMainWindowAction(iniData, context);

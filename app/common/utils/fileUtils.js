@@ -42,18 +42,13 @@ export function getDefaultConfigFile(isProduction) {
 
 //----------------------------------------------------------------------------
 
-export function findExifTool(pathFromFile) {
-  if (!pathFromFile && typeof(pathFromFile) === typeof("s"))
-    return pathFromFile;
+export function deleteFile(file) {
 
-  const defPath = '/usr/bin/exiftool';
+  if (!file)
+    return;
 
-  // TODO
-  if (fs.existsSync(defPath))
-    return defPath;
-
-  return null;
-
+  if (fs.existsSync(file))
+    fs.unlinkSync(file);
 }
 
 // ----------------------------------------------------------------------------------
