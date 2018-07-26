@@ -235,7 +235,6 @@ describe('mediaComposer', () => {
   it('evaluateDir - base', () => {
 
     const countFiles = 30;
-    const countSelect = 10;
 
     const storeManager = new TestManager();
     const composer = new MediaComposer();

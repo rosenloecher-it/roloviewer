@@ -21,7 +21,7 @@ export class RendererReducer {
   static defaultState() {
     return {
       container: null,
-      containerType: 0,
+      containerType: null,
       cursorHide: false,
       helpShow: false,
       itemIndex: -1,
@@ -44,6 +44,10 @@ export class RendererReducer {
           return this.goTo(state, state.itemIndex - 1);
         case constants.AR_RENDERER_GO_NEXT:
           return this.goTo(state, state.itemIndex + 1);
+        case constants.AR_RENDERER_GO_RANDOM:
+          return this.goRandom(state, action);
+        case constants.AR_RENDERER_GO_NOWHERE:
+          return { ...state, itemIndex: -1 };
         case constants.AR_RENDERER_GO_JUMP:
           return this.goJump(state, action);
         case constants.AR_RENDERER_GO_PAGE:
@@ -122,7 +126,7 @@ export class RendererReducer {
     log.debug(`${_logKey}${func} - ${newItems.length} items`);
 
     let newItemIndex = 0;
-    if (action.selectFile) {
+    if (newSelectFile) {
       for (let i = 0; i < newItems.length; i++) {
         if (newItems[i].file === newSelectFile) {
           newItemIndex = i;
@@ -135,7 +139,7 @@ export class RendererReducer {
       ...state,
       items: newItems,
       itemIndex: newItemIndex,
-      container: action.container,
+      container: action.payload.container,
       containerType: action.payload.containerType,
     };
   }
@@ -198,6 +202,27 @@ export class RendererReducer {
 
     if (oldIndex === newIndex)
       return state; // no change
+
+    return {
+      ...state,
+      itemIndex: newIndex
+    };
+  }
+
+  // .....................................................
+
+  goRandom(state) {
+
+    if (state.items.length < 2)
+      return state;
+
+    let counter = 0;
+    let newIndex = 0;
+
+    do {
+      counter++;
+      newIndex = Math.floor(state.items.length * Math.random());
+    } while (counter > 2);
 
     return {
       ...state,

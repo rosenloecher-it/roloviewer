@@ -265,7 +265,7 @@ export class Dispatcher extends CrawlerBase {
 
     let p = null;
 
-    if (!payload.container && (payload.lastContainerType === constants.CONTAINER_FOLDER || payload.lastContainerType === constants.CONTAINER_PLAYLIST))
+    if (payload.container && (payload.lastContainerType === constants.CONTAINER_FOLDER || payload.lastContainerType === constants.CONTAINER_PLAYLIST))
       p = mediaLoader.open(payload);
     else
       p = Promise.resolve();

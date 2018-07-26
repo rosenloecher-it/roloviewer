@@ -46,6 +46,8 @@ export const createActionDeliverFileMeta = (meta) => ({
 
 export const createActionGoNext = () => ({ type: constants.AR_RENDERER_GO_NEXT });
 export const createActionGoBack = () => ({ type: constants.AR_RENDERER_GO_BACK });
+export const createActionGoRandom = () => ({ type: constants.AR_RENDERER_GO_RANDOM });
+export const createActionGoNoWhere = () => ({ type: constants.AR_RENDERER_GO_NOWHERE });
 
 export const createActionJump = (jumpWidth) => ({
   type: constants.AR_RENDERER_GO_JUMP,

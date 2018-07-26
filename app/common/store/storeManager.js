@@ -18,7 +18,7 @@ export class StoreManager {
     this._sender = null;
     this._store = null;
     this._targets = targets;
-    this._processingStopped = false;
+    this.processingStopped = false;
 
     this.dispatchLocal = this.dispatchLocal.bind(this);
     this.dispatchGlobal = this.dispatchGlobal.bind(this);
@@ -37,7 +37,7 @@ export class StoreManager {
   // .....................................................
 
   stopProcessing() {
-    this._processingStopped = true;
+    this.processingStopped = true;
   }
 
   // .....................................................
@@ -61,7 +61,7 @@ export class StoreManager {
   dispatchLocal(action, invokeHook = false) {
     const func = ".dispatchLocal";
 
-    if (!action || this._processingStopped)
+    if (!action || this.processingStopped)
       return;
 
     try {
@@ -101,7 +101,7 @@ export class StoreManager {
     if (destinations === null)
       destinations = this._targets;
 
-    if (!action || !destinations || this._processingStopped)
+    if (!action || !destinations || this.processingStopped)
       return;
 
     try {
@@ -124,7 +124,7 @@ export class StoreManager {
   dispatchGlobal(action) {
     const func = ".dispatchGlobal";
 
-    if (!action || this._processingStopped)
+    if (!action || this.processingStopped)
       return;
 
     try {
@@ -259,6 +259,21 @@ export class StoreManager {
     return this.state.slideshow.transitionTimeManual;
   }
 
+  get transistionTime() {
+    const slideshow = this.state.slideshow;
+    const context = this.state.context;
+
+    console.log(`transistionTime - slideshow`, slideshow);
+    console.log(`transistionTime - context`, context);
+
+    const combinedAutoPlay = slideshow.autoPlay || context.isScreensaver;
+
+    const transistionTime = combinedAutoPlay ?
+                              slideshow.transitionTimeAutoPlay
+                                : slideshow.transitionTimeManual;
+    return transistionTime;
+  }
+
   get slideshowJumpWidth() {
     return constants.DEFCONF_CRAWLER_BATCHCOUNT;
   }
@@ -302,6 +317,20 @@ export class StoreManager {
 
   get meta2MapUrlFormat() {
     return this.state.system.mapUrlFormat;
+  }
+
+  // ........................................................
+  // system
+
+  get rendererState() {
+    return this.state.renderer;
+  }
+
+  // ........................................................
+  // system
+
+  get workerState() {
+    return this.state.worker;
   }
 
 }

@@ -4,11 +4,11 @@ import {connect} from "react-redux";
 import log from 'electron-log';
 import ExifOrientationImg from 'react-exif-orientation-img'
 import * as cssConstants from '../style/cssConstants';
-import * as rendererActions from "../../common/store/rendererActions";
-import storeManager from "../store/rendererManager";
 import * as ops from "../rendererOps";
 
 // ----------------------------------------------------------------------------------
+
+// https://github.com/marnusw/react-css-transition-replace
 
 const _logKey = "imapePane";
 
@@ -21,7 +21,8 @@ class ImagePane extends React.Component {
 
     this.data = {
       clickCount: 0,
-      singleClickTimer: null
+      singleClickTimer: null,
+      lastLastIndex: null,
     };
 
     this.onClick = this.onClick.bind(this);
@@ -44,12 +45,13 @@ class ImagePane extends React.Component {
   // .......................................................
 
   goBack() {
-    this.props.dispatch(rendererActions.createActionGoBack());
+    ops.goBack();
   }
 
+  // .......................................................
+
   goNext() {
-    //log.debug(`${_logKey}.goNext`);
-    this.props.dispatch(rendererActions.createActionGoNext());
+    ops.goNext();
   }
 
   // .......................................................
@@ -92,9 +94,18 @@ class ImagePane extends React.Component {
 
   // .......................................................
 
-  render() {
-    // https://github.com/marnusw/react-css-transition-replace
+  getTransitionTime() {
 
+    const {props} = this;
+    let transistionTime = props.combinedAutoPlay ? props.transitionTimeAutoPlay : props.transitionTimeManual;
+    if (!transistionTime)
+      transistionTime = 10;
+    return transistionTime;
+  }
+
+  // .......................................................
+
+  render() {
     const func = ".render";
 
     const {props} = this;
@@ -107,34 +118,47 @@ class ImagePane extends React.Component {
     }
     const imageKey = (!imagePath ? "undefined" : imagePath);
 
-    let transistionTime = props.combinedAutoPlay ? storeManager.slideshowTransitionTimeAutoPlay : storeManager.slideshowTransitionTimeManual;
-    if (!transistionTime)
-      transistionTime = 10;
+    const transistionTime = this.getTransitionTime();
 
     log.debug(`${_logKey}${func}(${props.itemIndex}, autoPlay=${props.combinedAutoPlay}, transistion=${transistionTime}):`, imagePath);
+
+    let cssOpacityLeave = 1;
+    let ccsOpacityEnter = 1;
+    let cssEase = 'ease-in-out';
+
+    if (props.itemIndex < 0) {
+      ccsOpacityEnter = 0;
+      cssEase = 'ease-out';
+    }
+    if (this.data.lastLastIndex < 0) {
+      cssOpacityLeave = 0;
+      cssEase = 'ease-out';
+    }
+
+    this.data.lastLastIndex = props.itemIndex;
 
     return (
       <div className={cssImagePane}>
         <style dangerouslySetInnerHTML={{__html: `
           .trgen-leave {
-            opacity: 1;
+            opacity: ${cssOpacityLeave};
           }
 
           .trgen-leave.trgen-leave-active {
             opacity: 0;
-            transition: opacity ${transistionTime}ms ease-in-out;
+            transition: opacity ${transistionTime}ms ${cssEase};
           }
 
           .trgen-enter {
             opacity: 0;
           }
           .trgen-enter.trgen-enter-active {
-            opacity: 1;
-            transition: opacity ${transistionTime}ms ease-in-out;
+            opacity: ${ccsOpacityEnter};
+            transition: opacity ${transistionTime}ms ${cssEase};
           }
 
           .trgen-height {
-            transition: height ${transistionTime}ms ease-in-out;
+            transition: height ${transistionTime}ms ${cssEase};
           }
         `}} />
 
@@ -164,9 +188,11 @@ class ImagePane extends React.Component {
 const mapStateToProps = state => ({
   combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
   cursorHide: state.renderer.cursorHide,
-  items: state.renderer.items,
-  itemIndex: state.renderer.itemIndex,
   isScreensaver: state.context.isScreensaver,
+  itemIndex: state.renderer.itemIndex,
+  items: state.renderer.items,
+  transitionTimeAutoPlay: state.slideshow.transitionTimeAutoPlay,
+  transitionTimeManual: state.slideshow.transitionTimeManual,
 });
 
 export default connect( mapStateToProps )(ImagePane);

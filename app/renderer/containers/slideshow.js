@@ -137,13 +137,16 @@ class Slideshow extends React.Component {
   // .......................................................
 
   goBack() {
-    this.dispatchGotoAction(rendererActions.createActionGoBack());
+    ops.goBack();
   }
 
+  // .......................................................
+
   goNext() {
-    //log.debug(`${_logKey}.goNext`);
-    this.dispatchGotoAction(rendererActions.createActionGoNext());
+    ops.goNext();
   }
+
+  // .......................................................
 
   goPageBack() {
     let action;
@@ -154,6 +157,8 @@ class Slideshow extends React.Component {
 
     this.dispatchGotoAction(action);
   }
+
+  // .......................................................
 
   goPageNext() {
     //log.debug(`${_logKey}.goPageNext`);
@@ -249,9 +254,21 @@ class Slideshow extends React.Component {
   // .......................................................
 
   onTimerNext() {
-    // const func = ".onTimerNext";
-    // log.debug(`${_logKey}${func}`);
-    this.goNext();
+    const func = ".onTimerNext";
+
+    try {
+      // log.debug(`${_logKey}${func}`);
+      if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
+        this.goNext();
+      else {
+        if (this.props.random)
+          this.dispatchGotoAction(rendererActions.createActionGoRandom());
+        else
+          this.goNext();
+      }
+    } catch (err) {
+      log.error(`${_logKey}${func} -`, err);
+    }
   }
 
   // .......................................................
@@ -379,9 +396,12 @@ const mapStateToProps = state => ({
   containerType: state.renderer.containerType,
   cursorHide: state.renderer.cursorHide,
   helpShow: state.renderer.helpShow,
-  items: state.renderer.items,
-  itemIndex: state.renderer.itemIndex,
   isScreensaver: state.context.isScreensaver,
+  itemIndex: state.renderer.itemIndex,
+  items: state.renderer.items,
+  random: state.slideshow.random,
+  transitionTimeAutoPlay: state.slideshow.transitionTimeAutoPlay,
+  transitionTimeManual: state.slideshow.transitionTimeManual,
 });
 
 export default connect( mapStateToProps )(Slideshow);
