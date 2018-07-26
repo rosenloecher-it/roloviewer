@@ -152,7 +152,7 @@ export class RendererReducer {
       const newItems = state.items.concat(action.payload.items);
       let newItemIndex = state.itemIndex;
 
-      log.debug(`${_logKey}${func} (add) - ${action.payload.items.length} items (sum = ${newItems.length})`);
+      //log.debug(`${_logKey}${func} (add) - ${action.payload.items.length} items (sum = ${newItems.length})`);
 
       if (newItemIndex < 0 && newItems.length > 0)
         newItemIndex = 0;

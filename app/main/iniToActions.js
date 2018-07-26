@@ -165,7 +165,7 @@ export function createSlideshowAction(iniDataIn, context) {
         actionData.lastItem = null;
       }
     } else {
-      actionData.lastContainerType = SlideshowReducer.convert2ContainerTypeKey(valiString(iniData.slideshow.lastContainerType));
+      actionData.lastContainerType = valiInt(iniData.slideshow.lastContainerType);
       actionData.lastContainer = valiString(iniData.slideshow.lastContainer);
       actionData.lastItem = valiString(iniData.slideshow.lastItem);
     }

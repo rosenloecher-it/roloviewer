@@ -55,7 +55,7 @@ export class WorkerReducer {
           return this.open(state, action);
 
         case constants.AR_WORKER_DELIVER_META:
-        case constants.AR_WORKER_INIT_CRAWLE:
+        case constants.AR_WORKER_START:
         case constants.AR_WORKER_RATE_DIR_BY_FILE:
         case constants.AR_WORKER_RELOAD_DIRS:
         case constants.AR_WORKER_REMOVE_DIRS:
@@ -186,7 +186,7 @@ export class WorkerReducer {
         return 0;
       case constants.AR_WORKER_DELIVER_META:
         return 1;
-      case constants.AR_WORKER_INIT_CRAWLE:
+      case constants.AR_WORKER_START:
         return 2;
       case constants.AR_WORKER_REMOVE_DIRS:
         return 3;

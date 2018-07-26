@@ -85,7 +85,7 @@ describe(_logKey, () => {
 
   // ........................................................
 
-  it('initCrawler', () => {
+  it('start', () => {
 
     const testSystem = createTestSystemWithMediaDir(); //empty
 
@@ -94,9 +94,9 @@ describe(_logKey, () => {
 
     const p = testSystem.init().then(() => {
 
-      const action = workerActions.createActionInitWorker();
+      const action = workerActions.createActionStart();
       return testSystem.dispatcher.dispatchTask(action);
-      //return testSystem.mediaCrawler.initCrawler();
+      //return testSystem.mediaCrawler.start();
 
     }).then(() => {
 
@@ -507,9 +507,9 @@ describe(_logKey, () => {
 
     const p = testSystem.init().then(() => {
 
-      const action = workerActions.createActionInitWorker();
+      const action = workerActions.createActionStart();
       return testSystem.dispatcher.dispatchTask(action);
-      //return testSystem.mediaCrawler.initCrawler();
+      //return testSystem.mediaCrawler.start();
 
     }).then(() => {
 
@@ -662,7 +662,7 @@ describe(_logKey, () => {
     testSystem.createFileSystemStructure(_testDirMedia, dirWidth, dirDepth, filesPerDir);
 
     const p = testSystem.init().then(() => {
-      const action = workerActions.createActionInitWorker();
+      const action = workerActions.createActionStart();
       return testSystem.dispatcher.dispatchTask(action);
       //return mediaCrawler.updateDir(_testDirMedia);
 

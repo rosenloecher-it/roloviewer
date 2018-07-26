@@ -142,7 +142,7 @@ export const AR_WORKER_OPEN = 'AR_WORKER_OPEN';
 
 export const AR_WORKER_DELIVER_META = 'AR_WORKER_DELIVER_META';
 
-export const AR_WORKER_INIT_CRAWLE = 'AR_WORKER_INIT_CRAWLE';
+export const AR_WORKER_START = 'AR_WORKER_START';
   // load and check config, eventually restart => AR_WORKER_RELOAD_DIRS(true)
   // restore last update-dir-tasks
 

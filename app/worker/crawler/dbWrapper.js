@@ -274,6 +274,28 @@ export class DbWrapper extends CrawlerBase {
 
   // .......................................................
 
+  countDirsShowable() {
+    const func = '.countDirs';
+
+    const instance = this;
+
+    const maxWeight = constants.CRAWLER_MAX_WEIGHT;
+
+    const p = new Promise((resolve, reject) => {
+      instance.dbDir.count({weight: { $lt: maxWeight} }, (err, count) => {
+        if (err)
+          reject(new Error(err));
+        resolve(count);
+      });
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
   listDirsWeigthSorted() {
     const func = '.listWeigthSorted';
 

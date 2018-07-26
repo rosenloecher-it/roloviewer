@@ -9,12 +9,6 @@ const DEFAULT_POSITION_DETAILS = constants.CORNER_POS_1;
 const DEFAULT_POSITION_CRAWLERINFO = constants.CORNER_POS_4;
 const DEFAULT_DETAILS_STATE = constants.DETAILS_STATE_MIN;
 
-const _containerTypes = [
-  { key: constants.CONTAINER_AUTOSELECT, name: "autoselect" },
-  { key: constants.CONTAINER_FOLDER, name: "folder" },
-  { key: constants.CONTAINER_PLAYLIST, name: "playlist" },
-];
-
 const _detailsStates = [
   constants.DETAILS_STATE_ALL,
   constants.DETAILS_STATE_MIN,
@@ -41,7 +35,7 @@ export class SlideshowReducer {
       crawlerInfoPosition: DEFAULT_POSITION_CRAWLERINFO,
       crawlerInfoShow: false,
       detailsPosition: DEFAULT_POSITION_DETAILS,
-      detailsState: constants.DETAILS_STATE_MIN,
+      detailsState: DEFAULT_DETAILS_STATE,
       lastContainer: null,
       lastContainerType: constants.CONTAINER_FOLDER,
       lastItem: null,
@@ -63,6 +57,9 @@ export class SlideshowReducer {
       //log.debug(`${this._logKey}${func}(${actionType}) - in`);
 
       switch (action.type) {
+
+        case constants.AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER:
+          return this.setLastItemContainer(state, action);
 
         case constants.AR_SLIDESHOW_AUTOPLAY_START:
           return {...state, autoPlay: true};
@@ -263,23 +260,6 @@ export class SlideshowReducer {
 
   // .....................................................
 
-  static convert2ContainerTypeKey(name) {
-    for (let i = 0; i < _containerTypes.length; i++) {
-      const containerMode = _containerTypes[i];
-      if (containerMode.name === name)
-        return containerMode.key;
-    }
-    return null;
-  }
-
-  static convert2ContainerTypeName(key) {
-    for (let i = 0; i < _containerTypes.length; i++) {
-      const containerMode = _containerTypes[i];
-      if (containerMode.key === key)
-        return containerMode.name;
-    }
-    return null;
-  }
 }
 
 // ----------------------------------------------------------------------------------

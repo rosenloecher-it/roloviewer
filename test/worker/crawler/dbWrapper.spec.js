@@ -192,11 +192,17 @@ describe('dbWrapper', () => {
 
       expect(dirs[0].dir).toBe(pathDocToBeUpdated);
 
+      return dbWrapper.countDirsShowable();
+
+    }).then((countDirsShowable) => {
+
+      expect(countDirsShowable).toBe(countDefault);
+
       return dbWrapper.clearDb();
 
     }).then(() => {
 
-      return dbWrapper.countStates();
+      return dbWrapper.countDirs();
 
     }).then((count) => {
       expect(count).toBe(0);

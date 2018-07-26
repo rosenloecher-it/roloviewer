@@ -191,7 +191,7 @@ export class Dispatcher extends CrawlerBase {
     const taskType = task.type;
     const instance = this;
 
-    const p = new Promise((resolve, reject) => {
+    const pOuter = new Promise((resolve, reject) => {
       //log.debug(`${_logKey}${func}.promise - in`);
 
       const {metaReader} = instance.objects;
@@ -213,8 +213,8 @@ export class Dispatcher extends CrawlerBase {
           p = metaReader.deliverMeta(task.payload.file);
           break;
 
-        case constants.AR_WORKER_INIT_CRAWLE:
-          p = mediaCrawler.initCrawler();
+        case constants.AR_WORKER_START:
+          p = this.initWorker(task.payload);
           break;
 
         case constants.AR_WORKER_REMOVE_DIRS:
@@ -246,6 +246,34 @@ export class Dispatcher extends CrawlerBase {
         reject(new Error(`unknown task type ${task.type}!`));
       else
         resolve(p);
+
+    }).catch((err) => {
+      this.logAndRethrowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
+    });
+
+    return pOuter;
+  }
+
+  // .......................................................
+
+  initWorker(payload) {
+    const func = '.initWorker';
+
+    const instance = this;
+    const {mediaCrawler} = instance.objects;
+    const {mediaLoader} = instance.objects;
+
+    let p = null;
+
+    if (!payload.container && (payload.lastContainerType === constants.CONTAINER_FOLDER || payload.lastContainerType === constants.CONTAINER_PLAYLIST))
+      p = mediaLoader.open(payload);
+    else
+      p = Promise.resolve();
+
+    p = p.then(() => {
+
+      const activeAutoSelect = (payload.lastContainerType === constants.CONTAINER_AUTOSELECT);
+      return mediaCrawler.start(activeAutoSelect);
 
     }).catch((err) => {
       this.logAndRethrowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
@@ -288,7 +316,7 @@ export class Dispatcher extends CrawlerBase {
           break;
 
         case constants.AR_WORKER_RELOAD_DIRS:
-        case constants.AR_WORKER_INIT_CRAWLE:
+        case constants.AR_WORKER_START:
           data.statusCrawlerTask = 'Initialising';
           break;
 
@@ -327,9 +355,9 @@ export class Dispatcher extends CrawlerBase {
       data.lastStatusTaskType = taskType;
 
       if (logInfo)
-        log.debug(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}:`, logInfo);
+        log.silly(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}:`, logInfo);
       else
-        log.debug(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}`);
+        log.silly(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}`);
 
     } catch(err) {
       log.error(`${_logKey}${func} -`, err);

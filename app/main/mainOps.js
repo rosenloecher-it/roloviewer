@@ -156,12 +156,7 @@ export function activateChild(ipcMsg) {
       statusChildsState = 0;
 
       const state = storeManager.slideshowState;
-      const actionOpen = workerActions.createActionOpen(state.lastContainer, state.lastItem);
-      //log.debug(`${_logKey}${func} - actionOpen:`, actionOpen);
-      storeManager.dispatchGlobal(actionOpen);
-
-      const action = workerActions.createActionInitWorker();
-      //log.debug(`${_logKey}${func} - action:`, action);
+      const action = workerActions.createActionStart(state.lastContainerType, state.lastContainer, state.lastItem);
       storeManager.dispatchGlobal(action);
 
     }

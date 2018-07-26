@@ -29,8 +29,6 @@ class Slideshow extends React.Component {
     const func = ".persistLastItem";
 
     try {
-      //log.debug(`${_logKey}${func} - lastItem=${lastItemFile}, lastContainer=${lastContainer}`);
-
       if (currentFile) {
         const action = slideshowActions.createActionSetLastItemContainer(containerType, container, currentFile);
         manager.dispatchGlobal(action);
@@ -355,7 +353,7 @@ class Slideshow extends React.Component {
 
         data.lastRequestKey = requestKey;
 
-        log.debug(`${_logKey}${func} - requestNewItems (send): requestKey=${requestKey}`);
+        //log.debug(`${_logKey}${func} - requestNewItems (send): requestKey=${requestKey}`);
 
       } while (false);
 
