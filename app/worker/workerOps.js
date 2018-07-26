@@ -50,13 +50,22 @@ export function shutdown() {
   try {
     ipc.unregisterListener();
 
-    if (_dispatcher)
-      _dispatcher.stopProcessing();
+    const currentDispatcher = _dispatcher;
+    const currentFactory = _factory;
 
     _dispatcher = null;
-    if (_factory)
-      _factory.shutdown();
     _factory = null;
+
+    if (currentDispatcher)
+      currentDispatcher.stopProcessing();
+
+    if (currentFactory) {
+      // get behind all other running operations (promise chains with mutiple steps)
+      // using setImmediate, you need several nested calls!
+      setTimeout(() => {
+        currentFactory.shutdown();
+      }, 50);
+    }
 
   } catch (err) {
     log.error(`${_logKey}.shutdown - exception -`, err);
