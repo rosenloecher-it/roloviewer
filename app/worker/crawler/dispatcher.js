@@ -87,7 +87,6 @@ export class Dispatcher extends CrawlerBase {
   // ........................................................
 
   shutdown() {
-    const func = '.shutdown';
 
     this.shutdownTimer();
 
@@ -96,7 +95,7 @@ export class Dispatcher extends CrawlerBase {
 
   // ........................................................
 
-  stopProcessingObject(object) {
+   stopProcessingObject(object) {
     if (object)
       object.stopProcessing();
   }

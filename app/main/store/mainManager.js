@@ -133,6 +133,8 @@ export class MainManager extends StoreManager {
 
       fileTools.saveIniFile(configFile, clonedState);
 
+      log.debug(`${_logKey}${func} - ${configFile}`);
+
     } catch (err) {
       log.error(`${_logKey}${func} failed (${configFile}) -`, err);
     }

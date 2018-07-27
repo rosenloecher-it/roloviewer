@@ -25,30 +25,6 @@ const _logKey = "slideshow";
 
 class Slideshow extends React.Component {
 
-  // .......................................................
-
-  static persistLastItem(manager, containerType, container, currentFile) {
-    const func = ".persistLastItem";
-
-    try {
-      if (currentFile) {
-        let action = null;
-        if (containerType === constants.CONTAINER_CLIPBOARD)
-          action = slideshowActions.createActionSetLastItemContainer(constants.CONTAINER_FOLDER, path.dirname(currentFile), currentFile);
-        else
-          action = slideshowActions.createActionSetLastItemContainer(containerType, container, currentFile);
-        manager.dispatchGlobal(action);
-      }
-
-    } catch (err) {
-      log.error(`${_logKey}${func} - exception -`, err);
-      manager.showMessage(`${_logKey}${func} - exception - ${err}`);
-    }
-
-  }
-
-  // .......................................................
-
   constructor(props) {
     super(props);
 
@@ -61,7 +37,6 @@ class Slideshow extends React.Component {
 
     this.goBack = this.goBack.bind(this);
     this.goNext = this.goNext.bind(this);
-    this.handleNotifications = this.handleNotifications.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onQuitScreensaver = this.onQuitScreensaver.bind(this);
@@ -115,7 +90,8 @@ class Slideshow extends React.Component {
       setTimeout(this.registerOnQuitScreensaver, 500);
     }
 
-    this.handleNotifications();
+    this.notifyCurrentItem();
+    this.checkAndRequestNewMedia();
   }
 
   // .......................................................
@@ -222,7 +198,7 @@ class Slideshow extends React.Component {
       }
 
       const action = workerActions.createActionOpenDropped(files);
-      log.debug(`${_logKey}${func} - action`, action);
+      //log.debug(`${_logKey}${func} - action`, action);
       storeManager.dispatchGlobal(action);
 
     } catch (err) {
@@ -328,7 +304,7 @@ class Slideshow extends React.Component {
     try {
       const activeAutoPlay = (this.data.timerIdNext !== null);
       if (this.props.combinedAutoPlay === activeAutoPlay && !restart) {
-        log.silly(`${_logKey}${func} - NO CHANGE - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
+        //log.silly(`${_logKey}${func} - NO CHANGE - combinedAutoPlay=${this.props.combinedAutoPlay}, data.timerId=${this.data.timerIdNext}`);
         return;
       }
 
@@ -336,11 +312,11 @@ class Slideshow extends React.Component {
 
       if (this.props.combinedAutoPlay) {
         this.data.timerIdNext = setInterval(this.onTimerNext, timeSwitch);
-        log.debug(`${_logKey}${func} - ON - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
+        //log.silly(`${_logKey}${func} - ON - combinedAutoPlay=${this.props.combinedAutoPlay}, data.timerId=${this.data.timerIdNext}`);
       } else {
         clearInterval(this.data.timerIdNext);
         this.data.timerIdNext = null;
-        log.debug(`${_logKey}${func} - OFF - props.autoPlay=${this.props.autoPlay}, data.timerId=${this.data.timerIdNext}`);
+        //log.silly(`${_logKey}${func} - OFF - combinedAutoPlay=${this.props.combinedAutoPlay}, data.timerId=${this.data.timerIdNext}`);
       }
 
     } catch(error) {
@@ -379,67 +355,94 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
-  handleNotifications() {
-    const func = ".handleNotifications";
+  notifyCurrentItem() {
+    const func = ".notifyCurrentItem";
 
-    const {props, data} = this;
-    let action = null;
+    try {
+      if (!storeManager.hasSender())
+        return;
 
-    let currentItemFile = null;
-    if (props.itemIndex >= 0 && props.itemIndex < props.items.length) {
-      const item = props.items[props.itemIndex];
-      currentItemFile = item.file;
-    }
+      const {props, data} = this;
 
-    // action = statusActions.createActionNotifyCurrentItem(currentItemFile);
-    // storeManager.dispatchGlobal(action);
+      let currentItem = null;
+      if (props.itemIndex >= 0 && props.itemIndex < props.items.length)
+        currentItem = props.items[props.itemIndex];
 
-    if (!currentItemFile)
-      return;
+      let currentItemFile = null;
+      if (currentItem && currentItem.file)
+        currentItemFile = currentItem.file;
 
-    new Promise((resolve) => {
+      // notify slideshow.lastItem* - no null !
+      if (currentItemFile) {
+        if (currentItemFile && data.lastImageFile !== currentItemFile || data.lastContainer !== props.container) {
 
-      if (currentItemFile && data.lastImageFile !== currentItemFile || data.lastContainer !== props.container)
-        Slideshow.persistLastItem(storeManager, props.containerType, props.container, currentItemFile);
-
-      data.lastImageFile = currentItemFile;
-      data.lastContainer = props.container;
-
-      // request new fileItems
-      do {
-        if (props.containerType !== constants.CONTAINER_AUTOSELECT)
-          break;
-        if (props.itemIndex < props.items.length - constants.DEFCONF_RENDERER_ITEM_RESERVE)
-          break; // sufficient reserve
-
-        let lastFile = "";
-        if (props.items.length > 0)
-          lastFile = props.items[props.items.length - 1].file;
-
-        const requestKey = `${props.items.length}|${lastFile}|${props.container}`;
-        if (data.lastRequestKey === requestKey) {
-          //log.debug(`${_logKey}${func} - requestNewItems - abort key: lastRequestKey=${data.lastRequestKey}, requestKey=${requestKey}`);
-          break; // already send
+          let action = null;
+          if (props.containerType === constants.CONTAINER_CLIPBOARD)
+            action = slideshowActions.createActionSetLastItemContainer(constants.CONTAINER_FOLDER, path.dirname(currentItemFile), currentItemFile);
+          else
+            action = slideshowActions.createActionSetLastItemContainer(props.containerType, props.container, currentItemFile);
+          storeManager.dispatchGlobal(action);
         }
 
-        action = workerActions.createActionAutoSelect();
+        data.lastImageFile = currentItemFile;
+        data.lastContainer = props.container;
+      }
+
+      //   status.currentItem - set null too!
+
+      let currentItemMeta = null;
+      if (currentItem && currentItem.meta)
+        currentItemMeta = currentItem.meta;
+
+      if (data.lastCurrentItemFile !== currentItemFile || data.lastCurrentItemMeta !== currentItemMeta) {
+        const action = statusActions.createActionNotifyCurrentItem(currentItem);
         storeManager.dispatchGlobal(action);
 
-        data.lastRequestKey = requestKey;
-
-        //log.debug(`${_logKey}${func} - requestNewItems (send): requestKey=${requestKey}`);
-
-        resolve();
-
-      } while (false);
-
-    }).catch((error) => {
-      log.error(`${_logKey}${func} - exception -`, error);
-    });
+        data.lastCurrentItemFile = currentItemFile;
+        data.lastCurrentItemMeta = currentItemMeta;
+      }
+    } catch (err) {
+      log.error(`${_logKey}${func} -`, err);
+    }
   }
 
   // .......................................................
 
+  checkAndRequestNewMedia() {
+    const func = ".checkAndRequestNewMedia";
+
+    try {
+      if (!storeManager.hasSender())
+        return;
+
+      const {props, data} = this;
+
+      if (props.containerType !== constants.CONTAINER_AUTOSELECT)
+        return;
+      if (props.itemIndex < props.items.length - constants.DEFCONF_RENDERER_ITEM_RESERVE)
+        return; // sufficient reserve
+
+      let lastFile = "";
+      if (props.items.length > 0)
+        lastFile = props.items[props.items.length - 1].file;
+
+      const requestKey = `${props.items.length}|${lastFile}|${props.container}`;
+      if (data.lastNewMediaRequestKey === requestKey) {
+        //log.debug(`${_logKey}${func} - requestNewItems - abort key: lastNewMediaRequestKey=${data.lastNewMediaRequestKey}, requestKey=${requestKey}`);
+        return; // already send
+      }
+
+      const action = workerActions.createActionAutoSelect();
+      storeManager.dispatchGlobal(action);
+
+      data.lastNewMediaRequestKey = requestKey;
+
+      //log.debug(`${_logKey}${func} - requestNewItems (send): requestKey=${requestKey}`);
+
+    } catch (err) {
+      log.error(`${_logKey}${func} -`, err);
+    }
+  }
 }
 
 

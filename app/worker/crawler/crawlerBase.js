@@ -60,7 +60,8 @@ export class CrawlerBase {
   // ........................................................
 
   shutdown() {
-    this.stopProcessing();
+    if (!this.data.processingStopped)
+      this.stopProcessing();
 
     // overwrite by subclass
     return Promise.resolve();

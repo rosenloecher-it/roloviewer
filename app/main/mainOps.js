@@ -12,7 +12,7 @@ import storeManager from './store/mainManager';
 import * as actionsMainWindow from "../common/store/mainWindowActions";
 import * as workerActions from "../common/store/workerActions";
 import * as actionsSystem from "../common/store/systemActions";
-import * as metaReader from '../worker/crawler/metaReader';
+import {MetaReader} from '../worker/crawler/metaReader';
 
 // ----------------------------------------------------------------------------------
 
@@ -119,9 +119,9 @@ export function initChildConfig(ipcMsg) {
 
   const ipcDest = ipcMsg.source;
 
-  // // TODO remove db-deletion on start-up
-  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestDir.db');
-  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestStatus.db');
+  // TODO remove db-deletion on start-up
+  fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestDir.db');
+  fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestStatus.db');
 
   storeManager.dispatchFullState([ ipcDest ]);
 
@@ -309,8 +309,6 @@ export function hitEscKey() {
 
 export function toogleHelp() {
   log.debug('toogleHelp');
-  //ipc.send(constants.IPC_RENDERER, constants.AR_RENDERER_HELP_TOOGLE, null);
-
   const action = rendererActions.createActionHelpToogle();
   storeManager.dispatchGlobal(action);
 }
@@ -341,16 +339,12 @@ export function openMap() {
     const currentItem = storeManager.currentItem;
 
     do {
-      if (!currentItem || !currentItem.meta) {
+      if (!currentItem || !currentItem.file || !currentItem.meta) {
         log.info(`${_logKey}${func} - no item/meta available!`);
         break;
       }
 
-      log.debug(`${_logKey}${func} - currentItem`, currentItem);
-
       const format = storeManager.meta2MapUrlFormat;
-
-      log.debug(`${_logKey}${func} - format`, format);
 
       if (!format || format.length === 0) {
         log.info(`${_logKey}${func} - no format defined!`);
@@ -359,7 +353,7 @@ export function openMap() {
 
       const {meta} = currentItem;
 
-      const url = metaReader.formatGpsMeta(meta, format);
+      const url = MetaReader.formatGpsMeta(meta, format);
       if (url) {
         ensureFullscreen(false);
         shell.openExternal(url);

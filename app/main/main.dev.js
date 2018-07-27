@@ -51,7 +51,6 @@ function onAppWillQuit() {
   const func = '.onAppWillQuit';
 
   try {
-    log.debug(`${_logKey}${func}`);
     storeManager.saveIniFile();
 
   } catch (err) {

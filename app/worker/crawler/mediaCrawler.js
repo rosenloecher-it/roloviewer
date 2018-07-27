@@ -178,7 +178,10 @@ export class MediaCrawler extends CrawlerBase {
       stateComposed.lastUpdateDirs.push(task.payload);
     }
 
-    const p = dbWrapper.saveState(stateComposed).catch((err) => {
+    const p = dbWrapper.saveState(stateComposed).then(() => {
+      log.debug(`${_logKey}${func} - done`);
+      return Promise.resolve();
+    }).catch((err) => {
       instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 

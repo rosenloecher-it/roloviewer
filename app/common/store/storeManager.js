@@ -56,6 +56,10 @@ export class StoreManager {
   get sender() { return this._sender; }
   set sender(value){ this._sender = value; }
 
+  hasSender() {
+    return !!this._sender;
+  }
+
   // .....................................................
 
   dispatchLocal(action, invokeHook = false) {

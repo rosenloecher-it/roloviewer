@@ -123,7 +123,7 @@ export class RendererReducer {
 
     this.setNewDeliveryKey(newItems);
 
-    log.debug(`${_logKey}${func} - ${newItems.length} items`);
+    //log.debug(`${_logKey}${func} - ${newItems.length} items`);
 
     let newItemIndex = 0;
     if (newSelectFile) {
