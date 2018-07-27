@@ -56,16 +56,43 @@ export class MediaFilter {
 
   // ........................................................
 
-  static isImageFormatSupported(file) {
+  static canImportFolder(file) {
     if (!file)
       return false;
 
-    return (path.extname(file).trim().toLowerCase() === ".jpg");
+    return fs.lstatSync(file).isDirectory();
   }
 
   // ........................................................
 
-  static listFiles(folder) {
+  static canImportMediaFile(file) {
+    if (!file)
+      return false;
+
+    if (!fs.lstatSync(file).isFile())
+      return false;
+
+    const supportedFormat = MediaFilter.isImageFormatSupported(file);
+
+    return supportedFormat;
+  }
+
+  // ........................................................
+
+  static isImageFormatSupported(file) {
+    if (!file)
+      return false;
+
+    const exts = [ '.jpg', '.jpeg' ];
+
+    const ext = path.extname(file).trim().toLowerCase();
+
+    return exts.includes(ext);
+  }
+
+  // ........................................................
+
+  static listMediaFilesShort(folder) {
 
     const fileNames = [];
 
@@ -84,5 +111,28 @@ export class MediaFilter {
   }
 
   // ........................................................
+
+  static pushMediaFilesFull(folder, resultArray) {
+
+    let count = 0;
+
+    const children = fs.readdirSync(folder);
+    for (let k = 0; k < children.length; k++) {
+      const fileShort = children[k];
+      const fileLong = path.join(folder, fileShort);
+
+      if (!fs.lstatSync(fileLong).isDirectory()) {
+        if (MediaFilter.isImageFormatSupported(fileShort)) {
+          resultArray.push(fileLong);
+          count++;
+        }
+      }
+    }
+
+    return count > 0;
+  }
+
+  // ........................................................
+
 
 }

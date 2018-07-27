@@ -25,23 +25,55 @@ export const createActionRemoveTaskTypes = (taskType) => ({
 });
 
 // ----------------------------------------------------------------------------------
-// crawler tasks
+// open tasks
 
-export const createActionOpen = (container = null, selectFile = null) => ({
-  type: constants.AR_WORKER_OPEN,
+export const createActionOpenFolder = (container, selectFile = null) => ({
+  type: constants.AR_WORKER_OPEN_FOLDER,
   payload: {
+    containerType: constants.CONTAINER_FOLDER,
     container, // null == autoSelect
     selectFile,
   },
   taskId: getNextTaskId()
 });
 
+export const createActionOpenPlaylist = (container, selectFile = null) => ({
+  type: constants.AR_WORKER_OPEN_PLAYLIST,
+  payload: {
+    containerType: constants.CONTAINER_PLAYLIST,
+    container,
+    selectFile,
+  },
+  taskId: getNextTaskId()
+});
+
+export const createActionOpenDropped = (files) => ({
+  type: constants.AR_WORKER_OPEN_DROPPED,
+  payload: {
+    containerType: constants.CONTAINER_CLIPBOARD,
+    files,
+  },
+  taskId: getNextTaskId()
+});
+
+export const createActionAutoSelect = () => ({
+  type: constants.AR_WORKER_AUTO_SELECT,
+  payload: {
+    containerType: constants.CONTAINER_AUTOSELECT,
+    container: null,    // not needed
+    selectFile: null,   // not needed
+  },
+  taskId: getNextTaskId()
+});
 
 export const createActionDeliverMeta = (file) => ({
   type: constants.AR_WORKER_DELIVER_META,
   payload: {file},
   taskId: getNextTaskId()
 });
+
+// ----------------------------------------------------------------------------------
+// crawler tasks
 
 export const createActionStart = (lastContainerType = null, container = null, selectFile = null) => ({
   type: constants.AR_WORKER_START,

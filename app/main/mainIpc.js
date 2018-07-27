@@ -5,11 +5,11 @@ import * as windows from './windows';
 import * as ops from "./mainOps";
 import * as actionsMsg from "../common/store/messageActions";
 import storeManager from './store/mainManager';
-import {quitApp} from "./mainOps";
+import {quittingApp} from "./mainOps";
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "mainIpc";
+const _logKey = "ipc";
 const _ipcMyself = constants.IPC_MAIN;
 let _shutdownIpc = false;
 
@@ -73,9 +73,10 @@ function dispatchMainActions(ipcMsg) {
 
     case constants.AI_TOOGLE_FULLSCREEN:
       ops.toogleFullscreen(); break;
-    case constants.AI_QUIT_SCREENSAVER:
+    case constants.AI_QUITTING_SCREENSAVER_MODE:
+      ops.quittingApp(); break;
+    case constants.AI_QUIT_APP_BY_WORKER:
       ops.quitApp(); break;
-
 
     default:
       log.error(`${_logKey}${func} - invalid type: `, ipcMsg);

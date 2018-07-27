@@ -120,8 +120,8 @@ export function initChildConfig(ipcMsg) {
   const ipcDest = ipcMsg.source;
 
   // // TODO remove db-deletion on start-up
-  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderDir.db');
-  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderStatus.db');
+  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestDir.db');
+  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestStatus.db');
 
   storeManager.dispatchFullState([ ipcDest ]);
 
@@ -198,7 +198,7 @@ export function openDialog(isDirectory) {
 export function openDirectory() {
   const folder = openDialog(true);
   if (folder) {
-    const action = workerActions.createActionOpen(folder);
+    const action = workerActions.createActionOpenFolder(folder);
     storeManager.dispatchGlobal(action);
   }
 }
@@ -208,7 +208,7 @@ export function openDirectory() {
 export function openPlayList() {
   const playlist = openDialog(false);
   if (playlist) {
-    const action = workerActions.createActionOpen(playlist);
+    const action = workerActions.createActionOpenPlaylist(playlist);
     storeManager.dispatchGlobal(action);
   }
 }
@@ -221,7 +221,7 @@ export function openItemDirectory() {
 
   if (slideshowState && slideshowState.lastItem) {
     const folder = path.dirname(slideshowState.lastItem);
-    const action = workerActions.createActionOpen(folder, slideshowState.lastItem);
+    const action = workerActions.createActionOpenFolder(folder, slideshowState.lastItem);
     storeManager.dispatchGlobal(action);
   }
 }
@@ -231,7 +231,7 @@ export function openItemDirectory() {
 export function autoSelect() {
   log.debug(`${_logKey}.autoSelect`);
 
-  const action = workerActions.createActionOpen(null, null);
+  const action = workerActions.createActionAutoSelect();
   storeManager.dispatchGlobal(action);
 }
 
@@ -239,18 +239,33 @@ export function autoSelect() {
 
 let _isAppAlreadyQuitted = false;
 
-export function quitApp() {
+export function quittingApp() {
+  const func = '.quittingApp';
   // closeMainWindow was called twice
   if (!_isAppAlreadyQuitted) {
     _isAppAlreadyQuitted = true;
+
+    log.debug(`${_logKey}${func}`);
 
     powerSaveBlocker.shutdown();
 
     ipc.send(constants.IPC_RENDERER, constants.AI_SHUTDOWN, null);
     ipc.send(constants.IPC_WORKER, constants.AI_SHUTDOWN, null);
 
-    ipc.shutdownIpc();
+    setTimeout(() => {
+      log.warn(`${_logKey}${func} - app should be finished by worker notification - NOT by this timer call!`);
+      quitApp();
+    }, 700);
+  }
+}
 
+// ----------------------------------------------------------------------------------
+
+export function quitApp() {
+  // don't call directly
+  if (_isAppAlreadyQuitted) {
+    log.debug(`${_logKey}.quitApp`);
+    ipc.shutdownIpc();
     app.quit();
   }
 }
@@ -282,7 +297,7 @@ export function hitEscKey() {
       return;
     }
 
-    quitApp();
+    quittingApp();
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
@@ -323,21 +338,19 @@ export function openMap() {
 
   try {
 
-    const currentItem = storeManager.slideshowCurrentItem;
-
-    //log.debug(`${_logKey}${func} - currentItem`, currentItem);
+    const currentItem = storeManager.currentItem;
 
     do {
-      if (!currentItem)
-        break;
-      if (!currentItem.meta) {
+      if (!currentItem || !currentItem.meta) {
         log.info(`${_logKey}${func} - no item/meta available!`);
         break;
       }
 
+      log.debug(`${_logKey}${func} - currentItem`, currentItem);
+
       const format = storeManager.meta2MapUrlFormat;
 
-      //log.debug(`${_logKey}${func} - no format defined!`, storeManager.systemState);
+      log.debug(`${_logKey}${func} - format`, format);
 
       if (!format || format.length === 0) {
         log.info(`${_logKey}${func} - no format defined!`);

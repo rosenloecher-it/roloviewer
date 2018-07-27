@@ -1,96 +1,136 @@
-import {MediaLoader} from "../../../app/worker/crawler/mediaLoader";
-import * as vali from "../../../app/common/utils/validate";
-import {TestManager} from "../../common/store/testManager";
-import * as constants from '../../../app/common/constants';
-import {MediaFilter} from "../../../app/worker/crawler/mediaFilter";
+import fs from 'fs-extra';
+import * as stringUtils from "../../../app/common/utils/stringUtils";
+import {DummyTestSystem} from "./dummyTestSystem";
+import * as testUtils from "../../common/utils/testUtils";
+import path from "path";
+import * as constants from "../../../app/common/constants";
 
-describe('MediaLoader', () => {
+// ----------------------------------------------------------------------------------
 
-  it('listImageFolderRecursive', () => {
+const _logKey = 'test-mediaLoader';
 
-    //const mediaLoader = new MediaLoader();
-    const sourceFolderIn = [ "/home/data/mymedia/201x" ];
-    const blacklistFoldersIn = [ "/home/data/mymedia/201x/2011/20110224-S95-Test" ];
-    const blacklistSnippetsIn = [ "Haus " ];
+const _testBaseNameDb = 'mediaLoaderDb';
+const _testBaseNameMedia = 'mediaLoaderMedia';
+let _testDirDb = null;
+let _testDirMedia = null;
 
-    const sourceFolders = vali.valiFolderArray(sourceFolderIn);
-    const blacklistFolders = vali.valiFolderArray(blacklistFoldersIn);
-    const blacklistSnippets = vali.valiBlacklistSnippets(blacklistSnippetsIn);
+const _useNewTestDirEveryTime = false;
 
-    const minCountJpg = 15;
+// ----------------------------------------------------------------------------------
 
-    const searchFolders = MediaLoader.listImageFolderRecursive(sourceFolders, blacklistFolders, blacklistSnippets, minCountJpg);
+function createTestSystemWithMediaDir(countDirs = 0, countFiles = 0) {
+  const testSystem = new DummyTestSystem();
 
-    expect(searchFolders.length).toBeGreaterThan(0);
+  const state = testSystem.crawlerState;
+  state.databasePath = _testDirDb;
+  state.batchCount = 3;
+  state.folderSource.push(_testDirMedia);
 
-    console.log("searchFolders", searchFolders);
+  testSystem.createSingleDir(_testDirMedia, countDirs, countFiles);
 
-    // TODO change after implementation database version
+  return testSystem;
+}
 
+// ----------------------------------------------------------------------------------
+
+describe(_logKey, () => {
+
+  beforeAll(() => {
+
+    if (_useNewTestDirEveryTime) {
+      testUtils.ensureEmptyTestDir(_testBaseNameDb);
+      testUtils.ensureEmptyTestDir(_testBaseNameMedia);
+    }
+
+    return Promise.resolve();
+  });
+
+  // ........................................................
+
+  beforeEach(() => {
+
+    if (_useNewTestDirEveryTime) {
+      const subdir = stringUtils.randomString(8);
+      _testDirDb = testUtils.ensureEmptyTestDir(path.join(_testBaseNameDb, subdir));
+      _testDirMedia = testUtils.ensureEmptyTestDir(path.join(_testBaseNameMedia, subdir));
+    } else {
+      _testDirDb = testUtils.ensureEmptyTestDir(_testBaseNameDb);
+      _testDirMedia = testUtils.ensureEmptyTestDir(_testBaseNameMedia);
+    }
+
+    return Promise.resolve();
+
+  });
+
+  // ........................................................
+
+  it('openDroppedSync', () => {
+
+    const countFilesPerDir = 2;
+    const countSubDirs = 2;
+    const countFiles = (countSubDirs + 1) * countFilesPerDir;
+
+    const testSystem = createTestSystemWithMediaDir();
+
+    const dirs = [ _testDirMedia ];
+
+    for (let i = 0; i < countSubDirs; i++)
+      dirs.push(path.join(_testDirMedia, `${stringUtils.randomString(8)}_${i}`));
+
+    const args = { files: [] };
+
+    for (let i = 0; i < dirs.length; i++) {
+      const dir = dirs[i];
+      fs.mkdirsSync(dir);
+
+      if (i > 0)
+        args.files.push(dir);
+
+      for (let k = 0; k < countFilesPerDir; k++) {
+        const filename = `testdummy_${(i * countFilesPerDir) + k + 1}.${DummyTestSystem.getRandomImageExt()}`;
+        const fullPath = testSystem.saveTestFile(dir, filename, 0);
+        if (i === 0)
+          args.files.push(fullPath);
+      }
+    }
+
+    expect(testSystem.files.length).toBe(countFiles);
+
+    const p = testSystem.init().then(() => {
+
+      testSystem.mediaLoader.openDroppedSync(args);
+
+      const globalActions = testSystem.storeManager.data.globalDispatchedActions;
+
+      //console.log('globalActions', globalActions);
+
+      expect(globalActions.length).toBe(countFiles + 1);
+      const actionShow = testSystem.storeManager.getLastGlobalAction(constants.AR_RENDERER_SHOW_CONTAINER_FILES);
+
+      console.log('actionShow', actionShow);
+
+      for (let i = 0; i < testSystem.files.length; i++) {
+        const testFile = testSystem.files[i];
+
+        let checkCounter = 0;
+
+        for (let k = 0; k < actionShow.payload.items.length; k++) {
+          const actionItem = actionShow.payload.items[k];
+          //console.log('actionItem', actionItem);
+          if (actionItem.file === testFile)
+            checkCounter++;
+        }
+        expect(checkCounter).toBe(1);
+      }
+
+      return Promise.resolve();
+    }).then(() => {
+
+      return testSystem.shutdown();
+    });
 
   });
 
 
-  it('selectRandomItems', () => {
-
-    const maxValue = 300;
-    const selectionCount = 50;
-
-    const source = Array(maxValue).fill(0);
-    for (let i = 0; i < source.length; i++)
-      source[i] = i;
-
-    //console.log("source", source);
-
-    const destination = MediaLoader.selectRandomItems(source, selectionCount);
-
-    //console.log("destination", destination);
-
-    let countMultipleSelections = 0;
-    let countUndefined = 0;
-    const check = Array(maxValue).fill(0);
-
-    for (let i = 0; i < destination.length; i++) {
-      const value = destination[i];
-
-      if (typeof(value) === typeof(0)) {
-        if (value >= 0 && value < maxValue)
-          check[ value ] += 1;
-        else
-          countUndefined++;
-      } else
-        countUndefined++;
-    }
-
-    // console.log("check", check);
-    // console.log("countUndefined", countUndefined);
-
-    for (let i = 0; i < check.length; i++) {
-      if (check[i] > 1)
-        countMultipleSelections++;
-    }
-
-    //console.log("countMultipleSelections", countMultipleSelections);
-
-    expect(destination.length).toBe(selectionCount);
-    expect(countUndefined).toBe(0);
-    expect(countMultipleSelections).toBe(0);
-
-  });
-
-
-
-
-
-  // it('test random', () => {
-  //   const max = 10;
-  //   const array = Array(max).fill(0);
-  //   for (let i = 0; i < 100; i++) {
-  //     const random = Math.floor(max * Math.random());
-  //     console.log("random", random);
-  //     array[random] += 1;
-  //   }
-  //   console.log("array", array);
-  // });
 
 });

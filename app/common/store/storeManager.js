@@ -278,13 +278,15 @@ export class StoreManager {
     return constants.DEFCONF_CRAWLER_BATCHCOUNT;
   }
 
-  get slideshowCurrentItem() {
-    const {slideshow} = this.state;
-    if (!slideshow)
-      return null;
-    if (slideshow.itemIndex >= slideshow.items.length)
-      return null;
-    return slideshow.items[slideshow.itemIndex];
+  // ........................................................
+  // system
+
+  get statusState() {
+    return this.state.status;
+  }
+
+  get currentItem() {
+    return this.state.status.currentItem;
   }
 
   // ........................................................

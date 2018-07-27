@@ -152,6 +152,8 @@ export class DummyTestSystem {
     fs.writeFileSync(filePath, JSON.stringify(fileItem), 'utf8');
 
     this.files.push(filePath);
+
+    return filePath;
   }
 
   // ........................................................
@@ -173,7 +175,7 @@ export class DummyTestSystem {
 
   static getRandomImageExt() {
     const exts = [
-      'jpg', 'JPG', 'jpG'
+      'jpg', 'JPG', 'jpG', 'jpEg', 'Jpeg', 'JPEG'
     ];
 
     const randomIndex = Math.floor(exts.length * Math.random());

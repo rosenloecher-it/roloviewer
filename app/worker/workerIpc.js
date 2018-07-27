@@ -23,7 +23,7 @@ export function initIpc() {
 // ----------------------------------------------------------------------------------
 
 export function shutdownIpc() {
-  //log.debug(`${_logKey}shutdownIpc`);
+  //log.debug(`${_logKey}.shutdownIpc`);
   _shutdownIpc = true;
   ipcRenderer.removeAllListeners(_ipcMyself);
 }
@@ -34,7 +34,7 @@ function listenWorkerChannel(event, ipcMsg, output) {
   const func = ".listenWorkerChannel";
 
   try {
-    //log.debug(`${_logKey}.${func}(${ipcMsg.type})`);
+    //log.debug(`${_logKey}${func}(${ipcMsg.type})`);
 
     if (ipcMsg.destination !== _ipcMyself)
       throw new Error(`invalid destination: ${_ipcMyself}`);

@@ -52,7 +52,7 @@ export function toogleFullscreen() {
 
 export function quitScreensaver() {
   try {
-    ipc.send(constants.IPC_MAIN, constants.AI_QUIT_SCREENSAVER);
+    ipc.send(constants.IPC_MAIN, constants.AI_QUITTING_SCREENSAVER_MODE);
     log.debug(`${_logKey}.quitScreensaver send`);
   } catch (err) {
     log.error(`${_logKey}.quitScreensaver - exception -`, err);

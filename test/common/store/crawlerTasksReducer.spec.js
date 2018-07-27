@@ -25,7 +25,7 @@ describe('WorkerReducer - task handling', () => {
     const stateDefault = createDefaultTestState();
 
     stateIn = stateDefault;
-    action = actions.createActionOpen();
+    action = actions.createActionAutoSelect();
     stateOut = reducer.reduce(stateIn, action);
     expect(WorkerReducer.countTasks(stateOut)).toBe(1);
 
@@ -37,7 +37,7 @@ describe('WorkerReducer - task handling', () => {
     //console.log(`stateOut`, stateOut);
 
     stateOut = stateDefault;
-    action = actions.createActionOpen();
+    action = actions.createActionOpenFolder('folder');
     stateOut = reducer.reduce(stateOut, action);
 
     const action1 = actions.createActionDeliverMeta('1');
@@ -70,43 +70,6 @@ describe('WorkerReducer - task handling', () => {
     expect(WorkerReducer.countTasks(stateOut)).toBe(1);
     expect(WorkerReducer.existsTask(stateOut, action3)).toBe(false);
 
-    //action = ;
-
-    // addItems(stateIn, 10, 1);
-    // addItems(stateIn, 10, 2);
-    // addItems(stateIn, 10, 3);
-    // addItems(stateIn, 10, 4);
-    //
-    // // section 1
-    // stateIn.itemIndex = 16;
-    // stateIn.container = "noAutoSelect";
-    // action = actions.createActionJump(12);
-    // stateOut = slideshowReducer.reduce(stateIn, action);
-    //
-    // expect(stateOut === stateIn).toBe(false);
-    // expect(stateOut.itemIndex).toBe(28);
-    //
-    // action = actions.createActionJump(55);
-    // stateOut = slideshowReducer.reduce(stateIn, action);
-    //
-    // expect(stateOut === stateIn).toBe(false);
-    // expect(stateOut.itemIndex).toBe(39);
-    //
-    //
-    // // section 2
-    // stateIn.itemIndex = 25;
-    // stateIn.container = null;
-    // action = actions.createActionGoPage(1); // greater than 0
-    // stateOut = slideshowReducer.reduce(stateIn, action);
-    //
-    // expect(stateOut === stateIn).toBe(false);
-    // expect(stateOut.itemIndex).toBe(30);
-    //
-    // action = actions.createActionGoPage(-1); // greater than 0
-    // stateOut = slideshowReducer.reduce(stateIn, action);
-    //
-    // expect(stateOut === stateIn).toBe(false);
-    // expect(stateOut.itemIndex).toBe(19);
   });
 
 

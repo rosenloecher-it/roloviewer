@@ -72,7 +72,7 @@ export class MetaReaderExiftool extends CrawlerBase {
       return p2;
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -83,6 +83,7 @@ export class MetaReaderExiftool extends CrawlerBase {
   shutdown() {
     const func = ".shutdown";
 
+    const instance = this;
     const {data} = this;
 
     const p = new Promise((resolve) => {
@@ -99,7 +100,7 @@ export class MetaReaderExiftool extends CrawlerBase {
       return super.shutdown();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -111,6 +112,11 @@ export class MetaReaderExiftool extends CrawlerBase {
 
     const func = ".readMeta";
     const instance = this;
+
+    if (!fs.lstatSync(file).isFile()) {
+      log.error(`${_logKey}${func} - no media file!`, file);
+      return Promise.resolve(null);
+    }
 
     if (!instance.data.exiftool)
       return Promise.reject(new Error('no exiftool'));

@@ -93,9 +93,11 @@ export const DETAILS_STATE_OFF = "OFF";
 // --------------------------------------------------------------------------
 // enums
 
+export const CONTAINER_UNKNOWN = 0;
 export const CONTAINER_AUTOSELECT = 1;
 export const CONTAINER_FOLDER = 2;
 export const CONTAINER_PLAYLIST = 3;
+export const CONTAINER_CLIPBOARD = 4;
 
 // --------------------------------------------------------------------------
 // ipc (channels === destination)
@@ -121,7 +123,9 @@ export const AI_SPREAD_REDUX_ACTION = 'AI_SPREAD_REDUX_ACTION';
 
 export const AI_TOOGLE_FULLSCREEN = 'AI_TOOGLE_FULLSCREEN'; // send to main
 
-export const AI_QUIT_SCREENSAVER = 'AI_QUIT_SCREENSAVER'; // send to main
+export const AI_QUITTING_SCREENSAVER_MODE = 'AI_QUITTING_SCREENSAVER_MODE'; // send to main
+
+export const AI_QUIT_APP_BY_WORKER = 'AI_QUIT_APP_BY_WORKER'; // send from worker to main
 
 // --------------------------------------------------------------------------
 // actions - context
@@ -132,12 +136,19 @@ export const AR_CONTEXT_SET_VERSION_EXIFREADER = 'AR_CONTEXT_SET_VERSION_EXIFREA
 // --------------------------------------------------------------------------
 // actions - workerState
 
+export const AR_WORKER_PREFIX = 'AR_WORKER';
+
 export const AR_WORKER_INIT_REDUCER = 'AR_WORKER_INIT_REDUCER';
 
 export const AR_WORKER_REMOVE_TASK = 'AR_WORKER_REMOVE_TASK';
 export const AR_WORKER_REMOVE_TASKTYPES = 'AR_WORKER_REMOVE_TASKTYPES';
 
-export const AR_WORKER_OPEN = 'AR_WORKER_OPEN';
+export const AR_WORKER_AUTO_SELECT = 'AR_WORKER_AUTO_SELECT';
+export const AR_WORKER_OPEN_DROPPED = 'AR_WORKER_OPEN_DROPPED';
+export const AR_WORKER_OPEN_FOLDER = 'AR_WORKER_OPEN_FOLDER';
+export const AR_WORKER_OPEN_PLAYLIST = 'AR_WORKER_OPEN_PLAYLIST';
+
+
   // switched by dispatcher
   // loads directories/playlist by mediaLoader || or by crawler
 
@@ -205,6 +216,7 @@ export const AR_MESSAGE_CLOSE_DIALOG = 'AR_MESSAGE_CLOSE_DIALOG';
 
 export const AR_STATUS_RUNNING = 'AR_STATUS_RUNNING';
 export const AR_STATUS_DB = 'AR_STATUS_DB';
+export const AR_STATUS_NOTIFY_CURRENT_ITEM = 'AR_STATUS_NOTIFY_CURRENT_ITEM';
 
 
 // --------------------------------------------------------------------------

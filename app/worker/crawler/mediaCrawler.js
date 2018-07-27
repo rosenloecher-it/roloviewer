@@ -43,7 +43,7 @@ export class MediaCrawler extends CrawlerBase {
       return this.saveState();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -52,7 +52,7 @@ export class MediaCrawler extends CrawlerBase {
   // ........................................................
 
   addAutoSelectFiles() {
-    // AR_WORKER_OPEN
+    // AR_WORKER_OPEN_FOLDER
     const func = '.addAutoSelectFiles';
 
     const instance = this;
@@ -111,7 +111,7 @@ export class MediaCrawler extends CrawlerBase {
 
       return Promise.resolve();
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     // list dirs after rating and select_sqrt
@@ -179,7 +179,7 @@ export class MediaCrawler extends CrawlerBase {
     }
 
     const p = dbWrapper.saveState(stateComposed).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -285,7 +285,7 @@ export class MediaCrawler extends CrawlerBase {
       return Promise.resolve();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -333,7 +333,7 @@ export class MediaCrawler extends CrawlerBase {
       return Promise.resolve();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -380,7 +380,7 @@ export class MediaCrawler extends CrawlerBase {
 
     if (!dirRemove) {
       p = dbWrapper.removeDir(dirRemove).catch((err) => {
-        this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+        instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
       });
     } else
       p = Promise.resolve();
@@ -451,7 +451,7 @@ export class MediaCrawler extends CrawlerBase {
       return Promise.resolve();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -523,7 +523,7 @@ export class MediaCrawler extends CrawlerBase {
       return Promise.resolve();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -627,7 +627,7 @@ export class MediaCrawler extends CrawlerBase {
       return Promise.resolve();
     }
 
-    const children = MediaFilter.listFiles(folder);
+    const children = MediaFilter.listMediaFilesShort(folder);
 
     const p = dbWrapper.loadDir(folder).then((dirItem) => {
 
@@ -643,7 +643,7 @@ export class MediaCrawler extends CrawlerBase {
       return Promise.resolve();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;

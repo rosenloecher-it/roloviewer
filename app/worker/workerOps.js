@@ -46,10 +46,9 @@ export function init() {
 // ----------------------------------------------------------------------------------
 
 export function shutdown() {
+  const func = '.shutdown';
 
   try {
-    ipc.shutdownIpc();
-
     const currentDispatcher = _dispatcher;
     const currentFactory = _factory;
 
@@ -63,12 +62,32 @@ export function shutdown() {
       // get behind all other running operations (promise chains with mutiple steps)
       // using setImmediate, you need several nested calls!
       setTimeout(() => {
-        currentFactory.shutdown();
+        currentFactory.shutdown().then(() => {
+          log.debug(`${_logKey}${func}.promise - factory is down`);
+          return Promise.resolve();
+
+        }).catch((err) => {
+          log.error(`${_logKey}${func}.promise.catch -`, err);
+          return Promise.resolve();
+
+        }).then(() => {
+          // finally
+          ipc.send(constants.IPC_MAIN, constants.AI_QUIT_APP_BY_WORKER);
+          ipc.shutdownIpc();
+          log.debug(`${_logKey}${func}.promise.finally - ipc is down`);
+          return Promise.resolve();
+
+        }).catch((err) => {
+          log.error(`${_logKey}${func}.promise.finally.catch -`, err);
+        })
+
       }, 50);
     }
 
+    //
+
   } catch (err) {
-    log.error(`${_logKey}.shutdown - exception -`, err);
+    log.error(`${_logKey}${func} -`, err);
   }
 }
 

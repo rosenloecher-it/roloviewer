@@ -10,3 +10,8 @@ export const createActionDb = (countDbDirs, countDbFiles) => ({
   type: constants.AR_STATUS_DB,
   payload: { countDbDirs, countDbFiles },
 });
+
+export const createActionNotifyCurrentItem = (currentItem) => ({
+  type: constants.AR_STATUS_NOTIFY_CURRENT_ITEM,
+  payload: currentItem,
+});

@@ -23,6 +23,7 @@ export class StatusReducer {
       currentDir: null,
       currentTask: null,
       remainingDirs: null,
+      currentItem: null,
     }
   }
 
@@ -52,6 +53,14 @@ export class StatusReducer {
             countDbDirs, countDbFiles
           };
         }
+
+        case constants.AR_STATUS_NOTIFY_CURRENT_ITEM: {
+          return {
+            ...state,
+            currentItem: action.payload || null
+          };
+        }
+
 
         default:
           return state;

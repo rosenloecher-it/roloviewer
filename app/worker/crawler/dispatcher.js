@@ -4,6 +4,7 @@ import * as workerActions from "../../common/store/workerActions";
 import {WorkerReducer} from "../../common/store/workerReducer";
 import {CrawlerBase} from "./crawlerBase";
 import * as statusActions from "../../common/store/statusActions";
+import fs from "fs";
 
 // ----------------------------------------------------------------------------------
 
@@ -46,13 +47,15 @@ export class Dispatcher extends CrawlerBase {
   init() {
     const func = 'init';
 
+    const instance = this;
+
     const p = super.init().then(() => {
 
       this.initTimer();
       return Promise.resolve();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -156,7 +159,7 @@ export class Dispatcher extends CrawlerBase {
 
       const p = instance.dispatchTask(data.runningTask).catch((err) => {
 
-        this.logAndShowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
+        instance.logAndShowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
 
         return Promise.resolve();
 
@@ -172,11 +175,11 @@ export class Dispatcher extends CrawlerBase {
         return Promise.resolve();
 
       }).catch((err) => { // catch finally
-        this.logAndShowError(`${_logKey}${func}.finally.catch(${taskType})`, err);
+        instance.logAndShowError(`${_logKey}${func}.finally.catch(${taskType})`, err);
       });
 
     } catch (err) {
-      this.logAndShowError(`${_logKey}${func}(${taskType})`, err);
+      instance.logAndShowError(`${_logKey}${func}(${taskType})`, err);
     }
   }
 
@@ -202,11 +205,20 @@ export class Dispatcher extends CrawlerBase {
 
       switch (task.type) { // eslint-disable-line default-case
 
-        case constants.AR_WORKER_OPEN:
-          if (task.payload.container)
-            p = mediaLoader.open(task.payload);
-          else
-            p = mediaCrawler.addAutoSelectFiles();
+        case constants.AR_WORKER_AUTO_SELECT:
+          p = mediaCrawler.addAutoSelectFiles();
+          break;
+
+        case constants.AR_WORKER_OPEN_DROPPED:
+          p = mediaLoader.openDropped(task.payload);
+          break;
+
+        case constants.AR_WORKER_OPEN_FOLDER:
+          p = mediaLoader.openFolder(task.payload);
+          break;
+
+        case constants.AR_WORKER_OPEN_PLAYLIST:
+          p = mediaLoader.openPlaylist(task.payload);
           break;
 
         case constants.AR_WORKER_DELIVER_META:
@@ -248,7 +260,7 @@ export class Dispatcher extends CrawlerBase {
         resolve(p);
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
     });
 
     return pOuter;
@@ -263,20 +275,32 @@ export class Dispatcher extends CrawlerBase {
     const {mediaCrawler} = instance.objects;
     const {mediaLoader} = instance.objects;
 
+    const {lastContainerType} = payload;
+    const {container} = payload;
+    // const {selectFile} = payload;
+
+    let existContainer = false;
+    if (container)
+      existContainer = fs.existsSync(container);
+
     let p = null;
 
-    if (payload.container && (payload.lastContainerType === constants.CONTAINER_FOLDER || payload.lastContainerType === constants.CONTAINER_PLAYLIST))
-      p = mediaLoader.open(payload);
-    else
+    if (constants.CONTAINER_FOLDER === lastContainerType && existContainer) {
+      p = mediaLoader.openFolder(payload);
+    } else if (constants.CONTAINER_PLAYLIST === lastContainerType && existContainer) {
+      p = mediaLoader.openPlaylist(payload);
+    }
+
+    if (!p)
       p = Promise.resolve();
 
     p = p.then(() => {
 
-      const activeAutoSelect = (payload.lastContainerType === constants.CONTAINER_AUTOSELECT);
+      const activeAutoSelect = (lastContainerType === constants.CONTAINER_AUTOSELECT);
       return mediaCrawler.start(activeAutoSelect);
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch(containerType=${lastContainerType})`, err);
     });
 
     return p;
@@ -296,7 +320,7 @@ export class Dispatcher extends CrawlerBase {
         return; // do nothing
 
       const skipActionTypes = [
-        constants.AR_WORKER_OPEN,
+        constants.AR_WORKER_OPEN_FOLDER,
         constants.AR_WORKER_DELIVER_META,
         constants.AR_WORKER_RATE_DIR_BY_FILE,
       ];
@@ -420,7 +444,7 @@ export class Dispatcher extends CrawlerBase {
       return Promise.resolve();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;

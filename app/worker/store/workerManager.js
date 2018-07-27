@@ -55,22 +55,24 @@ export class WorkerManager extends StoreManager {
     try {
       super.dispatchLocal(action, invokeHook);
 
-      switch (action.type) {
-        case constants.AR_WORKER_OPEN:
-          if (!this._dispatcher)
-            throw new Error("no dispatcher!")
-
-          this._dispatcher.processTask();
+      do {
+        if (!this._dispatcher)
+          break;
+        if (!action)
+          break;
+        if (!action.type) {
+          log.debug(`${_logKey}${func} - action without type!?`, action);
+          break;
+        }
+        if (action.type.indexOf(constants.AR_WORKER_PREFIX) !== 0)
           break;
 
-        default:
-          break; // do nothing
-      }
+        this._dispatcher.processTask();
 
+      } while (false);
 
     } catch (err) {
-      log.debug(`${_logKey}${func} - failed`, err);
-      throw (err);
+      log.error(`${_logKey}${func} -`, err);
     }
 
   }

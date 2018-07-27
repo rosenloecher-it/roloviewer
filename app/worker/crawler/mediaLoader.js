@@ -66,94 +66,138 @@ export class MediaLoader extends CrawlerBase {
 
   // ........................................................
 
-  openPlayList(playlist) {
+  openPlayList(input) {
     const func = ".openPlayList";
 
     // TODO implement openPlayList
-
     this.logAndShowError(`${_logKey}${func}`, 'not implemented!');
-  }
 
-  // ........................................................
-
-  openFolder(folder, selectFile) {
-    const func = ".openFolder";
-
-    log.debug(`${_logKey}${func} - folder=${folder}, selectFile=${selectFile}`);
-
-    const images = MediaLoader.loadImagesFromFolder(folder);
-    images.sort((file1, file2) => {
-      return MediaLoader.sortFilename(file1, file2);
+    const p = new Promise((resolve) => {
+      resolve();
     });
 
-    const items = this.createItems(images);
-    const action = rendererActions.createActionShowFiles(folder, constants.CONTAINER_FOLDER, items, selectFile);
-    this.objects.storeManager.dispatchGlobal(action);
-
-    this.addTasksDeliverFileMeta(images);
+    return p;
   }
 
   // ........................................................
 
-  openItemFolder(input) {
-    const func = ".openItemFolder";
+  openFolder(input) {
 
-    try {
-      //log.debug(`${_logKey}${func} - input=`, input);
+    const p = new Promise((resolve) => {
+      this.openFolderSync(input);
+      resolve();
+    });
 
-      const { selectFile } = input;
-
-      if (!selectFile)
-        throw new Error('!selectFile => skip!');
-
-      const folder = path.dirname(selectFile);
-      this.openFolder(folder, selectFile);
-
-    } catch (err) {
-      this.logAndRethrowError(`${_logKey}${func}`, err);
-    }
-
+    return p;
   }
 
   // ........................................................
 
-  openAutoSelect() {
-    const func = ".openAutoSelect";
+  openFolderSync(input) {
+    const func = ".openFolder";
 
     try {
+      const {container, selectFile} = input;
       const {storeManager} = this.objects;
 
-      const crawlerState = storeManager.crawlerState;
+      log.debug(`${_logKey}${func} - container=${container}, selectFile=${selectFile}`);
 
-      //log.debug(`${_logKey}${func} - crawlerState:`, crawlerState);
-
-      if (!this.data.autoFolders) {
-
-        if (crawlerState.folderSource.length === 0)
-          throw new Error("no source folder for crawler defined - no auto select possible!");
-
-        this.data.autoFolders = MediaLoader.listImageFolderRecursive(crawlerState.folderSource
-                                  , crawlerState.folderBlacklist
-                                  , crawlerState.folderBlacklistSnippets
-                                  , crawlerState.batchCount);
+      if (!fs.lstatSync(container).isDirectory()) {
+        log.error(`${_logKey}${func} - folder does not exist (${container})!`);
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, `Folder does not exist (${container})!`);
+        return;
       }
 
-      const autoFolder = MediaLoader.selectRandomFolder(this.data.autoFolders);
-      const images = MediaLoader.loadImagesFromFolder(autoFolder);
-      const autoFiles = MediaLoader.selectRandomItems(images, crawlerState.batchCount);
+      const mediaFiles = [];
+      MediaFilter.pushMediaFilesFull(container, mediaFiles);
 
-      autoFiles.sort();
+      if (mediaFiles.length <= 0) {
+        log.warn(`${_logKey}${func} - directory does not contain supported media files! ${container}`);
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, 'The directory does not contain supported media files!');
+        return;
+      }
 
-      const items = this.createItems(autoFiles);
-      const action = rendererActions.createActionAddAutoFiles(items);
-      //log.debug(`${_logKey}${func} - action:`, action);
+      mediaFiles.sort((file1, file2) => {
+        return MediaLoader.sortFilename(file1, file2);
+      });
 
-      storeManager.dispatchGlobal(action);
+      const mediaItems = this.createItems(mediaFiles);
+      const action = rendererActions.createActionShowFiles(container, constants.CONTAINER_FOLDER, mediaItems, selectFile);
+      this.objects.storeManager.dispatchGlobal(action);
 
-      this.addTasksDeliverFileMeta(autoFiles);
+      this.addTasksDeliverFileMeta(mediaFiles);
 
-    } catch (err) {
-      this.logAndRethrowError(`${_logKey}${func}`, err);
+    } catch(err) {
+      this.logAndShowError(`${_logKey}${func}`, err);
+    }
+  }
+
+  // ........................................................
+
+  openDropped(input) {
+
+    const p = new Promise((resolve) => {
+      this.openDroppedSync(input);
+      resolve();
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
+  openDroppedSync(input) {
+
+    const func = ".openFolder";
+
+    try {
+      log.debug(`${_logKey}${func} -`, input);
+
+      const {files: filesIn} = input;
+      const {storeManager} = this.objects;
+
+      if (filesIn.length === 1) {
+        const file = filesIn[0];
+        if (MediaFilter.canImportFolder(file)) {
+          this.openFolderSync({ container: file, selectFile: null });
+          return;
+        } else if (MediaFilter.canImportMediaFile(file)) {
+          const container = path.dirname(file);
+          this.openFolderSync({ container, selectFile: file });
+          return;
+        }
+        // TODO check playlist
+        // do the standard (way including) error messaging
+      }
+
+      // open as playlist
+      const mediaFiles = [];
+      for (let i = 0; i < filesIn.length; i++) {
+        const file = filesIn[i];
+        if (MediaFilter.canImportFolder(file))
+          MediaFilter.pushMediaFilesFull(file, mediaFiles);
+        else if (MediaFilter.canImportMediaFile(file))
+          mediaFiles.push(file);
+      }
+
+      if (mediaFiles.length <= 0) {
+        log.warn(`${_logKey}${func} - dropped files not supported!`, filesIn);
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, `The dropped files are not supported!`);
+        return;
+      }
+
+      mediaFiles.sort((file1, file2) => {
+        return MediaLoader.sortFilename(file1, file2);
+      });
+
+      const mediaItems = this.createItems(mediaFiles);
+      const action = rendererActions.createActionShowFiles('dropped', constants.CONTAINER_CLIPBOARD, mediaItems, null);
+      this.objects.storeManager.dispatchGlobal(action);
+
+      this.addTasksDeliverFileMeta(mediaFiles);
+
+    } catch(err) {
+      this.logAndShowError(`${_logKey}${func}`, err);
     }
   }
 
@@ -173,117 +217,13 @@ export class MediaLoader extends CrawlerBase {
 
   addTasksDeliverFileMeta(files) {
 
-    for (let i = 0; i < files.length; i++) {
+    const {storeManager} = this.objects;
 
+    for (let i = 0; i < files.length; i++) {
       const action = workerActions.createActionDeliverMeta(files[i]);
       //log.debug(`${_logKey}.addTasksDeliverFileMeta - action:`, action);
-      this.objects.storeManager.dispatchGlobal(action);
-
+      storeManager.dispatchGlobal(action);
     }
-  }
-
-  // ........................................................
-
-  static loadImagesFromFolder(folder) {
-    const images = [];
-
-    const children = fs.readdirSync(folder);
-    for (let k = 0; k < children.length; k++) {
-      const fileShort = children[k];
-      if (MediaFilter.isImageFormatSupported(fileShort)) {
-        const fileLong = path.join(folder, fileShort);
-        if (!fs.lstatSync(fileLong).isDirectory())
-          images.push(fileLong)
-      }
-    };
-
-    return images;
-  }
-
-  // ........................................................
-
-  static selectRandomItems(items, batchCount) {
-    if (!items)
-      return null;
-
-    const source = items.slice(0); // copy array
-
-    const selectionCount = source.length < batchCount ? source.length : batchCount;
-
-    const selection = [];
-
-    for (let i = 0; i < selectionCount; i++) {
-      const random = Math.floor(source.length * Math.random());
-
-      //console.log(`selectRandomItems: source.length=${source.length} random=${random} source=`, source);
-
-      selection.push(source[random]);
-
-      source[random] = source[source.length -1];
-      source.pop();
-    }
-
-    return selection;
-  }
-
-  // ........................................................
-
-  static selectRandomFolder(folders) {
-    const random = Math.floor(folders.length * Math.random());
-    return folders[random];
-  }
-
-  // ........................................................
-
-  static listImageFolderRecursive(sourceFoldersIn, blacklistFolders, blacklistSnippets, minCountJpg) {
-    const func = ".listImageFolderRecursive";
-
-    const sourceFolders = [];
-    const resultFolders = [];
-
-    if (Array.isArray(sourceFoldersIn))
-      sourceFolders.push(...sourceFoldersIn);
-    else
-      sourceFolders.push(sourceFoldersIn);
-
-    for (let i = 0; i < sourceFolders.length; i++) {
-      const sourceFolder = sourceFolders[i];
-
-      //console.log(`${_logKey}${func} - source -`, sourceFolder);
-
-      if (!path.isAbsolute(sourceFolder))
-        continue;
-      if (!fs.lstatSync(sourceFolder).isDirectory())
-        continue;
-
-      let countJpg = 0;
-      const childFolders = [];
-
-      const files = fs.readdirSync(sourceFolder);
-      for (let k = 0; k < files.length; k++) {
-        const fileShort = files[k];
-        const fileLong = path.join(sourceFolder, fileShort);
-        if (fs.lstatSync(fileLong).isDirectory()) {
-
-          if (MediaFilter.shouldSkipFolder(fileLong, blacklistFolders, blacklistSnippets)) {
-            //console.log(`${_logKey}${func} - skip child folder -`, fileLong);
-          } else {
-            //console.log(`${_logKey}${func} - analyse child folder -`, fileLong);
-            const subChildFolders = MediaLoader.listImageFolderRecursive(fileLong, blacklistFolders, blacklistSnippets, minCountJpg);
-            childFolders.push(...subChildFolders);
-          }
-        } else {
-          if (MediaFilter.isImageFormatSupported(fileShort))
-              countJpg++;
-        }
-      }
-
-      if (countJpg >= minCountJpg)
-        resultFolders.push(sourceFolder);
-      resultFolders.push(...childFolders);
-    }
-
-    return resultFolders;
   }
 
   // ........................................................

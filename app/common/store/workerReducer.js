@@ -51,7 +51,10 @@ export class WorkerReducer {
         case constants.AR_WORKER_REMOVE_TASKTYPES:
           return this.removeTaskTypes(state, action);
 
-        case constants.AR_WORKER_OPEN:
+        case constants.AR_WORKER_AUTO_SELECT:
+        case constants.AR_WORKER_OPEN_DROPPED:
+        case constants.AR_WORKER_OPEN_FOLDER:
+        case constants.AR_WORKER_OPEN_PLAYLIST:
           return this.open(state, action);
 
         case constants.AR_WORKER_DELIVER_META:
@@ -102,8 +105,13 @@ export class WorkerReducer {
 
     const newState = { ...state };
 
-    const prioOpen = WorkerReducer.getTaskPrio(constants.AR_WORKER_OPEN);
-    newState.tasks[prioOpen] = [action];
+    const prio = WorkerReducer.getTaskPrio(action.type);
+    if (prio < 0 || prio >= state.tasks.length) {
+      log.error(`${this._logKey}${func} - unknown prio`, action);
+      return state;
+    }
+
+    newState.tasks[prio] = [action];
 
     if (action.payload.container !== null) { // folder or playlist
       const prioMeta = WorkerReducer.getTaskPrio(constants.AR_WORKER_DELIVER_META);
@@ -182,7 +190,10 @@ export class WorkerReducer {
   static getTaskPrio(taskType) {
 
     switch (taskType) {
-      case constants.AR_WORKER_OPEN:
+      case constants.AR_WORKER_AUTO_SELECT:
+      case constants.AR_WORKER_OPEN_DROPPED:
+      case constants.AR_WORKER_OPEN_FOLDER:
+      case constants.AR_WORKER_OPEN_PLAYLIST:
         return 0;
       case constants.AR_WORKER_DELIVER_META:
         return 1;

@@ -17,7 +17,7 @@ import storeManager from './store/mainManager';
 import * as ops from './mainOps';
 import * as mainMenu from './mainMenu';
 import * as windows from './windows';
-import * as mainIpc from './mainIpc';
+import * as ipc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
 import Cli from "./cli";
 import * as constants from "../common/constants";
@@ -41,20 +41,21 @@ function allWindowsClosed() {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== 'darwin') {
-    ops.quitApp();
+    ops.quittingApp();
   }
 }
 
 // ----------------------------------------------------------------------------------
 
 function onAppWillQuit() {
+  const func = '.onAppWillQuit';
+
   try {
-    log.debug(`${_logKey}.onAppWillQuit`);
-    mainIpc.shutdownIpc();
+    log.debug(`${_logKey}${func}`);
     storeManager.saveIniFile();
 
   } catch (err) {
-    log.error(`${_logKey}.onAppWillQuit - exception -`, err);
+    log.error(`${_logKey}${func} -`, err);
   }
 }
 
@@ -113,8 +114,8 @@ function startApp(cli) {
       await installExtensions();
     }
 
-    mainIpc.initIpc();
-    storeManager.sender = mainIpc;
+    ipc.initIpc();
+    storeManager.sender = ipc;
 
     windows.createWorkerWindow();
 

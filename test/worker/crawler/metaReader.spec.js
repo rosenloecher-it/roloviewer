@@ -20,7 +20,7 @@ describe('metaReader', () => {
       gpsPosition: '60.88714333 N, 6.85320500 E',
     };
 
-    format = 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M'
+    format = 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M';
 
     url = MetaReader.formatGpsMeta(meta, format);
     console.log('formatGpsMeta', url);

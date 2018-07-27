@@ -64,9 +64,10 @@ class DetailsOverlay extends React.Component {
 
       let conainterIcon = null;
       switch (props.containerType) {
-        case constants.CONTAINER_AUTOSELECT: conainterIcon = null; break;
+        case constants.CONTAINER_AUTOSELECT: conainterIcon = <Icon icon="database" />; break;
         case constants.CONTAINER_FOLDER: conainterIcon = <Icon icon="folder-open" />; break;
         case constants.CONTAINER_PLAYLIST: conainterIcon = <Icon icon="list" />; break;
+        case constants.CONTAINER_CLIPBOARD: conainterIcon = <Icon icon="clipboard" />; break;
         default: conainterIcon = <Icon icon="help" />; break;
       }
 

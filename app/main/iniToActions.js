@@ -146,6 +146,10 @@ export function createSlideshowAction(iniDataIn, context) {
   actionData.transitionTimeManual = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_MANUAL, iniData.slideshow.transitionTimeManual);
   actionData.timer = mergeIntItem(constants.DEFCONF_TIMER, iniData.slideshow.timer);
 
+  // set default data
+  actionData.lastContainerType = constants.CONTAINER_UNKNOWN;
+  actionData.lastContainer = null;
+  actionData.lastItem = null;
 
   if (context.tempCliAutoselect) {
     actionData.lastContainerType = constants.CONTAINER_AUTOSELECT;
@@ -165,9 +169,14 @@ export function createSlideshowAction(iniDataIn, context) {
         actionData.lastItem = null;
       }
     } else {
-      actionData.lastContainerType = valiInt(iniData.slideshow.lastContainerType);
-      actionData.lastContainer = valiString(iniData.slideshow.lastContainer);
-      actionData.lastItem = valiString(iniData.slideshow.lastItem);
+      const lastContainerType = valiInt(iniData.slideshow.lastContainerType);
+      if (lastContainerType === constants.CONTAINER_AUTOSELECT
+             || lastContainerType === constants.CONTAINER_FOLDER
+                || lastContainerType === constants.CONTAINER_PLAYLIST) {
+        actionData.lastContainerType = lastContainerType;
+        actionData.lastContainer = valiString(iniData.slideshow.lastContainer);
+        actionData.lastItem = valiString(iniData.slideshow.lastItem);
+      }
     }
   }
 

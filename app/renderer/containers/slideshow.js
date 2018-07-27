@@ -1,4 +1,5 @@
 import React from 'react';
+import path from 'path';
 import { connect } from 'react-redux';
 import log from 'electron-log';
 import * as cssConstants from '../style/cssConstants';
@@ -9,6 +10,7 @@ import HelpOverlay from './helpOverlay';
 import DetailsOverlay from './detailsOverlay';
 import StatusOverlay from './statusOverlay';
 import * as slideshowActions from "../../common/store/slideshowActions";
+import * as statusActions from "../../common/store/statusActions";
 import * as rendererActions from "../../common/store/rendererActions";
 import storeManager from "../store/rendererManager";
 import * as constants from "../../common/constants";
@@ -30,7 +32,11 @@ class Slideshow extends React.Component {
 
     try {
       if (currentFile) {
-        const action = slideshowActions.createActionSetLastItemContainer(containerType, container, currentFile);
+        let action = null;
+        if (containerType === constants.CONTAINER_CLIPBOARD)
+          action = slideshowActions.createActionSetLastItemContainer(constants.CONTAINER_FOLDER, path.dirname(currentFile), currentFile);
+        else
+          action = slideshowActions.createActionSetLastItemContainer(containerType, container, currentFile);
         manager.dispatchGlobal(action);
       }
 
@@ -185,6 +191,49 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
+  onDragOver(event) {
+    //log.debug(`${_logKey}.onDragOver - in`);
+    event.preventDefault();
+    return false;
+  };
+
+  onDragLeave(event) {
+    //log.debug(`${_logKey}.onDragLeave - in`);
+    event.preventDefault();
+    return false;
+  };
+
+  onDragEnd(event) {
+    //log.debug(`${_logKey}.onDragEnd - in`);
+    event.preventDefault();
+    return false;
+  };
+
+  onDrop(event) {
+    const func = '.onDrop';
+
+    try {
+      //log.debug(`${_logKey}${func} - in`);
+      event.preventDefault();
+
+      const files = [];
+      for (let f of event.dataTransfer.files) {
+        files.push(f.path);
+      }
+
+      const action = workerActions.createActionOpenDropped(files);
+      log.debug(`${_logKey}${func} - action`, action);
+      storeManager.dispatchGlobal(action);
+
+    } catch (err) {
+      log.error(`${_logKey}${func} -`, err);
+    }
+
+    return false;
+  };
+
+  // .......................................................
+
   onKeyDown(event) {
     const func = ".onKeyDown";
 
@@ -302,13 +351,7 @@ class Slideshow extends React.Component {
   // .......................................................
 
   render() {
-    const func = ".render";
-
-    //<HelpDialog />
-
     const {props} = this;
-
-    //log.debug(`${_logKey}${func} - props.helpShow=`, props.helpShow);
 
     let dialogOverlay = null;
     if (props.helpShow)
@@ -317,7 +360,13 @@ class Slideshow extends React.Component {
       dialogOverlay = <AboutOverlay />;
 
     return (
-      <div className={cssConstants.CSS_MAINPANE}>
+      <div
+        className={cssConstants.CSS_MAINPANE}
+        onDragOver={this.onDragOver}
+        onDragLeave={this.onDragLeave}
+        onDragEnd={this.onDragEnd}
+        onDrop={this.onDrop}
+      >
         <ImagePane />
         <DetailsOverlay />
         <StatusOverlay />
@@ -334,12 +383,17 @@ class Slideshow extends React.Component {
     const func = ".handleNotifications";
 
     const {props, data} = this;
+    let action = null;
 
     let currentItemFile = null;
     if (props.itemIndex >= 0 && props.itemIndex < props.items.length) {
       const item = props.items[props.itemIndex];
       currentItemFile = item.file;
     }
+
+    // action = statusActions.createActionNotifyCurrentItem(currentItemFile);
+    // storeManager.dispatchGlobal(action);
+
     if (!currentItemFile)
       return;
 
@@ -368,12 +422,14 @@ class Slideshow extends React.Component {
           break; // already send
         }
 
-        const action = workerActions.createActionOpen(null, null);
+        action = workerActions.createActionAutoSelect();
         storeManager.dispatchGlobal(action);
 
         data.lastRequestKey = requestKey;
 
         //log.debug(`${_logKey}${func} - requestNewItems (send): requestKey=${requestKey}`);
+
+        resolve();
 
       } while (false);
 

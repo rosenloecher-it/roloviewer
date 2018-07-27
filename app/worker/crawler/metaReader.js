@@ -57,7 +57,7 @@ export class MetaReader extends CrawlerBase {
       return Promise.resolve();
 
     }).catch((err) => {
-      this.logAndShowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndShowError(`${_logKey}${func}.promise.catch`, err);
       data.reader = null;
 
       return Promise.resolve();
@@ -71,6 +71,7 @@ export class MetaReader extends CrawlerBase {
   shutdown() {
     const func = ".shutdown";
 
+    const instance = this;
     const {data} = this;
 
     //log.debug(`${_logKey}${func} - after metaReader`);
@@ -84,7 +85,7 @@ export class MetaReader extends CrawlerBase {
     p = p.then(() => {
       return super.shutdown();
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -95,13 +96,14 @@ export class MetaReader extends CrawlerBase {
   readMeta(file, prepareOnlyCrawlerTags) {
     const func = ".readMeta";
 
+    const instance = this;
     const {data} = this;
 
     if (!data.reader)
       return Promise.resolve(null);
 
     const p = data.reader.readMeta(file, prepareOnlyCrawlerTags).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;
@@ -133,7 +135,7 @@ export class MetaReader extends CrawlerBase {
       return Promise.resolve();
 
     }).catch((err) => {
-      this.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
     });
 
     return p;

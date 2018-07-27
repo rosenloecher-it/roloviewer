@@ -4,6 +4,7 @@ import {ContextReducer} from "../../common/store/contextReducer";
 import {CrawlerReducer} from "../../common/store/crawlerReducer";
 import {MainWindowReducer} from "../../common/store/mainWindowReducer";
 import {SlideshowReducer} from '../../common/store/slideshowReducer';
+import {StatusReducer} from "../../common/store/statusReducer";
 import {SystemReducer} from "../../common/store/systemReducer";
 
 // --------------------------------------------------------------------------
@@ -14,6 +15,7 @@ const _contextReducer = new ContextReducer(_myself);
 const _crawlerReducer = new CrawlerReducer(_myself);
 const _mainWindowReducer = new MainWindowReducer(_myself);
 const _slideshowReducer = new SlideshowReducer(_myself);
+const _statusReducer = new StatusReducer(_myself);
 const _systemReducer = new SystemReducer(_myself);
 
 // --------------------------------------------------------------------------
@@ -23,6 +25,7 @@ const _mainRootReducer = combineReducers({
   crawler: _crawlerReducer.reduce,
   mainWindow: _mainWindowReducer.reduce,
   slideshow: _slideshowReducer.reduce,
+  status: _statusReducer.reduce,
   system: _systemReducer.reduce,
 });
 
