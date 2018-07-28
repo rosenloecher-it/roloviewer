@@ -1,4 +1,4 @@
-import { app, shell, dialog } from 'electron';
+import { app, clipboard, shell, dialog } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
@@ -13,6 +13,7 @@ import * as actionsMainWindow from "../common/store/mainWindowActions";
 import * as workerActions from "../common/store/workerActions";
 import * as actionsSystem from "../common/store/systemActions";
 import {MetaReader} from '../worker/crawler/metaReader';
+import deepmerge from "deepmerge";
 
 // ----------------------------------------------------------------------------------
 
@@ -331,6 +332,69 @@ export function openWebsite() {
 
 // ----------------------------------------------------------------------------------
 
+export function copyItemPath2Clipboard() {
+  const func = '.copyItemPath2Clipboard';
+  try {
+    const currentItem = storeManager.currentItem;
+    if (!currentItem || !currentItem.file)
+      return;
+
+    clipboard.writeText(currentItem.file);
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    storeManager.showError(`${_logKey}${func} - exception - ${err}`);
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function copyMeta2Clipboard() {
+  const func = '.copyItemPath2Clipboard';
+  try {
+    const currentItem = storeManager.currentItem;
+
+    if (!currentItem || !currentItem.file || !currentItem.meta)
+      return;
+
+    const meta = deepmerge.all([ currentItem.meta, {} ]);
+    if (meta.time) delete meta.time;
+    if (meta.dir) delete meta.dir;
+    if (meta.file) delete meta.file;
+    if (meta.filename) delete meta.filename;
+
+
+    let maxLengthKey = 8;
+    for (let key in meta) {
+      const l = key.length;
+      if (maxLengthKey < l)
+        maxLengthKey = l;
+    }
+
+    const lines = [];
+    for (let key in meta) {
+      const line = `${key.padEnd(maxLengthKey)} : ${meta[key]}\n`;
+      lines.push(line);
+    }
+
+    lines.sort();
+
+    const date = new Date(currentItem.meta.time).toLocaleString();
+
+    let text =    `${'file'.padEnd(maxLengthKey)} : ${currentItem.file}\n`;
+    text = text + `${'date'.padEnd(maxLengthKey)} : ${date}\n`;
+    text = text + lines.join('');
+
+    clipboard.writeText(text);
+
+  } catch (err) {
+    log.error(`${_logKey}${func} - exception -`, err);
+    storeManager.showError(`${_logKey}${func} - exception - ${err}`);
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
 export function openMap() {
   const func = '.openMap';
 
@@ -373,8 +437,7 @@ export function debug1() {
   log.debug('debug1');
   //storeManager.showMessage(constants.MSG_TYPE_INFO, "msgText - info");
 
-  const action = rendererActions.createActionAboutOpen();
-  storeManager.dispatchGlobal(action);
+  copyMeta2Clipboard();
 }
 
 // ----------------------------------------------------------------------------------

@@ -535,9 +535,11 @@ export class MediaCrawler extends CrawlerBase {
   // .......................................................
 
   checkAndHandleChangedFileItems(dirItem, fileNamesFs) {
+    const func = '.checkAndHandleChangedFileItems';
 
     let doFileItemsSave = false;
 
+    const crawlerState = this.objects.storeManager.crawlerState;
     const fileItemsOld = dirItem.fileItems;
     const fileItemsNew = [];
     const itemUpdate = [];
@@ -556,9 +558,7 @@ export class MediaCrawler extends CrawlerBase {
         const filePath = path.join(dirItem.dir, fileItem.fileName);
         const lastChange = MediaComposer.lastModifiedFromFile(filePath);
         if (lastChange !== fileItem.lastModified) {
-
-          //fileItem.lastModified = lastChange;
-          // item changed
+          // item is changed! but save lastModified in updatesFiles!
           doFileItemsSave = true;
           itemUpdate.push(fileItem.fileName);
         } // else: just add (to update list, update will be done later)
@@ -579,7 +579,15 @@ export class MediaCrawler extends CrawlerBase {
       doFileItemsSave = true;
     }
 
-    // TODO save also when: dirItem.lastUpdate < xxxx (weigth season)
+    // updating seasonWeight
+    if (crawlerState.weightingSeason <= 0.5 || doFileItemsSave) {
+      const seasonShift = constants.DEFCONF_CRAWLER_TODAY_SHIFT_SEASON * 24 * 60 * 60 * 1000
+      const minUpdateTime = new Date().getTime() - seasonShift;
+      if (dirItem.lastUpdate >= minUpdateTime) {
+        log.debug(`${_logKey}${func} - force evaluation: ${dirItem.dir}`);
+        doFileItemsSave = true;
+      }
+    }
 
     if (doFileItemsSave) {
       dirItem.fileItems = fileItemsNew;

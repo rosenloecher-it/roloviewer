@@ -34,7 +34,6 @@ function testImage1(metaReader) {
   const expectedRating = 3;
   const expectedTag = 'Kategorie:Landschaft';
 
-
   const p = metaReader.init().then(() => {
     //console.log(`${__filename} - extractMeta - success`, tags);
 
@@ -122,5 +121,39 @@ describe(_logKey, () => {
 
     return p;
   });
+
+  // .......................................................
+
+  it('readMeta-temp', () => {
+
+    // if (!checkRequirementsExternReader())
+    //   return;
+    //
+    // const metaReader = MetaReaderExiftool.createReader(_defaultExifToolPath);
+    // expect(metaReader).not.toBeNull();
+    //
+    // const testFile = '/home/data/mymedia/201x/2015/20150815 Sammelsurium/20150823-1700-5579.jpg';
+    // expect(fs.lstatSync(testFile).isFile()).toBe(true);
+    //
+    // const expectedRating = 3;
+    // const expectedTag = 'Kategorie:Landschaft';
+    //
+    // const p = metaReader.init().then(() => {
+    //
+    //   //readMeta(file, prepareOnlyCrawlerTags)
+    //   return metaReader.readMeta(testFile, true);
+    //
+    // }).then((meta) => {
+    //
+    //   console.log(`${_logKey} - meta=\n`, meta);
+    //
+    //   return metaReader.shutdown();
+    // });
+    //
+    // return p;
+
+  });
+
+  // .......................................................
 
 });

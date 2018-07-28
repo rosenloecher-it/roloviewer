@@ -367,5 +367,53 @@ describe('mediaComposer', () => {
 
   // .......................................................
 
+  it('seasonDiffDays', () => {
 
+    let output;
+    let dateToday, dateMedia;
+
+    // test 1 - standard
+    dateToday = new Date(2018, 0, 2, 10, 10, 10);
+
+    dateMedia = new Date(2017, 11, 31, 10, 10, 10);
+    output = MediaComposer.seasonDiffDays(dateMedia.getTime(), 0, dateToday.getTime());
+    console.log(`output - ${dateMedia.toLocaleString()} => ${output}`);
+    expect(output).toBe(2);
+
+    dateMedia = new Date(2018,  0,  8, 10, 10, 10);
+    output = MediaComposer.seasonDiffDays(dateMedia.getTime(), 0, dateToday.getTime());
+    console.log(`output - ${dateMedia.toLocaleString()} => ${output}`);
+    expect(output).toBe(6);
+
+    // test 2 - shift today
+    dateToday = new Date(2018, 0, 5, 10, 10, 10);
+
+    dateMedia = new Date(2017, 11, 31, 10, 10, 10);
+    output = MediaComposer.seasonDiffDays(dateMedia.getTime(), -3, dateToday.getTime());
+    console.log(`output - ${dateMedia.toLocaleString()} => ${output}`);
+    expect(output).toBe(2);
+
+    dateMedia = new Date(2018,  0,  8, 10, 10, 10);
+    output = MediaComposer.seasonDiffDays(dateMedia.getTime(), -3, dateToday.getTime());
+    console.log(`output - ${dateMedia.toLocaleString()} => ${output}`);
+    expect(output).toBe(6);
+
+    // test 3 - default parameter
+    dateToday = new Date();
+
+    dateMedia = new Date(dateToday.getTime() - 1000 * 60 * 60 * 24);
+    output = MediaComposer.seasonDiffDays(dateMedia.getTime());
+    console.log(`output - ${dateMedia.toLocaleString()} => ${output}`);
+    expect(output).toBe(1);
+
+    output = MediaComposer.seasonDiffDays(dateMedia.getTime(), -1);
+    console.log(`output - ${dateMedia.toLocaleString()} => ${output}`);
+    expect(output).toBe(0);
+
+    output = MediaComposer.seasonDiffDays(dateMedia.getTime(), 2);
+    console.log(`output - ${dateMedia.toLocaleString()} => ${output}`);
+    expect(output).toBe(3);
+  });
+
+  // .......................................................
 });

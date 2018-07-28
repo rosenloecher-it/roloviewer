@@ -87,8 +87,8 @@ class DetailsOverlay extends React.Component {
       }
 
       let dateText = null;
-      if (meta.date) {
-        const dateObj = new Date(meta.date);
+      if (meta.time) {
+        const dateObj = new Date(meta.time);
         dateText = dateObj.toLocaleString();
       }
 

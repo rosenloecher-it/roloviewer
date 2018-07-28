@@ -99,7 +99,7 @@ export class MetaReader extends CrawlerBase {
     const instance = this;
     const {data} = this;
 
-    if (!data.reader)
+    if (!data.reader || data.processingStopped)
       return Promise.resolve(null);
 
     const p = data.reader.readMeta(file, prepareOnlyCrawlerTags).catch((err) => {
@@ -154,29 +154,40 @@ export class MetaReader extends CrawlerBase {
 
   // ........................................................
 
+  static checkValue(value) {
+    if (value === null || value === undefined)
+      return false;
+
+    return true;
+  }
+
+  // ........................................................
+
   static validateExifDate(input) {
 
     if (!input)
       return null;
 
-    if (input.year && input.month && input.day && input.hour && input.minute) {
-      const date = new Date();
+    if (!MetaReader.checkValue(input.year)) return null;
+    if (!MetaReader.checkValue(input.month)) return null;
+    if (!MetaReader.checkValue(input.day)) return null;
+    if (!MetaReader.checkValue(input.hour)) return null;
+    if (!MetaReader.checkValue(input.minute)) return null;
 
-      date.setFullYear(input.year);
-      date.setMonth(input.month - 1);
-      date.setDate(input.day);
+    const date = new Date();
 
-      date.setHours(input.hour);
-      date.setMinutes(input.minute);
-      date.setSeconds(input.second || 0);
-      date.setMilliseconds(input.millis || 0);
+    date.setFullYear(input.year);
+    date.setMonth(input.month - 1);
+    date.setDate(input.day);
 
-      // log.debug("validateExifDate", date.toISOString());
+    date.setHours(input.hour);
+    date.setMinutes(input.minute);
+    date.setSeconds(input.second || 0);
+    date.setMilliseconds(input.millis || 0);
 
-      return date.valueOf();
-    }
+    // log.debug("validateExifDate", date.toISOString());
 
-    return null;
+    return date.valueOf();
   }
 
   // ........................................................

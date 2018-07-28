@@ -42,6 +42,23 @@ export function createMenu() {
 
   // section View
   template.push({
+    label: 'Edit',
+    submenu: [
+      {
+        label: 'Copy item path',
+        accelerator: 'CmdOrCtrl+Shift+C',
+        click: () => { ops.copyItemPath2Clipboard(); }
+      },
+      {
+        label: 'Copy meta data',
+        accelerator: 'CmdOrCtrl+Shift+C',
+        click: () => { ops.copyMeta2Clipboard(); }
+      },
+    ]
+  });
+
+  // section View
+  template.push({
     label: 'Item',
     submenu: [
       {

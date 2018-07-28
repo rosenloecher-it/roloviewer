@@ -227,6 +227,15 @@ export class MetaReaderExiftool extends CrawlerBase {
       dir: sepPath.dir,
     };
 
+    meta.time = MetaReader.validateExifDate(tags
+      .DateTimeOriginal);
+    if (!meta.time)
+      meta.time = MetaReader.validateExifDate(tags.DateCreated);
+    if (!meta.time)
+      meta.time = MetaReader.validateExifDate(tags.CreateDate);
+    if (!meta.time)
+      meta.time = MetaReader.validateExifDate(tags.DateTimeCreated);
+
     meta.tags = tags.Keywords;
     meta.rating = tags.Rating;
 
@@ -275,9 +284,6 @@ export class MetaReaderExiftool extends CrawlerBase {
       meta.gpsLocation = MetaReader.pushDetails(meta.gpsLocation, meta.gpsProvince);
       meta.gpsLocation = MetaReader.pushDetails(meta.gpsLocation, meta.gpsCountry);
       meta.gpsLocation = shortenString(meta.gpsLocation, ml);
-
-      meta.date = MetaReader.validateExifDate(tags.DateTimeOriginal) || MetaReader.validateExifDate(tags.DateCreated)
-        || MetaReader.validateExifDate(tags.CreateDate) || tags.DateTimeCreated;
     }
 
     return meta;

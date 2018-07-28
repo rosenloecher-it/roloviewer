@@ -18,17 +18,6 @@ export class MediaComposer extends CrawlerBase {
   constructor() {
     super();
 
-    // TODO settings from storeManager.state
-    this.data = {
-
-      weightingRating: 60, // 1 point equalizes 1 days
-      weightingSeason: 0,
-
-
-      batchCount: 10,
-
-    }
-
     if (process.platform.toLowerCase().indexOf('win') >= 0)
       this.convert2Id = this.convert2IdWindows;
     else
@@ -73,6 +62,7 @@ export class MediaComposer extends CrawlerBase {
       id: this.convert2Id(input.fileName),
       repeated: 0,
       fileName: input.fileName,
+      time: input.time || null,
       rating: input.rating || 0,
       tags: input.tags || [],
       lastShown: input.lastShown || null,
@@ -137,7 +127,7 @@ export class MediaComposer extends CrawlerBase {
       return;
 
     const crawlerState = this.objects.storeManager.crawlerState;
-    const {weightingRating, weightingRepeated} = crawlerState;
+    const {weightingRating, weightingRepeated, weightingSeason} = crawlerState;
 
     if (!fileItem.lastShown)
       fileItem.lastShown = DAY0;
@@ -150,9 +140,14 @@ export class MediaComposer extends CrawlerBase {
     const weightRating = -1 * rating * weightingRating;
     const weightRepeated = repeated * weightingRepeated;
 
-    // TODO weightSeason
+    const maxDiffSeasonDays = constants.DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE + 10; // punish files without date
+    let diffSeasonDays = MediaComposer.seasonDiffDays(fileItem.time, constants.DEFCONF_CRAWLER_TODAY_SHIFT_SEASON);
+    if (diffSeasonDays === null || diffSeasonDays < 0)
+      diffSeasonDays = maxDiffSeasonDays;
 
-    fileItem.weight = weightTime + weightRating + weightRepeated;
+    const weightSeason = diffSeasonDays / maxDiffSeasonDays * weightingSeason;
+
+    fileItem.weight = weightTime + weightRating + weightRepeated + weightSeason;
   }
 
   // .......................................................
@@ -181,6 +176,7 @@ export class MediaComposer extends CrawlerBase {
     if (!fileItem)
       throw new Error(`${_logKey}${func} - cannot fileItem!`);
 
+    fileItem.time = meta.time || null;
     fileItem.rating = meta.rating || 0;
     fileItem.tags = meta.tags || [];
 
@@ -333,6 +329,35 @@ export class MediaComposer extends CrawlerBase {
     return fs.lstatSync(fullPath).mtimeMs;
   }
 
+  // ........................................................
+
+  static seasonDiffDays(timeMedia, shiftDaysToday = 0, timeTodayIn = null) {
+
+    if (timeMedia === null || timeMedia === undefined)
+      return null;
+
+    const dateToday = timeTodayIn === null ? new Date() : new Date(timeTodayIn);
+    const timeToday = dateToday.getTime() + shiftDaysToday * 24 * 60 * 60 * 1000;
+
+
+    const dates = [];
+    for (let i = -1; i < 2; i++) {
+      const date = new Date(timeMedia);
+      date.setFullYear(dateToday.getFullYear() + i);
+      dates.push(date);
+    }
+
+    let dayDiffMin = 365;
+    for (let i = 0; i < dates.length; i++) {
+      const date = dates[i];
+      const timeDiff = Math.abs(timeToday - date.getTime());
+      const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24) + 0.5);
+      if (dayDiffMin > dayDiff)
+        dayDiffMin = dayDiff;
+    }
+
+    return dayDiffMin;
+  }
 }
 
 // ---------------------------------------------------------------------------------
