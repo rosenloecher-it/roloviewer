@@ -2,6 +2,8 @@ import path from 'path';
 
 // ----------------------------------------------------------------------------------
 
+// TODO remove
+
 // export function shortenPathElements(fullpath, shortenPathNum) {
 //
 //   if (!fullpath)

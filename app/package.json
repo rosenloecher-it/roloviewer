@@ -15,6 +15,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "exiftool-vendored": "^5.1.0"
+    "exiftool-vendored": "^5.4.0"
   }
 }

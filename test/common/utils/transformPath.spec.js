@@ -1,5 +1,7 @@
 //import {shortenPathElements, separateFilePath, determinePathAndFilename} from "../../../app/common/utils/transfromPath";
 
+// TODO remove
+
 describe('transfromPath', () => {
 
   it('empty', () => {
