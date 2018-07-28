@@ -80,6 +80,20 @@ export class WorkerManager extends StoreManager {
   // ........................................................
 
   dispatchTask(action) {
+
+    // do {
+    //   if (!action.type) {
+    //     log.debug(`${_logKey}${func} - action without type!?`, action);
+    //     break;
+    //   }
+    //   if (action.type.indexOf(constants.AR_WORKER_PREFIX) !== 0)
+    //     break;
+    //
+    //   this.dispatchLocal(action);
+    //   return;
+    //
+    // } while (false);
+
     this.dispatchGlobal(action);
   }
 

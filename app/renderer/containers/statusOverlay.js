@@ -1,8 +1,5 @@
 import React from 'react';
 import {connect} from "react-redux";
-import log from 'electron-log';
-import * as constants from "../../common/constants";
-import {shortenPathElements} from "../../common/utils/transfromPath";
 
 // ----------------------------------------------------------------------------------
 
@@ -45,8 +42,6 @@ class StatusOverlay extends React.Component {
 
     this.pushTableLine(tableLines, 'Crawler status', props.currentTask || '?');
 
-    const shortenedDir = shortenPathElements(props.currentDir, props.pathShortenElements);
-    //this.pushTableLine(tableLines, 'Current folder', shortenedDir);
     this.pushTableLine(tableLines, 'Remaining folders', props.remainingDirs);
 
     this.pushTableLine(tableLines, 'Crawled folders', props.countDbDirs);
@@ -74,7 +69,6 @@ const mapStateToProps = state => ({
   crawlerInfoShow: state.slideshow.crawlerInfoShow,
   currentDir: state.status.currentDir,
   currentTask: state.status.currentTask,
-  pathShortenElements: state.slideshow.pathShortenElements,
   remainingDirs: state.status.remainingDirs,
 });
 

@@ -133,13 +133,13 @@ export function createSlideshowAction(iniDataIn, context) {
   actionData.autoPlay = mergeBoolItem(false, iniData.slideshow.autoPlay);
 
   actionData.detailsPosition = SlideshowReducer.valiDetailsPosition(valiString(iniData.slideshow.detailsPosition));
+  actionData.detailsShortenText = mergeIntItem(constants.DEFCONF_DETAILS_TEXT_SHORTEN, iniData.slideshow.detailsShortenText);
   actionData.detailsState = SlideshowReducer.getValidDetailsState(valiString(iniData.slideshow.detailsState), false);
 
   const tempCrawlerInfoPosition = valiString(iniData.slideshow.crawlerInfoPosition);
   actionData.crawlerInfoPosition = SlideshowReducer.valiCrawlerInfoPosition(tempCrawlerInfoPosition, actionData.detailsPosition);
   actionData.crawlerInfoShow = mergeBoolItem(false, iniData.slideshow.crawlerInfoShow);
 
-  actionData.pathShortenElements = mergeIntItem(constants.DEFCONF_PATH_SHORTEN_ELEMENTS, iniData.slideshow.pathShortenElements);
   actionData.random = mergeBoolItem(constants.DEFCONF_RANDOM, iniData.slideshow.random);
 
   actionData.transitionTimeAutoPlay = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY, iniData.slideshow.transitionTimeAutoPlay);

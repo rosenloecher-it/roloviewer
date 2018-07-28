@@ -100,9 +100,9 @@ class Slideshow extends React.Component {
     const func = '.registerOnQuitScreensaver';
 
     try {
-      window.addEventListener("keydown", this.onQuitScreensaver);
-      window.addEventListener("mousemove", this.onQuitScreensaver);
-      window.addEventListener("onClick", this.onQuitScreensaver);
+      window.addEventListener("keydown", Slideshow.onQuitScreensaver);
+      window.addEventListener("mousemove", Slideshow.onQuitScreensaver);
+      window.addEventListener("onClick", Slideshow.onQuitScreensaver);
 
       log.debug(`${_logKey}${func}`);
     } catch (error) {
@@ -221,15 +221,15 @@ class Slideshow extends React.Component {
       case 34: // page down
         this.goPageNext(); break;
       case 35: // end
-        this.dispatchGotoAction(rendererActions.createActionGoEnd()); break;
+        Slideshow.dispatchGotoAction(rendererActions.createActionGoEnd()); break;
       case 36: // pos1
-        this.dispatchGotoAction(rendererActions.createActionGoPos1()); break;
+        Slideshow.dispatchGotoAction(rendererActions.createActionGoPos1()); break;
       case 37: // arrow left
       case 38: // arrow up
-        this.goBack(); break;
+        Slideshow.goBack(); break;
       case 39: // arrow right
       case 40: // arrow down
-        this.goNext(); break;
+        Slideshow.goNext(); break;
       case 73: // i
         if (event.ctrlKey)
           storeManager.dispatchGlobal(slideshowActions.createActionDetailsMove());
@@ -287,12 +287,12 @@ class Slideshow extends React.Component {
     try {
       // log.debug(`${_logKey}${func}`);
       if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
-        this.goNext();
+        Slideshow.goNext();
       else {
         if (this.props.random)
-          this.dispatchGotoAction(rendererActions.createActionGoRandom());
+          Slideshow.dispatchGotoAction(rendererActions.createActionGoRandom());
         else
-          this.goNext();
+          Slideshow.goNext();
       }
     } catch (err) {
       log.error(`${_logKey}${func} -`, err);

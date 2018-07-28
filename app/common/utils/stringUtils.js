@@ -2,16 +2,40 @@
 // ----------------------------------------------------------------------------------
 
 export function shortenString(inputText, maxLength) {
-  if (!inputText)
+  if (!inputText || !maxLength)
     return inputText;
 
-  const length = inputText.length;
-  if (length < 3 || maxLength < 3)
+  const absMaxLength = Math.abs(maxLength);
+  const textLength = inputText.length;
+
+  if (textLength <= absMaxLength)
+    return inputText;
+  if (textLength < 3 || absMaxLength < 3)
     return "";
-  if (length <= maxLength)
-    return inputText;
 
-  return (inputText.substring(0, maxLength - 3) + '...');
+  const repTxt = '...';
+  const repLen = repTxt.length;
+
+  let outputText = null;
+  if (maxLength >= 0) {
+
+
+    outputText = inputText.substring(0, maxLength - repLen) + repTxt;
+  } else {
+
+    const start = textLength - absMaxLength + repLen;
+    const end = start + absMaxLength - repLen;
+
+    outputText  = repTxt + inputText.substring(start, end);
+  }
+
+  return outputText;
+}
+// ----------------------------------------------------------------------------------
+
+export function shortenPath(inputText, maxLength) {
+  // TODO make intelligent cut
+  return shortenString(inputText, maxLength);
 }
 
 // ----------------------------------------------------------------------------------

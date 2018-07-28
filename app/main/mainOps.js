@@ -120,9 +120,9 @@ export function initChildConfig(ipcMsg) {
 
   const ipcDest = ipcMsg.source;
 
-  // TODO remove db-deletion on start-up
-  fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestDir.db');
-  fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestStatus.db');
+  // // TODO remove db-deletion on start-up
+  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestDir.db');
+  // fileUtils.deleteFile('/home/raul/.config/RoloSlider/rolosliderTestStatus.db');
 
   storeManager.dispatchFullState([ ipcDest ]);
 

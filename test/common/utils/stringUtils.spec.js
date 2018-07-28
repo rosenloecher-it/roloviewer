@@ -7,6 +7,13 @@ describe('stringUtils', () => {
 
     const input = "123456789";
 
+    output = stringUtils.shortenString(input, -6);
+    expect(output).toBe("...789");
+    output = stringUtils.shortenString(input, -2);
+    expect(output).toBe("");
+    output = stringUtils.shortenString(input, -3);
+    expect(output).toBe("...");
+
     output = stringUtils.shortenString(input, 2);
     expect(output).toBe("");
 

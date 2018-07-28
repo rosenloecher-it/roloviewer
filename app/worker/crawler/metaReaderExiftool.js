@@ -1,12 +1,10 @@
 import {ExifTool} from "exiftool-vendored";
+import path from 'path';
 import { exec } from 'child_process';
 import log from 'electron-log';
 import fs from 'fs';
-import * as constants from "../../common/constants";
-import { shortenString } from "../../common/utils/stringUtils";
 import { isWinOs } from "../../common/utils/systemUtils";
 import { valiInt } from '../../common/utils/validate';
-import {separateFilePath} from "../../common/utils/transfromPath";
 import {CrawlerBase} from "./crawlerBase";
 import {MetaReader} from "./metaReader";
 
@@ -219,15 +217,11 @@ export class MetaReaderExiftool extends CrawlerBase {
 
   static prepareTagsFromExiftool(file, tags, prepareOnlyCrawlerTags = false) {
     let temp = null;
-    const ml = 50; // maxLength
 
-    //log.debug(`${_logKey}.prepareTagsFromExiftool - file=${file}`, tags);
-
-    const sepPath = separateFilePath(file, 4);
     const meta = {
       file,
-      filename: sepPath.filename,
-      dir: sepPath.dir,
+      filename: path.dirname(file),
+      dir: path.basename(file),
     };
 
     meta.time = MetaReader.validateExifDate(tags
@@ -248,8 +242,8 @@ export class MetaReaderExiftool extends CrawlerBase {
       meta.imageWidth = tags.ImageWidth;
       meta.imageSize = `${tags.ImageWidth}x${tags.ImageHeight}`;
 
-      meta.cameraModel = shortenString(tags.Model, ml);
-      meta.cameraLens = shortenString(tags.LensID || tags.LensInfo || tags.LensModel || tags.Lens, ml);
+      meta.cameraModel = tags.Model;
+      meta.cameraLens = tags.LensID || tags.LensInfo || tags.LensModel || tags.Lens;
 
       meta.photoShutterSpeed = tags.ShutterSpeedValue || tags.ShutterSpeed || tags.FNumber;
       meta.photoAperture = tags.ApertureValue || tags.Aperture || tags.FNumber;
@@ -257,11 +251,11 @@ export class MetaReaderExiftool extends CrawlerBase {
       meta.photoFlash = tags.Flash;
 
       if (meta.photoShutterSpeed)
-        meta.photoSettings = MetaReader.pushDetails(meta.photoSettings, meta.photoShutterSpeed + "s");
+        meta.photoSettings = MetaReader.pushDetails(meta.photoSettings, `${meta.photoShutterSpeed}s`);
       if (meta.photoAperture)
-        meta.photoSettings = MetaReader.pushDetails(meta.photoSettings, "f" + meta.photoAperture);
+        meta.photoSettings = MetaReader.pushDetails(meta.photoSettings, `f${meta.photoAperture}`);
       if (meta.photoISO)
-        meta.photoSettings = MetaReader.pushDetails(meta.photoSettings, "ISO " + meta.photoISO);
+        meta.photoSettings = MetaReader.pushDetails(meta.photoSettings, `ISO ${meta.photoISO}`);
 
       temp = valiInt(tags.FocalLength);
       if (temp)
@@ -279,14 +273,13 @@ export class MetaReaderExiftool extends CrawlerBase {
       meta.gpsPosition = tags.GPSPosition; // '51.02369333 N, 13.65431667 E'
       meta.gpsVersionID = tags.GPSVersionID; // '2.2.0.0'
 
-      meta.gpsCountry = shortenString(tags.Country, ml); // 'Deutschland'
-      meta.gpsProvince = shortenString(tags.State || tags['Province-State'], ml); // 'Sachsen'
-      meta.gpsCity = shortenString(tags.City, ml); // 'Freital'
+      meta.gpsCountry = tags.Country; // 'Deutschland'
+      meta.gpsProvince = tags.State || tags['Province-State']; // 'Sachsen'
+      meta.gpsCity = tags.City; // 'Freital'
 
       meta.gpsLocation = MetaReader.pushDetails(meta.gpsLocation, meta.gpsCity);
       meta.gpsLocation = MetaReader.pushDetails(meta.gpsLocation, meta.gpsProvince);
       meta.gpsLocation = MetaReader.pushDetails(meta.gpsLocation, meta.gpsCountry);
-      meta.gpsLocation = shortenString(meta.gpsLocation, ml);
     }
 
     return meta;
