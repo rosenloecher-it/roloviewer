@@ -123,6 +123,9 @@ export class MetaReaderExiftool extends CrawlerBase {
 
     const p = instance.data.exiftool.read(file).then((tags) => {
 
+      if (instance.data.processingStopped)
+        return Promise.resolve(null);
+
       const meta = MetaReaderExiftool.prepareTagsFromExiftool(file, tags, prepareOnlyCrawlerTags);
 
       return Promise.resolve(meta);

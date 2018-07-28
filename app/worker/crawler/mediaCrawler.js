@@ -484,6 +484,9 @@ export class MediaCrawler extends CrawlerBase {
       if (!dirItem)
         dirItem = mediaComposer.createDirItem(folder);
 
+      if (fileNames.length === 0 || instance.data.processingStopped)
+        return Promise.resolve([]);
+
       const promises = [];
 
       for (let i = 0; i < fileNames.length; i++) {
