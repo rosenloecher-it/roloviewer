@@ -38,11 +38,8 @@ class Slideshow extends React.Component {
       lastCurrentItemMeta: null,
     };
 
-    this.goBack = this.goBack.bind(this);
-    this.goNext = this.goNext.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
-    this.onQuitScreensaver = this.onQuitScreensaver.bind(this);
     this.registerOnQuitScreensaver = this.registerOnQuitScreensaver.bind(this);
     this.onTimerHideCursor = this.onTimerHideCursor.bind(this);
     this.onTimerNext = this.onTimerNext.bind(this);
@@ -73,7 +70,7 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) { // eslint-disable-line no-unused-vars
     const func = ".componentDidUpdate";
 
     const instance = this;
@@ -115,19 +112,19 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
-  onQuitScreensaver() {
+  static onQuitScreensaver() {
     ops.quitScreensaver();
   }
 
   // .......................................................
 
-  goBack() {
+  static goBack() {
     ops.goBack();
   }
 
   // .......................................................
 
-  goNext() {
+  static goNext() {
     ops.goNext();
   }
 
@@ -161,34 +158,31 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
-  dispatchGotoAction(action) {
+  static dispatchGotoAction(action) {
     storeManager.dispatchGlobal(action);
-
-    // if (this.data.timerIdNext)
-    //   this.reconfigureAutoPlay(true);
   }
 
   // .......................................................
 
-  onDragOver(event) {
+  static onDragOver(event) {
     //log.debug(`${_logKey}.onDragOver - in`);
     event.preventDefault();
     return false;
   };
 
-  onDragLeave(event) {
+  static onDragLeave(event) {
     //log.debug(`${_logKey}.onDragLeave - in`);
     event.preventDefault();
     return false;
   };
 
-  onDragEnd(event) {
+  static onDragEnd(event) {
     //log.debug(`${_logKey}.onDragEnd - in`);
     event.preventDefault();
     return false;
   };
 
-  onDrop(event) {
+  static onDrop(event) {
     const func = '.onDrop';
 
     try {
@@ -196,7 +190,7 @@ class Slideshow extends React.Component {
       event.preventDefault();
 
       const files = [];
-      for (let f of event.dataTransfer.files) {
+      for (let f of event.dataTransfer.files) { // eslint-disable-line prefer-const
         files.push(f.path);
       }
 
@@ -214,7 +208,7 @@ class Slideshow extends React.Component {
   // .......................................................
 
   onKeyDown(event) {
-    const func = ".onKeyDown";
+    const func = ".onKeyDown"; // eslint-disable-line no-unused-vars
 
     if (this.props.isScreensaver)
       return;

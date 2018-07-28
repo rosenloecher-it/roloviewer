@@ -1,6 +1,5 @@
 import React from 'react';
 import {connect} from "react-redux";
-import log from 'electron-log';
 import { Button, Icon } from '@blueprintjs/core';
 import * as constants from "../../common/constants";
 import * as rendererActions from "../../common/store/rendererActions";
@@ -15,18 +14,11 @@ const _logKey = "aboutOverlay";
 
 class AboutOverlay extends React.Component {
 
-  constructor(props) {
-    super(props);
-
-    this.onClick = this.onClick.bind(this);
-    this.onClose = this.onClose.bind(this);
-  }
-
-  onClick() {
+  static onClick() {
     ops.openUrl(constants.APP_URL);
   }
 
-  onClose() {
+  static onClose() {
     const action = rendererActions.createActionAboutClose();
     storeManager.dispatchGlobal(action);
   }
@@ -44,15 +36,15 @@ class AboutOverlay extends React.Component {
         <table className="popover-table">
           <tbody>
 
-          <tr><td>{constants.APP_TITLE} website</td><td><a  className="popover-link" onClick={this.onClick}>{constants.APP_URL}</a></td></tr>
-          <tr><td>{constants.APP_TITLE} version</td><td>{constants.APP_VERSION}</td></tr>
+            <tr><td>{constants.APP_TITLE} website</td><td><a  className="popover-link" onClick={this.onClick}>{constants.APP_URL}</a></td></tr>
+            <tr><td>{constants.APP_TITLE} version</td><td>{constants.APP_VERSION}</td></tr>
 
-          <tr><td>electron version</td><td>{this.props.versionElectron}</td></tr>
+            <tr><td>electron version</td><td>{this.props.versionElectron}</td></tr>
 
           </tbody>
         </table>
 
-        <p/>
+        <p />
         <Button className="popover-button" onClick={this.onClose}>Close</Button>
       </div>
     );
