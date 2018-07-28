@@ -1,12 +1,11 @@
-import {MediaLoader} from "../../../app/worker/crawler/mediaLoader";
-import * as vali from "../../../app/common/utils/validate";
-import {TestManager} from "../../common/store/testManager";
-import * as constants from '../../../app/common/constants';
 import {MediaFilter} from "../../../app/worker/crawler/mediaFilter";
 
 describe('MediaFilter', () => {
 
-  it('shouldSkipFolder', () => {
+  it('shouldSkipFolder(linux)', () => {
+
+    if (process.platform.toLowerCase().indexOf('win') >= 0)
+      return;
 
     //const mediaLoader = new MediaLoader();
 
@@ -24,6 +23,26 @@ describe('MediaFilter', () => {
 
   });
 
+  it('shouldSkipFolder(windows)', () => {
+
+    if (process.platform.toLowerCase().indexOf('win') < 0)
+      return;
+
+    //const mediaLoader = new MediaLoader();
+
+    const folderParent = 'd:\\home\\data\\mymedia\\201x\\2011\\';
+    const folderChild = 'd:\\home\\data\\mymedia\\201x\\2011\\20110224-S95-Test';
+
+    expect(MediaFilter.shouldSkipFolder(folderParent, [folderChild], [])).toBe(false);
+    expect(MediaFilter.shouldSkipFolder(folderChild, [folderParent], [])).toBe(true);
+
+    expect(MediaFilter.shouldSkipFolder(folderChild, [], [ "s95" ])).toBe(true);
+    expect(MediaFilter.shouldSkipFolder(folderChild, [], [ "test" ])).toBe(true);
+    expect(MediaFilter.shouldSkipFolder(folderChild, [], [ "notexist" ])).toBe(false);
+
+
+
+  });
 
   it('isImageFormatSupported', () => {
 

@@ -381,7 +381,7 @@ export class MediaCrawler extends CrawlerBase {
 
     let p = null;
 
-    if (!dirRemove) {
+    if (dirRemove) {
       p = dbWrapper.removeDir(dirRemove).catch((err) => {
         instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
       });
