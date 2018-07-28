@@ -89,8 +89,9 @@ export class MainManager extends StoreManager {
       //log.debug(`${_logKey}${func} - iniData -`, iniData);
       //log.debug(`${_logKey}${func} - context -`, context);
 
-      const defaultConfigFile = fileTools.getDefaultLogFile();
-      action = iniToActions.createSystemAction(iniData, context, defaultConfigFile);
+      const defaultLogFile = fileTools.getDefaultLogFile();
+      action = iniToActions.createSystemAction(iniData, context, defaultLogFile);
+      //log.debug(`${_logKey}${func} - system -`, action);
       this.dispatchLocal(action);
 
       action = iniToActions.createMainWindowAction(iniData, context);

@@ -32,7 +32,10 @@ class Slideshow extends React.Component {
       timerIdNext: null,
       timerIdHideCursor: null,
       lastMouseMove: null,
-      isScreensaver: false
+      isScreensaver: false,
+
+      lastCurrentItemFile: null,
+      lastCurrentItemMeta: null,
     };
 
     this.goBack = this.goBack.bind(this);
@@ -239,6 +242,12 @@ class Slideshow extends React.Component {
         else
           storeManager.dispatchGlobal(slideshowActions.createActionDetailsToogle());
         break;
+      case 76: {// l (mark/log)
+        const currentItem = this.getCurrentItem();
+        if (currentItem && currentItem.file)
+          log.info(`current file: ${currentItem.file}`);
+        break;
+      }
       case 82: // r
         storeManager.dispatchGlobal(slideshowActions.createActionRandomToogle());
         break;
@@ -355,6 +364,16 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
+  getCurrentItem() {
+    const {props} = this;
+    let currentItem = null;
+    if (props.itemIndex >= 0 && props.itemIndex < props.items.length)
+      currentItem = props.items[props.itemIndex];
+    return currentItem;
+  }
+
+  // .......................................................
+
   notifyCurrentItem() {
     const func = ".notifyCurrentItem";
 
@@ -364,10 +383,7 @@ class Slideshow extends React.Component {
 
       const {props, data} = this;
 
-      let currentItem = null;
-      if (props.itemIndex >= 0 && props.itemIndex < props.items.length)
-        currentItem = props.items[props.itemIndex];
-
+      const currentItem = this.getCurrentItem();
       let currentItemFile = null;
       if (currentItem && currentItem.file)
         currentItemFile = currentItem.file;

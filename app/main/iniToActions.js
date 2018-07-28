@@ -212,10 +212,8 @@ export function createSystemAction(iniDataIn, context, defaultLogFile) {
   actionData.mapUrlFormat = mergeConfigItem(constants.DEFCONF_META2MAPURL_FORMAT,
     valiUrl(iniData.system.mapUrlFormat));
 
-  actionData.logfile = null;
-  if (iniData.system.logfile && iniData.system.logfile.trim() === constants.DEFCONF_LOG)
-    actionData.logfile = defaultLogFile;
-  else if (!actionData.logfile)
+  actionData.logfile = defaultLogFile;
+  if (iniData.system.logfile && iniData.system.logfile.trim() !== constants.DEFCONF_LOG)
     actionData.logfile = iniData.system.logfile;
 
   const action = actionsSystem.createActionInitReducer(actionData);
