@@ -218,10 +218,11 @@ export class MetaReaderExiftool extends CrawlerBase {
   static prepareTagsFromExiftool(file, tags, prepareOnlyCrawlerTags = false) {
     let temp = null;
 
+    const splittedPath = path.parse(file);
     const meta = {
       file,
-      filename: path.dirname(file),
-      dir: path.basename(file),
+      filename: splittedPath.base,
+      dir: splittedPath.dir,
     };
 
     meta.time = MetaReader.validateExifDate(tags

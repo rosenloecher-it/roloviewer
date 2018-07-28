@@ -174,7 +174,7 @@ export class MediaComposer extends CrawlerBase {
 
     const fileItem = this.findFileItem(dirItem, meta.filename);
     if (!fileItem)
-      throw new Error(`${_logKey}${func} - cannot fileItem!`);
+      throw new Error(`${_logKey}${func} - cannot find fileItem!`);
 
     fileItem.time = meta.time || null;
     fileItem.rating = meta.rating || 0;
