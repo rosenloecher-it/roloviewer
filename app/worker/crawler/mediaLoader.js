@@ -229,11 +229,15 @@ export class MediaLoader extends CrawlerBase {
   // ........................................................
 
   static sortFilename(filename1, filename2) {
-    return (filename1.toLowerCase() > filename2.toLowerCase());
+    const f1 = filename1.toLowerCase();
+    const f2 = filename2.toLowerCase();
+    if (f1 < f2)
+      return -1;
+    else if (f1 > f2)
+      return 1;
+    return 0;
   }
 
   // ........................................................
 }
-
-// ----------------------------------------------------------------------------------
 
