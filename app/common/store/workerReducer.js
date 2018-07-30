@@ -51,11 +51,17 @@ export class WorkerReducer {
         case constants.AR_WORKER_REMOVE_TASKTYPES:
           return this.removeTaskTypes(state, action);
 
+        case constants.AR_WORKER_REMOVE_ALL_TASKS:
+          return { ...state, tasks: WorkerReducer.defaultTaskArray() };
+
         case constants.AR_WORKER_AUTO_SELECT:
         case constants.AR_WORKER_OPEN_DROPPED:
         case constants.AR_WORKER_OPEN_FOLDER:
         case constants.AR_WORKER_OPEN_PLAYLIST:
           return this.open(state, action);
+
+        case constants.AR_WORKER_UPDATE_DIR:
+          return this.updateDir(state, action);
 
         case constants.AR_WORKER_DELIVER_META:
         case constants.AR_WORKER_START:
@@ -63,7 +69,6 @@ export class WorkerReducer {
         case constants.AR_WORKER_RELOAD_DIRS:
         case constants.AR_WORKER_REMOVE_DIRS:
         case constants.AR_WORKER_SCAN_FSDIR:
-        case constants.AR_WORKER_UPDATE_DIR:
         case constants.AR_WORKER_UPDATE_FILES:
           return this.pushGenericTask(state, action);
 
@@ -124,6 +129,15 @@ export class WorkerReducer {
   }
 
   // .....................................................
+
+  updateDir(state, action) {
+
+    if (WorkerReducer.existsUpdateDirTask(state, action.payload))
+      return state;
+
+    return this.pushGenericTask(state, action)
+  }
+
 
   static sliceItemFromArray(oldItems, index) {
 
@@ -214,6 +228,24 @@ export class WorkerReducer {
       default:
         return null;
     }
+  }
+
+  // .....................................................
+
+  static existsUpdateDirTask(state, dir) {
+
+    const prio = WorkerReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
+
+    const tasks = state.tasks[prio];
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i];
+      if (dir === task.payload) {
+        return true;
+      }
+
+    }
+
+    return false;
   }
 
   // .....................................................

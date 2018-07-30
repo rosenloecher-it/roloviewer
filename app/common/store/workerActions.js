@@ -24,6 +24,12 @@ export const createActionRemoveTaskTypes = (taskType) => ({
   taskId: getNextTaskId()
 });
 
+export const createActionRemoveAllTasksTypes = () => ({
+  type: constants.AR_WORKER_REMOVE_ALL_TASKS,
+  payload: null,
+  taskId: getNextTaskId()
+});
+
 // ----------------------------------------------------------------------------------
 // open tasks
 
@@ -56,11 +62,11 @@ export const createActionOpenDropped = (files) => ({
   taskId: getNextTaskId()
 });
 
-export const createActionAutoSelect = (updateDb = false) => ({
+export const createActionAutoSelect = (rescanAll = false) => ({
   type: constants.AR_WORKER_AUTO_SELECT,
   payload: {
     containerType: constants.CONTAINER_AUTOSELECT,
-    updateDb,
+    rescanAll,
   },
   taskId: getNextTaskId()
 });

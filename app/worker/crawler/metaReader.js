@@ -3,6 +3,7 @@ import * as constants from "../../common/constants";
 import * as rendererActions from "../../common/store/rendererActions";
 import {CrawlerBase} from "./crawlerBase";
 import {MetaReaderExiftool} from "./metaReaderExiftool";
+import {isWinOs} from "../../common/utils/systemUtils";
 
 // ----------------------------------------------------------------------------------
 
@@ -40,8 +41,14 @@ export class MetaReader extends CrawlerBase {
 
       const systemState = instance.objects.storeManager.systemState;
 
-      if (systemState.exiftool)
-        return Promise.resolve(systemState.exiftool);
+      if (isWinOs()) {
+        if (systemState.exiftool)
+          return Promise.resolve(systemState.exiftool);
+      } else {
+        // TODO solve error 'spawn ENOTDIR' of module 'exiftool-vendored'
+        if (systemState.exiftool && systemState.exiftool !== constants.DEFCONF_EXIFTOOL_INTERN)
+          return Promise.resolve(systemState.exiftool);
+      }
 
       return MetaReaderExiftool.determineExifToolPath(systemState);
 

@@ -205,7 +205,7 @@ export class Dispatcher extends CrawlerBase {
       switch (task.type) { // eslint-disable-line default-case
 
         case constants.AR_WORKER_AUTO_SELECT:
-          p = mediaCrawler.addAutoSelectFiles();
+          p = mediaCrawler.autoSelectFiles(task.payload);
           break;
 
         case constants.AR_WORKER_OPEN_DROPPED:

@@ -20,12 +20,13 @@ export function createMediaItems(files) {
 
 // ----------------------------------------------------------------------------------
 
-export const createActionAddAutoFiles = (items) => ({
+export const createActionAddAutoFiles = (items, removeOldItems = false) => ({
   type: constants.AR_RENDERER_ADD_AUTO_FILES,
   payload: {
     container: null,
     containerType: constants.CONTAINER_AUTOSELECT,
-    items
+    items,
+    removeOldItems
   }
 });
 

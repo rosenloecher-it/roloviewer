@@ -69,6 +69,8 @@ export class MediaLoader extends CrawlerBase {
   openPlayList(input) {
     const func = ".openPlayList";
 
+    // this.deactivateAutoSelect();
+
     // TODO implement openPlayList
     this.logAndShowError(`${_logKey}${func}`, 'not implemented!');
 
@@ -99,6 +101,8 @@ export class MediaLoader extends CrawlerBase {
     try {
       const {container, selectFile} = input;
       const {storeManager} = this.objects;
+
+      this.deactivateAutoSelect();
 
       log.debug(`${_logKey}${func} - container=${container}, selectFile=${selectFile}`);
 
@@ -153,6 +157,8 @@ export class MediaLoader extends CrawlerBase {
     try {
       log.debug(`${_logKey}${func} -`, input);
 
+      this.deactivateAutoSelect();
+
       const {files: filesIn} = input;
       const {storeManager} = this.objects;
 
@@ -199,6 +205,15 @@ export class MediaLoader extends CrawlerBase {
     } catch(err) {
       this.logAndShowError(`${_logKey}${func}`, err);
     }
+  }
+
+  // ........................................................
+
+  deactivateAutoSelect() {
+    // disable auto-select in MediaCrawler (Auto-Select-Show-Files ist triggered aften some initialisation
+    // a user could a folder meanwhile)
+    if (this.objects.mediaCrawler)
+      this.objects.mediaCrawler.deactivateAutoSelect();
   }
 
   // ........................................................

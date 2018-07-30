@@ -1,10 +1,11 @@
 import {MediaFilter} from "../../../app/worker/crawler/mediaFilter";
+import {isWinOs} from "../../../app/common/utils/systemUtils";
 
 describe('MediaFilter', () => {
 
-  it('shouldSkipFolder(linux)', () => {
+  it('isFolderBlacklisted(linux)', () => {
 
-    if (process.platform.toLowerCase().indexOf('win') >= 0)
+    if (isWinOs())
       return;
 
     //const mediaLoader = new MediaLoader();
@@ -12,20 +13,20 @@ describe('MediaFilter', () => {
     const folderParent = "/home/data/mymedia/201x/2011/";
     const folderChild = "/home/data/mymedia/201x/2011/20110224-S95-Test";
 
-    expect(MediaFilter.shouldSkipFolder(folderParent, [folderChild], [])).toBe(false);
-    expect(MediaFilter.shouldSkipFolder(folderChild, [folderParent], [])).toBe(true);
+    expect(MediaFilter.isFolderBlacklisted(folderParent, [folderChild], [])).toBe(false);
+    expect(MediaFilter.isFolderBlacklisted(folderChild, [folderParent], [])).toBe(true);
 
-    expect(MediaFilter.shouldSkipFolder(folderChild, [], [ "s95" ])).toBe(true);
-    expect(MediaFilter.shouldSkipFolder(folderChild, [], [ "test" ])).toBe(true);
-    expect(MediaFilter.shouldSkipFolder(folderChild, [], [ "notexist" ])).toBe(false);
+    expect(MediaFilter.isFolderBlacklisted(folderChild, [], [ "s95" ])).toBe(true);
+    expect(MediaFilter.isFolderBlacklisted(folderChild, [], [ "test" ])).toBe(true);
+    expect(MediaFilter.isFolderBlacklisted(folderChild, [], [ "notexist" ])).toBe(false);
 
 
 
   });
 
-  it('shouldSkipFolder(windows)', () => {
+  it('isFolderBlacklisted(windows)', () => {
 
-    if (process.platform.toLowerCase().indexOf('win') < 0)
+    if (isWinOs())
       return;
 
     //const mediaLoader = new MediaLoader();
@@ -33,12 +34,12 @@ describe('MediaFilter', () => {
     const folderParent = 'd:\\home\\data\\mymedia\\201x\\2011\\';
     const folderChild = 'd:\\home\\data\\mymedia\\201x\\2011\\20110224-S95-Test';
 
-    expect(MediaFilter.shouldSkipFolder(folderParent, [folderChild], [])).toBe(false);
-    expect(MediaFilter.shouldSkipFolder(folderChild, [folderParent], [])).toBe(true);
+    expect(MediaFilter.isFolderBlacklisted(folderParent, [folderChild], [])).toBe(false);
+    expect(MediaFilter.isFolderBlacklisted(folderChild, [folderParent], [])).toBe(true);
 
-    expect(MediaFilter.shouldSkipFolder(folderChild, [], [ "s95" ])).toBe(true);
-    expect(MediaFilter.shouldSkipFolder(folderChild, [], [ "test" ])).toBe(true);
-    expect(MediaFilter.shouldSkipFolder(folderChild, [], [ "notexist" ])).toBe(false);
+    expect(MediaFilter.isFolderBlacklisted(folderChild, [], [ "s95" ])).toBe(true);
+    expect(MediaFilter.isFolderBlacklisted(folderChild, [], [ "test" ])).toBe(true);
+    expect(MediaFilter.isFolderBlacklisted(folderChild, [], [ "notexist" ])).toBe(false);
 
 
 

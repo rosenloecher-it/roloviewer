@@ -101,7 +101,7 @@ export class DbWrapper extends CrawlerBase {
 
   // ........................................................
 
-  clearDbDir () {
+  clearDbDir() {
     const func = ".clearDbDir";
 
     const instance = this;

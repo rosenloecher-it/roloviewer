@@ -151,7 +151,7 @@ export class RendererReducer {
 
     this.setNewDeliveryKey(action.payload.items);
 
-    if (state.containerType === constants.CONTAINER_AUTOSELECT) {
+    if (state.containerType === constants.CONTAINER_AUTOSELECT && action.payload.removeOldItems === false) {
 
       const newItems = state.items.concat(action.payload.items);
       let newItemIndex = state.itemIndex;

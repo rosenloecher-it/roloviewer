@@ -1,6 +1,7 @@
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
+import {isWinOs} from "../../common/utils/systemUtils";
 
 // ----------------------------------------------------------------------------------
 
@@ -12,7 +13,7 @@ export class MediaFilter {
 
   // ........................................................
 
-  static shouldSkipFolder(sourceFolderIn, blacklistFolders, blacklistSnippets) {
+   static isFolderBlacklisted(sourceFolderIn, blacklistFolders, blacklistSnippets) {
 
     // blacklistFolders: normalized
     // blacklistSnippets: .trim.toLowercase
@@ -28,7 +29,7 @@ export class MediaFilter {
     // if (!fs.lstatSync(sourceFolder).isDirectory())
     //   return true;
 
-    if (process.platform.toLowerCase().indexOf('win') >= 0) {
+    if (isWinOs()) {
       for (let i = 0; i < blacklistFolders.length; i++) {
         if (sourceFolder.indexOf(blacklistFolders[i].toLowerCase()) === 0)
           return true;

@@ -4,6 +4,7 @@ import fs from 'fs';
 import * as constants from "../../common/constants";
 import {CrawlerBase} from "./crawlerBase";
 import {MediaLoader} from "./mediaLoader";
+import {isWinOs} from "../../common/utils/systemUtils";
 
 // ----------------------------------------------------------------------------------
 
@@ -18,7 +19,7 @@ export class MediaComposer extends CrawlerBase {
   constructor() {
     super();
 
-    if (process.platform.toLowerCase().indexOf('win') >= 0)
+    if (isWinOs())
       this.convert2Id = this.convert2IdWindows;
     else
       this.convert2Id = this.convert2IdStandard;

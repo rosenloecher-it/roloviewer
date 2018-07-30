@@ -26,7 +26,7 @@ export class MediaCrawler extends CrawlerBase {
     this.data = {
       cacheScanFsDirs: null,
       lastAutoSelectedDir: null,
-      sendFirstAvailableAutoSelect: false,
+      scanActiveSendFirstAutoSelect: false,
     };
 
   }
@@ -51,8 +51,40 @@ export class MediaCrawler extends CrawlerBase {
 
   // ........................................................
 
+  deactivateAutoSelect() {
+    this.data.scanActiveSendFirstAutoSelect = false;
+  }
+
+  // ........................................................
+
+  autoSelectFiles(input) {
+    // AR_WORKER_AUTO_SELECT
+    const func = '.autoSelectFiles';
+
+    try {
+
+      log.debug(`${_logKey}${func} - in`, input);
+
+      let rescanAll = false;
+      if (input.rescanAll !== null && input.rescanAll !== undefined)
+        rescanAll = input.rescanAll;
+
+      if (rescanAll === true)
+        return this.rescanAllAndAutoSelect();
+
+      return this.addAutoSelectFiles();
+
+    } catch (err) {
+      this.logAndShowError(`${_logKey}${func}.promise.catch`, err);
+      return Promise.resolve();
+    }
+
+  }
+
+  // ........................................................
+
   addAutoSelectFiles() {
-    // AR_WORKER_OPEN_FOLDER
+    // AR_WORKER_AUTO_SELECT
     const func = '.addAutoSelectFiles';
 
     const instance = this;
@@ -63,8 +95,14 @@ export class MediaCrawler extends CrawlerBase {
 
     const p = dbWrapper.listDirsWeigthSorted().then((dirItems) => {
 
-      if (0 === dirItems.length)
+      if (0 === dirItems.length) {
+        if (this.data.scanActiveSendFirstAutoSelect) {
+          log.debug(`${_logKey}${func} - scan active - skip and wait for first delivery`);
+          return Promise.resolve();
+        }
+
         throw new Error('auto-selection failed (no dirs available)!');
+      }
 
       let selectedDir = null;
       let counterPreventLastProposal = 0;
@@ -93,11 +131,15 @@ export class MediaCrawler extends CrawlerBase {
 
       } else {
         let action = null;
+
+        const removeOldItems = instance.data.scanActiveSendFirstAutoSelect;
+        instance.data.scanActiveSendFirstAutoSelect = false;
+
         const files = [];
         for (let i = 0; i < fileItems.length; i++)
           files.push(path.join(dirItem.dir, fileItems[i].fileName));
         const slideshowItems = rendererActions.createMediaItems(files);
-        action = rendererActions.createActionAddAutoFiles(slideshowItems);
+        action = rendererActions.createActionAddAutoFiles(slideshowItems, removeOldItems);
         storeManager.dispatchGlobal(action);
 
         for (let i = 0; i < files.length; i++) {
@@ -107,7 +149,7 @@ export class MediaCrawler extends CrawlerBase {
         }
       }
 
-      instance.data.sendFirstAvailableAutoSelect = false;
+
 
       return Promise.resolve();
     }).catch((err) => {
@@ -228,6 +270,54 @@ export class MediaCrawler extends CrawlerBase {
 
   // ........................................................
 
+  rescanAllAndAutoSelect() {
+    // part of AR_WORKER_OPEN_FOLDER
+    const func = '.rescanAllAndAutoSelect';
+
+    log.debug(`${_logKey}${func} - in`);
+
+    const instance = this;
+    const {dbWrapper} = instance.objects;
+    const {storeManager} = instance.objects;
+    const crawlerState = storeManager.crawlerState;
+    const {data} = instance;
+
+    data.scanActiveSendFirstAutoSelect = true;
+
+    const p = dbWrapper.listDirsAll().then((dirs) => {
+      let action;
+      const tasksTypesToRemove = [
+        constants.AR_WORKER_REMOVE_DIRS,
+        constants.AR_WORKER_RELOAD_DIRS,
+        constants.AR_WORKER_SCAN_FSDIR,
+        constants.AR_WORKER_RATE_DIR_BY_FILE,
+        constants.AR_WORKER_UPDATE_FILES,
+        constants.AR_WORKER_UPDATE_DIR,
+      ];
+
+      for (let i = 0; i < tasksTypesToRemove.length; i++) {
+        action = workerActions.createActionRemoveTaskTypes(tasksTypesToRemove[i]);
+        storeManager.dispatchTask(action);
+      }
+
+      for (let i = 0; i < crawlerState.folderSource.length; i++) {
+        const folderSource = crawlerState.folderSource[i];
+        log.debug(`${_logKey}${func} - queue source folder:`, folderSource);
+        action = workerActions.createActionScanFsDir(folderSource);
+        storeManager.dispatchTask(action);
+      }
+
+      return dbWrapper.clearDbDir();
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
   start(activeAutoSelect = false) {
     // AR_WORKER_START
     const func = '.start';
@@ -239,7 +329,7 @@ export class MediaCrawler extends CrawlerBase {
     const {data} = instance;
 
     if (activeAutoSelect)
-      data.sendFirstAvailableAutoSelect = true;
+      data.scanActiveSendFirstAutoSelect = true;
 
     const p = this.loadState().then((argsLoadState) => {
 
@@ -252,7 +342,7 @@ export class MediaCrawler extends CrawlerBase {
 
     }).then((countDirsShowable) => {
 
-      if (data.sendFirstAvailableAutoSelect && countDirsShowable > 0)
+      if (data.scanActiveSendFirstAutoSelect && countDirsShowable > 0)
         return this.addAutoSelectFiles();
 
       return Promise.resolve();
@@ -367,7 +457,7 @@ export class MediaCrawler extends CrawlerBase {
         break;
       }
 
-      if (MediaFilter.shouldSkipFolder(dir, folderBlacklist, folderBlacklistSnippets)) {
+      if (MediaFilter.isFolderBlacklisted(dir, folderBlacklist, folderBlacklistSnippets)) {
         dirRemove = dir;
         break;
       }
@@ -407,7 +497,7 @@ export class MediaCrawler extends CrawlerBase {
       const fileShort = children[k];
       const fileLong = path.join(dir, fileShort);
       if (fs.lstatSync(fileLong).isDirectory()) {
-        if (MediaFilter.shouldSkipFolder(fileLong, folderBlacklist, folderBlacklistSnippets))
+        if (MediaFilter.isFolderBlacklisted(fileLong, folderBlacklist, folderBlacklistSnippets))
           log.info(`${_logKey}${func} - skipped: ${fileLong}`);
         else {
 
@@ -522,9 +612,7 @@ export class MediaCrawler extends CrawlerBase {
 
     }).then(() => {
 
-      //log.debug(`${_logKey}${func} - data.sendFirstAvailableAutoSelect=`, data.sendFirstAvailableAutoSelect);
-
-      if (data.sendFirstAvailableAutoSelect)
+      if (data.scanActiveSendFirstAutoSelect)
         return instance.addAutoSelectFiles();
 
       return Promise.resolve();
@@ -637,7 +725,7 @@ export class MediaCrawler extends CrawlerBase {
       log.info(`${_logKey}${func} - no dir: ${folder}`);
       return Promise.resolve();
     }
-    if (MediaFilter.shouldSkipFolder(folder, crawlerState.folderBlacklist, crawlerState.folderBlacklistSnippets)) {
+    if (MediaFilter.isFolderBlacklisted(folder, crawlerState.folderBlacklist, crawlerState.folderBlacklistSnippets)) {
       log.info(`${_logKey}${func} - blacklisted: ${folder}`);
       return Promise.resolve();
     }

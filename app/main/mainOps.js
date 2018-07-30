@@ -213,11 +213,10 @@ export function openAutoSelectDirectory() {
     const action = crawlerActions.createActionSetSourceFolders([folder]);
     storeManager.dispatchGlobal(action);
 
-    // TODO
-    // setImmediate(() => {
-    //   const action2 = workerActions.createActionUpdate();
-    //   storeManager.dispatchGlobal(action2);
-    // });
+    setImmediate(() => {
+      const action2 = workerActions.createActionAutoSelect(true);
+      storeManager.dispatchGlobal(action2);
+    });
   }
 }
 
