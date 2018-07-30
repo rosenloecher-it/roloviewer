@@ -487,9 +487,12 @@ export class MediaCrawler extends CrawlerBase {
       if (fileNames.length === 0 || instance.data.processingStopped)
         return Promise.resolve([]);
 
-      const promises = [];
-
+      let p = Promise.resolve();
       for (let i = 0; i < fileNames.length; i++) {
+
+        if (this.data.processingStopped)
+          break;
+
         const fileName = fileNames[i];
         let fileItem = mediaComposer.findFileItem(dirItem, fileName);
         if (!fileItem) {
@@ -499,22 +502,20 @@ export class MediaCrawler extends CrawlerBase {
 
         const filePath = path.join(dirItem.dir, fileItem.fileName);
         fileItem.lastModified = MediaComposer.lastModifiedFromFile(filePath);
-        promises.push(metaReader.loadMeta(filePath));
 
-        if (dirItem.fileItems.length >= crawlerState.maxFilesPerFolder) {
-          log.warn(`${_logKey}${func} - maxFilesPerFolder (${crawlerState.maxFilesPerFolder} => skip remaining files!!`);
-          break;
-        }
+        const p2 = metaReader.loadMeta(filePath).then((meta) => {
+          if (meta)
+            mediaComposer.updateFileMeta(dirItem, meta);
+          return Promise.resolve();
+        });
+        p = p.then(() => { return p2; });
+
       }
 
-      return Promise.all(promises);
+      return p;
 
-    }).then((values) => {
+    }).then(() => {
 
-      for (let i = 0; i < values.length; i++) {
-        const meta = values[i];
-        mediaComposer.updateFileMeta(dirItem, meta)
-      }
       mediaComposer.evaluateDir(dirItem);
 
       return dbWrapper.saveDir(dirItem);

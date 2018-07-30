@@ -23,9 +23,10 @@ export function getDefaultCachePath() {
 
 //----------------------------------------------------------------------------
 
-export function getDefaultLogFile() {
+export function getDefaultLogFile(isProduction) {
+  const extra = (isProduction ? '' : '_test');
   const configPath = getDefaultCachePath();
-  const configFile = path.join(configPath, constants.DEFCONF_LOGNAME);
+  const configFile = path.join(configPath, `${constants.APP_BASENAME}${extra}.log`);
   return configFile;
 }
 

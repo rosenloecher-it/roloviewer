@@ -10,6 +10,11 @@ import {MetaReader} from "./metaReader";
 
 // ----------------------------------------------------------------------------------
 
+// https://github.com/mceachen/exiftool-vendored.pl
+// https://www.npmjs.com/package/exiftool-vendored
+
+// ----------------------------------------------------------------------------------
+
 const _logKey = "metaReaderExiftool";
 
 // ----------------------------------------------------------------------------------
@@ -21,6 +26,7 @@ export class MetaReaderExiftool extends CrawlerBase {
 
     this.data.exiftoolPath = exiftoolPath;
     this.data.exiftool = null;
+    this.data.skipErrorNoExiftool = false;
 
   }
 
@@ -64,7 +70,7 @@ export class MetaReaderExiftool extends CrawlerBase {
         log.info(`${_logKey}${func} - connected ExifTool v${version}${logPath}`);
         return Promise.resolve();
       }).catch((err) => {
-        instance.logAndRethrowError(`${_logKey}${func}.inner.promise.catch`, err);
+        instance.logAndRethrowError(`${_logKey}${func}.inner.promise.catch(path=${data.exiftoolPath})`, err);
       });
 
       return p2;
@@ -111,25 +117,30 @@ export class MetaReaderExiftool extends CrawlerBase {
     const func = ".readMeta";
     const instance = this;
 
+    if (instance.data.processingStopped)
+      return Promise.resolve(null);
+
     if (!fs.lstatSync(file).isFile()) {
       log.error(`${_logKey}${func} - no media file!`, file);
       return Promise.resolve(null);
     }
 
-    if (!instance.data.exiftool)
-      return Promise.reject(new Error('no exiftool'));
+    if (!instance.data.exiftool) {
+      if (this.data.skipErrorNoExiftool) {
+        this.data.skipErrorNoExiftool = true;
+        log.error(`${_logKey}${func} - exiftool not connected!`);
+      }
+      return Promise.resolve(null);
+    }
 
     const p = instance.data.exiftool.read(file).then((tags) => {
-
-      if (instance.data.processingStopped)
-        return Promise.resolve(null);
 
       const meta = MetaReaderExiftool.prepareTagsFromExiftool(file, tags, prepareOnlyCrawlerTags);
 
       return Promise.resolve(meta);
 
     }).catch((err) => {
-      log.error(`${_logKey}${func}.promise.catch -`, err);
+      log.error(`${_logKey}${func}.promise.catch(file=${file})-`, err);
       throw err;
     });
 

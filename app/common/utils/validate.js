@@ -40,7 +40,7 @@ export function valiString(input) {
 
   if (typeof(input) !== typeof "str")
     return null;
-  if (input === "undefined")
+  if (input === "undefined" || input === "null")
     return null;
 
   return input;
