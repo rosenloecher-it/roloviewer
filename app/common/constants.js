@@ -55,6 +55,10 @@ export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 3;
 
 export const DEFCONF_META2MAPURL_FORMAT = 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M';
 
+export const DEFCONF_EXIFTOOL_INTERN = '.';
+export const DEFCONF_EXIFTOOL_DISABLE = '-';
+
+
 // --------------------------------------------------------------------------
 
 export const CRAWLER_MAX_WEIGHT = Number.MAX_VALUE;
@@ -138,9 +142,14 @@ export const AR_CONTEXT_SET_VERSION_EXIFREADER = 'AR_CONTEXT_SET_VERSION_EXIFREA
 // --------------------------------------------------------------------------
 // actions - workerState
 
-export const AR_WORKER_PREFIX = 'AR_WORKER';
+export const AR_CRAWLER_INIT_REDUCER = 'AR_CRAWLER_INIT_REDUCER';
 
-export const AR_WORKER_INIT_REDUCER = 'AR_WORKER_INIT_REDUCER';
+export const AR_CRAWLER_SOURCE_FOLDERS = 'AR_CRAWLER_SOURCE_FOLDERS';
+
+// --------------------------------------------------------------------------
+// actions - workerState
+
+export const AR_WORKER_PREFIX = 'AR_WORKER';
 
 export const AR_WORKER_REMOVE_TASK = 'AR_WORKER_REMOVE_TASK';
 export const AR_WORKER_REMOVE_TASKTYPES = 'AR_WORKER_REMOVE_TASKTYPES';
@@ -166,7 +175,6 @@ export const AR_WORKER_START = 'AR_WORKER_START';
   //   crawer.data.removeDirList: read by AR_WORKER_REMOVE_DIRS
   //   crawer.data.scanDirMap: read by AR_WORKER_SCAN_FSDIR
   // push AR_WORKER_SCAN_FSDIR with source folders
-
 
 export const AR_WORKER_REMOVE_DIRS = 'AR_WORKER_REMOVE_DIRS';
   // remove non-existing dirs from crawer.data.removeDirList

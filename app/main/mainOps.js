@@ -2,6 +2,7 @@ import { app, clipboard, shell, dialog } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
+import deepmerge from "deepmerge";
 import * as constants from "../common/constants";
 import * as windows from './windows';
 import * as fileUtils from "../common/utils/fileUtils";
@@ -10,10 +11,10 @@ import * as powerSaveBlocker from "./powerSaveBlocker";
 import * as rendererActions from "../common/store/rendererActions";
 import storeManager from './store/mainManager';
 import * as actionsMainWindow from "../common/store/mainWindowActions";
+import * as crawlerActions from "../common/store/crawlerActions";
 import * as workerActions from "../common/store/workerActions";
 import * as actionsSystem from "../common/store/systemActions";
 import {MetaReader} from '../worker/crawler/metaReader';
-import deepmerge from "deepmerge";
 
 // ----------------------------------------------------------------------------------
 
@@ -201,6 +202,22 @@ export function openDirectory() {
   if (folder) {
     const action = workerActions.createActionOpenFolder(folder);
     storeManager.dispatchGlobal(action);
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function openAutoSelectDirectory() {
+  const folder = openDialog(true);
+  if (folder) {
+    const action = crawlerActions.createActionSetSourceFolders([folder]);
+    storeManager.dispatchGlobal(action);
+
+    // TODO
+    // setImmediate(() => {
+    //   const action2 = workerActions.createActionUpdate();
+    //   storeManager.dispatchGlobal(action2);
+    // });
   }
 }
 

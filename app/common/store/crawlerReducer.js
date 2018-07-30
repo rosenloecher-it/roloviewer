@@ -60,8 +60,14 @@ export class CrawlerReducer {
 
       switch (action.type) {
 
-        case constants.AR_WORKER_INIT_REDUCER:
+        case constants.AR_CRAWLER_INIT_REDUCER:
           return this.initReducer(state, action);
+
+        case constants.AR_CRAWLER_SOURCE_FOLDERS:
+          return {
+            ...state,
+            folderSource: action.payload || [],
+          };
 
         default:
           return state;

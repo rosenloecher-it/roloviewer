@@ -56,12 +56,11 @@ export const createActionOpenDropped = (files) => ({
   taskId: getNextTaskId()
 });
 
-export const createActionAutoSelect = () => ({
+export const createActionAutoSelect = (updateDb = false) => ({
   type: constants.AR_WORKER_AUTO_SELECT,
   payload: {
     containerType: constants.CONTAINER_AUTOSELECT,
-    container: null,    // not needed
-    selectFile: null,   // not needed
+    updateDb,
   },
   taskId: getNextTaskId()
 });

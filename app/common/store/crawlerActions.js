@@ -8,7 +8,7 @@ export const createActionInitReducer = ({
    maxFilesPerFolder, showRating, tagBlacklist, tagShow, updateDirsAfterMinutes,
    weightingRating, weightingRepeated, weightingSeason, weightingSelPow,
 }) => ({
-  type: constants.AR_WORKER_INIT_REDUCER,
+  type: constants.AR_CRAWLER_INIT_REDUCER,
   payload: {
     batchCount, databasePath,
     folderBlacklist, folderBlacklistSnippets, folderSource,
@@ -17,3 +17,7 @@ export const createActionInitReducer = ({
   }
 });
 
+export const createActionSetSourceFolders = (values) => ({
+  type: constants.AR_CRAWLER_SOURCE_FOLDERS,
+  payload: values
+});

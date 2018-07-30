@@ -106,7 +106,7 @@ class Slideshow extends React.Component {
 
       log.debug(`${_logKey}${func}`);
     } catch (error) {
-      log.error(`${_logKey}${func} - exception -`, error);
+      log.error(`${_logKey}${func} - `, error);
     };
   }
 

@@ -3,6 +3,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import log from 'electron-log';
 import fs from 'fs';
+import * as constants from "../../common/constants";
 import { isWinOs } from "../../common/utils/systemUtils";
 import { valiInt } from '../../common/utils/validate';
 import {CrawlerBase} from "./crawlerBase";
@@ -43,7 +44,14 @@ export class MetaReaderExiftool extends CrawlerBase {
       if (instance.data.exiftool)
         return Promise.resolve();
 
-      if (data.exiftoolPath !== '.' && data.exiftoolPath && fs.existsSync(data.exiftoolPath)) {
+      let exiftoolPath = data.exiftoolPath;
+
+      if (exiftoolPath && exiftoolPath !== constants.DEFCONF_EXIFTOOL_INTERN) {
+
+        if (!fs.existsSync(exiftoolPath)) {
+          log.error(`${_logKey}${func} exiftool path does not exist (${exiftoolPath})!`);
+          return Promise.resolve();
+        }
 
         /* eslint-disable no-void */
         const maxProcs = void(0);
@@ -55,22 +63,21 @@ export class MetaReaderExiftool extends CrawlerBase {
         const batchClusterOpts = void(0);
         /* eslint-enable no-void */
 
-        //const exiftoolPath = '/usr/bin/exiftool';
-
         data.exiftool = new ExifTool(maxProcs, maxTasksPerProcess, spawnTimeoutMillis, taskTimeoutMillis, onIdleIntervalMillis, taskRetries, batchClusterOpts
-          , data.exiftoolPath);
+          , exiftoolPath);
       } else {
+        exiftoolPath = null;
         data.exiftool = new ExifTool();
       }
 
       const p2 = data.exiftool.version().then((version) => {
         let logPath = '';
-        if (data.exiftoolPath)
-          logPath = ` (${data.exiftoolPath})`;
+        if (exiftoolPath)
+          logPath = ` (${exiftoolPath})`;
         log.info(`${_logKey}${func} - connected ExifTool v${version}${logPath}`);
         return Promise.resolve();
       }).catch((err) => {
-        instance.logAndRethrowError(`${_logKey}${func}.inner.promise.catch(path=${data.exiftoolPath})`, err);
+        instance.logAndRethrowError(`${_logKey}${func}.inner.promise.catch(path=${exiftoolPath})`, err);
       });
 
       return p2;
@@ -183,7 +190,7 @@ export class MetaReaderExiftool extends CrawlerBase {
     const func = ".findExifTool";
 
     if (isWinOs())
-      return Promise.resolve();
+      return Promise.resolve(null);
 
     const toolName ='exiftool';
     const command = `bash -c "type -p ${toolName}"`;

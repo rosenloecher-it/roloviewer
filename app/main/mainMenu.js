@@ -27,6 +27,10 @@ export function createMenu() {
         click: () => { ops.openItemDirectory() }
       },
       {
+        label: 'Open auto-select directory',
+        click: () => { ops.openAutoSelectDirectory() }
+      },
+      {
         label: 'Auto-select',
         accelerator: 'F7',
         click: () => { ops.autoSelect() }

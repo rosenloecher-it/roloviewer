@@ -127,7 +127,10 @@ export function createMainWindow() {
       minWidth: constants.DEFCONF_WIDTH_MIN,
       minHeight: constants.DEFCONF_HEIGHT_MIN,
       backgroundColor: 'black', // has to match style!
-      show: false
+      show: false,
+      webPreferences: {
+        webSecurity: false
+      }
     });
 
     mainWindow.onerror = function (message, source, lineno, colno, error) {
@@ -210,7 +213,9 @@ export function createWorkerWindow() {
       height: 400,
       show: false,
       webPreferences: {
-        nodeIntegrationInWorker: true
+        nodeIntegrationInWorker: true,
+        webSecurity: false
+
       }
     });
 

@@ -3,7 +3,6 @@ import * as constants from "../../common/constants";
 import * as rendererActions from "../../common/store/rendererActions";
 import {CrawlerBase} from "./crawlerBase";
 import {MetaReaderExiftool} from "./metaReaderExiftool";
-import {MetaReaderIntern} from "./metaReaderIntern";
 
 // ----------------------------------------------------------------------------------
 
@@ -32,23 +31,27 @@ export class MetaReader extends CrawlerBase {
     const instance = this;
     const {data} = instance;
 
-    const p = super.init().then(() => {
+    if (data.exiftoolInitialized || data.reader)
+      return Promise.resolve();
 
-      if (data.exiftoolInitialized || data.reader)
-        return Promise.resolve();
+    const p = super.init().then(() => {
 
       instance.data.exiftoolInitialized = true;
 
       const systemState = instance.objects.storeManager.systemState;
 
+      if (systemState.exiftool)
+        return Promise.resolve(systemState.exiftool);
+
       return MetaReaderExiftool.determineExifToolPath(systemState);
 
-    }).then((exifToolPath) => {
+    }).then((exiftoolPath) => {
 
-      if (exifToolPath)
-        data.reader = MetaReaderExiftool.createReader(exifToolPath);
+      if (exiftoolPath === constants.DEFCONF_EXIFTOOL_DISABLE)
+        data.reader = null;
       else
-        data.reader = MetaReaderIntern.createReader();
+        data.reader = MetaReaderExiftool.createReader(exiftoolPath);
+      //  else data.reader = MetaReaderIntern.createReader();
 
       if (data.reader)
         return data.reader.init();
