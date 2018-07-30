@@ -3,7 +3,6 @@ import * as constants from "../common/constants";
 import * as ipc from "./rendererIpc";
 import storeManager from "./store/rendererManager";
 import * as rendererActions from "../common/store/rendererActions";
-import {RendererReducer} from "../common/store/rendererReducer";
 
 // ----------------------------------------------------------------------------------
 

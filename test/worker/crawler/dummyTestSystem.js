@@ -12,7 +12,7 @@ import {Dispatcher} from "../../../app/worker/crawler/dispatcher";
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "dummyTestSystem";
+const _logKey = "dummyTestSystem"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ export class DummyTestSystem {
           this.createTestDir(subDir);
           this.createFileSystemStructure(subDir, width, depth - 1, fileCountPerFolder);
 
-        } while (false);
+        } while (false); // eslint-disable-line no-constant-condition
       }
     }
   }
@@ -95,7 +95,7 @@ export class DummyTestSystem {
         if (fs.existsSync(subDir))
           continue;
         this.createTestDir(subDir);
-      } while (false);
+      } while (false); // eslint-disable-line no-constant-condition
     }
   }
 
@@ -112,7 +112,7 @@ export class DummyTestSystem {
     fs.mkdirsSync(fullPath);
 
     if (!fs.lstatSync(fullPath).isDirectory())
-      throw new Error(`${_logkey}.createDir - cannot create directory '${fullPath}'!`);
+      throw new Error(`${_logKey}.createTestDir - cannot create directory '${fullPath}'!`);
 
     this.dirs.push(fullPath);
   }
@@ -120,8 +120,6 @@ export class DummyTestSystem {
   // ........................................................
 
   fillFiles(dir, fileCount) {
-
-    const instance = this;
 
     for (let i = 0; i < fileCount; i++) {
       const ext = DummyTestSystem.getRandomImageExt();
@@ -135,7 +133,7 @@ export class DummyTestSystem {
         const rating = Math.floor(5 * Math.random());
         this.saveTestFile(dir, fileName, rating);
 
-      } while (false);
+      } while (false); // eslint-disable-line no-constant-condition
     }
   }
 

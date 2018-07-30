@@ -44,7 +44,7 @@ function checkAndCorrectMainWindowBounds(settings, screenSize) {
 
     resetBounds = false;
 
-  } while (false);
+  } while (false); // eslint-disable-line no-constant-condition
 
   if (resetBounds) {
     /* eslint-disable no-param-reassign */
@@ -133,7 +133,7 @@ export function createMainWindow() {
       }
     });
 
-    mainWindow.onerror = function (message, source, lineno, colno, error) {
+    mainWindow.onerror = (message, source, lineno, colno, error) => {
       log.error(`${_logKey}.onerror - message: ${message} \n source: ${source} \n line/col=${lineno}/${colno}`, error);
     };
 
@@ -149,7 +149,7 @@ export function createMainWindow() {
       mainWindow.show();
 
       if (settings.fullscreen)
-        mainWindow.setFullScreen(true)
+        mainWindow.setFullScreen(true);
       else if (settings.maximized)
         mainWindow.maximize();
 
@@ -219,7 +219,7 @@ export function createWorkerWindow() {
       }
     });
 
-    workerWindow.onerror = function (message, source, lineno, colno, error) {
+    workerWindow.onerror = (message, source, lineno, colno, error) => {
       log.error(`${_logKey}.onerror(worker) - message: ${message} \n source: ${source} \n line/col=${lineno}/${colno}`, error);
     };
 

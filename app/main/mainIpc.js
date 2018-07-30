@@ -3,9 +3,7 @@ import log from 'electron-log';
 import * as constants from "../common/constants";
 import * as windows from './windows';
 import * as ops from "./mainOps";
-import * as actionsMsg from "../common/store/messageActions";
 import storeManager from './store/mainManager';
-import {quittingApp} from "./mainOps";
 
 // ----------------------------------------------------------------------------------
 
@@ -30,7 +28,7 @@ export function shutdownIpc() {
 
 // ----------------------------------------------------------------------------------
 
-function listenMainChannel(event, ipcMsg, output) {
+function listenMainChannel(event, ipcMsg /*, output */) {
   const func = ".listenMainChannel";
 
   try {

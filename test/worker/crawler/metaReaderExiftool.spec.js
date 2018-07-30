@@ -1,6 +1,5 @@
 import path from 'path';
 import fs from "fs";
-import {MetaReader} from '../../../app/worker/crawler/metaReader';
 import {MetaReaderExiftool} from '../../../app/worker/crawler/metaReaderExiftool';
 import {isWinOs} from "../../../app/common/utils/systemUtils";
 

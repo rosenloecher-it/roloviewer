@@ -3,7 +3,7 @@ import * as constants from "../../common/constants";
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "crawlerBase";
+const _logKey = "crawlerBase"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 

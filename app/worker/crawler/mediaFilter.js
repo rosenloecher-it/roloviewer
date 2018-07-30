@@ -5,7 +5,7 @@ import {isWinOs} from "../../common/utils/systemUtils";
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "mediaFilter";
+const _logKey = "mediaFilter"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 

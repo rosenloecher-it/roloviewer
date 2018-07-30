@@ -69,7 +69,7 @@ export class WorkerManager extends StoreManager {
 
         this._dispatcher.processTask();
 
-      } while (false);
+      } while (false); // eslint-disable-line no-constant-condition
 
     } catch (err) {
       log.error(`${_logKey}${func} -`, err);

@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from "react-redux";
 import log from 'electron-log';
-import { Button, Icon } from '@blueprintjs/core';
+import { Button } from '@blueprintjs/core';
 import * as constants from "../../common/constants";
 import * as rendererActions from "../../common/store/rendererActions";
 import storeManager from "../store/rendererManager";

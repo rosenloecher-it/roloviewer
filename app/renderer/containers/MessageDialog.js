@@ -7,7 +7,7 @@ import * as constants from "../../common/constants";
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "messageDialog";
+const _logKey = "messageDialog"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 

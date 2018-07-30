@@ -4,7 +4,7 @@ import log from 'electron-log';
 
 // https://github.com/mattiasw/ExifReader
 
-const _logKey = "metaReaderIntern";
+const _logKey = "metaReaderIntern"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 

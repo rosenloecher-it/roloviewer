@@ -1,19 +1,10 @@
-import log from 'electron-log';
-import * as constants from "../../../app/common/constants";
-import {ContextReducer} from "../../../app/common/store/contextReducer";
-import {CrawlerReducer} from "../../../app/common/store/crawlerReducer";
-import {MainWindowReducer} from "../../../app/common/store/mainWindowReducer";
-import {MessageReducer} from "../../../app/common/store/messageReducer";
-import {SlideshowReducer} from "../../../app/common/store/slideshowReducer";
-import {StoreManager} from "../../../app/common/store/storeManager";
-import {SystemReducer} from "../../../app/common/store/systemReducer";
 import {WorkerManager} from "../../../app/worker/store/workerManager";
-import {WorkerReducer, PRIO_LENGTH} from "../../../app/common/store/workerReducer";
+import {WorkerReducer} from "../../../app/common/store/workerReducer";
 
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "testManager";
+const _logKey = "testManager"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 
@@ -127,7 +118,7 @@ export class TestManager extends WorkerManager {
 
   // .....................................................
 
-  dispatchRemote(action, destinationsIn = null) {
+  dispatchRemote(action) {
 
     // do nothing
     this.data.globalDispatchedActions.push(action);
@@ -140,6 +131,4 @@ export class TestManager extends WorkerManager {
 
 // ----------------------------------------------------------------------------------
 
-const _instanceTestManager = new TestManager();
 
-export default _instanceTestManager;

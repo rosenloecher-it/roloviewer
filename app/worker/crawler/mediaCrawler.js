@@ -123,6 +123,15 @@ export class MediaCrawler extends CrawlerBase {
       return dbWrapper.loadDir(selectedDir);
     }).then((dirItem) => {
 
+      // TODO remove debug code
+      if (!dirItem) {
+        // could happen, when operations ovrlap
+        if (!instance.data.scanActiveSendFirstAutoSelect) {
+          log.error(`${_logKey}${func} - !dirItem - data.lastAutoSelectedDir`, instance.data.lastAutoSelectedDir);
+        }
+        return Promise.resolve();
+      }
+
       const fileItems = mediaComposer.randomSelectFilesFromDir(dirItem, crawlerState.batchCount, true);
       if (fileItems.length === 0) {
         throw new Error(`auto-selection failed (no items delivered)!`);
@@ -146,8 +155,6 @@ export class MediaCrawler extends CrawlerBase {
           storeManager.dispatchGlobal(action);
         }
       }
-
-
 
       return Promise.resolve();
     }).catch((err) => {
@@ -564,13 +571,18 @@ export class MediaCrawler extends CrawlerBase {
 
     const {folder, fileNames} = payload;
 
+    if (!folder || !fileNames) {
+      // TODO remove debug code
+      log.error(`${_logKey}${func} - invalid payload: `, payload);
+      return Promise.resolve();
+    }
+
     const instance = this;
     const {data} = instance;
     const {dbWrapper} = instance.objects;
     const {mediaComposer} = instance.objects;
     const {metaReader} = instance.objects;
     const {storeManager} = instance.objects;
-    const crawlerState = storeManager.crawlerState;
 
     let dirItem = null;
 

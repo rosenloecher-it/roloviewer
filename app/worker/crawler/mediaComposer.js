@@ -122,7 +122,7 @@ export class MediaComposer extends CrawlerBase {
   // ........................................................
 
   evaluateFileItem(fileItem) {
-    const func = '.evaluateFileItem';
+    const func = '.evaluateFileItem'; // eslint-disable-line no-unused-vars
 
     if (!fileItem)
       return;
@@ -202,7 +202,7 @@ export class MediaComposer extends CrawlerBase {
   // ........................................................
 
   evaluateDir(dirItem) {
-    const func = '.evaluateDir';
+    const func = '.evaluateDir'; // eslint-disable-line no-unused-vars
 
     if (!dirItem)
       return;
@@ -248,7 +248,7 @@ export class MediaComposer extends CrawlerBase {
   // .......................................................
 
   evaluate(dirItem) {
-    const func = '.evaluate';
+    const func = '.evaluate'; // eslint-disable-line no-unused-vars
 
     if (!dirItem)
       return;

@@ -134,13 +134,12 @@ export default class Cli {
         this.data.result = Cli.errorResult();
 
     } catch (err) {
-      log.error(`${logKey}.parseArray - exception -`, err);
+      log.error(`${_logKey}.parseArray -`, err);
       this.data.result = this.errorResult();
 
-    } finally {
-      return this.data.result;
-
     }
+
+    return this.data.result;
   }
 
   // ........................................................
@@ -162,8 +161,10 @@ export default class Cli {
       this.parser.printUsage();
       console.log('ERROR: choose one mode: file/directory or auto mode!');
       this.storeExitCode(1);
-      return; // abort
+      return; // eslint-disable-line no-useless-return
     }
+
+    // add additional checks
 
     // ok
   }

@@ -17,7 +17,6 @@ describe('WorkerReducer - task handling', () => {
   it ('createActionJump', () => {
     let stateOut, stateIn;
     let action;
-    let count;
 
     const reducer = new WorkerReducer('test');
 

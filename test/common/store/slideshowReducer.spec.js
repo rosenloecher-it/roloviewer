@@ -8,9 +8,7 @@ import * as slideshowActions from '../../../app/common/store/slideshowActions';
 describe('goto', () => {
 
   it ('detailsState', () => {
-    let stateOut;
     let textIn, textOut;
-    let action;
 
     textOut = SlideshowReducer.getValidDetailsState(null, false);
     expect(!!textOut).toBe(true);

@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "crawlerOverlay";
+const _logKey = "crawlerOverlay"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 

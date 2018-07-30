@@ -1,5 +1,4 @@
 import log from 'electron-log';
-import path from 'path';
 import deepmerge from 'deepmerge';
 import configureStore from "./configureStore";
 import {StoreManager} from "../../common/store/storeManager";

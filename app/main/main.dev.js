@@ -74,7 +74,7 @@ function startApp(cli) {
   ops.configLogger();
   cli.logCliArgs();
 
-  process.on('uncaughtException', function (err) {
+  process.on('uncaughtException', (err) => {
     log.error(`${_logKey}.uncaughtException -`, err);
   });
 

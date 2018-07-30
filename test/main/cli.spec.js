@@ -73,14 +73,11 @@ describe('cli', () => {
 
   it('wrong config', () => {
     const app = '/path/binary';
-    const conf = '/path/config';
     let args = null;
     let output = null;
-    let compare = null;
 
     const cli = new Cli();
 
-    compare = { autoselect: true, open: conf, exitCode: null };
     args = [ app, '--autoselect', '--open' ];
     output = cli.parseArray(args);
     expect(output.exitCode).not.toBeNull();

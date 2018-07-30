@@ -6,7 +6,7 @@ import { _store } from './configureStore';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "rendererManager";
+const _logKey = "rendererManager"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 

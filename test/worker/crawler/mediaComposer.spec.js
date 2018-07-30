@@ -1,7 +1,6 @@
 import * as constants from '../../../app/common/constants';
 import * as stringUtils from "../../../app/common/utils/stringUtils";
 import {MediaComposer} from "../../../app/worker/crawler/mediaComposer";
-import {DbWrapper} from "../../../app/worker/crawler/dbWrapper";
 import {TestManager} from "../../common/store/testManager";
 
 // ----------------------------------------------------------------------------------

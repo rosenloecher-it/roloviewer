@@ -116,7 +116,7 @@ export function restoreDevTools() {
 // ----------------------------------------------------------------------------------
 
 export function initChildConfig(ipcMsg) {
-  const func = ".initChildConfig";
+  const func = ".initChildConfig"; // eslint-disable-line no-unused-vars
   //log.debug(`${_logKey}${func}`, ipcMsg);
 
   const ipcDest = ipcMsg.source;
@@ -381,7 +381,7 @@ export function copyMeta2Clipboard() {
 
 
     let maxLengthKey = 8;
-    for (let key in meta) {
+    for (const key in meta) {
       const l = key.length;
       if (maxLengthKey < l)
         maxLengthKey = l;
