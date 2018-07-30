@@ -236,12 +236,12 @@ class Slideshow extends React.Component {
         else
           storeManager.dispatchGlobal(slideshowActions.createActionDetailsToogle());
         break;
-      case 76: {// l (mark/log)
-        const currentItem = this.getCurrentItem();
-        if (currentItem && currentItem.file)
-          log.info(`current file: ${currentItem.file}`);
-        break;
-      }
+      // case 76: {// l (mark/log)
+      //   const currentItem = this.getCurrentItem();
+      //   if (currentItem && currentItem.file)
+      //     log.info(`current file: ${currentItem.file}`);
+      //   break;
+      // }
       case 82: // r
         storeManager.dispatchGlobal(slideshowActions.createActionRandomToogle());
         break;
@@ -403,6 +403,10 @@ class Slideshow extends React.Component {
       let currentItemMeta = null;
       if (currentItem && currentItem.meta)
         currentItemMeta = currentItem.meta;
+
+      if (currentItemFile && data.lastCurrentItemFile !== currentItemFile) {
+        log.info(`show file: ${currentItemFile}`);
+      }
 
       if (data.lastCurrentItemFile !== currentItemFile || data.lastCurrentItemMeta !== currentItemMeta) {
         const action = statusActions.createActionNotifyCurrentItem(currentItem);

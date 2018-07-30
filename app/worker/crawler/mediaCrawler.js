@@ -243,7 +243,7 @@ export class MediaCrawler extends CrawlerBase {
       let rescanAll = false;
 
       if (!MediaCrawler.equalsStateNoRescan(crawlerStateCurrent, stateComposed.lastConfig)) {
-        log.info(`${_logKey}${func} - config changed => restart crawle`);
+        log.info(`db config changed => restart crawle`);
         rescanAll = true;
       }
 

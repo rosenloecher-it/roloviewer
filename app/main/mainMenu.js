@@ -18,14 +18,15 @@ export function createMenu() {
         click: () => { ops.openDirectory() }
       },
       {
-        label: 'Open playlist',
-        click: () => { ops.openPlayList() }
-      },
-      {
-        label: 'Open item directory',
+        label: 'Open directory of current item',
         accelerator: 'Alt+O',
         click: () => { ops.openItemDirectory() }
       },
+      // // TODO implement playlist
+      // {
+      //   label: 'Open playlist',
+      //   click: () => { ops.openPlayList() }
+      // },
       {
         label: 'Open auto-select directory',
         click: () => { ops.openAutoSelectDirectory() }
