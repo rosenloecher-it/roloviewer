@@ -63,8 +63,6 @@ export class MediaCrawler extends CrawlerBase {
 
     try {
 
-      log.debug(`${_logKey}${func} - in`, input);
-
       let rescanAll = false;
       if (input.rescanAll !== null && input.rescanAll !== undefined)
         rescanAll = input.rescanAll;
@@ -492,6 +490,8 @@ export class MediaCrawler extends CrawlerBase {
     const crawlerState = storeManager.crawlerState;
     const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
 
+    let childrenDirs = [];
+
     const children = fs.readdirSync(dir);
     for (let k = 0; k < children.length; k++) {
       const fileShort = children[k];
@@ -500,19 +500,25 @@ export class MediaCrawler extends CrawlerBase {
         if (MediaFilter.isFolderBlacklisted(fileLong, folderBlacklist, folderBlacklistSnippets))
           log.info(`${_logKey}${func} - skipped: ${fileLong}`);
         else {
-
-          if (!instance.data.cacheScanFsDirs.has(fileLong)) {
-            let action = null;
-
-            action = workerActions.createActionScanFsDir(fileLong);
-            storeManager.dispatchTask(action);
-
-            action = workerActions.createActionUpdateDir(fileLong);
-            storeManager.dispatchTask(action);
-
-          } // else: do nothing - dir exists already in db
+          if (!instance.data.cacheScanFsDirs.has(fileLong))
+            childrenDirs.push(fileLong);
+          // else: do nothing - dir exists already in db
         }
       }
+    }
+
+    // thumble dirs (!!!) so that you don't get the first folder
+    if (this.data.scanActiveSendFirstAutoSelect)
+      childrenDirs = MediaFilter.tumbleArray(childrenDirs);
+
+    for (let i = 0; i < childrenDirs.length; i++) {
+      const childDir = childrenDirs[i];
+
+      let action = workerActions.createActionScanFsDir(childDir);
+      storeManager.dispatchTask(action);
+
+      action = workerActions.createActionUpdateDir(childDir);
+      storeManager.dispatchTask(action);
     }
 
     return Promise.resolve();

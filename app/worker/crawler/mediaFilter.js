@@ -135,5 +135,26 @@ export class MediaFilter {
 
   // ........................................................
 
+  static tumbleArray(valsIn) {
+
+    const valsOut = [];
+    let valsClone = valsIn.slice(0);
+
+    while (valsClone.length > 0) {
+
+      const rand = Math.floor(Math.random() * valsClone.length);
+      valsOut.push(valsClone[rand]);
+
+      const valsTemp = [];
+      for (let i = 0; i < valsClone.length; i++) {
+        if (i !== rand)
+          valsTemp.push(valsClone[i]);
+      }
+      valsClone = valsTemp;
+    }
+
+    return valsOut;
+  }
+  // ........................................................
 
 }

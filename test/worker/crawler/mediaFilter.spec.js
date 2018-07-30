@@ -56,6 +56,52 @@ describe('MediaFilter', () => {
   });
 
 
+  it('tumbleArray', () => {
+
+    const count = 10;
+
+    const valuesIn = [];
+    for (let i = 0; i < count; i++)
+      valuesIn.push(i);
+
+    const valuesInClone = valuesIn.slice(0);
+
+    const valuesOut = MediaFilter.tumbleArray(valuesIn);
+
+    expect(valuesIn.length).toBe(count);
+    expect(valuesInClone.length).toBe(count);
+    expect(valuesOut.length).toBe(count);
+
+
+    let countEqual = 0;
+    let countGreater = 0;
+    let countLess = 0;
+    let valueLast = 0;
+
+    for (let i = 0; i < count; i++) {
+      expect(valuesIn[i]).toBe(valuesInClone[i]);
+
+      if (i > 0) {
+        if (valuesOut[i] === valueLast)
+          countEqual++;
+        if (valuesOut[i] > valueLast)
+          countGreater++;
+        if (valuesOut[i] < valueLast)
+          countLess++;
+      }
+
+      valueLast = valuesOut[i];
+    }
+
+    console.log('array', valuesOut);
+    console.log(`countEqual=${countEqual}; countGreater=${countGreater}; countLess=${countLess}`);
+
+
+    expect(countEqual).toBe(0);
+    expect(countGreater).toBeGreaterThan(1);
+    expect(countLess).toBeGreaterThan(1);
+
+  });
 
 
 });
