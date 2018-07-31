@@ -38,7 +38,7 @@ const defaultIniData = {
     logLevelConsole: 'silly',
     logLevelFile: 'silly',
     powerSaveBlockTime: '30',
-    mapUrlFormat: 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M'
+    mapUrlFormat: '...',
   }
 };
 

@@ -21,6 +21,18 @@ export const CONFIG_NAME = 'RoloSlider';
 export const APP_BASENAME = 'roloslider';
 
 // --------------------------------------------------------------------------
+// format meta => mapUrl
+
+export const LATI_ABS = "$LATI_ABS$";
+export const LATI_NUM = "$LATI_NUM$";
+export const LATI_REF = "$LATI_REF$";
+export const LATI_REL = "$LATI_REL$";
+export const LONG_ABS = "$LONG_ABS$";
+export const LONG_NUM = "$LONG_NUM$";
+export const LONG_REF = "$LONG_REF$";
+export const LONG_REL = "$LONG_REL$";
+
+// --------------------------------------------------------------------------
 // config
 
 export const DEFCONF_WIDTH_DEF = 1024;
@@ -53,7 +65,7 @@ export const DEFCONF_LOGLEVEL_CONSOLE = 'info';
 
 export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 3;
 
-export const DEFCONF_META2MAPURL_FORMAT = 'http://www.openstreetmap.org/?mlat=<LATI_NUM>&mlon=<LONG_NUM>&zoom=15&layers=M';
+export const DEFCONF_META2MAPURL_FORMAT = `http://www.openstreetmap.org/?mlat=${LATI_NUM}>&mlon=${LONG_NUM}&zoom=15&layers=M`;
 
 export const DEFCONF_EXIFTOOL_INTERN = '.';
 export const DEFCONF_EXIFTOOL_DISABLE = '-';
@@ -62,18 +74,6 @@ export const DEFCONF_EXIFTOOL_DISABLE = '-';
 // --------------------------------------------------------------------------
 
 export const CRAWLER_MAX_WEIGHT = Number.MAX_VALUE;
-
-// --------------------------------------------------------------------------
-// format meta => mapUrl
-
-export const LATI_ABS = "<LATI_ABS>";
-export const LATI_NUM = "<LATI_NUM>";
-export const LATI_REF = "<LATI_REF>";
-export const LATI_REL = "<LATI_REL>";
-export const LONG_ABS = "<LONG_ABS>";
-export const LONG_NUM = "<LONG_NUM>";
-export const LONG_REF = "<LONG_REF>";
-export const LONG_REL = "<LONG_REL>";
 
 // --------------------------------------------------------------------------
 // messages

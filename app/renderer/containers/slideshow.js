@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import path from 'path';
 import { connect } from 'react-redux';
 import log from 'electron-log';
@@ -100,9 +101,9 @@ class Slideshow extends React.Component {
     const func = '.registerOnQuitScreensaver';
 
     try {
-      window.addEventListener("keydown", Slideshow.onQuitScreensaver);
-      window.addEventListener("mousemove", Slideshow.onQuitScreensaver);
-      window.addEventListener("onClick", Slideshow.onQuitScreensaver);
+      window.addEventListener("keydown", this.onQuitScreensaver);
+      window.addEventListener("mousemove", this.onQuitScreensaver);
+      window.addEventListener("onClick", this.onQuitScreensaver);
 
       log.debug(`${_logKey}${func}`);
     } catch (error) {
@@ -112,19 +113,19 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
-  static onQuitScreensaver() {
+  onQuitScreensaver() {
     ops.quitScreensaver();
   }
 
   // .......................................................
 
-  static goBack() {
+  goBack() {
     ops.goBack();
   }
 
   // .......................................................
 
-  static goNext() {
+  goNext() {
     ops.goNext();
   }
 
@@ -158,45 +159,54 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
-  static dispatchGotoAction(action) {
+  dispatchGotoAction(action) {
     storeManager.dispatchGlobal(action);
   }
 
   // .......................................................
 
-  static onDragOver(event) {
+  onDragOver(event) {
     //log.debug(`${_logKey}.onDragOver - in`);
     event.preventDefault();
     return false;
   };
 
-  static onDragLeave(event) {
+  onDragLeave(event) {
     //log.debug(`${_logKey}.onDragLeave - in`);
     event.preventDefault();
     return false;
   };
 
-  static onDragEnd(event) {
+  onDragEnd(event) {
     //log.debug(`${_logKey}.onDragEnd - in`);
     event.preventDefault();
     return false;
   };
 
-  static onDrop(event) {
+  onDrop(event) {
     const func = '.onDrop';
 
     try {
       //log.debug(`${_logKey}${func} - in`);
       event.preventDefault();
 
-      const files = [];
-      for (let f of event.dataTransfer.files) { // eslint-disable-line prefer-const
-        files.push(f.path);
-      }
+      if (event.dataTransfer) {
+        if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
 
-      const action = workerActions.createActionOpenDropped(files);
-      //log.debug(`${_logKey}${func} - action`, action);
-      storeManager.dispatchGlobal(action);
+          //log.debug(`${_logKey}${func} - in`, event.dataTransfer.files);
+
+          const files = [];
+          for (let i = 0; i < event.dataTransfer.files.length; i++) {
+            const filePath = event.dataTransfer.files[i].path;
+            if (filePath)
+              files.push(filePath);
+          }
+
+          const action = workerActions.createActionOpenDropped(files);
+          //log.debug(`${_logKey}${func} - action`, action);
+          storeManager.dispatchGlobal(action);
+        }
+      }
 
     } catch (err) {
       log.error(`${_logKey}${func} -`, err);
@@ -221,15 +231,15 @@ class Slideshow extends React.Component {
       case 34: // page down
         this.goPageNext(); break;
       case 35: // end
-        Slideshow.dispatchGotoAction(rendererActions.createActionGoEnd()); break;
+        this.dispatchGotoAction(rendererActions.createActionGoEnd()); break;
       case 36: // pos1
-        Slideshow.dispatchGotoAction(rendererActions.createActionGoPos1()); break;
+        this.dispatchGotoAction(rendererActions.createActionGoPos1()); break;
       case 37: // arrow left
       case 38: // arrow up
-        Slideshow.goBack(); break;
+        this.goBack(); break;
       case 39: // arrow right
       case 40: // arrow down
-        Slideshow.goNext(); break;
+        this.goNext(); break;
       case 73: // i
         if (event.ctrlKey)
           storeManager.dispatchGlobal(slideshowActions.createActionDetailsMove());
@@ -287,12 +297,12 @@ class Slideshow extends React.Component {
     try {
       // log.debug(`${_logKey}${func}`);
       if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
-        Slideshow.goNext();
+        this.goNext();
       else {
         if (this.props.random)
-          Slideshow.dispatchGotoAction(rendererActions.createActionGoRandom());
+          this.dispatchGotoAction(rendererActions.createActionGoRandom());
         else
-          Slideshow.goNext();
+          this.goNext();
       }
     } catch (err) {
       log.error(`${_logKey}${func} -`, err);
@@ -461,6 +471,22 @@ class Slideshow extends React.Component {
 
 
 // ----------------------------------------------------------------------------------
+
+Slideshow.propTypes = {
+  combinedAutoPlay: PropTypes.bool,
+  containerType: PropTypes.number,
+  cursorHide: PropTypes.bool,
+  isScreensaver: PropTypes.bool,
+  random: PropTypes.bool,
+};
+
+Slideshow.defaultProps = {
+  combinedAutoPlay: false,
+  containerType: 0,
+  cursorHide: false,
+  isScreensaver: false,
+  random: false,
+};
 
 const mapStateToProps = state => ({
   aboutShow: state.renderer.aboutShow,

@@ -1,12 +1,6 @@
-import log from 'electron-log';
 import {StoreManager} from "../../common/store/storeManager";
-import configureStore from "./configureStore";
 import * as constants from "../../common/constants";
 import { _store } from './configureStore';
-
-// ----------------------------------------------------------------------------------
-
-const _logKey = "rendererManager"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 
@@ -30,13 +24,6 @@ export class RendererManager extends StoreManager {
   }
 
   // .....................................................
-
-  dispatchLocalByRemote(action) {
-    super.dispatchLocalByRemote(action);
-
-    // if (action.type === constants.AR_RENDERER_DELIVER_META)
-    //   log.debug(`${_logKey}.dispatchLocalByRemote - action:`, action);
-  }
 
 }
 

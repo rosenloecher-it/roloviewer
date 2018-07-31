@@ -693,12 +693,12 @@ export class MediaCrawler extends CrawlerBase {
       }
     }
 
-    for (const fileName of setFs) {
+    setFs.forEach((fileName) => {
       const fileItem =  this.objects.mediaComposer.createFileItem({fileName});
       fileItemsNew.push(fileItem);
       itemUpdate.push(fileItem.fileName);
       doFileItemsSave = true;
-    }
+    });
 
     // updating seasonWeight
     if (crawlerState.weightingSeason <= 0.5 || doFileItemsSave) {

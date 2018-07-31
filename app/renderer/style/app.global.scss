@@ -1,7 +1,4 @@
-
 @import "../../../node_modules/normalize.css/normalize.css";
-
-
 
 //variables
 
@@ -9,7 +6,6 @@
 // config blueprint.js
 
 @import "../../../node_modules/@blueprintjs/icons/lib/css/blueprint-icons.css";
-
 @import '../../../node_modules/@blueprintjs/core/lib/scss/variables';
 
 $pt-intent-primary: grey;
@@ -28,6 +24,7 @@ $app-background: black;
 body {
   margin: 0;
   background-color: $app-background;
+
 };
 
 //------------------------------------------------------------------------------

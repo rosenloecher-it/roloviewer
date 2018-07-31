@@ -156,7 +156,7 @@ export class Dispatcher extends CrawlerBase {
       //let countTasks2 = CrawlerReducer.countTasks(workerState);
       //log.debug(`${_logKey}${func} - countTasks2=${countTasks2}`);
 
-      const p = instance.dispatchTask(data.runningTask).catch((err) => {
+      instance.dispatchTask(data.runningTask).catch((err) => {
 
         instance.logAndShowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
 

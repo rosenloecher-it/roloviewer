@@ -133,7 +133,7 @@ export class DbWrapper extends CrawlerBase {
     const wantedId = mediaComposer.convert2Id(dir);
 
     const p = new Promise((resolve, reject) => {
-      instance.dbDir.remove({ _id: wantedId }, (err, doc) => {
+      instance.dbDir.remove({ _id: wantedId }, (err /*, doc*/) => {
         if (err)
           reject(new Error(err));
 

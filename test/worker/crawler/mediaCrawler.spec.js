@@ -463,7 +463,6 @@ describe(_logKey, () => {
     state1 = CrawlerReducer.defaultState();
     state2 = deepmerge.all([ state1, {} ]);
 
-
     compare = MediaCrawler.equalsStateNoRescan(state1, state2);
     expect(compare).toBe(true);
 
@@ -802,9 +801,9 @@ describe(_logKey, () => {
       let dirHitsSum = 0, dirHitsMin = Number.MAX_VALUE, dirHitsMax = -Number.MAX_VALUE;
       let dirCountLess1 = 0, dirCountMore1 = 0;
 
-      for (const entry of mapDirs.entries()) {
-        //const dir = entry[0];
-        const data = entry[1];
+
+      Object.keys(mapDirs).forEach((key) => {
+        const data = mapDirs[key];
         const {count} = data;
 
         dirHitsSum += count;
@@ -813,7 +812,7 @@ describe(_logKey, () => {
 
         if (count === 0) dirCountLess1++;
         if (count > 1) dirCountMore1++;
-      }
+      });
 
       let statistics = `${_logKey}${func} - statitics:`;
 
