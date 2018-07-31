@@ -91,10 +91,10 @@ describe(_logKey, () => {
 
       const tasks = testSystem.storeManager.tasks;
       const task = tasks[0];
-      expect(task.type).toBe(constants.AR_WORKER_UPDATE_FILES);
+      expect(task.type).toBe(constants.AR_WORKER_UPDATE_DIRFILES);
 
       testSystem.storeManager.clearTasks();
-      return testSystem.dispatcher.dispatchTask(task); // AR_WORKER_UPDATE_FILES
+      return testSystem.dispatcher.dispatchTask(task); // AR_WORKER_UPDATE_DIRFILES
 
     }).then(() => {
 

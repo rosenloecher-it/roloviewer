@@ -232,24 +232,24 @@ export class Dispatcher extends CrawlerBase {
           p = mediaCrawler.removeDirs(task.payload);
           break;
 
-        case constants.AR_WORKER_SCAN_FSDIR:
-          p = mediaCrawler.scanFsDir(task.payload);
+        case constants.AR_WORKER_SEARCH_FOR_NEW_DIRS:
+          p = mediaCrawler.searchForNewDirs(task.payload);
           break;
 
         case constants.AR_WORKER_RATE_DIR_BY_FILE:
           p = mediaCrawler.rateDirByFile(task.payload);
           break;
 
-        case constants.AR_WORKER_UPDATE_FILES:
-          p = mediaCrawler.updateFiles(task.payload);
+        case constants.AR_WORKER_UPDATE_DIRFILES:
+          p = mediaCrawler.updateDirFiles(task.payload);
           break;
 
         case constants.AR_WORKER_UPDATE_DIR:
           p = mediaCrawler.updateDir(task.payload);
           break;
 
-        case constants.AR_WORKER_RELOAD_DIRS:
-          p = mediaCrawler.reloadDirs(task.payload);
+        case constants.AR_WORKER_PREPARE_DIRS_FOR_UPDATE:
+          p = mediaCrawler.prepareDirsForUpdate(task.payload);
           break;
       }
 
@@ -338,7 +338,7 @@ export class Dispatcher extends CrawlerBase {
           data.statusCrawlerTask = 'Up-to-date';
           break;
 
-        case constants.AR_WORKER_RELOAD_DIRS:
+        case constants.AR_WORKER_PREPARE_DIRS_FOR_UPDATE:
         case constants.AR_WORKER_START:
           data.statusCrawlerTask = 'Initialising';
           break;
@@ -348,12 +348,12 @@ export class Dispatcher extends CrawlerBase {
           //logInfo = task.payload; // list of all folders
           break;
 
-        case constants.AR_WORKER_SCAN_FSDIR:
+        case constants.AR_WORKER_SEARCH_FOR_NEW_DIRS:
           data.statusCrawlerTask = 'Scanning folders';
           logInfo = task.payload;
           break;
 
-        case constants.AR_WORKER_UPDATE_FILES:
+        case constants.AR_WORKER_UPDATE_DIRFILES:
           data.statusCrawlerTask = 'Updating folders';
           showFolder = task.payload.folder;
           logInfo = showFolder;

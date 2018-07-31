@@ -80,6 +80,10 @@ export const createActionDeliverMeta = (file) => ({
 // ----------------------------------------------------------------------------------
 // crawler tasks
 
+/*
+  init crawler (check settings; triggers dir updates)
+  incl. deliver first images (if dirs available, the delivery has to be postboned)
+*/
 export const createActionStart = (lastContainerType = null, container = null, selectFile = null) => ({
   type: constants.AR_WORKER_START,
   payload: {
@@ -90,38 +94,54 @@ export const createActionStart = (lastContainerType = null, container = null, se
   taskId: getNextTaskId()
 });
 
-export const createActionRemoveDir = (dir) => ({
-  type: constants.AR_WORKER_REMOVE_DIRS,
-  payload: { dirs: [dir] },
+/*
+  part of worker start/init
+  list db-dir-items and triggers actions:
+    createActionRemoveDirs
+    createActionUpdateDir
+*/
+export const createActionPrepareDirsForUpdate = (rescanAll = false) => ({
+  type: constants.AR_WORKER_PREPARE_DIRS_FOR_UPDATE,
+  payload: { rescanAll },
   taskId: getNextTaskId()
 });
 
+/*
+  remove non existing dirItems (DB)
+  max n folders will be deleted at once => a new task is added containing the remaining elements
+*/
 export const createActionRemoveDirs = (dirs) => ({
   type: constants.AR_WORKER_REMOVE_DIRS,
   payload: {dirs},
   taskId: getNextTaskId()
 });
 
-export const createActionScanFsDir = (dir) => ({
-  type: constants.AR_WORKER_SCAN_FSDIR,
+/*
+  scan the folder for sub folders (no files are considered)
+  triggers new
+    createActionSearchForNewDirs
+    createActionUpdateDir
+*/
+export const createActionSearchForNewDirs = (dir) => ({
+  type: constants.AR_WORKER_SEARCH_FOR_NEW_DIRS,
   payload: dir,
   taskId: getNextTaskId()
 });
 
-export const createActionReloadDirs = (rescanAll = false) => ({
-  type: constants.AR_WORKER_RELOAD_DIRS,
-  payload: { rescanAll },
-  taskId: getNextTaskId()
-});
-
+/*
+  load db-dir-item => sets fileItem.lastShown => calc new rating
+*/
 export const createActionRateDirByFile = (file) => ({
   type: constants.AR_WORKER_RATE_DIR_BY_FILE,
   payload: file,
   taskId: getNextTaskId()
 });
 
-export const createActionUpdateFiles = (folder, fileNames) => ({
-  type: constants.AR_WORKER_UPDATE_FILES,
+/*
+  update n files (loads meta) of a dir item
+*/
+export const createActionUpdateDirFiles = (folder, fileNames) => ({
+  type: constants.AR_WORKER_UPDATE_DIRFILES,
   payload: {
     folder,
     fileNames, // array of fileNames (without leading path)
@@ -129,6 +149,10 @@ export const createActionUpdateFiles = (folder, fileNames) => ({
   taskId: getNextTaskId()
 });
 
+/*
+ scan dir; remove non existing files and add new ones
+ triggers createActionUpdateDirFiles
+*/
 export const createActionUpdateDir = (dir) => ({
   type: constants.AR_WORKER_UPDATE_DIR,
   payload: dir,

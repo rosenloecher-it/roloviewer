@@ -66,10 +66,10 @@ export class WorkerReducer {
         case constants.AR_WORKER_DELIVER_META:
         case constants.AR_WORKER_START:
         case constants.AR_WORKER_RATE_DIR_BY_FILE:
-        case constants.AR_WORKER_RELOAD_DIRS:
+        case constants.AR_WORKER_PREPARE_DIRS_FOR_UPDATE:
         case constants.AR_WORKER_REMOVE_DIRS:
-        case constants.AR_WORKER_SCAN_FSDIR:
-        case constants.AR_WORKER_UPDATE_FILES:
+        case constants.AR_WORKER_SEARCH_FOR_NEW_DIRS:
+        case constants.AR_WORKER_UPDATE_DIRFILES:
           return this.pushGenericTask(state, action);
 
         default:
@@ -215,13 +215,13 @@ export class WorkerReducer {
         return 2;
       case constants.AR_WORKER_REMOVE_DIRS:
         return 3;
-      case constants.AR_WORKER_RELOAD_DIRS:
+      case constants.AR_WORKER_PREPARE_DIRS_FOR_UPDATE:
         return 4;
-      case constants.AR_WORKER_SCAN_FSDIR:
+      case constants.AR_WORKER_SEARCH_FOR_NEW_DIRS:
         return 5;
       case constants.AR_WORKER_RATE_DIR_BY_FILE:
         return 6;
-      case constants.AR_WORKER_UPDATE_FILES:
+      case constants.AR_WORKER_UPDATE_DIRFILES:
         return 7;
       case constants.AR_WORKER_UPDATE_DIR:
         return 8;

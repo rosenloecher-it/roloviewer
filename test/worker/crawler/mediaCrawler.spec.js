@@ -109,9 +109,9 @@ describe(_logKey, () => {
       expect(count).toBe(3);
       count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_REMOVE_DIRS);
       expect(count).toBe(1);
-      count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_SCAN_FSDIR);
+      count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_SEARCH_FOR_NEW_DIRS);
       expect(count).toBe(1);
-      count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_RELOAD_DIRS);
+      count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_PREPARE_DIRS_FOR_UPDATE);
       expect(count).toBe(1);
 
       return dispatchAll(testSystem);
@@ -163,7 +163,7 @@ describe(_logKey, () => {
       expect(count).toBe(1)
 
       const task = tasks[0];
-      expect(task.type).toBe(constants.AR_WORKER_UPDATE_FILES);
+      expect(task.type).toBe(constants.AR_WORKER_UPDATE_DIRFILES);
       expect(!!task.payload.folder).toBe(true);
 
       console.log(`${_logKey}${func} - task:`, task);
@@ -182,7 +182,7 @@ describe(_logKey, () => {
 
   // ........................................................
 
-  it('complex: updateDir + updateFiles', () => {
+  it('complex: updateDir + updateDirFiles', () => {
 
     let count = null;
 
@@ -216,7 +216,7 @@ describe(_logKey, () => {
       expect(count).toBe(tasks.length);
 
       const task = tasks[0];
-      expect(task.type).toBe(constants.AR_WORKER_UPDATE_FILES);
+      expect(task.type).toBe(constants.AR_WORKER_UPDATE_DIRFILES);
 
       for (let i = 0; i < task.payload.fileNames.length; i++) {
         const fullPath = path.join(task.payload.folder, task.payload.fileNames[i]);
@@ -225,7 +225,7 @@ describe(_logKey, () => {
       }
 
       testSystem.storeManager.clearTasks();
-      return testSystem.dispatcher.dispatchTask(task); // AR_WORKER_UPDATE_FILES
+      return testSystem.dispatcher.dispatchTask(task); // AR_WORKER_UPDATE_DIRFILES
 
     }).then(() => {
 
@@ -326,7 +326,7 @@ describe(_logKey, () => {
 
   // ........................................................
 
-  it('complex: reloadDirs', () => {
+  it('complex: prepareDirsForUpdate', () => {
 
     let count  = null;
 
@@ -367,7 +367,7 @@ describe(_logKey, () => {
       count = testSystem.storeManager.countTasks();
       expect(count).toBe(0);
 
-      return testSystem.mediaCrawler.reloadDirs({rescanAll: false});
+      return testSystem.mediaCrawler.prepareDirsForUpdate({rescanAll: false});
 
     }).then(() => {
 
@@ -375,7 +375,7 @@ describe(_logKey, () => {
       expect(count).toBe(countOld);
 
 
-      return testSystem.mediaCrawler.reloadDirs({rescanAll: true});
+      return testSystem.mediaCrawler.prepareDirsForUpdate({rescanAll: true});
 
     }).then(() => {
 
@@ -393,7 +393,7 @@ describe(_logKey, () => {
 
   // ........................................................
 
-  it('complex: scanFsDir', () => {
+  it('complex: searchForNewDirs', () => {
 
     let count  = null;
 
@@ -433,14 +433,14 @@ describe(_logKey, () => {
       count = testSystem.storeManager.countTasks();
       expect(count).toBe(0);
 
-      return testSystem.mediaCrawler.reloadDirs({rescanAll: false});
+      return testSystem.mediaCrawler.prepareDirsForUpdate({rescanAll: false});
 
     }).then(() => {
 
       count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_UPDATE_DIR);
       expect(count).toBe(countOld);
 
-      return testSystem.mediaCrawler.reloadDirs({rescanAll: true});
+      return testSystem.mediaCrawler.prepareDirsForUpdate({rescanAll: true});
 
     }).then(() => {
 
@@ -491,8 +491,8 @@ describe(_logKey, () => {
 
   // ........................................................
 
-  it('scanFsDir', () => {
-    // scanFsDir(dir)
+  it('searchForNewDirs', () => {
+    // searchForNewDirs(dir)
     const testSystem = createTestSystemWithMediaDir();
 
     const dirPath1 = path.join(_testDirMedia, stringUtils.randomString(8));
@@ -517,9 +517,9 @@ describe(_logKey, () => {
       //console.log('tasks', tasks);
 
       testSystem.storeManager.clearTasks(constants.AR_WORKER_REMOVE_DIRS);
-      testSystem.storeManager.clearTasks(constants.AR_WORKER_RELOAD_DIRS);
+      testSystem.storeManager.clearTasks(constants.AR_WORKER_PREPARE_DIRS_FOR_UPDATE);
 
-      const count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_SCAN_FSDIR);
+      const count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_SEARCH_FOR_NEW_DIRS);
       expect(count).toBe(1);
       const tasks = testSystem.storeManager.tasks;
       expect(tasks.length).toBe(1);
@@ -540,7 +540,7 @@ describe(_logKey, () => {
 
       for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
-        if (task.type === constants.AR_WORKER_SCAN_FSDIR) countActionScanFsDir++;
+        if (task.type === constants.AR_WORKER_SEARCH_FOR_NEW_DIRS) countActionScanFsDir++;
         if (task.type === constants.AR_WORKER_UPDATE_DIR) countActionUpdateDir++;
         if (task.payload === dirPath1) countDir1++;
         if (task.payload === dirPath2) countDir2++;
@@ -602,10 +602,10 @@ describe(_logKey, () => {
 
       const tasks = testSystem.storeManager.tasks;
       const task = tasks[0];
-      expect(task.type).toBe(constants.AR_WORKER_UPDATE_FILES);
+      expect(task.type).toBe(constants.AR_WORKER_UPDATE_DIRFILES);
 
       testSystem.storeManager.clearTasks();
-      return testSystem.dispatcher.dispatchTask(task); // AR_WORKER_UPDATE_FILES
+      return testSystem.dispatcher.dispatchTask(task); // AR_WORKER_UPDATE_DIRFILES
 
     }).then(() => {
 
@@ -640,8 +640,8 @@ describe(_logKey, () => {
 
   // ........................................................
 
-  it('addAutoSelectFiles', () => {
-    const func = '.addAutoSelectFiles';
+  it('chooseAndSendFiles', () => {
+    const func = '.chooseAndSendFiles';
     const lineOffset = '\n  ';
 
     const testSystem = createTestSystemWithMediaDir();
@@ -699,7 +699,7 @@ describe(_logKey, () => {
 
         // selections
         p = p.then(() => {
-          return testSystem.mediaCrawler.addAutoSelectFiles();
+          return testSystem.mediaCrawler.chooseAndSendFiles();
         });
 
         // rateDirByFile
@@ -730,7 +730,7 @@ describe(_logKey, () => {
 
     // }).then(() => {
     //   deliverLoopCount++;
-    //   return testSystem.mediaCrawler.addAutoSelectFiles();
+    //   return testSystem.mediaCrawler.chooseAndSendFiles();
 
     }).then(() => {
 

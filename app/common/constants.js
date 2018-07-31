@@ -33,7 +33,7 @@ export const DEFCONF_TRANSITION_TIME_MANUAL = 600;
 export const DEFCONF_TIMER = 7000;
 export const DEFCONF_POWER_SAVE_BLOCK_TIME = 30;
 export const DEFCONF_PATH_SHORTEN_ELEMENTS = 4;
-export const DEFCONF_DETAILS_TEXT_SHORTEN = 40;
+export const DEFCONF_DETAILS_TEXT_SHORTEN = 50;
 export const DEFCONF_RANDOM = true;
 
 
@@ -151,58 +151,26 @@ export const AR_CRAWLER_SOURCE_FOLDERS = 'AR_CRAWLER_SOURCE_FOLDERS';
 
 export const AR_WORKER_PREFIX = 'AR_WORKER';
 
+// task handling
 export const AR_WORKER_REMOVE_ALL_TASKS = 'AR_WORKER_REMOVE_ALL_TASKS';
 export const AR_WORKER_REMOVE_TASK = 'AR_WORKER_REMOVE_TASK';
 export const AR_WORKER_REMOVE_TASKTYPES = 'AR_WORKER_REMOVE_TASKTYPES';
 
+// "open"
 export const AR_WORKER_AUTO_SELECT = 'AR_WORKER_AUTO_SELECT';
+export const AR_WORKER_DELIVER_META = 'AR_WORKER_DELIVER_META';
 export const AR_WORKER_OPEN_DROPPED = 'AR_WORKER_OPEN_DROPPED';
 export const AR_WORKER_OPEN_FOLDER = 'AR_WORKER_OPEN_FOLDER';
 export const AR_WORKER_OPEN_PLAYLIST = 'AR_WORKER_OPEN_PLAYLIST';
 
-
-  // switched by dispatcher
-  // loads directories/playlist by mediaLoader || or by crawler
-
-export const AR_WORKER_DELIVER_META = 'AR_WORKER_DELIVER_META';
-
-export const AR_WORKER_START = 'AR_WORKER_START';
-  // load and check config, eventually restart => AR_WORKER_RELOAD_DIRS(true)
-  // restore last update-dir-tasks
-
-  // restart: remove all AR_WORKER_UPDATE_FILES + AR_WORKER_UPDATE_DIR
-
-  // load dirs from db into
-  //   crawer.data.removeDirList: read by AR_WORKER_REMOVE_DIRS
-  //   crawer.data.scanDirMap: read by AR_WORKER_SCAN_FSDIR
-  // push AR_WORKER_SCAN_FSDIR with source folders
-
-export const AR_WORKER_REMOVE_DIRS = 'AR_WORKER_REMOVE_DIRS';
-  // remove non-existing dirs from crawer.data.removeDirList
-  // loop max 10x dirs from crawer.data.removeDirList
-  //   check for existence => remove from DB
-  // removes the items from  crawer.data.removeDirList
-  // if crawer.data.removeDirList still contains data => AR_WORKER_REMOVE_DIRS
-
-export const AR_WORKER_SCAN_FSDIR = 'AR_WORKER_SCAN_FSDIR';
-  // scan 1 dir for subdirs (existing dir or source folder)
-  // exists not in map, new => AR_WORKER_UPDATE_DIR
-  // for children => AR_WORKER_SCAN_FSDIR
-
-export const AR_WORKER_RELOAD_DIRS = 'AR_WORKER_RELOAD_DIRS';
-  // para: all == true means all dirs; false means: only update old ones
-  // pushes AR_WORKER_UPDATE_DIR per folder
-
-
+// crawler
+export const AR_WORKER_PREPARE_DIRS_FOR_UPDATE = 'AR_WORKER_PREPARE_DIRS_FOR_UPDATE';
 export const AR_WORKER_RATE_DIR_BY_FILE = 'AR_WORKER_RATE_DIR_BY_FILE';
-  // 	re-rate file => re-rate dir
-
-export const AR_WORKER_UPDATE_FILES = 'AR_WORKER_UPDATE_FILES';
-  // load dirItem and update list of files => re-rate dir
-
+export const AR_WORKER_REMOVE_DIRS = 'AR_WORKER_REMOVE_DIRS';
+export const AR_WORKER_SEARCH_FOR_NEW_DIRS = 'AR_WORKER_SEARCH_FOR_NEW_DIRS';
+export const AR_WORKER_START = 'AR_WORKER_START';
 export const AR_WORKER_UPDATE_DIR = 'AR_WORKER_UPDATE_DIR';
-  // update single folder (only files, no subdirs; remove non existent, add new ones)
-  // adding: check if task already exists
+export const AR_WORKER_UPDATE_DIRFILES = 'AR_WORKER_UPDATE_DIRFILES';
 
 
 // --------------------------------------------------------------------------
