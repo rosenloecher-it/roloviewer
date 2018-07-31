@@ -11,7 +11,7 @@ export class CrawlerBase {
 
 
   constructor() {
-    const func = ".constructor";
+    const func = ".constructor"; // eslint-disable-line no-unused-vars
 
     this.data = {
       processingStopped: false,
@@ -38,7 +38,8 @@ export class CrawlerBase {
   // ........................................................
 
   coupleObjects(input) {
-    const func = ".init";
+    const func = ".init"; // eslint-disable-line no-unused-vars
+
     //log.debug(`${_logKey}${func}`);
 
     this.objects.dbWrapper = input.dbWrapper;

@@ -87,8 +87,6 @@ export class Factory {
 
     Factory.checkObjects(objects);
 
-    /* eslint-disable arrow-body-style */
-
     // order crucial!
     const p = objects.mediaComposer.init().then(() => {
       return objects.dbWrapper.init();
@@ -104,8 +102,6 @@ export class Factory {
       log.error(`${_logKey}${func} -`, err);
       throw err;
     });
-
-    /* eslint-enable arrow-body-style */
 
     return p;
   }

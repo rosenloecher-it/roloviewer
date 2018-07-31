@@ -160,7 +160,7 @@ describe(_logKey, () => {
 
       const tasks = testSystem.storeManager.tasks;
       count = tasks.length;
-      expect(count).toBe(1)
+      expect(count).toBe(1);
 
       const task = tasks[0];
       expect(task.type).toBe(constants.AR_WORKER_UPDATE_DIRFILES);
@@ -275,7 +275,6 @@ describe(_logKey, () => {
     const testSystem = createTestSystemWithMediaDir(); //empty
 
     const crawlerState = testSystem.crawlerState;
-    const workerState = testSystem.workerState;
 
     crawlerState.tagBlacklist.push('tag1');
 
@@ -336,7 +335,6 @@ describe(_logKey, () => {
 
     const countAll = 6;
     const countOld = 3;
-    const countNew = countAll - countOld;
     const dateOld = Date.now() - 2 * crawlerState.updateDirsAfterMinutes * 60 * 60 ;
     const dateNew = Date.now();
 
@@ -568,6 +566,7 @@ describe(_logKey, () => {
       return testSystem.shutdown();
     });
 
+    return p;
   });
 
   // ........................................................
@@ -624,6 +623,7 @@ describe(_logKey, () => {
       return testSystem.mediaCrawler.rateDirByFile(filePath1);
 
     }).then(() => {
+
       return testSystem.dbWrapper.loadDir(_testDirMedia);
 
     }).then((dirItem) => {
@@ -656,7 +656,7 @@ describe(_logKey, () => {
     const dirDepth = 2;
     const filesPerDir = 9;
     const countImageFiles = dirWidth**dirDepth * filesPerDir;
-    let deliverLoopCount = Math.floor(countImageFiles / crawlerState.batchCount) * 2;
+    const deliverLoopCount = Math.floor(countImageFiles / crawlerState.batchCount) * 2;
     const countImageDirsExpected = 9;
 
     testSystem.createFileSystemStructure(_testDirMedia, dirWidth, dirDepth, filesPerDir);
@@ -693,17 +693,17 @@ describe(_logKey, () => {
       testSystem.storeManager.clearTasks();
       testSystem.storeManager.clearGlobalActions();
 
-      let p = Promise.resolve();
+      let p2 = Promise.resolve();
 
       for (let i = 0; i < deliverLoopCount; i++) {
 
         // selections
-        p = p.then(() => {
+        p2 = p2.then(() => {
           return testSystem.mediaCrawler.chooseAndSendFiles();
         });
 
         // rateDirByFile
-        p = p.then(() => {
+        p2 = p2.then(() => {
           const globalActions = testSystem.storeManager.data.globalDispatchedActions;
 
           expect(globalActions.length).toBeGreaterThan(0);
@@ -717,8 +717,8 @@ describe(_logKey, () => {
           for (let k = 0; k < slideshowItem.length; k++) {
             const {file} = slideshowItem[k];
 
-            const p2 = testSystem.mediaCrawler.rateDirByFile(file)
-            promisesInner.push(p2);
+            const p3 = testSystem.mediaCrawler.rateDirByFile(file);
+            promisesInner.push(p3);
           }
 
           return Promise.all(promisesInner);
@@ -726,7 +726,7 @@ describe(_logKey, () => {
 
       }
 
-      return p;
+      return p2;
 
     // }).then(() => {
     //   deliverLoopCount++;
@@ -802,8 +802,8 @@ describe(_logKey, () => {
       let dirHitsSum = 0, dirHitsMin = Number.MAX_VALUE, dirHitsMax = -Number.MAX_VALUE;
       let dirCountLess1 = 0, dirCountMore1 = 0;
 
-      for (let entry of mapDirs.entries()) {
-        const dir = entry[0];
+      for (const entry of mapDirs.entries()) {
+        //const dir = entry[0];
         const data = entry[1];
         const {count} = data;
 

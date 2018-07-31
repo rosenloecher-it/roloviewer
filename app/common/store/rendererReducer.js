@@ -147,7 +147,7 @@ export class RendererReducer {
   // .....................................................
 
   addFiles(state, action) {
-    const func = ".addFiles";
+    const func = ".addFiles"; // eslint-disable-line no-unused-vars
 
     this.setNewDeliveryKey(action.payload.items);
 

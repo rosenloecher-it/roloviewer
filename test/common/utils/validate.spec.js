@@ -1,6 +1,4 @@
 import * as vali from "../../../app/common/utils/validate";
-import {valiBoolean} from "../../../app/common/utils/validate";
-import {mergeConfigItem} from "../../../app/common/utils/validate";
 
 describe('validate', () => {
 

@@ -1,7 +1,7 @@
 import log from 'electron-log';
-import * as constants from '../constants';
 import deepEquals from 'deep-equal';
 import deepmerge from 'deepmerge';
+import * as constants from '../constants';
 
 // ----------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ export class CrawlerReducer {
   // .....................................................
 
   reduce(state = CrawlerReducer.defaultState(), action) {
-    const func = ".reduce";
+    const func = ".reduce"; // eslint-disable-line no-unused-vars
     let actionType = '???';
 
     try {
@@ -83,7 +83,7 @@ export class CrawlerReducer {
   // .....................................................
 
   initReducer(state, action) {
-    const func = ".init";
+    const func = ".init"; // eslint-disable-line no-unused-vars
 
     const {
       batchCount, databasePath,

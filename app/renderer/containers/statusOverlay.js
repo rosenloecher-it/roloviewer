@@ -51,9 +51,11 @@ class StatusOverlay extends React.Component {
 
     return (
       <div className={cssPositionClass}>
-        <table className={cssTableClass}><tbody key="tbody">
-          {tableLines}
-        </tbody></table>
+        <table className={cssTableClass}>
+          <tbody key="tbody">
+            {tableLines}
+          </tbody>
+        </table>
       </div>
     );
   }

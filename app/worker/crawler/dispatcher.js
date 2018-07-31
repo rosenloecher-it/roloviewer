@@ -1,10 +1,10 @@
+import fs from "fs";
 import log from 'electron-log';
 import * as constants from "../../common/constants";
-import * as workerActions from "../../common/store/workerActions";
-import {WorkerReducer} from "../../common/store/workerReducer";
-import {CrawlerBase} from "./crawlerBase";
 import * as statusActions from "../../common/store/statusActions";
-import fs from "fs";
+import * as workerActions from "../../common/store/workerActions";
+import {CrawlerBase} from "./crawlerBase";
+import {WorkerReducer} from "../../common/store/workerReducer";
 
 // ----------------------------------------------------------------------------------
 
@@ -396,7 +396,7 @@ export class Dispatcher extends CrawlerBase {
   // ........................................................
 
   onTimerStatusCrawler() {
-    const func = '.onTimerStatusCrawler';
+    const func = '.onTimerStatusCrawler'; // eslint-disable-line no-unused-vars
 
     const { data } = this;
 

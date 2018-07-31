@@ -72,7 +72,6 @@ describe('dbWrapper', () => {
     }).then((count) => {
       expect(count).toBe(0);
 
-    }).then(() => {
       return dbWrapper.saveState(stateIn);
 
     }).then(() => {
@@ -126,8 +125,6 @@ describe('dbWrapper', () => {
 
     }).then((count) => {
       expect(count).toBe(0);
-
-    }).then(() => {
 
       const promises = [];
 

@@ -1,6 +1,4 @@
 import * as constants from "../constants";
-import {valiBoolean, valiInt} from "../utils/validate";
-import * as configUtils from "../utils/fileUtils";
 
 export const createActionInitReducer = ({
   x, y, height, width,

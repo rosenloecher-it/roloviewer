@@ -1,13 +1,9 @@
+import path from "path";
 import * as constants from '../../../app/common/constants';
 import * as stringUtils from "../../../app/common/utils/stringUtils";
-import {MediaComposer} from "../../../app/worker/crawler/mediaComposer";
-import {Dispatcher} from "../../../app/worker/crawler/dispatcher";
-import {TestManager} from "../../common/store/testManager";
 import {DummyTestSystem} from "./dummyTestSystem";
 import * as workerActions from "../../../app/common/store/workerActions";
 import * as testUtils from "../../common/utils/testUtils";
-import path from "path";
-
 // ----------------------------------------------------------------------------------
 
 const _logKey = 'test-dispatcher';
@@ -103,7 +99,7 @@ describe(_logKey, () => {
 
       return testSystem.dbWrapper.loadDir(_testDirMedia);
 
-    }).then((dirItem) => {
+    }).then((/* dirItem */) => {
 
       testSystem.storeManager.clearGlobalActions();
 
@@ -124,7 +120,7 @@ describe(_logKey, () => {
 
       return Promise.resolve();
 
-    }).then((dirItem) => {
+    }).then(() => {
 
       return testSystem.shutdown();
     });

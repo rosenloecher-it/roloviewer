@@ -9,13 +9,6 @@ import * as rendererActions from "../../../app/common/store/rendererActions";
 
 export class DummyMetaReader extends CrawlerBase {
 
-  constructor() {
-    super();
-
-  }
-
-  // ........................................................
-
   loadMeta(file) {
     const p = new Promise((resolve, reject) => {
 

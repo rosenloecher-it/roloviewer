@@ -30,7 +30,7 @@ export class SystemReducer {
   // .....................................................
 
   reduce(state = SystemReducer.defaultState(), action) {
-    const func = ".reduce";
+    const func = ".reduce"; // eslint-disable-line no-unused-vars
     let actionType = '???';
 
     try {
@@ -57,7 +57,7 @@ export class SystemReducer {
   // .....................................................
 
   initReducer(state, action) {
-    const func = ".init";
+    const func = ".init"; // eslint-disable-line no-unused-vars
     //log.debug(`${this._logKey}${func} - in`);
 
     const {

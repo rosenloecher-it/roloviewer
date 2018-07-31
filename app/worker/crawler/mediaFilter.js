@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import {isWinOs} from "../../common/utils/systemUtils";

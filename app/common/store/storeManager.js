@@ -11,7 +11,6 @@ const _logKey = "storeManager";
 export class StoreManager {
 
   constructor(myself, targets) {
-    const func = ".constructor";
 
     this._logKey = `${_logKey}(${myself})`;
     this._myself = myself;
@@ -146,7 +145,7 @@ export class StoreManager {
 
   // ........................................................
 
-  hookActionWasDispatched(action) {
+  hookActionWasDispatched(action) { // eslint-disable-line no-unused-vars
     // has to be overridden by sub classes
   }
 
@@ -229,8 +228,8 @@ export class StoreManager {
   // ........................................................
   // progress
 
-  get workerState() {
-    return this.state.worker;
+  get progressState() {
+    return this.state.progress;
   }
 
   // ........................................................

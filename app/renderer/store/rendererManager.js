@@ -13,7 +13,7 @@ const _logKey = "rendererManager"; // eslint-disable-line no-unused-vars
 export class RendererManager extends StoreManager {
 
   constructor() {
-    const func = ".constructor";
+    const func = ".constructor"; // eslint-disable-line no-unused-vars
     super(constants.IPC_RENDERER, [constants.IPC_MAIN, constants.IPC_WORKER ]);
 
     this._store = _store;

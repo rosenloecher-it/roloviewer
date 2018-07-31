@@ -77,7 +77,7 @@ export class DummyTestSystem {
           this.createTestDir(subDir);
           this.createFileSystemStructure(subDir, width, depth - 1, fileCountPerFolder);
 
-        } while (false); // eslint-disable-line no-constant-condition
+        } while (false);
       }
     }
   }
@@ -95,7 +95,7 @@ export class DummyTestSystem {
         if (fs.existsSync(subDir))
           continue;
         this.createTestDir(subDir);
-      } while (false); // eslint-disable-line no-constant-condition
+      } while (false);
     }
   }
 
@@ -133,7 +133,7 @@ export class DummyTestSystem {
         const rating = Math.floor(5 * Math.random());
         this.saveTestFile(dir, fileName, rating);
 
-      } while (false); // eslint-disable-line no-constant-condition
+      } while (false);
     }
   }
 

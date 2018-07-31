@@ -1,9 +1,9 @@
 import fs from 'fs-extra';
-import * as stringUtils from "../../../app/common/utils/stringUtils";
-import {DummyTestSystem} from "./dummyTestSystem";
-import * as testUtils from "../../common/utils/testUtils";
 import path from "path";
 import * as constants from "../../../app/common/constants";
+import * as stringUtils from "../../../app/common/utils/stringUtils";
+import * as testUtils from "../../common/utils/testUtils";
+import {DummyTestSystem} from "./dummyTestSystem";
 import {MediaLoader} from "../../../app/worker/crawler/mediaLoader";
 
 
@@ -130,6 +130,8 @@ describe(_logKey, () => {
 
       return testSystem.shutdown();
     });
+
+    return p;
 
   });
 

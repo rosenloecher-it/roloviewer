@@ -1,5 +1,5 @@
+import log from 'electron-log';
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
-import thunk from 'redux-thunk';
 import {createHashHistory} from "history";
 import {routerMiddleware} from "react-router-redux";
 import {createLogger} from "redux-logger";
@@ -77,7 +77,6 @@ function configureStore(initialState?: counterStateType) {
     return localStore;
   } catch (err) {
     log.error(`${_logKey}.configureStore - exception -`, err);
-
     return null;
   }
 

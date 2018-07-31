@@ -3,7 +3,6 @@ import deepmerge from 'deepmerge';
 import path from 'path';
 import fs from 'fs-extra';
 import log from 'electron-log';
-import set from 'collections/set';
 import * as constants from "../../common/constants";
 import * as workerActions from "../../common/store/workerActions";
 import {CrawlerBase} from "./crawlerBase";
@@ -196,7 +195,7 @@ export class MediaCrawler extends CrawlerBase {
   }
 
   static equalsStateNoRescan(status1In, status2In) {
-    const func = '.equalsStateNoRescan';
+    const func = '.equalsStateNoRescan'; // eslint-disable-line no-unused-vars
 
     const status1 = MediaCrawler.prepareStateNoRescan(status1In);
     const status2 = MediaCrawler.prepareStateNoRescan(status2In);
@@ -248,7 +247,7 @@ export class MediaCrawler extends CrawlerBase {
   // ........................................................
 
   loadState() {
-    const func = '.loadState';
+    const func = '.loadState'; // eslint-disable-line no-unused-vars
 
     const instance = this;
     const {dbWrapper} = instance.objects;
@@ -299,7 +298,7 @@ export class MediaCrawler extends CrawlerBase {
 
     data.scanActiveSendFirstAvailableFiles = true;
 
-    const p = dbWrapper.listDirsAll().then((dirs) => {
+    const p = dbWrapper.listDirsAll().then(( /* dirs */) => {
       let action;
       const tasksTypesToRemove = [
         constants.AR_WORKER_REMOVE_DIRS,
@@ -605,7 +604,7 @@ export class MediaCrawler extends CrawlerBase {
       if (fileNames.length === 0 || instance.data.processingStopped)
         return Promise.resolve([]);
 
-      let p = Promise.resolve();
+      let p2 = Promise.resolve();
       for (let i = 0; i < fileNames.length; i++) {
 
         if (this.data.processingStopped)
@@ -621,16 +620,18 @@ export class MediaCrawler extends CrawlerBase {
         const filePath = path.join(dirItem.dir, fileItem.fileName);
         fileItem.lastModified = MediaComposer.lastModifiedFromFile(filePath);
 
-        const p2 = metaReader.loadMeta(filePath).then((meta) => {
+        /* eslint-disable no-loop-func */
+        const p3 = metaReader.loadMeta(filePath).then((meta) => {
           if (meta)
             mediaComposer.updateFileMeta(dirItem, meta);
           return Promise.resolve();
         });
-        p = p.then(() => { return p2; });
+        /* eslint-enable no-loop-func */
+        p2 = p2.then(() => { return p3; });
 
       }
 
-      return p;
+      return p2;
 
     }).then(() => {
 

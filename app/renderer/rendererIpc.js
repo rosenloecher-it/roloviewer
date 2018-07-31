@@ -29,7 +29,7 @@ export function shutdownIpc() {
 
 // ----------------------------------------------------------------------------------
 
-function listenRendererChannel(event, ipcMsg, output) {
+function listenRendererChannel(event, ipcMsg, /* output */) {
   const func = ".listenRendererChannel";
 
   try {
@@ -92,7 +92,7 @@ export function send(ipcTarget, ipcType, payload) {
     type: ipcType,
     source: _ipcMyself,
     destination: ipcTarget,
-    payload: payload
+    payload
   };
 
   sendRaw(ipcMsg);

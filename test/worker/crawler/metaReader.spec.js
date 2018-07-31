@@ -1,6 +1,4 @@
 import {MetaReader} from '../../../app/worker/crawler/metaReader';
-import {isWinOs} from "../../../app/common/utils/systemUtils";
-import fs from "fs";
 
 // ----------------------------------------------------------------------------------
 

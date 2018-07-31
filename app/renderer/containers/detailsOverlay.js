@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import path from 'path'
 import {connect} from "react-redux";
 import { Icon } from '@blueprintjs/core';
@@ -27,7 +28,7 @@ class DetailsOverlay extends React.Component {
     if (!input)
       return;
 
-    let key = null;
+    const key = description;
 
     let objectsFill = null;
     if (typeof(input) === typeof('string'))
@@ -35,7 +36,7 @@ class DetailsOverlay extends React.Component {
     else
       objectsFill = input;
 
-    tableLines.push( <tr key={description}><td>{description}</td><td>{objectsFill}</td></tr> );
+    tableLines.push( <tr key={key}><td>{description}</td><td>{objectsFill}</td></tr> );
   }
 
   // ......................................................
@@ -122,9 +123,11 @@ class DetailsOverlay extends React.Component {
 
       return (
         <div className={cssPositionClass}>
-          <table className={cssTableClass}><tbody key="tbody">
-            {tableLines}
-          </tbody></table>
+          <table className={cssTableClass}>
+            <tbody key="tbody">
+              {tableLines}
+            </tbody>
+          </table>
         </div>
       );
     } catch(err) {
@@ -137,6 +140,14 @@ class DetailsOverlay extends React.Component {
 }
 
 // ----------------------------------------------------------------------------------
+
+DetailsOverlay.propTypes = {
+  detailsShortenText: PropTypes.number
+};
+
+DetailsOverlay.defaultProps = {
+  detailsShortenText: constants.DEFCONF_DETAILS_TEXT_SHORTEN,
+};
 
 const mapStateToProps = state => ({
   combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,

@@ -1,7 +1,6 @@
 import React from 'react';
 import {connect} from "react-redux";
-import log from 'electron-log';
-import { Button, Dialog, Intent, Icon} from '@blueprintjs/core';
+import { Button, Dialog, Icon} from '@blueprintjs/core';
 import * as actionsMsg from "../../common/store/messageActions";
 import * as constants from "../../common/constants";
 
@@ -55,15 +54,15 @@ class MessageDialog extends React.Component {
     switch (message.msgType) {
       case constants.MSG_TYPE_ERROR:
         title = "Error";
-        icon = <Icon icon="error" color="red"/>;
+        icon = <Icon icon="error" color="red" />;
         break;
       case constants.MSG_TYPE_WARNING:
         title = "Warning";
-        icon = <Icon icon="error" color="yellow"/>;
+        icon = <Icon icon="error" color="yellow" />;
         break;
       default: // MSG_TYPE_INFO
         title = "Info";
-        icon = <Icon icon="info-sign"/>;
+        icon = <Icon icon="info-sign" />;
         break;
     }
 
@@ -84,15 +83,17 @@ class MessageDialog extends React.Component {
           <div className="pt-dialog-footer">
             <div className="pt-dialog-footer-actions">
 
-              <table className={cssTableClass}><tbody>
-                <tr>
-                  <td>{showMore && `(${props.messages.length - 1} more messages)`}</td>
-                  <td>
-                    {showMore && <Button onClick={this.onCloseAll} text="Close all" />}
-                    <Button onClick={this.onNext} text={showMore ? "Next" : "Close"} />
-                  </td>
-                </tr>
-              </tbody></table>
+              <table className={cssTableClass}>
+                <tbody>
+                  <tr>
+                    <td>{showMore && `(${props.messages.length - 1} more messages)`}</td>
+                    <td>
+                      {showMore && <Button onClick={this.onCloseAll} text="Close all" />}
+                      <Button onClick={this.onNext} text={showMore ? "Next" : "Close"} />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </Dialog>

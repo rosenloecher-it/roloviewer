@@ -137,6 +137,7 @@ class ImagePane extends React.Component {
 
     this.data.lastLastIndex = props.itemIndex;
 
+    /* eslint-disable react/no-danger */
     return (
       <div className={cssImagePane}>
         <style dangerouslySetInnerHTML={{__html: `
@@ -160,7 +161,8 @@ class ImagePane extends React.Component {
           .trgen-height {
             transition: height ${transistionTime}ms ${cssEase};
           }
-        `}} />
+        `}}
+        />
 
         <ReactCSSTransitionReplace
           className={cssImagePane}
@@ -173,12 +175,13 @@ class ImagePane extends React.Component {
             src={imagePath}
             key={imageKey}
             onClick={this.onClick}
-            style={ props.cursorHide ? { cursor: 'none' } : null }
+            style={props.cursorHide ? { cursor: 'none' } : null}
           />
 
         </ReactCSSTransitionReplace>
       </div>
     );
+    /* eslint-enable react/no-danger */
   }
 
   // .......................................................

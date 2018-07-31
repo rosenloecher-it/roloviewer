@@ -1,7 +1,6 @@
 import log from 'electron-log';
-import {electron, remote, ipcRenderer} from 'electron';
+import { remote, ipcRenderer} from 'electron';
 import * as constants from "../common/constants";
-import * as actionsMsg from "../common/store/messageActions";
 import storeManager from "./store/workerManager";
 import * as ops from "./workerOps";
 
@@ -30,7 +29,7 @@ export function shutdownIpc() {
 
 // ----------------------------------------------------------------------------------
 
-function listenWorkerChannel(event, ipcMsg, output) {
+function listenWorkerChannel(event, ipcMsg, /* output */) {
   const func = ".listenWorkerChannel";
 
   try {

@@ -44,7 +44,7 @@ function checkAndCorrectMainWindowBounds(settings, screenSize) {
 
     resetBounds = false;
 
-  } while (false); // eslint-disable-line no-constant-condition
+  } while (false);
 
   if (resetBounds) {
     /* eslint-disable no-param-reassign */

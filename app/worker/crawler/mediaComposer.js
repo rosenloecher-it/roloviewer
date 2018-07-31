@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import path from 'path';
 import fs from 'fs';
 import * as constants from "../../common/constants";
@@ -47,7 +46,7 @@ export class MediaComposer extends CrawlerBase {
       lastShown: input.lastShown,
       lastUpdate: input.lastUpdate,
       weight: input.weight || constants.CRAWLER_MAX_WEIGHT
-    }
+    };
 
     return doc;
   }

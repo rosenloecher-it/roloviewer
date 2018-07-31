@@ -11,7 +11,7 @@ const _rolloverFlickerTime = 300;
 
 // ----------------------------------------------------------------------------------
 
-export function init(ipcMsg) {
+export function init() {
   const func = ".init";
 
   try {
@@ -27,7 +27,7 @@ export function init(ipcMsg) {
 
 // ----------------------------------------------------------------------------------
 
-export function shutdown(ipcMsg) {
+export function shutdown() {
 
   try {
     ipc.shutdownIpc();
@@ -132,7 +132,6 @@ export function goNext() {
     if (rendererState.containerType !== constants.CONTAINER_AUTOSELECT) {
       if (rendererState.itemIndex === rendererState.items.length - 1) {
 
-        let action = null;
         if (isAutoPlay()) {
           storeManager.dispatchGlobal(rendererActions.createActionGoPos1());
         } else {

@@ -379,16 +379,19 @@ export function copyMeta2Clipboard() {
     if (meta.file) delete meta.file;
     if (meta.filename) delete meta.filename;
 
+    const keys = Object.keys(meta);
 
     let maxLengthKey = 8;
-    for (const key in meta) {
-      const l = key.length;
+
+    for (let i = 0; i < keys.length; i++) {
+      const l = keys[i].length;
       if (maxLengthKey < l)
         maxLengthKey = l;
     }
 
     const lines = [];
-    for (let key in meta) {
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
       const line = `${key.padEnd(maxLengthKey)} : ${meta[key]}\n`;
       lines.push(line);
     }
@@ -398,8 +401,8 @@ export function copyMeta2Clipboard() {
     const date = new Date(currentItem.meta.time).toLocaleString();
 
     let text =    `${'file'.padEnd(maxLengthKey)} : ${currentItem.file}\n`;
-    text = text + `${'date'.padEnd(maxLengthKey)} : ${date}\n`;
-    text = text + lines.join('');
+    text += `${'date'.padEnd(maxLengthKey)} : ${date}\n`;
+    text += lines.join('');
 
     clipboard.writeText(text);
 

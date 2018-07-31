@@ -13,8 +13,9 @@
     "node": true
   },
   "rules": {
-    "arrow-parens": ["off"],
     "arrow-body-style": "off",
+    "arrow-parens": "off",
+    "class-methods-use-this": "off",
     "comma-dangle": "off",
     "compat/compat": "error",
     "consistent-return": "off",
@@ -25,7 +26,9 @@
     "jsx-a11y/anchor-is-valid": "off",
     "no-bitwise": "off",
     "no-console": "off",
+    "no-constant-condition": "off",
     "no-continue": "off",
+    "no-else-return": "off",
     "no-lonely-if": "off",
     "no-multi-assign": "off",
     "no-param-reassign": "off",

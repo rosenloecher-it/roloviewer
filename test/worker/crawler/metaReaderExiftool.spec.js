@@ -116,7 +116,7 @@ describe(_logKey, () => {
       expect(isFile).toBe(true);
 
       return Promise.resolve();
-    })
+    });
 
     return p;
   });

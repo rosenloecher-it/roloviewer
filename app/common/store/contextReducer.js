@@ -37,7 +37,7 @@ export class ContextReducer {
   // .....................................................
 
   reduce(state = ContextReducer.defaultState(), action) {
-    const func = ".reduce";
+    const func = ".reduce"; // eslint-disable-line no-unused-vars
     let actionType = '???';
 
     try {
@@ -65,8 +65,7 @@ export class ContextReducer {
   // .....................................................
 
   initReducer(state, action) {
-    const func = ".init";
-    //log.debug(`${this._logKey}${func} - in`);
+    const func = ".init"; // eslint-disable-line no-unused-vars
 
     const {
       isDevelopment, isDevtool, isProduction, isTest, isScreensaver,

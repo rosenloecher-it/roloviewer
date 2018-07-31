@@ -99,8 +99,7 @@ export class SlideshowReducer {
   // .....................................................
 
   initReducer(state, action) {
-    //const func = ".init";
-    //log.debug(`${this._logKey}${func} - in`);
+    const func = ".init"; // eslint-disable-line no-unused-vars
 
     const {
       autoPlay,

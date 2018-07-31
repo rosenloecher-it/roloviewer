@@ -26,7 +26,7 @@ export class MessageReducer {
   // .....................................................
 
   reduce(state = MessageReducer.defaultState(), action) {
-    const func = ".reduce";
+    const func = ".reduce"; // eslint-disable-line no-unused-vars
     let actionType = '???';
 
     try {

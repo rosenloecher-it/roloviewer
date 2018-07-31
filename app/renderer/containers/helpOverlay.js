@@ -1,5 +1,4 @@
 import React from 'react';
-import {connect} from "react-redux";
 import { Button, Icon } from '@blueprintjs/core';
 import storeManager from "../store/rendererManager";
 import * as rendererActions from "../../common/store/rendererActions";
@@ -22,7 +21,7 @@ class HelpOverlay extends React.Component {
   render() {
     return (
 
-      <div className={"popover-dialog"}>
+      <div className="popover-dialog">
         <h3>Shortcut overview</h3>
         <table className="popover-table">
           <tbody>
@@ -54,8 +53,8 @@ class HelpOverlay extends React.Component {
 
           </tbody>
         </table>
-        <p/>
-        <Button className="popover-button" onClick={this.onClose}>Close</Button>
+        <p />
+        <Button role="button" tabIndex={0} className="popover-button" onClick={this.onClose}>Close</Button>
       </div>
     );
   }
@@ -64,8 +63,4 @@ class HelpOverlay extends React.Component {
 
 // ----------------------------------------------------------------------------------
 
-const mapStateToProps = state => ({
-});
-
-
-export default connect( mapStateToProps )(HelpOverlay);
+export default HelpOverlay;

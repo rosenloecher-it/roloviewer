@@ -1,5 +1,4 @@
 import {SlideshowReducer} from '../../../app/common/store/slideshowReducer';
-import * as slideshowActions from '../../../app/common/store/slideshowActions';
 
 // ----------------------------------------------------------------------------------
 

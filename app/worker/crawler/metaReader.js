@@ -266,7 +266,7 @@ export class MetaReader extends CrawlerBase {
       temp = temp.replace(constants.LONG_REL, longRel);
       url = temp;
 
-    } while (false); // eslint-disable-line no-constant-condition
+    } while (false);
 
     return url;
   }
