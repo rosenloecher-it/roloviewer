@@ -34,10 +34,11 @@ class AboutOverlay extends React.Component {
     const func = '.render';
 
     try {
+      /* eslint-disable react/self-closing-comp */
+      // trying to write a whitespace between multiline jsx! <span> </span>
       return (
-
         <div className="popover-dialog">
-          <h3>about
+          <h3>about <span> </span>
             <a
               role="link"
               tabIndex={0}
@@ -64,7 +65,7 @@ class AboutOverlay extends React.Component {
                     tabIndex={0}
                     className="popover-link"
                     onKeyDown={this.onUrlKeyDown}
-                    onClick={AboutOverlay.onClick}
+                    onClick={this.onClick}
                   >
                     {constants.APP_URL}
                   </a>
@@ -77,9 +78,10 @@ class AboutOverlay extends React.Component {
           </table>
 
           <p />
-          <Button role="button" tabIndex={0} className="popover-button" onClick={AboutOverlay.onClose}>Close</Button>
+          <Button role="button" tabIndex={0} className="popover-button" onClick={this.onClose}>Close</Button>
         </div>
       );
+      /* eslint-enable react/self-closing-comp */
 
     } catch (err) {
       log.error(`${_logKey}${func} - `, err);

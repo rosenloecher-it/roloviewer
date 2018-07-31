@@ -1,3 +1,4 @@
+import { remote } from 'electron';
 import log from 'electron-log';
 import * as constants from "../common/constants";
 import * as ipc from "./rendererIpc";
@@ -63,9 +64,8 @@ export function quitScreensaver() {
 export function openUrl(url) {
 
   try {
-    log.debug(`${_logKey}.openUrl: ${url}`);
-
-    require('electron').remote.shell.openExternal(url);
+    //log.debug(`${_logKey}.openUrl: ${url}`);
+    remote.shell.openExternal(url);
 
   } catch (err) {
     log.error(`${_logKey}.openUrl - exception -`, err);

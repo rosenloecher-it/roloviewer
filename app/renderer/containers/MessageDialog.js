@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {connect} from "react-redux";
 import { Button, Dialog, Icon} from '@blueprintjs/core';
 import * as actionsMsg from "../../common/store/messageActions";
@@ -104,6 +105,18 @@ class MessageDialog extends React.Component {
 }
 
 // ----------------------------------------------------------------------------------
+
+MessageDialog.propTypes = {
+  dispatch: PropTypes.func.isRequired,
+  showMessages: PropTypes.arrayOf(PropTypes.shape({
+    msgType: PropTypes.number.isRequired,
+    msgText: PropTypes.string.isRequired,
+  }))
+};
+
+MessageDialog.defaultProps = {
+  showMessages: [],
+};
 
 const mapStateToProps = state => ({
   messages: state.messages.messages,
