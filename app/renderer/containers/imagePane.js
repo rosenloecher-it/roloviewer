@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactCSSTransitionReplace from 'react-css-transition-replace';
 import {connect} from "react-redux";
-import log from 'electron-log';
+import log from 'electron-log'; // eslint-disable-line no-unused-vars
 import ExifOrientationImg from 'react-exif-orientation-img'
 import * as cssConstants from '../style/cssConstants';
 import * as ops from "../rendererOps";
@@ -10,7 +10,7 @@ import * as ops from "../rendererOps";
 
 // https://github.com/marnusw/react-css-transition-replace
 
-const _logKey = "imapePane";
+const _logKey = "imapePane"; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 
@@ -106,7 +106,7 @@ class ImagePane extends React.Component {
   // .......................................................
 
   render() {
-    const func = ".render";
+    const func = ".render"; // eslint-disable-line no-unused-vars
 
     const {props} = this;
     const cssImagePane = cssConstants.CSS_IMAGEPANE;

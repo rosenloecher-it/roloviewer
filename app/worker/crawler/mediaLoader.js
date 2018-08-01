@@ -57,8 +57,7 @@ export class MediaLoader extends CrawlerBase {
 
   // ........................................................
 
-  openPlayList(input) {
-    // eslint-disable-line no-unused-vars
+  openPlayList(input) { // eslint-disable-line no-unused-vars
     const func = '.openPlayList';
 
     // this.deactivateAutoSelect();

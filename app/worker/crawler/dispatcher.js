@@ -292,7 +292,7 @@ export class Dispatcher extends CrawlerBase {
     if (!p)
       p = Promise.resolve();
 
-    p = p.then(() => {
+      p = p.then(() => {
 
       const activeAutoSelect = (lastContainerType === constants.CONTAINER_AUTOSELECT);
       return mediaCrawler.start(activeAutoSelect);
