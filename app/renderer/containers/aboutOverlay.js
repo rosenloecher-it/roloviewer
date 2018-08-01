@@ -1,4 +1,5 @@
 import React from 'react';
+import path from 'path';
 import PropTypes from 'prop-types';
 import {connect} from "react-redux";
 import log from 'electron-log';
@@ -34,6 +35,9 @@ class AboutOverlay extends React.Component {
     const func = '.render';
 
     try {
+
+      const databasePath = `${this.props.databasePath}${path.sep}*${constants.EXT_DATABASE}`;
+
       /* eslint-disable react/self-closing-comp */
       // trying to write a whitespace between multiline jsx! <span> </span>
       return (
@@ -74,6 +78,12 @@ class AboutOverlay extends React.Component {
               <tr><td>{constants.APP_TITLE} version</td><td>{constants.APP_VERSION}</td></tr>
               <tr><td>electron version</td><td>{this.props.versionElectron}</td></tr>
 
+              <tr><td>Config file</td><td>{this.props.configFile}</td></tr>
+              <tr><td>Database files</td><td>{databasePath}</td></tr>
+              <tr><td>Log file</td><td>{this.props.logfile}</td></tr>
+              <tr><td>Log level</td><td>{this.props.logLevelFile}</td></tr>
+
+
             </tbody>
           </table>
 
@@ -94,15 +104,34 @@ class AboutOverlay extends React.Component {
 
 // ----------------------------------------------------------------------------------
 
+/*
+      logLevelFile:
+      logLevelConsole: system.logLevelConsole,
+      logfile:
+
+ */
+
 AboutOverlay.propTypes = {
-  versionElectron: PropTypes.string
+  configFile: PropTypes.string,
+  databasePath: PropTypes.string,
+  logfile: PropTypes.string,
+  logLevelFile: PropTypes.string,
+  versionElectron: PropTypes.string,
 };
 
 AboutOverlay.defaultProps = {
+  configFile: '?',
+  databasePath: '?',
+  logfile: '?',
+  logLevelFile: '?',
   versionElectron: '?.?.?',
 };
 
 const mapStateToProps = state => ({
+  configFile: state.context.configFile,
+  databasePath: state.crawler.databasePath,
+  logfile: state.system.logfile,
+  logLevelFile: state.system.logLevelFile,
   versionElectron: state.context.versionElectron,
 });
 

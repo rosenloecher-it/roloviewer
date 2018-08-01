@@ -42,8 +42,8 @@ export class DbWrapper extends CrawlerBase {
       const isProduction = instance.objects.storeManager.isProduction;
       const extra = (isProduction ? '' : '_test');
 
-      const fileDbDir = path.join(databasePath, `${constants.APP_BASENAME}${extra}_dir.db`);
-      const fileDbState = path.join(databasePath, `${constants.APP_BASENAME}${extra}_status.db`);
+      const fileDbDir = path.join(databasePath, `${constants.APP_BASENAME}${extra}_dir${constants.EXT_DATABASE}`);
+      const fileDbState = path.join(databasePath, `${constants.APP_BASENAME}${extra}_status${constants.EXT_DATABASE}`);
 
       instance.dbDir = new Datastore({ filename: fileDbDir, autoload: true });
       instance.dbState = new Datastore({ filename: fileDbState, autoload: true });

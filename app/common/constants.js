@@ -3,7 +3,7 @@
 
 //export const DEBUG_ARGS =  [ 'unknownPathToBinary', '--screensaver', '--fullscreen' ] ;
 export const DEBUG_ARGS = ['unknownPathToBinary'];
-export const DEBUG_DEVTOOLS_PROD = true;
+export const DEBUG_DEVTOOLS_PROD = false;
 export const DEBUG_SHOW_WORKER_WINDOW = false;
 export const DEBUG_DONT_SAVE_CONFIG = false;
 
@@ -18,6 +18,7 @@ export const APP_CREATOR = 'Raul Rosenlöcher';
 
 export const CONFIG_NAME = 'RoloSlider';
 export const APP_BASENAME = 'roloslider';
+export const EXT_DATABASE = '.db';
 
 // --------------------------------------------------------------------------
 // format meta => mapUrl
