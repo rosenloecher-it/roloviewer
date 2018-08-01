@@ -120,7 +120,7 @@ class ImagePane extends React.Component {
 
     const transistionTime = this.getTransitionTime();
 
-    log.silly(`${_logKey}${func}(${props.itemIndex}, autoPlay=${props.combinedAutoPlay}, transistion=${transistionTime}):`, imagePath);
+    //log.silly(`${_logKey}${func}(${props.itemIndex}, autoPlay=${props.combinedAutoPlay}, transistion=${transistionTime}):`, imagePath);
 
     let cssOpacityLeave = 1;
     let ccsOpacityEnter = 1;

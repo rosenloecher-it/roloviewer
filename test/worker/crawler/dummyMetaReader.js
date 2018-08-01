@@ -40,7 +40,7 @@ export class DummyMetaReader extends CrawlerBase {
 
     const p = new Promise((resolve, reject) => {
 
-      const fileItem = DummyTestSystem.readDummyFile(file);
+      const fileItem = DummyTestSystem.readTestFile(file);
 
       if (fs.existsSync(file))
         reject(new Error('file does not exist!'));
