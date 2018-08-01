@@ -1,53 +1,68 @@
 import path from 'path';
 import fs from 'fs';
-import {isWinOs} from "../../common/utils/systemUtils";
+import { isWinOs } from '../../common/utils/systemUtils';
+import * as fileUtils from '../../common/utils/fileUtils';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "mediaFilter"; // eslint-disable-line no-unused-vars
+const _logKey = 'mediaFilter'; // eslint-disable-line no-unused-vars
 
 // ----------------------------------------------------------------------------------
 
 export class MediaFilter {
+  // ........................................................
+
+  static isFolderInside(folderIn, sourceFolders) {
+    // sourceFolders: normalized
+
+    function preparePath(isWindows, fin) {
+      if (!fin) return '';
+
+      let pathEnd = '';
+      if (fin.charAt(fin.length - 1) !== path.sep) pathEnd = path.sep;
+
+      let fout;
+      if (isWindows) fout = path.normalize(fin).toLowerCase() + pathEnd;
+      else fout = path.normalize(fin) + pathEnd;
+
+      return fout;
+    }
+
+    if (!folderIn || !sourceFolders) return false;
+
+    const isWindows = isWinOs();
+
+    const folder = preparePath(isWindows, folderIn);
+
+    for (let i = 0; i < sourceFolders.length; i++) {
+      const sourceFolder = preparePath(isWindows, sourceFolders[i]);
+      if (folder.indexOf(sourceFolder) === 0) return true;
+    }
+
+    return false;
+  }
 
   // ........................................................
 
-   static isFolderBlacklisted(sourceFolderIn, blacklistFolders, blacklistSnippets) {
-
+  static isFolderBlacklisted(folderIn, blacklistFolders, blacklistSnippets) {
     // blacklistFolders: normalized
     // blacklistSnippets: .trim.toLowercase
 
     // https://nodejs.org/api/path.html
 
-    if (!sourceFolderIn)
-      return true;
-
-    const sourceFolder = path.normalize(sourceFolderIn);
+    if (!folderIn) return true;
 
     // not testable
-    // if (!fs.lstatSync(sourceFolder).isDirectory())
+    // if (!fileUtils.isDirectory(sourceFolder))
     //   return true;
 
-    if (isWinOs()) {
-      for (let i = 0; i < blacklistFolders.length; i++) {
-        if (sourceFolder.indexOf(blacklistFolders[i].toLowerCase()) === 0)
-          return true;
-      }
-
-    } else {
-      for (let i = 0; i < blacklistFolders.length; i++) {
-        if (sourceFolder.indexOf(blacklistFolders[i]) === 0)
-          return true;
-      }
-
-    }
+    if (MediaFilter.isFolderInside(folderIn, blacklistFolders)) return true;
 
     if (blacklistSnippets.length > 0) {
-      const sourceFolderLowerCase = sourceFolder.toLowerCase();
+      const folderLowerCase = folderIn.toLowerCase();
       for (let i = 0; i < blacklistSnippets.length; i++) {
-        const found = sourceFolderLowerCase.indexOf(blacklistSnippets[i]);
-        if (found > -1)
-          return true;
+        const found = folderLowerCase.indexOf(blacklistSnippets[i]);
+        if (found > -1) return true;
       }
     }
 
@@ -57,20 +72,15 @@ export class MediaFilter {
   // ........................................................
 
   static canImportFolder(file) {
-    if (!file)
-      return false;
+    if (!file) return false;
 
-    return fs.lstatSync(file).isDirectory();
+    return fileUtils.isDirectory(file);
   }
 
   // ........................................................
 
   static canImportMediaFile(file) {
-    if (!file)
-      return false;
-
-    if (!fs.lstatSync(file).isFile())
-      return false;
+    if (!fileUtils.isFile(file)) return false;
 
     const supportedFormat = MediaFilter.isImageFormatSupported(file);
 
@@ -80,12 +90,14 @@ export class MediaFilter {
   // ........................................................
 
   static isImageFormatSupported(file) {
-    if (!file)
-      return false;
+    if (!file) return false;
 
-    const exts = [ '.jpg', '.jpeg' ];
+    const exts = ['.jpg', '.jpeg'];
 
-    const ext = path.extname(file).trim().toLowerCase();
+    const ext = path
+      .extname(file)
+      .trim()
+      .toLowerCase();
 
     return exts.includes(ext);
   }
@@ -93,7 +105,6 @@ export class MediaFilter {
   // ........................................................
 
   static listMediaFilesShort(folder) {
-
     const fileNames = [];
 
     const children = fs.readdirSync(folder);
@@ -101,7 +112,7 @@ export class MediaFilter {
       const fileShort = children[k];
       const fileLong = path.join(folder, fileShort);
 
-      if (!fs.lstatSync(fileLong).isDirectory()) {
+      if (!fileUtils.isDirectory(fileLong)) {
         if (MediaFilter.isImageFormatSupported(fileShort))
           fileNames.push(fileShort);
       }
@@ -113,7 +124,6 @@ export class MediaFilter {
   // ........................................................
 
   static pushMediaFilesFull(folder, resultArray) {
-
     let count = 0;
 
     const children = fs.readdirSync(folder);
@@ -121,7 +131,7 @@ export class MediaFilter {
       const fileShort = children[k];
       const fileLong = path.join(folder, fileShort);
 
-      if (!fs.lstatSync(fileLong).isDirectory()) {
+      if (fileUtils.isFile(fileLong)) {
         if (MediaFilter.isImageFormatSupported(fileShort)) {
           resultArray.push(fileLong);
           count++;
@@ -135,19 +145,16 @@ export class MediaFilter {
   // ........................................................
 
   static tumbleArray(valsIn) {
-
     const valsOut = [];
     let valsClone = valsIn.slice(0);
 
     while (valsClone.length > 0) {
-
       const rand = Math.floor(Math.random() * valsClone.length);
       valsOut.push(valsClone[rand]);
 
       const valsTemp = [];
       for (let i = 0; i < valsClone.length; i++) {
-        if (i !== rand)
-          valsTemp.push(valsClone[i]);
+        if (i !== rand) valsTemp.push(valsClone[i]);
       }
       valsClone = valsTemp;
     }
@@ -155,5 +162,4 @@ export class MediaFilter {
     return valsOut;
   }
   // ........................................................
-
 }

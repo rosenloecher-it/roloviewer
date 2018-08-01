@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import log from 'electron-log';
 import * as constants from '../../common/constants';
+import * as fileUtils from '../../common/utils/fileUtils';
 import * as workerActions from '../../common/store/workerActions';
 import { CrawlerBase } from './crawlerBase';
 import * as rendererActions from '../../common/store/rendererActions';
@@ -22,7 +23,7 @@ export class MediaCrawler extends CrawlerBase {
     super();
 
     this.data = {
-      cacheScanFsDirs: null,
+      cacheScanFsDirs: new Set(),
       lastAutoSelectedDir: null,
       scanActiveSendFirstAvailableFiles: false
     };
@@ -81,6 +82,7 @@ export class MediaCrawler extends CrawlerBase {
     const instance = this;
     const { dbWrapper } = instance.objects;
     const { mediaComposer } = instance.objects;
+    const { storeManager } = instance.objects;
 
     const p = dbWrapper
       .listDirsWeigthSorted()
@@ -90,10 +92,13 @@ export class MediaCrawler extends CrawlerBase {
             log.debug(
               `${_logKey}${func} - scan active - skip and wait for first delivery`
             );
-            return Promise.resolve();
+          } else {
+            const text = 'auto-selection failed (no dirs available)!';
+            log.error(`${_logKey}${func} - ${text}`);
+            storeManager.showMessage(constants.MSG_TYPE_ERROR, text);
           }
 
-          throw new Error('auto-selection failed (no dirs available)!');
+          return Promise.resolve(null, true); // dirItem, dontShowErrorWhenNull
         }
 
         let selectedDir = null;
@@ -113,6 +118,9 @@ export class MediaCrawler extends CrawlerBase {
 
         return dbWrapper.loadDir(selectedDir);
       })
+      .then(dirItem => {
+        return Promise.resolve(dirItem, false); // dirItem, dontShowErrorWhenNull
+      })
       .catch(err => {
         instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
       });
@@ -131,14 +139,12 @@ export class MediaCrawler extends CrawlerBase {
     const crawlerState = storeManager.crawlerState;
 
     const p = this.chooseDirItem()
-      .then(dirItem => {
+      .then((dirItem, dontShowErrorWhenNull) => {
         if (!dirItem) {
-          // could happen, when operations ovrlap
-          if (!instance.data.scanActiveSendFirstAvailableFiles) {
-            log.error(
-              `${_logKey}${func} - !dirItem - data.lastAutoSelectedDir`,
-              instance.data.lastAutoSelectedDir
-            );
+          if (!dontShowErrorWhenNull) {
+            // could happen, when operations overlap
+            if (!instance.data.scanActiveSendFirstAvailableFiles)
+              log.error(`${_logKey}${func} - !dirItem`);
           }
           return Promise.resolve();
         }
@@ -305,7 +311,6 @@ export class MediaCrawler extends CrawlerBase {
     const instance = this;
     const { dbWrapper } = instance.objects;
     const { storeManager } = instance.objects;
-    const crawlerState = storeManager.crawlerState;
     const { data } = instance;
 
     data.scanActiveSendFirstAvailableFiles = true;
@@ -330,17 +335,11 @@ export class MediaCrawler extends CrawlerBase {
           storeManager.dispatchTask(action);
         }
 
-        for (let i = 0; i < crawlerState.folderSource.length; i++) {
-          const folderSource = crawlerState.folderSource[i];
-          log.debug(`${_logKey}${func} - queue source folder:`, folderSource);
-          action = workerActions.createActionSearchForNewDirs(folderSource);
-          storeManager.dispatchTask(action);
-        }
+        this.triggerSearchingSourceFolders();
 
         // TODO delete only not needed dirs
 
-        action = workerActions.createActionCrawlerFinally();
-        storeManager.dispatchTask(action);
+        instance.data.cacheScanFsDirs = new Set();
 
         return dbWrapper.clearDbDir();
       })
@@ -403,12 +402,7 @@ export class MediaCrawler extends CrawlerBase {
         if (crawlerState.folderSource.length === 0)
           log.warn(`${_logKey}${func} - no source folder configured!`);
 
-        for (let i = 0; i < crawlerState.folderSource.length; i++) {
-          action = workerActions.createActionSearchForNewDirs(
-            crawlerState.folderSource[i]
-          );
-          storeManager.dispatchTask(action);
-        }
+        this.triggerSearchingSourceFolders();
 
         return Promise.resolve();
       })
@@ -479,7 +473,11 @@ export class MediaCrawler extends CrawlerBase {
     const { dbWrapper } = instance.objects;
     const { storeManager } = instance.objects;
     const crawlerState = storeManager.crawlerState;
-    const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
+    const {
+      folderSource,
+      folderBlacklist,
+      folderBlacklistSnippets
+    } = crawlerState;
 
     const maxCheckCount = 20;
     let dirRemove = null;
@@ -489,18 +487,23 @@ export class MediaCrawler extends CrawlerBase {
     for (loopCounter = 0; loopCounter < loopMax; loopCounter++) {
       const dir = dirs[loopCounter];
 
-      if (!fs.lstatSync(dir).isDirectory()) {
+      if (!fileUtils.isDirectory(dir)) {
         dirRemove = dir;
         break;
       }
 
-      if (
-        MediaFilter.isFolderBlacklisted(
+      const isFolderInsideSource = MediaFilter.isFolderInside(
+        dir,
+        folderSource
+      );
+      let isFolderBlacklisted = false;
+      if (!isFolderInsideSource)
+        isFolderBlacklisted = MediaFilter.isFolderBlacklisted(
           dir,
           folderBlacklist,
           folderBlacklistSnippets
-        )
-      ) {
+        );
+      if (!isFolderInsideSource || isFolderBlacklisted) {
         dirRemove = dir;
         break;
       }
@@ -509,6 +512,7 @@ export class MediaCrawler extends CrawlerBase {
     if (loopCounter < dirs.length) {
       const dirsNew = dirs.slice(loopCounter + 1);
       const action = workerActions.createActionRemoveDirs(dirsNew);
+      //log.debug(`${_logKey}${func} action=`, action);
       storeManager.dispatchTask(action);
     }
 
@@ -525,50 +529,85 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
+  triggerSearchingSourceFolders() {
+    const func = '.triggerSearchSourceFolder';
+    const { storeManager } = this.objects;
+    const crawlerState = storeManager.crawlerState;
+
+    for (let i = 0; i < crawlerState.folderSource.length; i++) {
+      const folderSource = crawlerState.folderSource[i];
+      if (fileUtils.isDirectory(folderSource)) {
+        log.debug(`${_logKey}${func} - queue source folder:`, folderSource);
+        const action = workerActions.createActionSearchForNewDirs(folderSource);
+        storeManager.dispatchTask(action);
+      } else {
+        const text = `source folder doesn't exist or is no valid directory (${folderSource})!`;
+        log.error(`${_logKey}${func} - ${text}`);
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, text);
+      }
+    }
+
+    const action = workerActions.createActionCrawlerFinally();
+    storeManager.dispatchTask(action);
+  }
+
+  // .......................................................
+
   searchForNewDirs(dir) {
     // AR_WORKER_SEARCH_FOR_NEW_DIRS
     const func = '.searchForNewDirs';
 
-    const instance = this;
-    const { storeManager } = instance.objects;
-    const crawlerState = storeManager.crawlerState;
-    const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
+    try {
+      const instance = this;
+      const { storeManager } = instance.objects;
+      const crawlerState = storeManager.crawlerState;
+      const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
 
-    let childrenDirs = [];
+      if (!fileUtils.isDirectory(dir)) {
+        log.error(
+          `${_logKey}${func} - folder doesn't exist or is no valid directory (${dir})!`
+        );
+        return Promise.resolve();
+      }
 
-    const children = fs.readdirSync(dir);
-    for (let k = 0; k < children.length; k++) {
-      const fileShort = children[k];
-      const fileLong = path.join(dir, fileShort);
-      if (fs.lstatSync(fileLong).isDirectory()) {
-        if (
-          MediaFilter.isFolderBlacklisted(
+      let childrenDirs = [];
+
+      const children = fs.readdirSync(dir);
+      for (let k = 0; k < children.length; k++) {
+        const fileShort = children[k];
+        const fileLong = path.join(dir, fileShort);
+
+        if (fileUtils.isDirectory(fileLong)) {
+          const isFolderBlacklisted = MediaFilter.isFolderBlacklisted(
             fileLong,
             folderBlacklist,
             folderBlacklistSnippets
-          )
-        )
-          log.info(`${_logKey}${func} - skipped: ${fileLong}`);
-        else {
-          if (!instance.data.cacheScanFsDirs.has(fileLong))
-            childrenDirs.push(fileLong);
-          // else: do nothing - dir exists already in db
+          );
+          if (isFolderBlacklisted)
+            log.info(`folder blacklisted => skipped: ${fileLong}`);
+          else {
+            if (!instance.data.cacheScanFsDirs.has(fileLong))
+              childrenDirs.push(fileLong);
+            // else: do nothing - dir exists already in db
+          }
         }
       }
-    }
 
-    // thumble dirs (!!!) so that you don't get the first folder
-    if (this.data.scanActiveSendFirstAvailableFiles)
-      childrenDirs = MediaFilter.tumbleArray(childrenDirs);
+      // thumble dirs (!!!) so that you don't get the first folder
+      if (this.data.scanActiveSendFirstAvailableFiles)
+        childrenDirs = MediaFilter.tumbleArray(childrenDirs);
 
-    for (let i = 0; i < childrenDirs.length; i++) {
-      const childDir = childrenDirs[i];
+      for (let i = 0; i < childrenDirs.length; i++) {
+        const childDir = childrenDirs[i];
 
-      let action = workerActions.createActionSearchForNewDirs(childDir);
-      storeManager.dispatchTask(action);
+        let action = workerActions.createActionSearchForNewDirs(childDir);
+        storeManager.dispatchTask(action);
 
-      action = workerActions.createActionUpdateDir(childDir);
-      storeManager.dispatchTask(action);
+        action = workerActions.createActionUpdateDir(childDir);
+        storeManager.dispatchTask(action);
+      }
+    } catch (err) {
+      log.error(`${_logKey}${func}(${dir}) - ${err}`);
     }
 
     return Promise.resolve();
@@ -782,17 +821,16 @@ export class MediaCrawler extends CrawlerBase {
     const { storeManager } = instance.objects;
     const crawlerState = storeManager.crawlerState;
 
-    if (!fs.lstatSync(folder).isDirectory()) {
+    if (!fileUtils.isDirectory(folder)) {
       log.info(`${_logKey}${func} - no dir: ${folder}`);
       return Promise.resolve();
     }
-    if (
-      MediaFilter.isFolderBlacklisted(
-        folder,
-        crawlerState.folderBlacklist,
-        crawlerState.folderBlacklistSnippets
-      )
-    ) {
+    const isFolderBlacklisted = MediaFilter.isFolderBlacklisted(
+      folder,
+      crawlerState.folderBlacklist,
+      crawlerState.folderBlacklistSnippets
+    );
+    if (isFolderBlacklisted) {
       log.info(`${_logKey}${func} - blacklisted: ${folder}`);
       return Promise.resolve();
     }
@@ -805,7 +843,6 @@ export class MediaCrawler extends CrawlerBase {
         if (!dirItem) dirItem = mediaComposer.createDirItem({ dir: folder });
 
         //log.debug(`${_logKey}${func} - dirItem:`, dirItem);
-        //log.debug(`${_logKey}${func} - children:`, children);
 
         if (instance.checkAndHandleChangedFileItems(dirItem, children))
           return dbWrapper.saveDir(dirItem);
@@ -834,7 +871,7 @@ export class MediaCrawler extends CrawlerBase {
       );
       this.objects.storeManager.showMessage(
         constants.MSG_TYPE_ERROR,
-        'Auto-selection failed! No media files found in choosen source folder(s). Please choose a higher-level folder. The crawler drills down autonomously and will find your media files.'
+        'Auto-selection failed! No media files found in choosen source folder(s). Please choose an existing or higher-level folder. The crawler drills down autonomously and will find your media files.'
       );
       this.data.scanActiveSendFirstAvailableFiles = false;
     }

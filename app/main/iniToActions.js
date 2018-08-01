@@ -2,6 +2,7 @@ import fs from 'fs';
 import log from 'electron-log';
 import path from 'path';
 import * as constants from '../common/constants';
+import * as fileUtils from '../common/utils/fileUtils';
 import {
   mergeBoolItem,
   mergeConfigItem,
@@ -89,6 +90,9 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
   actionData.tagShow = valiTagArray(iniData.crawler.tagShow);
   actionData.tagBlacklist = valiTagArray(iniData.crawler.tagBlacklist);
   actionData.folderSource = valiFolderArray(iniData.crawler.folderSource);
+  for (let i = 0; i < actionData.folderSource.length; i++) {
+    actionData.folderSource[i] = path.normalize(actionData.folderSource[i]);
+  }
 
   actionData.folderBlacklist = valiFolderArray(iniData.crawler.folderBlacklist);
   for (let i = 0; i < actionData.folderBlacklist.length; i++) {
@@ -218,7 +222,7 @@ export function createSlideshowAction(iniDataIn, context) {
   } else {
     if (context.tempCliOpenContainer) {
       if (fs.existsSync(actionData.tempCliOpenContainer)) {
-        const isDir = fs.lstatSync(context.tempCliOpenContainer).isDirectory();
+        const isDir = fileUtils.isDirectory(context.tempCliOpenContainer);
         actionData.lastContainerType = isDir
           ? constants.CONTAINER_FOLDER
           : constants.CONTAINER_PLAYLIST;

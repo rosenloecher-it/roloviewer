@@ -1,50 +1,43 @@
 import log from 'electron-log';
 import path from 'path';
-import fs from 'fs';
-import * as constants from "../../common/constants";
-import * as workerActions from "../../common/store/workerActions";
-import * as rendererActions from "../../common/store/rendererActions";
-import {CrawlerBase} from "./crawlerBase";
-import {MediaFilter} from "./mediaFilter";
+import * as constants from '../../common/constants';
+import * as fileUtils from '../../common/utils/fileUtils';
+import * as workerActions from '../../common/store/workerActions';
+import * as rendererActions from '../../common/store/rendererActions';
+import { CrawlerBase } from './crawlerBase';
+import { MediaFilter } from './mediaFilter';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "mediaLoader";
+const _logKey = 'mediaLoader';
 
 // ----------------------------------------------------------------------------------
 
 export class MediaLoader extends CrawlerBase {
-
   constructor() {
     super();
 
     this.data.autoFolders = null;
-
   }
 
   // ........................................................
 
   open(input) {
-    const func = ".open";
+    const func = '.open';
 
     const p = new Promise((resolve, reject) => {
-
       let data = null;
       try {
         //log.debug(`${_logKey}.open - in`, input);
 
-        if (!input)
-          data = {};
-        else if (typeof(input) === typeof("str"))
-          data = { container: input };
-        else
-          data = input;
+        if (!input) data = {};
+        else if (typeof input === typeof 'str') data = { container: input };
+        else data = input;
 
         if (data.container) {
-
-          if (fs.lstatSync(data.container).isDirectory())
+          if (fileUtils.isDirectory(data.container))
             this.openFolder(data.container, data.selectFile);
-          else if (fs.lstatSync(data.container).isFile())
+          else if (fileUtils.isFile(data.container))
             this.openPlayList(data.container);
         } else {
           this.openAutoSelect();
@@ -52,13 +45,11 @@ export class MediaLoader extends CrawlerBase {
 
         //log.debug(`${_logKey}.open - out`);
         resolve();
-
       } catch (error) {
         const textBase = `${_logKey}${func} - exception -`;
         log.error(textBase, error);
         reject(new Error(`${textBase} ${error}`));
       }
-
     });
 
     return p;
@@ -66,15 +57,16 @@ export class MediaLoader extends CrawlerBase {
 
   // ........................................................
 
-  openPlayList(input) { // eslint-disable-line no-unused-vars
-    const func = ".openPlayList";
+  openPlayList(input) {
+    // eslint-disable-line no-unused-vars
+    const func = '.openPlayList';
 
     // this.deactivateAutoSelect();
 
     // TODO implement openPlayList
     this.logAndShowError(`${_logKey}${func}`, 'not implemented!');
 
-    const p = new Promise((resolve) => {
+    const p = new Promise(resolve => {
       resolve();
     });
 
@@ -84,8 +76,7 @@ export class MediaLoader extends CrawlerBase {
   // ........................................................
 
   openFolder(input) {
-
-    const p = new Promise((resolve) => {
+    const p = new Promise(resolve => {
       this.openFolderSync(input);
       resolve();
     });
@@ -96,19 +87,24 @@ export class MediaLoader extends CrawlerBase {
   // ........................................................
 
   openFolderSync(input) {
-    const func = ".openFolder";
+    const func = '.openFolder';
 
     try {
-      const {container, selectFile} = input;
-      const {storeManager} = this.objects;
+      const { container, selectFile } = input;
+      const { storeManager } = this.objects;
 
       this.deactivateAutoSelect();
 
-      log.debug(`${_logKey}${func} - container=${container}, selectFile=${selectFile}`);
+      log.debug(
+        `${_logKey}${func} - container=${container}, selectFile=${selectFile}`
+      );
 
-      if (!fs.lstatSync(container).isDirectory()) {
+      if (!fileUtils.isDirectory(container)) {
         log.error(`${_logKey}${func} - folder does not exist (${container})!`);
-        storeManager.showMessage(constants.MSG_TYPE_ERROR, `Folder does not exist (${container})!`);
+        storeManager.showMessage(
+          constants.MSG_TYPE_ERROR,
+          `Folder does not exist (${container})!`
+        );
         return;
       }
 
@@ -116,8 +112,13 @@ export class MediaLoader extends CrawlerBase {
       MediaFilter.pushMediaFilesFull(container, mediaFiles);
 
       if (mediaFiles.length <= 0) {
-        log.warn(`${_logKey}${func} - directory does not contain supported media files! ${container}`);
-        storeManager.showMessage(constants.MSG_TYPE_ERROR, 'The directory does not contain supported media files!');
+        log.warn(
+          `${_logKey}${func} - directory does not contain supported media files! ${container}`
+        );
+        storeManager.showMessage(
+          constants.MSG_TYPE_ERROR,
+          'The directory does not contain supported media files!'
+        );
         return;
       }
 
@@ -126,12 +127,16 @@ export class MediaLoader extends CrawlerBase {
       });
 
       const mediaItems = this.createItems(mediaFiles);
-      const action = rendererActions.createActionShowFiles(container, constants.CONTAINER_FOLDER, mediaItems, selectFile);
+      const action = rendererActions.createActionShowFiles(
+        container,
+        constants.CONTAINER_FOLDER,
+        mediaItems,
+        selectFile
+      );
       this.objects.storeManager.dispatchGlobal(action);
 
       this.addTasksDeliverFileMeta(mediaFiles);
-
-    } catch(err) {
+    } catch (err) {
       this.logAndShowError(`${_logKey}${func}`, err);
     }
   }
@@ -139,8 +144,7 @@ export class MediaLoader extends CrawlerBase {
   // ........................................................
 
   openDropped(input) {
-
-    const p = new Promise((resolve) => {
+    const p = new Promise(resolve => {
       this.openDroppedSync(input);
       resolve();
     });
@@ -151,16 +155,15 @@ export class MediaLoader extends CrawlerBase {
   // ........................................................
 
   openDroppedSync(input) {
-
-    const func = ".openFolder";
+    const func = '.openFolder';
 
     try {
       log.debug(`${_logKey}${func} -`, input);
 
       this.deactivateAutoSelect();
 
-      const {files: filesIn} = input;
-      const {storeManager} = this.objects;
+      const { files: filesIn } = input;
+      const { storeManager } = this.objects;
 
       if (filesIn.length === 1) {
         const file = filesIn[0];
@@ -182,13 +185,15 @@ export class MediaLoader extends CrawlerBase {
         const file = filesIn[i];
         if (MediaFilter.canImportFolder(file))
           MediaFilter.pushMediaFilesFull(file, mediaFiles);
-        else if (MediaFilter.canImportMediaFile(file))
-          mediaFiles.push(file);
+        else if (MediaFilter.canImportMediaFile(file)) mediaFiles.push(file);
       }
 
       if (mediaFiles.length <= 0) {
         log.warn(`${_logKey}${func} - dropped files not supported!`, filesIn);
-        storeManager.showMessage(constants.MSG_TYPE_ERROR, `The dropped files are not supported!`);
+        storeManager.showMessage(
+          constants.MSG_TYPE_ERROR,
+          `The dropped files are not supported!`
+        );
         return;
       }
 
@@ -197,12 +202,16 @@ export class MediaLoader extends CrawlerBase {
       });
 
       const mediaItems = this.createItems(mediaFiles);
-      const action = rendererActions.createActionShowFiles('dropped', constants.CONTAINER_CLIPBOARD, mediaItems, null);
+      const action = rendererActions.createActionShowFiles(
+        'dropped',
+        constants.CONTAINER_CLIPBOARD,
+        mediaItems,
+        null
+      );
       this.objects.storeManager.dispatchGlobal(action);
 
       this.addTasksDeliverFileMeta(mediaFiles);
-
-    } catch(err) {
+    } catch (err) {
       this.logAndShowError(`${_logKey}${func}`, err);
     }
   }
@@ -222,8 +231,7 @@ export class MediaLoader extends CrawlerBase {
     const items = [];
     for (let i = 0; i < files.length; i++) {
       const item = rendererActions.createMediaItem(files[i]);
-      if (item)
-        items.push(item);
+      if (item) items.push(item);
     }
     return items;
   }
@@ -231,8 +239,7 @@ export class MediaLoader extends CrawlerBase {
   // ........................................................
 
   addTasksDeliverFileMeta(files) {
-
-    const {storeManager} = this.objects;
+    const { storeManager } = this.objects;
 
     for (let i = 0; i < files.length; i++) {
       const action = workerActions.createActionDeliverMeta(files[i]);
@@ -246,13 +253,10 @@ export class MediaLoader extends CrawlerBase {
   static sortFilename(filename1, filename2) {
     const f1 = filename1.toLowerCase();
     const f2 = filename2.toLowerCase();
-    if (f1 < f2)
-      return -1;
-    else if (f1 > f2)
-      return 1;
+    if (f1 < f2) return -1;
+    else if (f1 > f2) return 1;
     return 0;
   }
 
   // ........................................................
 }
-

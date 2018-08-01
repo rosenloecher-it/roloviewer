@@ -3,38 +3,48 @@ import log from 'electron-log';
 import fs from 'fs';
 import path from 'path';
 import ini from 'configurable-ini';
-import * as constants from "../constants";
+import * as constants from '../constants';
 
 //----------------------------------------------------------------------------
 
-const _logKey = "fileTools";
+const _logKey = 'fileTools';
 
 // ----------------------------------------------------------------------------------
 
 export function getConfigPath() {
-  return path.join(electron.app.getPath('userData'), '..', constants.CONFIG_NAME);
+  return path.join(
+    electron.app.getPath('userData'),
+    '..',
+    constants.CONFIG_NAME
+  );
 }
 
 //----------------------------------------------------------------------------
 
 export function getDefaultCachePath() {
-  return path.join(electron.app.getPath('userData'), '..', constants.CONFIG_NAME);
+  return path.join(
+    electron.app.getPath('userData'),
+    '..',
+    constants.CONFIG_NAME
+  );
 }
 
 //----------------------------------------------------------------------------
 
 export function getDefaultLogFile(isProduction) {
-  const extra = (isProduction ? '' : '_test');
+  const extra = isProduction ? '' : '_test';
   const configPath = getDefaultCachePath();
-  const configFile = path.join(configPath, `${constants.APP_BASENAME}${extra}.log`);
+  const configFile = path.join(
+    configPath,
+    `${constants.APP_BASENAME}${extra}.log`
+  );
   return configFile;
 }
 
 //----------------------------------------------------------------------------
 
 export function getDefaultConfigFile(isProduction) {
-
-  const extra = (isProduction ? "" : "_test");
+  const extra = isProduction ? '' : '_test';
   const configPath = getConfigPath();
   const configName = `${constants.APP_BASENAME}${extra}.ini`;
   const defaultConfigFile = path.join(configPath, configName);
@@ -44,18 +54,15 @@ export function getDefaultConfigFile(isProduction) {
 //----------------------------------------------------------------------------
 
 export function deleteFile(file) {
+  if (!file) return;
 
-  if (!file)
-    return;
-
-  if (fs.existsSync(file))
-    fs.unlinkSync(file);
+  if (fs.existsSync(file)) fs.unlinkSync(file);
 }
 
 // ----------------------------------------------------------------------------------
 
 export function mkDirWithParents(targetDir) {
-  const {sep} = path;
+  const { sep } = path;
   const initDir = path.isAbsolute(targetDir) ? sep : '';
   const baseDir = '.';
 
@@ -78,7 +85,7 @@ export function mkDirWithParents(targetDir) {
 // ----------------------------------------------------------------------------------
 
 export function loadIniFile(file) {
-  const func = ".loadIniFile";
+  const func = '.loadIniFile';
 
   if (!file) {
     log.error(`${_logKey}${func}: invalid configFile`);
@@ -116,3 +123,28 @@ export function saveIniFile(file, data) {
 
 //----------------------------------------------------------------------------
 
+export function isDirectory(file) {
+  if (!file) return false;
+  if (!fs.existsSync(file)) return false;
+  if (!fs.lstatSync(file).isDirectory()) return false;
+  return true;
+}
+
+//----------------------------------------------------------------------------
+
+export function isFile(file) {
+  if (!file) return false;
+  if (!fs.existsSync(file)) return false;
+  if (!fs.lstatSync(file).isFile()) return false;
+  return true;
+}
+
+//----------------------------------------------------------------------------
+
+export function exists(file) {
+  if (!file) return false;
+  if (!fs.existsSync(file)) return false;
+  return true;
+}
+
+//----------------------------------------------------------------------------
