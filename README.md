@@ -1,4 +1,4 @@
-# roloslider
+# RoloViewer
 
 npm install electron-window-state-manager
 npm install electron-json-config

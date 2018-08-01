@@ -93,9 +93,9 @@ describe('cli', () => {
     let argsOut = null;
 
     const remainingArg = '--remarg';
-    //  [ '/home/data/projects/electron/roloslider/node_modules/electron/dist/electron', './app/', --realArg ]
+    //  [ '/home/data/projects/electron/roloviewer/node_modules/electron/dist/electron', './app/', --realArg ]
 
-    argsIn = [ '/home/data/projects/electron/roloslider/node_modules/electron/dist/electron', './app/', remainingArg ];
+    argsIn = [ '/home/data/projects/electron/roloviewer/node_modules/electron/dist/electron', './app/', remainingArg ];
     argsOut = Cli.prepareArgsForParser(argsIn);
     expect(argsOut.length).toBe(0);
 

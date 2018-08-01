@@ -99,9 +99,9 @@ export default class Cli {
 
   static prepareArgsForParser(args) {
     // npm prod
-    //    [ '/home/data/projects/electron/roloslider/node_modules/electron/dist/electron', './app/' ]
+    //    [ '/home/data/projects/electron/roloviewer/node_modules/electron/dist/electron', './app/' ]
     // npm dev
-    //   [ '/home/data/projects/electron/roloslider/node_modules/electron/dist/electron',
+    //   [ '/home/data/projects/electron/roloviewer/node_modules/electron/dist/electron',
     //      '-r',
     //      'babel-register',
     //      './app/main/main.dev.js' ]

@@ -1,6 +1,6 @@
 {
-  "name": "roloslider",
-  "productName": "RoloSlider",
+  "name": "roloviewer",
+  "productName": "RoloViewer",
   "version": "0.7.0",
   "description": "Image slideshow viewer",
   "scripts": {
@@ -41,8 +41,8 @@
     ]
   },
   "build": {
-    "productName": "Roloslider",
-    "appId": "com.rosenloecher-it.roloslider",
+    "productName": "RoloViewer",
+    "appId": "com.rosenloecher-it.roloviewer",
     "files": [
       "dist/",
       "node_modules/",
@@ -76,7 +76,7 @@
         "deb",
         "AppImage"
       ],
-      "category": "Development"
+      "category": "Graphics"
     },
     "directories": {
       "buildResources": "resources",
@@ -85,23 +85,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rosenloecher-it/roloslider.git"
+    "url": "git+https://github.com/rosenloecher-it/roloviewer.git"
   },
   "author": {
-    "name": "C. T. Lin",
-    "email": "chentsulin@gmail.com",
-    "url": "https://github.com/chentsulin"
+    "name": "Raul Rosenlöcher",
+    "email": "roloviewer@rosenloecher-it.de",
+    "url": "https://github.com/rosenloecher-it"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rosenloecher-it/roloslider/issues"
+    "url": "https://github.com/rosenloecher-it/roloviewer/issues"
   },
   "keywords": [
     "image",
     "viewer",
     "slideshow"
   ],
-  "homepage": "https://github.com/rosenloecher-it/roloslider#readme",
+  "homepage": "https://github.com/rosenloecher-it/roloviewer#readme",
   "jest": {
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",

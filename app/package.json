@@ -1,13 +1,13 @@
 {
-  "name": "roloslider",
-  "productName": "RoloSlider",
+  "name": "roloviewer",
+  "productName": "RoloViewer",
   "version": "0.7.0",
   "description": "Image slideshow viewer",
   "main": "./dist/main.prod.js",
   "author": {
     "name": "Raul Rosenlöcher",
-    "email": "roloslider@rosenloecher-it.de",
-    "url": "https://www.rosenloecher-it/roloslider/"
+    "email": "roloviewer@rosenloecher-it.de",
+    "url": "https://www.rosenloecher-it/roloviewer/"
   },
   "scripts": {
     "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",

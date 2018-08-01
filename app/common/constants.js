@@ -10,14 +10,14 @@ export const DEBUG_DONT_SAVE_CONFIG = false;
 // --------------------------------------------------------------------------
 // app
 
-export const APP_TITLE = 'RoloSlider';
+export const APP_TITLE = 'RoloViewer';
 export const APP_VERSION = '0.7.0';
 export const APP_URL = 'https://www.rosenloecher-it.de';
 
 export const APP_CREATOR = 'Raul Rosenlöcher';
 
-export const CONFIG_NAME = 'RoloSlider';
-export const APP_BASENAME = 'roloslider';
+export const CONFIG_NAME = 'RoloViewer';
+export const APP_BASENAME = 'roloviewer';
 export const EXT_DATABASE = '.db';
 
 // --------------------------------------------------------------------------

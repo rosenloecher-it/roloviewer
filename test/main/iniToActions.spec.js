@@ -5,7 +5,7 @@ import * as iniToActions from "../../app/main/iniToActions";
 const defaultIniData = {
   crawler: {
     batchCount: '10',
-    database: '/home/raul/.config/RoloSlider/crawler.db',
+    database: '/home/raul/.config/RoloViewer/crawler.db',
     folderBlacklistSnippets: [ 'bauen' ],
     folderSource: [ '/home/data/mymedia/201x/2016' ]
   }, mainWindow: {
