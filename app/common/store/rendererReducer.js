@@ -1,14 +1,13 @@
 import log from 'electron-log';
-import * as constants from "../constants";
+import * as constants from '../constants';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "rendererReducer";
+const _logKey = 'rendererReducer';
 
 // ----------------------------------------------------------------------------------
 
 export class RendererReducer {
-
   constructor(name) {
     this._logKey = `${_logKey}(${name})`;
     this._deliveryKey = 0;
@@ -26,13 +25,14 @@ export class RendererReducer {
       helpShow: false,
       itemIndex: -1,
       items: [],
-    }
+      maxItemsPerContainer: constants.DEFCONF_MAX_ITEMS_PER_CONTAINER
+    };
   }
 
   // .....................................................
 
   reduce(state = RendererReducer.defaultState(), action) {
-    const func = ".reduce";
+    const func = '.reduce';
     let actionType = '???';
 
     try {
@@ -65,11 +65,11 @@ export class RendererReducer {
           return this.deliverMeta(state, action);
 
         case constants.AR_SLIDESHOW_AUTOPLAY_START:
-          return {...state, autoPlay: true};
+          return { ...state, autoPlay: true };
         case constants.AR_SLIDESHOW_AUTOPLAY_STOP:
-          return {...state, autoPlay: false};
+          return { ...state, autoPlay: false };
         case constants.AR_SLIDESHOW_AUTOPLAY_TOGGLE:
-          return {...state, autoPlay: !state.autoPlay};
+          return { ...state, autoPlay: !state.autoPlay };
 
         case constants.AR_RENDERER_HELP_CLOSE:
           return { ...state, helpShow: false };
@@ -82,18 +82,17 @@ export class RendererReducer {
           return { ...state, aboutShow: false };
 
         case constants.AR_RENDERER_CURSOR_HIDE:
-          return {...state, cursorHide: true};
+          return { ...state, cursorHide: true };
         case constants.AR_RENDERER_CURSOR_SHOW:
-          return {...state, cursorHide: false};
+          return { ...state, cursorHide: false };
 
         default:
           return state;
       }
-
     } catch (err) {
       log.error(`${this._logKey}${func}(${actionType}) - exception -`, err);
       log.debug(`${this._logKey}${func} - action -`, action);
-      throw (err);
+      throw err;
     }
   }
 
@@ -109,7 +108,7 @@ export class RendererReducer {
   // .....................................................
 
   showFiles(state, action) {
-    const func = ".showFiles";
+    const func = '.showFiles';
 
     const newItems = action.payload.items;
     const newSelectFile = action.payload.selectItem;
@@ -140,38 +139,21 @@ export class RendererReducer {
       items: newItems,
       itemIndex: newItemIndex,
       container: action.payload.container,
-      containerType: action.payload.containerType,
+      containerType: action.payload.containerType
     };
   }
 
   // .....................................................
 
   addFiles(state, action) {
-    const func = ".addFiles"; // eslint-disable-line no-unused-vars
+    const func = '.addFiles'; // eslint-disable-line no-unused-vars
 
     this.setNewDeliveryKey(action.payload.items);
 
-    if (state.containerType === constants.CONTAINER_AUTOSELECT && action.payload.removeOldItems === false) {
-
-      const newItems = state.items.concat(action.payload.items);
-      let newItemIndex = state.itemIndex;
-
-      //log.debug(`${_logKey}${func} (add) - ${action.payload.items.length} items (sum = ${newItems.length})`);
-
-      if (newItemIndex < 0 && newItems.length > 0)
-        newItemIndex = 0;
-
-      // add items
-      return {
-        ...state,
-        items: newItems,
-        itemIndex: newItemIndex,
-        container: null,
-        containerType: action.payload.containerType
-      }
-    } else {
-      //log.debug(`${_logKey}${func} (replace) - ${action.payload.items.length} items`);
-
+    if (
+      state.containerType !== constants.CONTAINER_AUTOSELECT ||
+      action.payload.removeOldItems
+    ) {
       // replace old items
       return {
         ...state,
@@ -182,6 +164,34 @@ export class RendererReducer {
       };
     }
 
+    let shortenItems =
+      -1 *
+      (state.maxItemsPerContainer -
+        state.items.length -
+        action.payload.items.length);
+    if (shortenItems < 0) shortenItems = 0;
+
+    const newItems = [];
+
+    for (let i = shortenItems; i < state.items.length; i++)
+      newItems.push(state.items[i]);
+
+    for (let i = 0; i < action.payload.items.length; i++)
+      newItems.push(action.payload.items[i]);
+
+    let newItemIndex = state.itemIndex - shortenItems;
+    if (newItemIndex < 0 && newItems.length > 0) newItemIndex = 0;
+
+    // add items
+    return {
+      ...state,
+      items: newItems,
+      itemIndex: newItemIndex,
+      container: null,
+      containerType: action.payload.containerType
+    };
+
+    //log.debug(`${_logKey}${func} (replace) - ${action.payload.items.length} items`);
   }
 
   // .....................................................
@@ -193,15 +203,11 @@ export class RendererReducer {
     const length = state.items.length;
 
     if (length > 0) {
-      if (newIndex >= length)
-        newIndex = length -1;
-      else if (newIndex < 0)
-        newIndex = 0;
-    } else
-      newIndex = -1;
+      if (newIndex >= length) newIndex = length - 1;
+      else if (newIndex < 0) newIndex = 0;
+    } else newIndex = -1;
 
-    if (oldIndex === newIndex)
-      return state; // no change
+    if (oldIndex === newIndex) return state; // no change
 
     return {
       ...state,
@@ -212,9 +218,7 @@ export class RendererReducer {
   // .....................................................
 
   goRandom(state) {
-
-    if (state.items.length < 2)
-      return state;
+    if (state.items.length < 2) return state;
 
     let counter = 0;
     let newIndex = 0;
@@ -233,12 +237,9 @@ export class RendererReducer {
   // .....................................................
 
   goJump(state, action) {
-
     let jumpWidth = 0;
-    if (action.payload)
-      jumpWidth = action.payload;
-    if (!jumpWidth)
-      return state;
+    if (action.payload) jumpWidth = action.payload;
+    if (!jumpWidth) return state;
 
     return this.goTo(state, state.itemIndex + jumpWidth);
   }
@@ -246,30 +247,25 @@ export class RendererReducer {
   // .....................................................
 
   goPage(state, action) {
-
     let pageDirection = 0;
-    if (action.payload)
-      pageDirection = action.payload;
-    if (!pageDirection)
-      return state;
+    if (action.payload) pageDirection = action.payload;
+    if (!pageDirection) return state;
 
     let newItemIndex = -1;
 
     do {
-      if (state.container)
-        break;
+      if (state.container) break;
 
       let currentDeliveryKey = -1;
       if (state.itemIndex >= 0 && state.itemIndex < state.items.length) {
         const item = state.items[state.itemIndex];
-        if (item && item.deliveryKey)
-          currentDeliveryKey = item.deliveryKey;
+        if (item && item.deliveryKey) currentDeliveryKey = item.deliveryKey;
       }
-      if (currentDeliveryKey < 0)
-        break; // do standard
+      if (currentDeliveryKey < 0) break; // do standard
 
       // find first different deliveryKey
-      if (pageDirection < 0) { // jump back
+      if (pageDirection < 0) {
+        // jump back
         for (let i = state.itemIndex - 1; i > 0; i--) {
           const item = state.items[i];
           if (item.deliveryKey !== currentDeliveryKey) {
@@ -277,8 +273,7 @@ export class RendererReducer {
             break; // ready
           }
         }
-        if (newItemIndex < 0)
-          newItemIndex = 0;
+        if (newItemIndex < 0) newItemIndex = 0;
       } else {
         for (let i = state.itemIndex + 1; i < state.items.length; i++) {
           const item = state.items[i];
@@ -287,15 +282,12 @@ export class RendererReducer {
             break; // ready
           }
         }
-        if (newItemIndex < 0)
-          newItemIndex = state.items.length - 1;
+        if (newItemIndex < 0) newItemIndex = state.items.length - 1;
       }
 
-      if (newItemIndex < 0)
-        break;
+      if (newItemIndex < 0) break;
 
       return this.goTo(state, newItemIndex);
-
     } while (false);
 
     return state;
@@ -316,9 +308,9 @@ export class RendererReducer {
         break;
       }
 
-      const {meta} = action.payload;
+      const { meta } = action.payload;
       const { file } = meta;
-      const { items : itemsOrig } = state;
+      const { items: itemsOrig } = state;
 
       let fountFirst = -1;
       for (let i = 0; i < itemsOrig.length; i++) {
@@ -330,8 +322,8 @@ export class RendererReducer {
 
       // real change
       if (fountFirst >= 0) {
-        resultState = {...state};
-        const { items : itemsNew } = resultState;
+        resultState = { ...state };
+        const { items: itemsNew } = resultState;
 
         for (let i = 0; i < itemsNew.length; i++) {
           if (itemsNew[i].file === file) {
@@ -341,17 +333,13 @@ export class RendererReducer {
             // if container !== playlist --- break;
           }
         }
-      } else
-        log.debug(`${_logKey}${func} - no item found for "${file}" !!!`);
-
+      } else log.debug(`${_logKey}${func} - no item found for "${file}" !!!`);
     } while (false);
 
     return resultState;
   }
 
   // .....................................................
-
 }
-
 
 // ----------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 import deepmerge from 'deepmerge';
-import * as constants from "../constants";
+import * as constants from '../constants';
 
 // ----------------------------------------------------------------------------------
 
@@ -11,14 +11,14 @@ function getNextTaskId() {
 
 // ----------------------------------------------------------------------------------
 
-export const createActionRemoveTask = (obsoleteAction) => ({
+export const createActionRemoveTask = obsoleteAction => ({
   type: constants.AR_WORKER_REMOVE_TASK,
-  payload: deepmerge.all([ obsoleteAction, {} ]),
+  payload: deepmerge.all([obsoleteAction, {}]),
   //payload: obsoleteAction
   taskId: getNextTaskId()
 });
 
-export const createActionRemoveTaskTypes = (taskType) => ({
+export const createActionRemoveTaskTypes = taskType => ({
   type: constants.AR_WORKER_REMOVE_TASKTYPES,
   payload: taskType,
   taskId: getNextTaskId()
@@ -38,7 +38,7 @@ export const createActionOpenFolder = (container, selectFile = null) => ({
   payload: {
     containerType: constants.CONTAINER_FOLDER,
     container, // null == autoSelect
-    selectFile,
+    selectFile
   },
   taskId: getNextTaskId()
 });
@@ -48,16 +48,16 @@ export const createActionOpenPlaylist = (container, selectFile = null) => ({
   payload: {
     containerType: constants.CONTAINER_PLAYLIST,
     container,
-    selectFile,
+    selectFile
   },
   taskId: getNextTaskId()
 });
 
-export const createActionOpenDropped = (files) => ({
+export const createActionOpenDropped = files => ({
   type: constants.AR_WORKER_OPEN_DROPPED,
   payload: {
     containerType: constants.CONTAINER_CLIPBOARD,
-    files,
+    files
   },
   taskId: getNextTaskId()
 });
@@ -66,14 +66,14 @@ export const createActionAutoSelect = (rescanAll = false) => ({
   type: constants.AR_WORKER_AUTO_SELECT,
   payload: {
     containerType: constants.CONTAINER_AUTOSELECT,
-    rescanAll,
+    rescanAll
   },
   taskId: getNextTaskId()
 });
 
-export const createActionDeliverMeta = (file) => ({
+export const createActionDeliverMeta = file => ({
   type: constants.AR_WORKER_DELIVER_META,
-  payload: {file},
+  payload: { file },
   taskId: getNextTaskId()
 });
 
@@ -84,12 +84,16 @@ export const createActionDeliverMeta = (file) => ({
   init crawler (check settings; triggers dir updates)
   incl. deliver first images (if dirs available, the delivery has to be postboned)
 */
-export const createActionStart = (lastContainerType = null, container = null, selectFile = null) => ({
+export const createActionStart = (
+  lastContainerType = null,
+  container = null,
+  selectFile = null
+) => ({
   type: constants.AR_WORKER_START,
   payload: {
     lastContainerType,
     container,
-    selectFile,
+    selectFile
   },
   taskId: getNextTaskId()
 });
@@ -110,9 +114,9 @@ export const createActionPrepareDirsForUpdate = (rescanAll = false) => ({
   remove non existing dirItems (DB)
   max n folders will be deleted at once => a new task is added containing the remaining elements
 */
-export const createActionRemoveDirs = (dirs) => ({
+export const createActionRemoveDirs = dirs => ({
   type: constants.AR_WORKER_REMOVE_DIRS,
-  payload: {dirs},
+  payload: { dirs },
   taskId: getNextTaskId()
 });
 
@@ -122,7 +126,7 @@ export const createActionRemoveDirs = (dirs) => ({
     createActionSearchForNewDirs
     createActionUpdateDir
 */
-export const createActionSearchForNewDirs = (dir) => ({
+export const createActionSearchForNewDirs = dir => ({
   type: constants.AR_WORKER_SEARCH_FOR_NEW_DIRS,
   payload: dir,
   taskId: getNextTaskId()
@@ -131,7 +135,7 @@ export const createActionSearchForNewDirs = (dir) => ({
 /*
   load db-dir-item => sets fileItem.lastShown => calc new rating
 */
-export const createActionRateDirByFile = (file) => ({
+export const createActionRateDirByFile = file => ({
   type: constants.AR_WORKER_RATE_DIR_BY_FILE,
   payload: file,
   taskId: getNextTaskId()
@@ -144,7 +148,7 @@ export const createActionUpdateDirFiles = (folder, fileNames) => ({
   type: constants.AR_WORKER_UPDATE_DIRFILES,
   payload: {
     folder,
-    fileNames, // array of fileNames (without leading path)
+    fileNames // array of fileNames (without leading path)
   },
   taskId: getNextTaskId()
 });
@@ -153,8 +157,14 @@ export const createActionUpdateDirFiles = (folder, fileNames) => ({
  scan dir; remove non existing files and add new ones
  triggers createActionUpdateDirFiles
 */
-export const createActionUpdateDir = (dir) => ({
+export const createActionUpdateDir = dir => ({
   type: constants.AR_WORKER_UPDATE_DIR,
   payload: dir,
+  taskId: getNextTaskId()
+});
+
+export const createActionCrawlerFinally = () => ({
+  type: constants.AR_WORKER_CRAWLER_FINALLY,
+  payload: null,
   taskId: getNextTaskId()
 });

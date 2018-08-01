@@ -1,19 +1,18 @@
-import fs from "fs";
+import fs from 'fs';
 import log from 'electron-log';
-import * as constants from "../../common/constants";
-import * as statusActions from "../../common/store/statusActions";
-import * as workerActions from "../../common/store/workerActions";
-import {CrawlerBase} from "./crawlerBase";
-import {WorkerReducer} from "../../common/store/workerReducer";
+import * as constants from '../../common/constants';
+import * as statusActions from '../../common/store/statusActions';
+import * as workerActions from '../../common/store/workerActions';
+import { CrawlerBase } from './crawlerBase';
+import { WorkerReducer } from '../../common/store/workerReducer';
 
 // ----------------------------------------------------------------------------------
 
-const _logKey = "dispatcher";
+const _logKey = 'dispatcher';
 
 // ----------------------------------------------------------------------------------
 
 export class Dispatcher extends CrawlerBase {
-
   constructor() {
     super();
 
@@ -32,7 +31,7 @@ export class Dispatcher extends CrawlerBase {
 
       timerProcessForgotten: null,
       timerStatusCrawler: null,
-      timerStatusDb: null,
+      timerStatusDb: null
     };
 
     this.onTimerProcessForgotten = this.onTimerProcessForgotten.bind(this);
@@ -41,7 +40,6 @@ export class Dispatcher extends CrawlerBase {
     this.processTask = this.processTask.bind(this);
   }
 
-
   // ........................................................
 
   init() {
@@ -49,14 +47,15 @@ export class Dispatcher extends CrawlerBase {
 
     const instance = this;
 
-    const p = super.init().then(() => {
-
-      this.initTimer();
-      return Promise.resolve();
-
-    }).catch((err) => {
-      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
-    });
+    const p = super
+      .init()
+      .then(() => {
+        this.initTimer();
+        return Promise.resolve();
+      })
+      .catch(err => {
+        instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      });
 
     return p;
   }
@@ -64,7 +63,7 @@ export class Dispatcher extends CrawlerBase {
   // ........................................................
 
   initTimer() {
-    const {data} = this;
+    const { data } = this;
 
     data.timerStatusCrawler = setInterval(this.onTimerProcessForgotten, 300);
     data.timerStatusCrawler = setInterval(this.onTimerStatusCrawler, 1000);
@@ -74,20 +73,17 @@ export class Dispatcher extends CrawlerBase {
   // ........................................................
 
   shutdownTimer() {
-    const {data} = this;
+    const { data } = this;
 
     if (data.onTimerProcessForgotten)
       clearInterval(data.onTimerProcessForgotten);
-    if (data.timerStatusCrawler)
-      clearInterval(data.timerStatusCrawler);
-    if (data.timerStatusDb)
-      clearInterval(data.timerStatusDb);
+    if (data.timerStatusCrawler) clearInterval(data.timerStatusCrawler);
+    if (data.timerStatusDb) clearInterval(data.timerStatusDb);
   }
 
   // ........................................................
 
   shutdown() {
-
     this.shutdownTimer();
 
     return super.shutdown();
@@ -95,15 +91,13 @@ export class Dispatcher extends CrawlerBase {
 
   // ........................................................
 
-   stopProcessingObject(object) {
-    if (object)
-      object.stopProcessing();
+  stopProcessingObject(object) {
+    if (object) object.stopProcessing();
   }
 
   // ........................................................
 
   stopProcessing() {
-
     this.data.processingStopped = true;
 
     this.stopProcessingObject(this.objects.dbWrapper);
@@ -119,11 +113,11 @@ export class Dispatcher extends CrawlerBase {
   // ........................................................
 
   processTask() {
-    const func = ".processTask";
+    const func = '.processTask';
 
     const instance = this;
-    const {storeManager} = instance.objects;
-    const {data} = instance;
+    const { storeManager } = instance.objects;
+    const { data } = instance;
     let taskType = null;
 
     try {
@@ -138,13 +132,16 @@ export class Dispatcher extends CrawlerBase {
 
       this.setStatus(nextTask);
 
-      if (nextTask === null)
-        return; // ok
+      if (nextTask === null) return; // ok
 
       if (data.runningTask !== null) {
-        const {taskId} = data.runningTask;
+        const { taskId } = data.runningTask;
         if (taskId === data.lastSkippedTaskId) {
-          log.debug(`${_logKey}${func} - active runningTask => skip (taskId=${taskId}, type=${data.runningTask.type})`);
+          log.debug(
+            `${_logKey}${func} - active runningTask => skip (taskId=${taskId}, type=${
+              data.runningTask.type
+            })`
+          );
         }
         data.lastSkippedTaskId = taskId;
         return; // async processing aktive
@@ -156,27 +153,37 @@ export class Dispatcher extends CrawlerBase {
       //let countTasks2 = CrawlerReducer.countTasks(workerState);
       //log.debug(`${_logKey}${func} - countTasks2=${countTasks2}`);
 
-      instance.dispatchTask(data.runningTask).catch((err) => {
+      instance
+        .dispatchTask(data.runningTask)
+        .catch(err => {
+          instance.logAndShowError(
+            `${_logKey}${func}.promise.catch(${taskType})`,
+            err
+          );
 
-        instance.logAndShowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
+          return Promise.resolve();
+        })
+        .then(() => {
+          // finally
+          //log.debug(`${_logKey}${func}.finally - in`);
+          const localRunningTask = data.runningTask;
+          data.runningTask = null;
+          const removeTaskAction = workerActions.createActionRemoveTask(
+            localRunningTask
+          );
+          storeManager.dispatchTask(removeTaskAction);
 
-        return Promise.resolve();
+          setImmediate(instance.processTask); // check for next task
 
-      }).then(() => { // finally
-        //log.debug(`${_logKey}${func}.finally - in`);
-        const localRunningTask = data.runningTask;
-        data.runningTask = null;
-        const removeTaskAction = workerActions.createActionRemoveTask(localRunningTask);
-        storeManager.dispatchTask(removeTaskAction);
-
-        setImmediate(instance.processTask); // check for next task
-
-        return Promise.resolve();
-
-      }).catch((err) => { // catch finally
-        instance.logAndShowError(`${_logKey}${func}.finally.catch(${taskType})`, err);
-      });
-
+          return Promise.resolve();
+        })
+        .catch(err => {
+          // catch finally
+          instance.logAndShowError(
+            `${_logKey}${func}.finally.catch(${taskType})`,
+            err
+          );
+        });
     } catch (err) {
       instance.logAndShowError(`${_logKey}${func}(${taskType})`, err);
     }
@@ -185,10 +192,9 @@ export class Dispatcher extends CrawlerBase {
   // ........................................................
 
   dispatchTask(task) {
-    const func = ".dispatchTask";
+    const func = '.dispatchTask';
 
-    if (!task)
-      return Promise.resolve();
+    if (!task) return Promise.resolve();
 
     const taskType = task.type;
     const instance = this;
@@ -196,14 +202,15 @@ export class Dispatcher extends CrawlerBase {
     const pOuter = new Promise((resolve, reject) => {
       //log.debug(`${_logKey}${func}.promise - in`);
 
-      const {metaReader} = instance.objects;
-      const {mediaCrawler} = instance.objects;
-      const {mediaLoader} = instance.objects;
+      const { metaReader } = instance.objects;
+      const { mediaCrawler } = instance.objects;
+      const { mediaLoader } = instance.objects;
 
       let p = null;
 
-      switch (task.type) { // eslint-disable-line default-case
-
+      switch (
+        task.type // eslint-disable-line default-case
+      ) {
         case constants.AR_WORKER_AUTO_SELECT:
           p = mediaCrawler.autoSelectFiles(task.payload);
           break;
@@ -251,15 +258,19 @@ export class Dispatcher extends CrawlerBase {
         case constants.AR_WORKER_PREPARE_DIRS_FOR_UPDATE:
           p = mediaCrawler.prepareDirsForUpdate(task.payload);
           break;
+
+        case constants.AR_WORKER_CRAWLER_FINALLY:
+          p = mediaCrawler.checkCrawlerFinally(task.payload);
+          break;
       }
 
-      if (!p)
-        reject(new Error(`unknown task type ${task.type}!`));
-      else
-        resolve(p);
-
-    }).catch((err) => {
-      instance.logAndRethrowError(`${_logKey}${func}.promise.catch(${taskType})`, err);
+      if (!p) reject(new Error(`unknown task type ${task.type}!`));
+      else resolve(p);
+    }).catch(err => {
+      instance.logAndRethrowError(
+        `${_logKey}${func}.promise.catch(${taskType})`,
+        err
+      );
     });
 
     return pOuter;
@@ -271,36 +282,41 @@ export class Dispatcher extends CrawlerBase {
     const func = '.initWorker';
 
     const instance = this;
-    const {mediaCrawler} = instance.objects;
-    const {mediaLoader} = instance.objects;
+    const { mediaCrawler } = instance.objects;
+    const { mediaLoader } = instance.objects;
 
-    const {lastContainerType} = payload;
-    const {container} = payload;
+    const { lastContainerType } = payload;
+    const { container } = payload;
     // const {selectFile} = payload;
 
     let existContainer = false;
-    if (container)
-      existContainer = fs.existsSync(container);
+    if (container) existContainer = fs.existsSync(container);
 
     let p = null;
 
     if (constants.CONTAINER_FOLDER === lastContainerType && existContainer) {
       p = mediaLoader.openFolder(payload);
-    } else if (constants.CONTAINER_PLAYLIST === lastContainerType && existContainer) {
+    } else if (
+      constants.CONTAINER_PLAYLIST === lastContainerType &&
+      existContainer
+    ) {
       p = mediaLoader.openPlaylist(payload);
     }
 
-    if (!p)
-      p = Promise.resolve();
+    if (!p) p = Promise.resolve();
 
-    p = p.then(() => {
-
-      const activeAutoSelect = (lastContainerType === constants.CONTAINER_AUTOSELECT);
-      return mediaCrawler.start(activeAutoSelect);
-
-    }).catch((err) => {
-      instance.logAndRethrowError(`${_logKey}${func}.promise.catch(containerType=${lastContainerType})`, err);
-    });
+    p = p
+      .then(() => {
+        const activeAutoSelect =
+          lastContainerType === constants.CONTAINER_AUTOSELECT;
+        return mediaCrawler.start(activeAutoSelect);
+      })
+      .catch(err => {
+        instance.logAndRethrowError(
+          `${_logKey}${func}.promise.catch(containerType=${lastContainerType})`,
+          err
+        );
+      });
 
     return p;
   }
@@ -321,10 +337,9 @@ export class Dispatcher extends CrawlerBase {
       const skipActionTypes = [
         constants.AR_WORKER_OPEN_FOLDER,
         constants.AR_WORKER_DELIVER_META,
-        constants.AR_WORKER_RATE_DIR_BY_FILE,
+        constants.AR_WORKER_RATE_DIR_BY_FILE
       ];
-      if (skipActionTypes.includes(taskType))
-        return; // do nothing
+      if (skipActionTypes.includes(taskType)) return; // do nothing
 
       data.statusExistDataDb = true;
       data.statusExistDataCrawler = true;
@@ -332,8 +347,9 @@ export class Dispatcher extends CrawlerBase {
       let showFolder = null;
       let logInfo = null;
 
-      switch (taskType) { // eslint-disable-line default-case
-
+      switch (
+        taskType // eslint-disable-line default-case
+      ) {
         case taskTypeNone:
           data.statusCrawlerTask = 'Up-to-date';
           break;
@@ -370,19 +386,19 @@ export class Dispatcher extends CrawlerBase {
           break;
       }
 
-      if (showFolder)
-        data.statusCrawlerDir = showFolder;
-      else
-        data.statusCrawlerDir = null;
+      if (showFolder) data.statusCrawlerDir = showFolder;
+      else data.statusCrawlerDir = null;
 
       data.lastStatusTaskType = taskType;
 
       if (logInfo)
-        log.silly(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}:`, logInfo);
+        log.silly(
+          `${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}:`,
+          logInfo
+        );
       else
         log.silly(`${_logKey}${func}(${taskType}) - ${data.statusCrawlerTask}`);
-
-    } catch(err) {
+    } catch (err) {
       log.error(`${_logKey}${func} -`, err);
     }
   }
@@ -407,7 +423,11 @@ export class Dispatcher extends CrawlerBase {
       const prio = WorkerReducer.getTaskPrio(constants.AR_WORKER_UPDATE_DIR);
       const statusRemainingDirs = workerState.tasks[prio].length;
 
-      const action = statusActions.createActionRunning(statusCrawlerTask, statusCrawlerDir, statusRemainingDirs);
+      const action = statusActions.createActionRunning(
+        statusCrawlerTask,
+        statusCrawlerDir,
+        statusRemainingDirs
+      );
       this.objects.storeManager.dispatchTask(action);
 
       data.statusExistDataCrawler = false;
@@ -420,38 +440,35 @@ export class Dispatcher extends CrawlerBase {
     const func = '.onTimerStatusDb';
 
     const instance = this;
-    const {data} = instance;
-    const {dbWrapper} = instance.objects;
-    const {storeManager} = instance.objects;
+    const { data } = instance;
+    const { dbWrapper } = instance.objects;
+    const { storeManager } = instance.objects;
 
-    if (!data.statusExistDataDb)
-      return Promise.resolve();
+    if (!data.statusExistDataDb) return Promise.resolve();
     data.statusExistDataDb = false;
 
     let countDbDirs = null;
 
-    const p = dbWrapper.countDirs().then((count) => {
+    const p = dbWrapper
+      .countDirs()
+      .then(count => {
+        countDbDirs = count;
+        return dbWrapper.countFiles();
+      })
+      .then(countDbFiles => {
+        const action = statusActions.createActionDb(countDbDirs, countDbFiles);
+        storeManager.dispatchTask(action);
 
-      countDbDirs = count;
-      return dbWrapper.countFiles();
-
-    }).then((countDbFiles) => {
-
-      const action = statusActions.createActionDb(countDbDirs, countDbFiles);
-      storeManager.dispatchTask(action);
-
-      return Promise.resolve();
-
-    }).catch((err) => {
-      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
-    });
+        return Promise.resolve();
+      })
+      .catch(err => {
+        instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+      });
 
     return p;
-
   }
 
   // ........................................................
 }
 
 // ----------------------------------------------------------------------------------
-

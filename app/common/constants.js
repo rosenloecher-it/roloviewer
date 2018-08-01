@@ -1,9 +1,8 @@
-
 // --------------------------------------------------------------------------
 // debug
 
 //export const DEBUG_ARGS =  [ 'unknownPathToBinary', '--screensaver', '--fullscreen' ] ;
-export const DEBUG_ARGS =  [ 'unknownPathToBinary' ] ;
+export const DEBUG_ARGS = ['unknownPathToBinary'];
 export const DEBUG_DEVTOOLS_PROD = true;
 export const DEBUG_SHOW_WORKER_WINDOW = false;
 export const DEBUG_DONT_SAVE_CONFIG = false;
@@ -23,14 +22,14 @@ export const APP_BASENAME = 'roloslider';
 // --------------------------------------------------------------------------
 // format meta => mapUrl
 
-export const LATI_ABS = "$LATI_ABS$";
-export const LATI_NUM = "$LATI_NUM$";
-export const LATI_REF = "$LATI_REF$";
-export const LATI_REL = "$LATI_REL$";
-export const LONG_ABS = "$LONG_ABS$";
-export const LONG_NUM = "$LONG_NUM$";
-export const LONG_REF = "$LONG_REF$";
-export const LONG_REL = "$LONG_REL$";
+export const LATI_ABS = '$LATI_ABS$';
+export const LATI_NUM = '$LATI_NUM$';
+export const LATI_REF = '$LATI_REF$';
+export const LATI_REL = '$LATI_REL$';
+export const LONG_ABS = '$LONG_ABS$';
+export const LONG_NUM = '$LONG_NUM$';
+export const LONG_REF = '$LONG_REF$';
+export const LONG_REL = '$LONG_REL$';
 
 // --------------------------------------------------------------------------
 // config
@@ -48,11 +47,11 @@ export const DEFCONF_PATH_SHORTEN_ELEMENTS = 4;
 export const DEFCONF_DETAILS_TEXT_SHORTEN = 50;
 export const DEFCONF_RANDOM = true;
 
-
-export const DEFCONF_CRAWLER_MAX_FILES_PER_FOLDER = 1000;
+export const DEFCONF_MAX_ITEMS_PER_CONTAINER = 1000;
 export const DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES = 24 * 60;
 export const DEFCONF_CRAWLER_WEIGHTING_RATING = 60;
-export const DEFCONF_CRAWLER_WEIGHTING_REPEATED = DEFCONF_CRAWLER_WEIGHTING_RATING / 4;
+export const DEFCONF_CRAWLER_WEIGHTING_REPEATED =
+  DEFCONF_CRAWLER_WEIGHTING_RATING / 4;
 export const DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE = 182;
 export const DEFCONF_CRAWLER_WEIGHTING_SEASON = DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE;
 export const DEFCONF_CRAWLER_WEIGHTING_SELPOW = 3;
@@ -70,7 +69,6 @@ export const DEFCONF_META2MAPURL_FORMAT = `http://www.openstreetmap.org/?mlat=${
 export const DEFCONF_EXIFTOOL_INTERN = '.';
 export const DEFCONF_EXIFTOOL_DISABLE = '-';
 
-
 // --------------------------------------------------------------------------
 
 export const CRAWLER_MAX_WEIGHT = Number.MAX_VALUE;
@@ -82,19 +80,19 @@ export const MSG_TYPE_INFO = 1;
 export const MSG_TYPE_ERROR = 2;
 export const MSG_TYPE_WARNING = 3;
 
-export const ERROR_NOT_IMPLEMENTED = "ERROR: Not implemented!";
+export const ERROR_NOT_IMPLEMENTED = 'ERROR: Not implemented!';
 
 // --------------------------------------------------------------------------
 
 // CSS classes
-export const CORNER_POS_1 = "popover-left-bottom";
-export const CORNER_POS_2 = "popover-left-top";
-export const CORNER_POS_3 = "popover-right-top";
-export const CORNER_POS_4 = "popover-right-bottom";
+export const CORNER_POS_1 = 'popover-left-bottom';
+export const CORNER_POS_2 = 'popover-left-top';
+export const CORNER_POS_3 = 'popover-right-top';
+export const CORNER_POS_4 = 'popover-right-bottom';
 
-export const DETAILS_STATE_ALL = "ALL";
-export const DETAILS_STATE_MIN = "MIN";
-export const DETAILS_STATE_OFF = "OFF";
+export const DETAILS_STATE_ALL = 'ALL';
+export const DETAILS_STATE_MIN = 'MIN';
+export const DETAILS_STATE_OFF = 'OFF';
 
 // --------------------------------------------------------------------------
 // enums
@@ -123,7 +121,7 @@ export const AI_CHILD_IS_READY = 'AI_CHILD_IS_READY'; // 3. cilds ready
 
 export const AI_SHUTDOWN = 'AI_SHUTDOWN'; // main to workerState + renderer
 
-export const AI_DUMMY = "AI_DUMMY";
+export const AI_DUMMY = 'AI_DUMMY';
 
 export const AI_SPREAD_REDUX_ACTION = 'AI_SPREAD_REDUX_ACTION';
 
@@ -137,7 +135,8 @@ export const AI_QUIT_APP_BY_WORKER = 'AI_QUIT_APP_BY_WORKER'; // send from worke
 // actions - context
 
 export const AR_CONTEXT_INIT_REDUCER = 'AR_CONTEXT_INIT_REDUCER';
-export const AR_CONTEXT_SET_VERSION_EXIFREADER = 'AR_CONTEXT_SET_VERSION_EXIFREADER';
+export const AR_CONTEXT_SET_VERSION_EXIFREADER =
+  'AR_CONTEXT_SET_VERSION_EXIFREADER';
 
 // --------------------------------------------------------------------------
 // actions - workerState
@@ -164,20 +163,22 @@ export const AR_WORKER_OPEN_FOLDER = 'AR_WORKER_OPEN_FOLDER';
 export const AR_WORKER_OPEN_PLAYLIST = 'AR_WORKER_OPEN_PLAYLIST';
 
 // crawler
-export const AR_WORKER_PREPARE_DIRS_FOR_UPDATE = 'AR_WORKER_PREPARE_DIRS_FOR_UPDATE';
+export const AR_WORKER_PREPARE_DIRS_FOR_UPDATE =
+  'AR_WORKER_PREPARE_DIRS_FOR_UPDATE';
 export const AR_WORKER_RATE_DIR_BY_FILE = 'AR_WORKER_RATE_DIR_BY_FILE';
 export const AR_WORKER_REMOVE_DIRS = 'AR_WORKER_REMOVE_DIRS';
 export const AR_WORKER_SEARCH_FOR_NEW_DIRS = 'AR_WORKER_SEARCH_FOR_NEW_DIRS';
 export const AR_WORKER_START = 'AR_WORKER_START';
 export const AR_WORKER_UPDATE_DIR = 'AR_WORKER_UPDATE_DIR';
 export const AR_WORKER_UPDATE_DIRFILES = 'AR_WORKER_UPDATE_DIRFILES';
-
+export const AR_WORKER_CRAWLER_FINALLY = 'AR_WORKER_CRAWLER_FINALLY'; // checks if crawler found something
 
 // --------------------------------------------------------------------------
 // actions - mainwindow
 
 export const AR_MAINWINDOW_INIT_REDUCER = 'AR_MAINWINDOW_INIT_REDUCER';
-export const AR_MAINWINDOW_SET_ACTIVE_DEVTOOL = 'AR_MAINWINDOW_SET_ACTIVE_DEVTOOL';
+export const AR_MAINWINDOW_SET_ACTIVE_DEVTOOL =
+  'AR_MAINWINDOW_SET_ACTIVE_DEVTOOL';
 
 export const AR_MAINWINDOW_SET_FULLSCREEN = 'AR_MAINWINDOW_SET_FULLSCREEN';
 export const AR_MAINWINDOW_SET_MAXIMIZED = 'AR_MAINWINDOW_SET_MAXIMIZED';
@@ -197,7 +198,6 @@ export const AR_STATUS_RUNNING = 'AR_STATUS_RUNNING';
 export const AR_STATUS_DB = 'AR_STATUS_DB';
 export const AR_STATUS_NOTIFY_CURRENT_ITEM = 'AR_STATUS_NOTIFY_CURRENT_ITEM';
 
-
 // --------------------------------------------------------------------------
 // actions - slideshow
 
@@ -212,10 +212,12 @@ export const AR_SLIDESHOW_DETAILS_MOVE = 'AR_SLIDESHOW_DETAILS_MOVE';
 
 export const AR_SLIDESHOW_RANDOM_TOOGLE = 'AR_SLIDESHOW_RANDOM_TOOGLE';
 
-export const AR_SLIDESHOW_CRAWLERINFO_TOOGLE = 'AR_SLIDESHOW_CRAWLERINFO_TOOGLE';
+export const AR_SLIDESHOW_CRAWLERINFO_TOOGLE =
+  'AR_SLIDESHOW_CRAWLERINFO_TOOGLE';
 export const AR_SLIDESHOW_CRAWLERINFO_MOVE = 'AR_SLIDESHOW_CRAWLERINFO_MOVE';
 
-export const AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER = 'AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER';
+export const AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER =
+  'AR_SLIDESHOW_SET_LAST_ITEM_CONTAINER';
 
 // --------------------------------------------------------------------------
 // actions - renderer
@@ -238,19 +240,16 @@ export const AR_RENDERER_ABOUT_CLOSE = 'AR_RENDERER_ABOUT_CLOSE';
 export const AR_RENDERER_HELP_CLOSE = 'AR_RENDERER_HELP_CLOSE';
 export const AR_RENDERER_HELP_TOOGLE = 'AR_RENDERER_HELP_TOOGLE';
 
-export const AR_RENDERER_SHOW_CONTAINER_FILES = 'AR_RENDERER_SHOW_CONTAINER_FILES';   // args: container: dir or file; when null "auto-mode" + items[]
-export const AR_RENDERER_ADD_AUTO_FILES = 'AR_RENDERER_ADD_AUTO_FILES';     // auto-select-mode
-export const AR_RENDERER_DELIVER_META = "AR_RENDERER_DELIVER_META";     // add meta info for (one) file
+export const AR_RENDERER_SHOW_CONTAINER_FILES =
+  'AR_RENDERER_SHOW_CONTAINER_FILES'; // args: container: dir or file; when null "auto-mode" + items[]
+export const AR_RENDERER_ADD_AUTO_FILES = 'AR_RENDERER_ADD_AUTO_FILES'; // auto-select-mode
+export const AR_RENDERER_DELIVER_META = 'AR_RENDERER_DELIVER_META'; // add meta info for (one) file
 
 // --------------------------------------------------------------------------
 // actions - system
 
 export const AR_SYSTEM_INIT_REDUCER = 'AR_SYSTEM_INIT_REDUCER';
-export const AR_SYSTEM_SET_LAST_DIALOG_FOLDER = 'AR_SYSTEM_SET_LAST_DIALOG_FOLDER';
+export const AR_SYSTEM_SET_LAST_DIALOG_FOLDER =
+  'AR_SYSTEM_SET_LAST_DIALOG_FOLDER';
 
 // --------------------------------------------------------------------------
-
-
-
-
-
