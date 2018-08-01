@@ -89,6 +89,7 @@ export class RendererReducer {
         default:
           return state;
       }
+
     } catch (err) {
       log.error(`${this._logKey}${func}(${actionType}) - exception -`, err);
       log.debug(`${this._logKey}${func} - action -`, action);
@@ -139,7 +140,7 @@ export class RendererReducer {
       items: newItems,
       itemIndex: newItemIndex,
       container: action.payload.container,
-      containerType: action.payload.containerType
+      containerType: action.payload.containerType,
     };
   }
 
@@ -150,10 +151,7 @@ export class RendererReducer {
 
     this.setNewDeliveryKey(action.payload.items);
 
-    if (
-      state.containerType !== constants.CONTAINER_AUTOSELECT ||
-      action.payload.removeOldItems
-    ) {
+    if (state.containerType !== constants.CONTAINER_AUTOSELECT || action.payload.removeOldItems) {
       // replace old items
       return {
         ...state,
@@ -203,11 +201,15 @@ export class RendererReducer {
     const length = state.items.length;
 
     if (length > 0) {
-      if (newIndex >= length) newIndex = length - 1;
-      else if (newIndex < 0) newIndex = 0;
-    } else newIndex = -1;
+      if (newIndex >= length)
+        newIndex = length -1;
+      else if (newIndex < 0)
+        newIndex = 0;
+    } else
+      newIndex = -1;
 
-    if (oldIndex === newIndex) return state; // no change
+    if (oldIndex === newIndex)
+      return state; // no change
 
     return {
       ...state,
@@ -218,7 +220,9 @@ export class RendererReducer {
   // .....................................................
 
   goRandom(state) {
-    if (state.items.length < 2) return state;
+
+    if (state.items.length < 2)
+      return state;
 
     let counter = 0;
     let newIndex = 0;
@@ -238,8 +242,10 @@ export class RendererReducer {
 
   goJump(state, action) {
     let jumpWidth = 0;
-    if (action.payload) jumpWidth = action.payload;
-    if (!jumpWidth) return state;
+    if (action.payload)
+      jumpWidth = action.payload;
+    if (!jumpWidth)
+      return state;
 
     return this.goTo(state, state.itemIndex + jumpWidth);
   }
@@ -248,24 +254,28 @@ export class RendererReducer {
 
   goPage(state, action) {
     let pageDirection = 0;
-    if (action.payload) pageDirection = action.payload;
-    if (!pageDirection) return state;
+    if (action.payload)
+      pageDirection = action.payload;
+    if (!pageDirection)
+      return state;
 
     let newItemIndex = -1;
 
     do {
-      if (state.container) break;
+      if (state.container)
+        break;
 
       let currentDeliveryKey = -1;
       if (state.itemIndex >= 0 && state.itemIndex < state.items.length) {
         const item = state.items[state.itemIndex];
-        if (item && item.deliveryKey) currentDeliveryKey = item.deliveryKey;
+        if (item && item.deliveryKey)
+          currentDeliveryKey = item.deliveryKey;
       }
-      if (currentDeliveryKey < 0) break; // do standard
+      if (currentDeliveryKey < 0)
+        break; // do standard
 
       // find first different deliveryKey
-      if (pageDirection < 0) {
-        // jump back
+      if (pageDirection < 0) { // jump back
         for (let i = state.itemIndex - 1; i > 0; i--) {
           const item = state.items[i];
           if (item.deliveryKey !== currentDeliveryKey) {
@@ -273,7 +283,8 @@ export class RendererReducer {
             break; // ready
           }
         }
-        if (newItemIndex < 0) newItemIndex = 0;
+        if (newItemIndex < 0)
+          newItemIndex = 0;
       } else {
         for (let i = state.itemIndex + 1; i < state.items.length; i++) {
           const item = state.items[i];
@@ -282,12 +293,15 @@ export class RendererReducer {
             break; // ready
           }
         }
-        if (newItemIndex < 0) newItemIndex = state.items.length - 1;
+        if (newItemIndex < 0)
+          newItemIndex = state.items.length - 1;
       }
 
-      if (newItemIndex < 0) break;
+      if (newItemIndex < 0)
+        break;
 
       return this.goTo(state, newItemIndex);
+
     } while (false);
 
     return state;
@@ -333,7 +347,9 @@ export class RendererReducer {
             // if container !== playlist --- break;
           }
         }
-      } else log.debug(`${_logKey}${func} - no item found for "${file}" !!!`);
+      } else
+        log.debug(`${_logKey}${func} - no item found for "${file}" !!!`);
+
     } while (false);
 
     return resultState;

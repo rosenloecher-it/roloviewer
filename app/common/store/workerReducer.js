@@ -21,7 +21,8 @@ export class WorkerReducer {
   static defaultTaskArray() {
     const tasks = [];
 
-    for (let i = 0; i < PRIO_LENGTH; i++) tasks.push([]);
+    for (let i = 0; i < PRIO_LENGTH; i++)
+      tasks.push([]);
 
     return tasks;
   }
@@ -74,6 +75,7 @@ export class WorkerReducer {
         default:
           return state;
       }
+
     } catch (err) {
       log.error(`${this._logKey}${func}(${actionType}) - exception -`, err);
       log.debug(`${this._logKey}${func} - action -`, action);
@@ -118,9 +120,7 @@ export class WorkerReducer {
 
     if (action.payload.container !== null) {
       // folder or playlist
-      const prioMeta = WorkerReducer.getTaskPrio(
-        constants.AR_WORKER_DELIVER_META
-      );
+      const prioMeta = WorkerReducer.getTaskPrio(constants.AR_WORKER_DELIVER_META);
       newState.tasks[prioMeta] = [];
     }
 
@@ -132,7 +132,8 @@ export class WorkerReducer {
   // .....................................................
 
   updateDir(state, action) {
-    if (WorkerReducer.existsUpdateDirTask(state, action.payload)) return state;
+    if (WorkerReducer.existsUpdateDirTask(state, action.payload))
+      return state;
 
     return this.pushGenericTask(state, action);
   }
@@ -141,7 +142,8 @@ export class WorkerReducer {
     const newItems = [];
 
     for (let i = 0; i < oldItems.length; i++) {
-      if (i !== index) newItems.push(oldItems[i]);
+      if (i !== index)
+        newItems.push(oldItems[i]);
     }
 
     return newItems;
@@ -159,16 +161,15 @@ export class WorkerReducer {
       for (let k = 0; k < subtasks.length; k++) {
         const currentTaskId = subtasks[k].taskId;
         let foundIndex = -1;
-        if (currentTaskId === wantedTaskId) foundIndex = k;
+        if (currentTaskId === wantedTaskId)
+          foundIndex = k;
 
         if (foundIndex >= 0) {
           const newState = { ...state };
-          newState.tasks[i] = WorkerReducer.sliceItemFromArray(
-            newState.tasks[i],
-            foundIndex
-          );
+          newState.tasks[i] = WorkerReducer.sliceItemFromArray(newState.tasks[i], foundIndex);
           return newState;
         }
+
       }
     }
 
@@ -246,7 +247,8 @@ export class WorkerReducer {
   static getNextTask(state) {
     for (let i = 0; i < state.tasks.length; i++) {
       const subtasks = state.tasks[i];
-      if (subtasks.length > 0) return subtasks[0];
+      if (subtasks.length > 0)
+        return subtasks[0];
     }
 
     return null;

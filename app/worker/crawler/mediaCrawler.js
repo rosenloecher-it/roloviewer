@@ -19,6 +19,7 @@ const _logKey = 'mediaCrawler';
 // ----------------------------------------------------------------------------------
 
 export class MediaCrawler extends CrawlerBase {
+
   constructor() {
     super();
 
@@ -801,21 +802,21 @@ export class MediaCrawler extends CrawlerBase {
 
     const children = MediaFilter.listMediaFilesShort(folder);
 
-    const p = dbWrapper
-      .loadDir(folder)
-      .then(dirItem => {
-        if (!dirItem) dirItem = mediaComposer.createDirItem({ dir: folder });
+    const p = dbWrapper.loadDir(folder).then((dirItem) => {
 
-        //log.debug(`${_logKey}${func} - dirItem:`, dirItem);
+      if (!dirItem)
+        dirItem = mediaComposer.createDirItem({dir: folder});
 
-        if (instance.checkAndHandleChangedFileItems(dirItem, children))
-          return dbWrapper.saveDir(dirItem);
+      //log.debug(`${_logKey}${func} - dirItem:`, dirItem);
 
-        return Promise.resolve();
-      })
-      .catch(err => {
-        instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
-      });
+      if (instance.checkAndHandleChangedFileItems(dirItem, children))
+        return dbWrapper.saveDir(dirItem);
+
+      return Promise.resolve();
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
 
     return p;
   }
