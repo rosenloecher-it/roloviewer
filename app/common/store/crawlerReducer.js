@@ -142,9 +142,12 @@ export class CrawlerReducer {
   static compareCrawleStates(state1, state2) {
     // don't copmpare 1:1, but relevant settings
 
-    if (state1 === state2) return true;
-    if (!!state1 !== !!state2) return false;
-    if (typeof state1 !== typeof state2) return false;
+    if (state1 === state2)
+      return true;
+    if (!!state1 !== !!state2)
+      return false;
+    if (typeof(state1) !== typeof(state2))
+      return false;
 
     const state1Cloned = CrawlerReducer.cloneCrawleState(state1);
     const state2Cloned = CrawlerReducer.cloneCrawleState(state2);
