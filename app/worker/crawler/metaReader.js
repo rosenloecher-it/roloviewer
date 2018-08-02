@@ -3,10 +3,6 @@ import * as constants from "../../common/constants";
 import * as rendererActions from "../../common/store/rendererActions";
 import {CrawlerBase} from "./crawlerBase";
 import {MetaReaderExiftool} from "./metaReaderExiftool";
-import {isWinOs} from "../../common/utils/systemUtils";
-import path from 'path';
-import { app } from "electron";
-import * as fileUtils from "../../common/utils/fileUtils";
 
 // ----------------------------------------------------------------------------------
 
@@ -38,70 +34,13 @@ export class MetaReader extends CrawlerBase {
     if (data.exiftoolInitialized || data.reader)
       return Promise.resolve();
 
-
-
-    // /resources/app.asar.unpacked/node_modules/exiftool-vendored.pl/bin/exiftool
-
-
-    let pathAsarExif = null;
-
-    try {
-      const contextState = this.objects.storeManager.contextState;
-
-      log.debug(`${_logKey}${func} contextState.exePath`, contextState.exePath);
-      const appPath = path.dirname(contextState.exePath);
-
-      const exifPath = path.join(appPath, 'resources/app.asar.unpacked/node_modules/exiftool-vendored.pl/bin/exiftool');
-
-      if (!fileUtils.isFile(exifPath))
-        log.debug('exifPath not found:', exifPath);
-      else {
-        log.debug('exifPath found:', exifPath);
-        pathAsarExif = exifPath;
-
-        // use pathAsarExif as path for
-      }
-
-    } catch (err) {
-      log.debug(`${_logKey}${func} -`, err);
-    }
-
-
-
-
-
-
-
     const p = super.init().then(() => {
 
       instance.data.exiftoolInitialized = true;
 
       const systemState = instance.objects.storeManager.systemState;
 
-      if (isWinOs()) {
-        if (systemState.exiftool)
-          return Promise.resolve(systemState.exiftool);
-      } else {
-        // TODO solve error 'spawn ENOTDIR' of module 'exiftool-vendored'
-        if (systemState.exiftool && systemState.exiftool !== constants.DEFCONF_EXIFTOOL_INTERN)
-          return Promise.resolve(systemState.exiftool);
-      }
-
-      return MetaReaderExiftool.determineExifToolPath(systemState);
-
-    }).then((exiftoolPath) => {
-
-      if (exiftoolPath === constants.DEFCONF_EXIFTOOL_DISABLE)
-        data.reader = null;
-      else {
-        if (pathAsarExif)
-          exiftoolPath = pathAsarExif;
-
-        //exiftoolPath = constants.DEFCONF_EXIFTOOL_INTERN;
-
-        data.reader = MetaReaderExiftool.createReader(exiftoolPath);
-      }
-      //  else data.reader = MetaReaderIntern.createReader();
+      data.reader = MetaReaderExiftool.createReader(systemState.exiftool);
 
       if (data.reader)
         return data.reader.init();
