@@ -3,14 +3,14 @@ import path from 'path';
 // ----------------------------------------------------------------------------------
 
 export function valiBoolean(input) {
-  if (input == null) return null;
-  if (typeof input === typeof true) return input;
-  const compare = input
-    .toString()
-    .trim()
-    .toLowerCase();
+  if (input == null)
+    return null;
+  if (typeof input === typeof true)
+    return input;
+  const compare = input.toString().trim().toLowerCase();
 
-  if (compare === 'true' || compare === 'on' || compare === '1') return true;
+  if (compare === 'true' || compare === 'on' || compare === '1')
+    return true;
   else if (compare === 'false' || compare === 'off' || compare === '0')
     return false;
 
@@ -22,7 +22,8 @@ export function valiBoolean(input) {
 export function valiInt(input) {
   const num = parseInt(input, 10);
 
-  if (Number.isNaN(num)) return null;
+  if (Number.isNaN(num))
+    return null;
 
   return num;
 }
@@ -30,10 +31,13 @@ export function valiInt(input) {
 // ----------------------------------------------------------------------------------
 
 export function valiString(input) {
-  if (input == null) return null;
+  if (input == null)
+    return null;
 
-  if (typeof input !== typeof 'str') return null;
-  if (input === 'undefined' || input === 'null') return null;
+  if (typeof input !== typeof 'str')
+    return null;
+  if (input === 'undefined' || input === 'null')
+    return null;
 
   return input;
 }
@@ -66,8 +70,10 @@ export function valiRatingArray(input) {
     if (value === null)
       // make flow happy
       continue;
-    if (typeof value !== typeof 1) continue;
-    if (value < 0 || value > 5) continue;
+    if (typeof value !== typeof 1)
+      continue;
+    if (value < 0 || value > 5)
+      continue;
 
     if (!output.includes(value)) output.push(value);
   }
@@ -83,12 +89,14 @@ export function valiFolderArray(input) {
   if (Array.isArray(input)) {
     for (let i = 0; i < input.length; i++) {
       let folder = input[i];
-      if (typeof folder !== typeof 'str') continue;
+      if (typeof folder !== typeof 'str')
+        continue;
       folder = path.normalize(folder);
       //if (!fs.existsSync(folder))
       //  continue;
 
-      if (!output.includes(folder)) output.push(folder);
+      if (!output.includes(folder))
+        output.push(folder);
     }
   }
 
@@ -103,9 +111,11 @@ export function valiBlacklistSnippets(input) {
   if (Array.isArray(input)) {
     for (let i = 0; i < input.length; i++) {
       let snippet = input[i];
-      if (typeof snippet !== typeof 'str') continue;
+      if (typeof snippet !== typeof 'str')
+        continue;
       snippet = snippet.trim().toLowerCase();
-      if (snippet) output.push(snippet);
+      if (snippet)
+        output.push(snippet);
     }
   }
 
@@ -119,7 +129,8 @@ export function validateBlacklistFolders(blacklistFoldersIn) {
 
   for (let i = 0; i < blacklistFoldersIn; i++) {
     const folder = path.normalize(blacklistFoldersIn[i]);
-    if (!path.isAbsolute(folder)) continue;
+    if (!path.isAbsolute(folder))
+      continue;
     blacklistFoldersOut.push(folder);
   }
 
@@ -131,13 +142,15 @@ export function validateBlacklistFolders(blacklistFoldersIn) {
 export function valiLogLevel(input) {
   const defaultLogLevel = 'warn';
 
-  if (typeof input !== typeof 'str') return defaultLogLevel;
+  if (typeof input !== typeof 'str')
+    return defaultLogLevel;
 
   const logLevels = ['error', 'warn', 'info', 'verbose', 'debug', 'silly'];
 
   const output = input.trim().toLowerCase();
 
-  if (logLevels.indexOf(output) > -1) return output;
+  if (logLevels.indexOf(output) > -1)
+    return output;
 
   return defaultLogLevel;
 }
@@ -153,7 +166,8 @@ export function valiTagArray(input) {
     const text = valiString(input[i]);
     if (text) {
       const value = text.trim().toLowerCase();
-      if (!output.includes(value)) output.push(value);
+      if (!output.includes(value))
+        output.push(value);
     }
   }
 
@@ -163,8 +177,10 @@ export function valiTagArray(input) {
 // ----------------------------------------------------------------------------------
 
 export function mergeConfigItem(valueDef, valuePrio1, valuePrio2 = null) {
-  if (typeof valueDef === typeof valuePrio1) return valuePrio1;
-  if (typeof valueDef === typeof valuePrio2) return valuePrio2;
+  if (typeof valueDef === typeof valuePrio1)
+    return valuePrio1;
+  if (typeof valueDef === typeof valuePrio2)
+    return valuePrio2;
 
   return valueDef;
 }
@@ -173,10 +189,12 @@ export function mergeConfigItem(valueDef, valuePrio1, valuePrio2 = null) {
 
 export function mergeIntItem(valueDef, valuePrio1In, valuePrio2In = null) {
   const valuePrio1 = valiInt(valuePrio1In);
-  if (typeof valueDef === typeof valuePrio1) return valuePrio1;
+  if (typeof valueDef === typeof valuePrio1)
+    return valuePrio1;
 
   const valuePrio2 = valiInt(valuePrio2In);
-  if (typeof valueDef === typeof valuePrio2) return valuePrio2;
+  if (typeof valueDef === typeof valuePrio2)
+    return valuePrio2;
 
   return valueDef;
 }
@@ -185,10 +203,12 @@ export function mergeIntItem(valueDef, valuePrio1In, valuePrio2In = null) {
 
 export function mergeBoolItem(valueDef, valuePrio1In, valuePrio2In = null) {
   const valuePrio1 = valiBoolean(valuePrio1In);
-  if (typeof valueDef === typeof valuePrio1) return valuePrio1;
+  if (typeof valueDef === typeof valuePrio1)
+    return valuePrio1;
 
   const valuePrio2 = valiBoolean(valuePrio2In);
-  if (typeof valueDef === typeof valuePrio2) return valuePrio2;
+  if (typeof valueDef === typeof valuePrio2)
+    return valuePrio2;
 
   return valueDef;
 }
