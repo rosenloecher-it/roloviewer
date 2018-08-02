@@ -24,6 +24,7 @@ export class ContextReducer {
       isTest: false,
       configIsReadOnly: false,
       configFile: null,
+      exePath: null,
       tempCliAutoplay: false,
       tempCliAutoselect: false,
       tempCliFullscreen: false,
@@ -69,7 +70,7 @@ export class ContextReducer {
 
     const {
       isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
-      configFile, configIsReadOnly,
+      configFile, configIsReadOnly, exePath,
       tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer,
       versionElectron
     } = action.payload;
@@ -77,7 +78,7 @@ export class ContextReducer {
     const newState = {
       ...state,
       isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
-      configFile, configIsReadOnly,
+      configFile, configIsReadOnly, exePath,
       tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer,
       versionElectron
     };

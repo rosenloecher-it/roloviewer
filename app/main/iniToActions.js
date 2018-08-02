@@ -1,6 +1,7 @@
 import fs from 'fs';
 import log from 'electron-log';
 import path from 'path';
+import { app } from "electron";
 import * as constants from '../common/constants';
 import * as fileUtils from '../common/utils/fileUtils';
 import {
@@ -57,6 +58,7 @@ export function createContextAction(appContext, cliData, defaultConfigFile) {
   actionData.tempCliAutoselect = valiBoolean(cliData.autoselect) || false;
   actionData.tempCliFullscreen = valiBoolean(cliData.fullscreen) || false;
 
+  actionData.exePath = app.getPath('exe');
   actionData.versionElectron = process.versions.electron;
 
   if (!actionData.tempCliAutoselect && cliData.open)
@@ -208,15 +210,15 @@ export function createSystemAction(iniDataIn, context, defaultLogFile) {
   const actionData = {};
 
   actionData.exiftool = valiString(iniData.system.exiftool);
+  if (actionData.exiftool === null)
+    actionData.exiftool = constants.DEFCONF_EXIFTOOL_INTERN;
 
   actionData.powerSaveBlockTime = mergeIntItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME, iniData.system.powerSaveBlockTime);
 
   actionData.lastDialogFolder = valiDir(iniData.system.lastDialogFolder);
 
-  actionData.logLevelFile = mergeConfigItem(
-    !context.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL_CONSOLE,
-    null,
-    valiLogLevel(iniData.system.logLevelFile));
+  actionData.logLevelFile = mergeConfigItem(!context.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL_CONSOLE,
+                              valiLogLevel(iniData.system.logLevelFile));
 
   actionData.logLevelConsole = mergeConfigItem(constants.DEFCONF_LOGLEVEL_FILE,
     valiLogLevel(iniData.system.logLevelConsole));

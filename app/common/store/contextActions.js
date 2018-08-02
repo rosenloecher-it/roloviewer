@@ -2,14 +2,14 @@ import * as constants from "../constants";
 
 export const createActionInitReducer = ({
   isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
-  configFile, configIsReadOnly,
+  configFile, configIsReadOnly, exePath,
   tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer,
   versionElectron
 }) => ({
   type: constants.AR_CONTEXT_INIT_REDUCER,
   payload: {
     isDevelopment, isDevtool, isProduction, isTest, isScreensaver,
-    configIsReadOnly, configFile,
+    configIsReadOnly, configFile, exePath,
     tempCliAutoplay, tempCliAutoselect, tempCliFullscreen, tempCliOpenContainer,
     versionElectron
   }
