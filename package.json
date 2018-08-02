@@ -76,7 +76,8 @@
         "deb",
         "AppImage"
       ],
-      "category": "Graphics"
+      "category": "Graphics",
+      "asarUnpack": "./node_modules/exiftool-vendored.pl/**"
     },
     "directories": {
       "buildResources": "resources",
