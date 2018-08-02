@@ -30,9 +30,12 @@ export class MediaLoader extends CrawlerBase {
       try {
         //log.debug(`${_logKey}.open - in`, input);
 
-        if (!input) data = {};
-        else if (typeof input === typeof 'str') data = { container: input };
-        else data = input;
+        if (!input)
+          data = {};
+        else if (typeof input === typeof 'str')
+          data = { container: input };
+        else
+          data = input;
 
         if (data.container) {
           if (fileUtils.isDirectory(data.container))
@@ -45,6 +48,7 @@ export class MediaLoader extends CrawlerBase {
 
         //log.debug(`${_logKey}.open - out`);
         resolve();
+
       } catch (error) {
         const textBase = `${_logKey}${func} - exception -`;
         log.error(textBase, error);
@@ -94,16 +98,11 @@ export class MediaLoader extends CrawlerBase {
 
       this.deactivateAutoSelect();
 
-      log.debug(
-        `${_logKey}${func} - container=${container}, selectFile=${selectFile}`
-      );
+      log.debug(`${_logKey}${func} - container=${container}, selectFile=${selectFile}`);
 
       if (!fileUtils.isDirectory(container)) {
         log.error(`${_logKey}${func} - folder does not exist (${container})!`);
-        storeManager.showMessage(
-          constants.MSG_TYPE_ERROR,
-          `Folder does not exist (${container})!`
-        );
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, `Folder does not exist (${container})!`);
         return;
       }
 
@@ -111,13 +110,8 @@ export class MediaLoader extends CrawlerBase {
       MediaFilter.pushMediaFilesFull(container, mediaFiles);
 
       if (mediaFiles.length <= 0) {
-        log.warn(
-          `${_logKey}${func} - directory does not contain supported media files! ${container}`
-        );
-        storeManager.showMessage(
-          constants.MSG_TYPE_ERROR,
-          'The directory does not contain supported media files!'
-        );
+        log.warn(`${_logKey}${func} - directory does not contain supported media files! ${container}`);
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, 'The directory does not contain supported media files!');
         return;
       }
 
@@ -135,6 +129,7 @@ export class MediaLoader extends CrawlerBase {
       this.objects.storeManager.dispatchGlobal(action);
 
       this.addTasksDeliverFileMeta(mediaFiles);
+
     } catch (err) {
       this.logAndShowError(`${_logKey}${func}`, err);
     }
@@ -184,15 +179,13 @@ export class MediaLoader extends CrawlerBase {
         const file = filesIn[i];
         if (MediaFilter.canImportFolder(file))
           MediaFilter.pushMediaFilesFull(file, mediaFiles);
-        else if (MediaFilter.canImportMediaFile(file)) mediaFiles.push(file);
+        else if (MediaFilter.canImportMediaFile(file))
+          mediaFiles.push(file);
       }
 
       if (mediaFiles.length <= 0) {
         log.warn(`${_logKey}${func} - dropped files not supported!`, filesIn);
-        storeManager.showMessage(
-          constants.MSG_TYPE_ERROR,
-          `The dropped files are not supported!`
-        );
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, `The dropped files are not supported!`);
         return;
       }
 
@@ -201,15 +194,12 @@ export class MediaLoader extends CrawlerBase {
       });
 
       const mediaItems = this.createItems(mediaFiles);
-      const action = rendererActions.createActionShowFiles(
-        'dropped',
-        constants.CONTAINER_CLIPBOARD,
-        mediaItems,
-        null
-      );
+      const action = rendererActions.createActionShowFiles('dropped',
+                                        constants.CONTAINER_CLIPBOARD, mediaItems, null);
       this.objects.storeManager.dispatchGlobal(action);
 
       this.addTasksDeliverFileMeta(mediaFiles);
+
     } catch (err) {
       this.logAndShowError(`${_logKey}${func}`, err);
     }
@@ -230,7 +220,8 @@ export class MediaLoader extends CrawlerBase {
     const items = [];
     for (let i = 0; i < files.length; i++) {
       const item = rendererActions.createMediaItem(files[i]);
-      if (item) items.push(item);
+      if (item)
+        items.push(item);
     }
     return items;
   }
@@ -252,8 +243,10 @@ export class MediaLoader extends CrawlerBase {
   static sortFilename(filename1, filename2) {
     const f1 = filename1.toLowerCase();
     const f2 = filename2.toLowerCase();
-    if (f1 < f2) return -1;
-    else if (f1 > f2) return 1;
+    if (f1 < f2)
+      return -1;
+    else if (f1 > f2)
+      return 1;
     return 0;
   }
 

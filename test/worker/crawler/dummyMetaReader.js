@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import {CrawlerBase} from "../../../app/worker/crawler/crawlerBase";
 import {DummyTestSystem} from "./dummyTestSystem";
-import {separateFilePath} from "../../../app/common/utils/transfromPath";
 import * as rendererActions from "../../../app/common/store/rendererActions";
 
 // ----------------------------------------------------------------------------------
@@ -45,11 +44,11 @@ export class DummyMetaReader extends CrawlerBase {
       if (fs.existsSync(file))
         reject(new Error('file does not exist!'));
 
-      const sepPath = separateFilePath(file, 4);
+      const splittedPath = path.parse(file);
       const meta = {
         file,
-        filename: sepPath.filename,
-        dir: sepPath.dir,
+        filename: splittedPath.base,
+        dir: splittedPath.dir,
       };
 
       meta.tags = fileItem.rating || 0;

@@ -120,14 +120,35 @@ export class MediaComposer extends CrawlerBase {
 
   // ........................................................
 
-  evaluateFileItem(fileItem) {
+  evaluateSeasonWeight(fileItem, testTimeNow = null) {
+    const func = '.evaluateFileItem'; // eslint-disable-line no-unused-vars
+
+    if (!fileItem)
+      return 0;
+
+    const crawlerState = this.objects.storeManager.crawlerState;
+    const { weightingSeason } = crawlerState;
+
+    const maxDiffSeasonDays = constants.DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE + 10; // punish files without date
+    let diffSeasonDays = MediaComposer.seasonDiffDays(fileItem.time, constants.DEFCONF_CRAWLER_TODAY_SHIFT_SEASON, testTimeNow);
+    if (diffSeasonDays === null || diffSeasonDays < 0)
+      diffSeasonDays = maxDiffSeasonDays;
+
+    const weightSeason = diffSeasonDays / maxDiffSeasonDays * weightingSeason;
+
+    return weightSeason;
+  }
+
+  // ........................................................
+
+  evaluateFileItem(fileItem, testTimeNow = null) {
     const func = '.evaluateFileItem'; // eslint-disable-line no-unused-vars
 
     if (!fileItem)
       return;
 
     const crawlerState = this.objects.storeManager.crawlerState;
-    const {weightingRating, weightingRepeated, weightingSeason} = crawlerState;
+    const { weightingRating, weightingRepeated } = crawlerState;
 
     if (!fileItem.lastShown)
       fileItem.lastShown = DAY0;
@@ -140,12 +161,7 @@ export class MediaComposer extends CrawlerBase {
     const weightRating = -1 * rating * weightingRating;
     const weightRepeated = repeated * weightingRepeated;
 
-    const maxDiffSeasonDays = constants.DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE + 10; // punish files without date
-    let diffSeasonDays = MediaComposer.seasonDiffDays(fileItem.time, constants.DEFCONF_CRAWLER_TODAY_SHIFT_SEASON);
-    if (diffSeasonDays === null || diffSeasonDays < 0)
-      diffSeasonDays = maxDiffSeasonDays;
-
-    const weightSeason = diffSeasonDays / maxDiffSeasonDays * weightingSeason;
+    const weightSeason = this.evaluateSeasonWeight(fileItem, testTimeNow);
 
     fileItem.weight = weightTime + weightRating + weightRepeated + weightSeason;
   }

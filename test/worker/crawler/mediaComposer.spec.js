@@ -415,4 +415,41 @@ describe('mediaComposer', () => {
   });
 
   // .......................................................
+
+  it('evaluateSeasonWeight', () => {
+
+    let time;
+
+    const storeManager = new TestManager();
+    const mediaComposer = new MediaComposer();
+    mediaComposer.coupleObjects({mediaComposer, storeManager});
+
+    time = new Date(2016, 7, 1, 0, 0, 0).getTime();
+    const fileItem = mediaComposer.createFileItem({fileName: '123', rating: 0, time});
+
+    time = new Date(2018, 1, 1, 0, 0, 0).getTime();
+    const weight1 = mediaComposer.evaluateSeasonWeight(fileItem, time);
+
+    time = new Date(2017, 1, 1, 0, 0, 0).getTime();
+    const weight2 = mediaComposer.evaluateSeasonWeight(fileItem, time);
+
+    time = new Date(2018, 6, 2, 0, 0, 0).getTime();
+    const weight3 = mediaComposer.evaluateSeasonWeight(fileItem, time);
+
+    //console.log(`weight1=${weight1}\nweight2=${weight2}\nweight3=${weight3}`);
+
+    expect(weight1).toBe(weight2);
+    expect(weight3).toBeLessThan(weight2);
+    expect(weight3).toBeGreaterThan(0);
+
+    time = new Date().getTime();
+    const weight4 = mediaComposer.evaluateSeasonWeight(fileItem, time);
+
+    const weight5 = mediaComposer.evaluateSeasonWeight(fileItem, null);
+
+    expect(Math.abs(weight4 - weight5)).toBeLessThan(0.1);
+    console.log(`weight4=${weight4}\nweight5=${weight5}`);
+
+  });
+
 });

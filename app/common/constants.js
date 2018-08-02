@@ -3,7 +3,7 @@
 
 //export const DEBUG_ARGS =  [ 'unknownPathToBinary', '--screensaver', '--fullscreen' ] ;
 export const DEBUG_ARGS = ['unknownPathToBinary'];
-export const DEBUG_DEVTOOLS_PROD = false;
+export const DEBUG_DEVTOOLS_PROD = true;
 export const DEBUG_SHOW_WORKER_WINDOW = false;
 export const DEBUG_DONT_SAVE_CONFIG = false;
 
@@ -53,7 +53,7 @@ export const DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES = 24 * 60;
 export const DEFCONF_CRAWLER_WEIGHTING_RATING = 60;
 export const DEFCONF_CRAWLER_WEIGHTING_REPEATED =
   DEFCONF_CRAWLER_WEIGHTING_RATING / 4;
-export const DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE = 182;
+export const DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE = 182 * 2;
 export const DEFCONF_CRAWLER_WEIGHTING_SEASON = DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE;
 export const DEFCONF_CRAWLER_WEIGHTING_SELPOW = 3;
 export const DEFCONF_CRAWLER_TODAY_SHIFT_SEASON = 10;
