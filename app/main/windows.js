@@ -1,10 +1,12 @@
-import electron from 'electron';
+import electron, { app } from "electron";
 import path from 'path';
 import log from 'electron-log';
 import * as ops from "./mainOps";
 import * as constants from "../common/constants";
 import storeManager from './store/mainManager';
 import * as actionsMainWindow from "../common/store/mainWindowActions";
+import * as fileUtils from "../common/utils/fileUtils";
+import { isWinOs } from "../common/utils/systemUtils";
 
 // ----------------------------------------------------------------------------------
 
@@ -106,6 +108,46 @@ function storeMainWindowState() {
 
 // ----------------------------------------------------------------------------------
 
+export function determineIcon() {
+  const func = ".determineIcon";
+
+  try {
+    let iconName = '';
+    let iconDir = '';
+
+    if (isWinOs())
+      iconName = 'icon.ico';
+    else // linux
+      iconName = 'icon.png';
+
+    const appName = electron.app.getName();
+
+    if (appName === 'Electron') {
+      iconDir = path.join(__dirname, '..', 'resources');
+    } else {
+      // app is packed as asar
+      const exePath = app.getPath('exe');
+      const appPath = path.dirname(exePath);
+      iconDir = path.join(appPath, 'resources/app.asar/resources');
+    }
+
+    const iconPath = path.join(iconDir, iconName);
+    if (!fileUtils.isFile(iconPath))
+      throw new Error(`"${iconPath}" doesn't exist!`);
+
+    log.debug(`${_logKey}${func} - use icon path:`, iconPath);
+
+    return iconPath;
+
+  } catch (err) {
+    log.error(`${_logKey}${func} -`, err);
+  }
+
+  return undefined; // use standard electron icon
+}
+
+// ----------------------------------------------------------------------------------
+
 export function createMainWindow() {
   const func = ".createMainWindow";
 
@@ -127,7 +169,7 @@ export function createMainWindow() {
       minWidth: constants.DEFCONF_WIDTH_MIN,
       minHeight: constants.DEFCONF_HEIGHT_MIN,
       backgroundColor: 'black', // has to match style!
-      icon: path.join(__dirname, '..', 'icon', 'icon512.png'),
+      icon: determineIcon(),
       show: false,
       webPreferences: {
         webSecurity: false
@@ -182,7 +224,7 @@ export function createMainWindow() {
     mainWindow.on('resize', storeMainWindowState);
     mainWindow.on('move', storeMainWindowState);
   } catch (err) {
-    log.error(`${_logKey}${func} - exception -`, err);
+    log.error(`${_logKey}${func} -`, err);
   }
 }
 
@@ -244,7 +286,7 @@ export function createWorkerWindow() {
       workerWindow = null;
     });
   } catch (err) {
-    log.error(`${_logKey}.createWorkerWindow - exception -`, err);
+    log.error(`${_logKey}.createWorkerWindow -`, err);
   }
 }
 
