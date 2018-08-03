@@ -13,7 +13,6 @@ export const createActionInitReducer = ({
                                    lastContainerType,
                                    lastItem,
                                    random,
-
                                    timer,
                                    transitionTimeAutoPlay,
                                    transitionTimeManual,

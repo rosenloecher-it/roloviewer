@@ -144,12 +144,9 @@ export class RendererReducer {
       };
     }
 
-    let shortenItems =
-      -1 *
-      (state.maxItemsPerContainer -
-        state.items.length -
-        action.payload.items.length);
-    if (shortenItems < 0) shortenItems = 0;
+    let shortenItems = -1 * (state.maxItemsPerContainer - state.items.length - action.payload.items.length);
+    if (shortenItems < 0)
+      shortenItems = 0;
 
     const newItems = [];
 
