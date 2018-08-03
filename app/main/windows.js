@@ -127,6 +127,7 @@ export function createMainWindow() {
       minWidth: constants.DEFCONF_WIDTH_MIN,
       minHeight: constants.DEFCONF_HEIGHT_MIN,
       backgroundColor: 'black', // has to match style!
+      icon: path.join(__dirname, '..', 'icon', 'icon512.png'),
       show: false,
       webPreferences: {
         webSecurity: false
