@@ -17,7 +17,6 @@ const defaultIniData = {
     maximized: false,
     activeDevtool: true
   }, slideshow: {
-    aboutShow: false,
     autoPlay: false,
     container: 'undefined',
     crawlerInfoPosition: 'popover-right-bottom',

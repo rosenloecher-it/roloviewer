@@ -489,12 +489,12 @@ Slideshow.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-  aboutShow: state.renderer.aboutShow,
+  aboutShow: state.slideshow.aboutShow,
   combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
   container: state.renderer.container,
   containerType: state.renderer.containerType,
   cursorHide: state.renderer.cursorHide,
-  helpShow: state.renderer.helpShow,
+  helpShow: state.slideshow.helpShow,
   isScreensaver: state.context.isScreensaver,
   itemIndex: state.renderer.itemIndex,
   items: state.renderer.items,

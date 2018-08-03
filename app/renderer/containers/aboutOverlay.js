@@ -1,13 +1,13 @@
-import React from 'react';
+import log from 'electron-log';
 import path from 'path';
 import PropTypes from 'prop-types';
-import {connect} from "react-redux";
-import log from 'electron-log';
+import React from 'react';
 import { Button } from '@blueprintjs/core';
+import { connect } from "react-redux";
 import * as constants from "../../common/constants";
-import * as rendererActions from "../../common/store/rendererActions";
-import storeManager from "../store/rendererManager";
 import * as ops from "../rendererOps";
+import * as slideshowActions from "../../common/store/slideshowActions";
+import storeManager from "../store/rendererManager";
 
 // ----------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ class AboutOverlay extends React.Component {
   }
 
   onClose() {
-    const action = rendererActions.createActionAboutClose();
+    const action = slideshowActions.createActionAboutClose();
     storeManager.dispatchGlobal(action);
   }
 

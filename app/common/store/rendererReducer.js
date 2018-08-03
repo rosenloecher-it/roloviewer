@@ -22,7 +22,6 @@ export class RendererReducer {
       container: null,
       containerType: null,
       cursorHide: false,
-      helpShow: false,
       itemIndex: -1,
       items: [],
       maxItemsPerContainer: constants.DEFCONF_MAX_ITEMS_PER_CONTAINER
@@ -63,23 +62,6 @@ export class RendererReducer {
           return this.addFiles(state, action);
         case constants.AR_RENDERER_DELIVER_META:
           return this.deliverMeta(state, action);
-
-        case constants.AR_SLIDESHOW_AUTOPLAY_START:
-          return { ...state, autoPlay: true };
-        case constants.AR_SLIDESHOW_AUTOPLAY_STOP:
-          return { ...state, autoPlay: false };
-        case constants.AR_SLIDESHOW_AUTOPLAY_TOGGLE:
-          return { ...state, autoPlay: !state.autoPlay };
-
-        case constants.AR_RENDERER_HELP_CLOSE:
-          return { ...state, helpShow: false };
-        case constants.AR_RENDERER_HELP_TOOGLE:
-          return { ...state, aboutShow: false, helpShow: !state.helpShow };
-
-        case constants.AR_RENDERER_ABOUT_OPEN:
-          return { ...state, aboutShow: true, helpShow: false };
-        case constants.AR_RENDERER_ABOUT_CLOSE:
-          return { ...state, aboutShow: false };
 
         case constants.AR_RENDERER_CURSOR_HIDE:
           return { ...state, cursorHide: true };

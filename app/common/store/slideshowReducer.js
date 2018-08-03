@@ -37,6 +37,7 @@ export class SlideshowReducer {
       detailsPosition: DEFAULT_POSITION_DETAILS,
       detailsShortenText: constants.DEFCONF_DETAILS_TEXT_SHORTEN,
       detailsState: DEFAULT_DETAILS_STATE,
+      helpShow: false,
       lastContainer: null,
       lastContainerType: constants.CONTAINER_FOLDER,
       lastItem: null,
@@ -84,6 +85,16 @@ export class SlideshowReducer {
 
         case constants.AR_SLIDESHOW_INIT_REDUCER:
           return this.initReducer(state, action);
+
+        case constants.AR_SLIDESHOW_HELP_CLOSE:
+          return { ...state, helpShow: false };
+        case constants.AR_SLIDESHOW_HELP_TOOGLE:
+          return { ...state, aboutShow: false, helpShow: !state.helpShow };
+
+        case constants.AR_SLIDESHOW_ABOUT_OPEN:
+          return { ...state, aboutShow: true, helpShow: false };
+        case constants.AR_SLIDESHOW_ABOUT_CLOSE:
+          return { ...state, aboutShow: false };
 
         default:
           return state;

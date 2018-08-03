@@ -1,19 +1,19 @@
-import { app, clipboard, shell, dialog } from 'electron';
+import deepmerge from "deepmerge";
+import fs from 'fs';
 import log from 'electron-log';
 import path from 'path';
-import fs from 'fs';
-import deepmerge from "deepmerge";
+import { app, clipboard, shell, dialog } from 'electron';
+import * as actionsMainWindow from "../common/store/mainWindowActions";
+import * as actionsSystem from "../common/store/systemActions";
 import * as constants from "../common/constants";
-import * as windows from './windows';
+import * as crawlerActions from "../common/store/crawlerActions";
 import * as fileUtils from "../common/utils/fileUtils";
 import * as ipc from './mainIpc';
 import * as powerSaveBlocker from "./powerSaveBlocker";
-import * as rendererActions from "../common/store/rendererActions";
-import storeManager from './store/mainManager';
-import * as actionsMainWindow from "../common/store/mainWindowActions";
-import * as crawlerActions from "../common/store/crawlerActions";
+import * as slideshowActions from "../common/store/slideshowActions";
+import * as windows from './windows';
 import * as workerActions from "../common/store/workerActions";
-import * as actionsSystem from "../common/store/systemActions";
+import storeManager from './store/mainManager';
 import {MetaReader} from '../worker/crawler/metaReader';
 
 // ----------------------------------------------------------------------------------
@@ -290,7 +290,7 @@ export function quitApp() {
 // ----------------------------------------------------------------------------------
 
 export function hitEscKey() {
-  const func = 'hitEscKey';
+  const func = '.hitEscKey';
 
   try {
     if (_isAppAlreadyQuitted)
@@ -298,12 +298,12 @@ export function hitEscKey() {
 
     const slideshowState = storeManager.slideshowState;
     if (slideshowState.helpShow) {
-      const action = rendererActions.createActionHelpClose();
+      const action = slideshowActions.createActionHelpClose();
       storeManager.dispatchGlobal(action);
       return;
     }
     if (slideshowState.aboutShow) {
-      const action = rendererActions.createActionAboutClose();
+      const action = slideshowActions.createActionAboutClose();
       storeManager.dispatchGlobal(action);
       return;
     }
@@ -326,7 +326,7 @@ export function hitEscKey() {
 
 export function toogleHelp() {
   log.debug('toogleHelp');
-  const action = rendererActions.createActionHelpToogle();
+  const action = slideshowActions.createActionHelpToogle();
   storeManager.dispatchGlobal(action);
 }
 
@@ -335,7 +335,7 @@ export function toogleHelp() {
 export function showAbout() {
   log.debug('showAbout');
 
-  const action = rendererActions.createActionAboutOpen();
+  const action = slideshowActions.createActionAboutOpen();
   storeManager.dispatchGlobal(action);
 }
 

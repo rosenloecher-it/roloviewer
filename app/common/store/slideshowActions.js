@@ -53,6 +53,12 @@ export const createActionSetLastItemContainer = (lastContainerType, lastContaine
   payload: { lastContainerType, lastContainer, lastItem }
 });
 
+export const createActionAboutOpen = () => ({ type: constants.AR_SLIDESHOW_ABOUT_OPEN });
+export const createActionAboutClose = () => ({ type: constants.AR_SLIDESHOW_ABOUT_CLOSE });
+
+export const createActionHelpClose = () => ({ type: constants.AR_SLIDESHOW_HELP_CLOSE });
+export const createActionHelpToogle = () => ({ type: constants.AR_SLIDESHOW_HELP_TOOGLE });
+
 
 
 

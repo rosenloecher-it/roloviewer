@@ -63,16 +63,6 @@ export const createActionGoPage = (direction) => ({
 export const createActionGoPos1 = () => ({ type: constants.AR_RENDERER_GO_POS1 });
 export const createActionGoEnd = () => ({ type: constants.AR_RENDERER_GO_END });
 
-export const createActionAutoPlayStart = () => ({ type: constants.AR_SLIDESHOW_AUTOPLAY_START });
-export const createActionAutoPlayStop = () => ({ type: constants.AR_SLIDESHOW_AUTOPLAY_STOP });
-export const createActionToogleAutoPlay = () => ({ type: constants.AR_SLIDESHOW_AUTOPLAY_TOGGLE });
-
-export const createActionAboutOpen = () => ({ type: constants.AR_RENDERER_ABOUT_OPEN });
-export const createActionAboutClose = () => ({ type: constants.AR_RENDERER_ABOUT_CLOSE });
-
-export const createActionHelpClose = () => ({ type: constants.AR_RENDERER_HELP_CLOSE });
-export const createActionHelpToogle = () => ({ type: constants.AR_RENDERER_HELP_TOOGLE });
-
 export const createActionCursorHide = () => ({ type: constants.AR_RENDERER_CURSOR_HIDE });
 export const createActionCursorShow = () => ({ type: constants.AR_RENDERER_CURSOR_SHOW });
 

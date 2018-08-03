@@ -5,7 +5,10 @@ describe('cli', () => {
   it('all args', () => {
 
     const app = '/path/binary';
-    const conf = '/path/config';
+    const pathOpen = __dirname; // has to exist no changes
+    const pathConfFile = __filename; // has to exist no changes
+
+
     let args = null;
     let output = null;
     let compare = null;
@@ -20,11 +23,11 @@ describe('cli', () => {
     output = cli.parseArray(args);
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
 
-    compare = { configfile: conf, exitCode: null };
-    args = [ app, '--configfile', conf ];
+    compare = { configfile: pathConfFile, exitCode: null };
+    args = [ app, '--configfile', pathConfFile ];
     output = cli.parseArray(args);
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
-    args = [ app, '-c', conf ];
+    args = [ app, '-c', pathConfFile ];
     output = cli.parseArray(args);
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
 
@@ -49,11 +52,11 @@ describe('cli', () => {
     output = cli.parseArray(args);
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
 
-    compare = { open: conf, exitCode: null };
-    args = [ app, '--open', conf ];
+    compare = { open: pathOpen, exitCode: null };
+    args = [ app, '--open', pathOpen ];
     output = cli.parseArray(args);
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
-    args = [ app, '-o', conf ];
+    args = [ app, '-o', pathOpen ];
     output = cli.parseArray(args);
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
 
@@ -72,13 +75,14 @@ describe('cli', () => {
   });
 
   it('wrong config', () => {
-    const app = '/path/binary';
+    const app = '/path/binary'; // first arg is ignored
+    const notExistingPath = '/path/binary/should_not_exitsas/CSDDCASDVFSDVsdc';
     let args = null;
     let output = null;
 
     const cli = new Cli();
 
-    args = [ app, '--autoselect', '--open' ];
+    args = [ app, '--open', notExistingPath ];
     output = cli.parseArray(args);
     expect(output.exitCode).not.toBeNull();
     expect(output.exitCode).toBeGreaterThan(0);

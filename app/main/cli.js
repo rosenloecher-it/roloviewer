@@ -1,6 +1,7 @@
 import argly from 'argly';
 import log from 'electron-log';
 import * as constants from '../common/constants';
+import * as fileUtils from '../common/utils/fileUtils';
 
 // ----------------------------------------------------------------------------------
 
@@ -84,6 +85,10 @@ export default class Cli {
           type: 'boolean',
           description: 'Auto play items'
         },
+        '--random -r': {
+          type: 'boolean',
+          description: 'random order (implicit in screensaver mode)'
+        },
         '--screensaver -s': {
           type: 'boolean',
           description:
@@ -157,11 +162,13 @@ export default class Cli {
       return; // abort
     }
 
-    if (result.autoselect && result.open) {
-      this.parser.printUsage();
-      console.log('ERROR: choose one mode: file/directory or auto mode!');
-      this.storeExitCode(1);
-      return; // eslint-disable-line no-useless-return
+    if (result.open) {
+      if (!fileUtils.exists(result.open)) {
+        // this.parser.printUsage();
+        console.log(`ERROR: "${result.open}" does NOT exist!`);
+        this.storeExitCode(1);
+        return; // eslint-disable-line no-useless-return
+      }
     }
 
     // add additional checks

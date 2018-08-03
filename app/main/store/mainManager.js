@@ -149,6 +149,13 @@ export class MainManager extends StoreManager {
     if (clonedState.context !== undefined) delete clonedState.context;
     if (clonedState.messages !== undefined) delete clonedState.messages;
     if (clonedState.renderer !== undefined) delete clonedState.renderer;
+
+    if (clonedState.slideshow) {
+      const { slideshow } = clonedState;
+      if (slideshow.aboutShow !== undefined) delete slideshow.aboutShow;
+      if (slideshow.helpShow !== undefined) delete slideshow.helpShow;
+    }
+
     if (clonedState.status !== undefined) delete clonedState.status;
     if (clonedState.workerState !== undefined) delete clonedState.workerState;
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Icon } from '@blueprintjs/core';
+import * as slideshowActions from "../../common/store/slideshowActions";
 import storeManager from "../store/rendererManager";
-import * as rendererActions from "../../common/store/rendererActions";
 
 // ----------------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ class HelpOverlay extends React.Component {
   }
 
   onClose() {
-    const action = rendererActions.createActionHelpClose();
+    const action = slideshowActions.createActionHelpClose();
     storeManager.dispatchGlobal(action);
   }
 

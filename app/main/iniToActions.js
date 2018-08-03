@@ -1,9 +1,14 @@
 import fs from 'fs';
 import log from 'electron-log';
-import path from 'path';
 import { app } from "electron";
+import * as actionsContext from '../common/store/contextActions';
+import * as actionsCrawler from '../common/store/crawlerActions';
+import * as actionsMainWindow from '../common/store/mainWindowActions';
+import * as actionsSlideshow from '../common/store/slideshowActions';
+import * as actionsSystem from '../common/store/systemActions';
 import * as constants from '../common/constants';
 import * as fileUtils from '../common/utils/fileUtils';
+import { SlideshowReducer } from '../common/store/slideshowReducer';
 import {
   mergeBoolItem,
   mergeConfigItem,
@@ -19,16 +24,11 @@ import {
   valiUrl,
   valiDir
 } from '../common/utils/validate';
-import * as actionsContext from '../common/store/contextActions';
-import * as actionsCrawler from '../common/store/crawlerActions';
-import * as actionsMainWindow from '../common/store/mainWindowActions';
-import * as actionsSlideshow from '../common/store/slideshowActions';
-import * as actionsSystem from '../common/store/systemActions';
-import { SlideshowReducer } from '../common/store/slideshowReducer';
 
 // ----------------------------------------------------------------------------------
 
 const _logKey = 'iniToActions';
+const _specialSetting = ' - special setting -';
 
 // ----------------------------------------------------------------------------------
 
@@ -54,9 +54,10 @@ export function createContextAction(appContext, cliData, defaultConfigFile) {
 
   actionData.configIsReadOnly = valiBoolean(cliData.configreadonly) || false;
   actionData.isScreensaver = valiBoolean(cliData.screensaver) || false;
-  actionData.tempCliAutoplay = valiBoolean(cliData.play) || false;
-  actionData.tempCliAutoselect = valiBoolean(cliData.autoselect) || false;
-  actionData.tempCliFullscreen = valiBoolean(cliData.fullscreen) || false;
+  actionData.tempCliAutoplay = valiBoolean(cliData.play) || null;
+  actionData.tempCliAutoselect = valiBoolean(cliData.autoselect) || null;
+  actionData.tempCliFullscreen = valiBoolean(cliData.fullscreen) || null;
+  actionData.tempCliRandom = valiBoolean(cliData.random) || null;
 
   actionData.exePath = app.getPath('exe');
   actionData.versionElectron = process.versions.electron;
@@ -67,12 +68,22 @@ export function createContextAction(appContext, cliData, defaultConfigFile) {
 
   const action = actionsContext.createActionInitReducer(actionData);
 
+  // special settings
+  if (actionData.isScreensaver) {
+    if (!actionData.configIsReadOnly) {
+      log.debug(`${_logKey}${func}${_specialSetting} activate "configIsReadOnly" when "cli.isScreensaver"`);
+      actionData.configIsReadOnly = true;
+    }
+  }
+
   return action;
 }
 
 // ----------------------------------------------------------------------------------
 
 export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
+  const func = '.createCrawlerAction';
+
   const iniData = iniDataIn;
   if (!iniData.crawler)
     iniData.crawler = {};
@@ -88,23 +99,29 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
   actionData.tagShow = valiTagArray(iniData.crawler.tagShow);
   actionData.tagBlacklist = valiTagArray(iniData.crawler.tagBlacklist);
   actionData.folderSource = valiFolderArray(iniData.crawler.folderSource);
-  for (let i = 0; i < actionData.folderSource.length; i++) {
-    actionData.folderSource[i] = path.normalize(actionData.folderSource[i]);
-  }
-
   actionData.folderBlacklist = valiFolderArray(iniData.crawler.folderBlacklist);
-  for (let i = 0; i < actionData.folderBlacklist.length; i++) {
-    actionData.folderBlacklist[i] = path.normalize(actionData.folderBlacklist[i]);
-  }
-
   actionData.folderBlacklistSnippets = valiBlacklistSnippets(iniData.crawler.folderBlacklistSnippets);
-  actionData.maxFilesPerFolder = mergeIntItem(constants.DEFCONF_CRAWLER_MAX_FILES_PER_FOLDER, iniData.crawler.maxFilesPerFolder);
+  actionData.maxFilesPerFolder = mergeIntItem(constants.DEFCONF_MAX_ITEMS_PER_CONTAINER, iniData.crawler.maxFilesPerFolder);
   actionData.updateDirsAfterMinutes = mergeIntItem(constants.DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES, iniData.crawler.updateDirsAfterMinutes);
 
   actionData.weightingRating = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_RATING, iniData.crawler.weightingRating);
   actionData.weightingRepeated = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_REPEATED, iniData.crawler.weightingRepeated);
   actionData.weightingSeason = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SEASON, iniData.crawler.weightingSeason);
   actionData.weightingSelPow = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SELPOW, iniData.crawler.weightingSelPow);
+
+
+  do {
+    if (context.tempCliAutoselect !== true)
+      break;
+    if (!context.tempCliOpenContainer)
+      break;
+    if (!fileUtils.isDirectory(context.tempCliOpenContainer))
+      break;
+
+    log.debug(`${_logKey}${func}${_specialSetting} reconfigure "folderSource" via "cli"`);
+    actionData.folderSource = [context.tempCliOpenContainer];
+
+  } while (false);
 
   const action = actionsCrawler.createActionInitReducer(actionData);
 
@@ -114,6 +131,8 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
 // ----------------------------------------------------------------------------------
 
 export function createMainWindowAction(iniDataIn, context) {
+  const func = '.createMainWindowAction';
+
   const iniData = iniDataIn;
   if (!iniData.mainWindow)
     iniData.mainWindow = {};
@@ -131,6 +150,17 @@ export function createMainWindowAction(iniDataIn, context) {
   if (context.tempCliFullscreen === true)
     actionData.fullscreen = true;
 
+  if (context.isScreensaver) {
+    if (actionData.activeDevtool) {
+      log.debug(`${_logKey}${func}${_specialSetting} disable "activeDevtool" when "cli.isScreensaver"`);
+      actionData.activeDevtool = false;
+    }
+    if (!actionData.fullscreen) {
+      log.debug(`${_logKey}${func}${_specialSetting} activate "fullscreen" when "cli.isScreensaver"`);
+      actionData.fullscreen = true;
+    }
+  }
+
   const action = actionsMainWindow.createActionInitReducer(actionData);
 
   return action;
@@ -139,6 +169,8 @@ export function createMainWindowAction(iniDataIn, context) {
 // ----------------------------------------------------------------------------------
 
 export function createSlideshowAction(iniDataIn, context) {
+  const func = '.createSlideshowAction';
+
   const iniData = iniDataIn;
   if (!iniData.slideshow)
     iniData.slideshow = {};
@@ -146,6 +178,7 @@ export function createSlideshowAction(iniDataIn, context) {
   const actionData = {};
 
   actionData.autoPlay = mergeBoolItem(false, iniData.slideshow.autoPlay);
+  actionData.random = mergeBoolItem(constants.DEFCONF_RANDOM, iniData.slideshow.random);
 
   actionData.detailsPosition = SlideshowReducer.valiDetailsPosition(valiString(iniData.slideshow.detailsPosition));
   actionData.detailsShortenText = mergeIntItem(constants.DEFCONF_DETAILS_TEXT_SHORTEN, iniData.slideshow.detailsShortenText);
@@ -154,8 +187,6 @@ export function createSlideshowAction(iniDataIn, context) {
   const tempCrawlerInfoPosition = valiString(iniData.slideshow.crawlerInfoPosition);
   actionData.crawlerInfoPosition = SlideshowReducer.valiCrawlerInfoPosition(tempCrawlerInfoPosition, actionData.detailsPosition);
   actionData.crawlerInfoShow = mergeBoolItem(false, iniData.slideshow.crawlerInfoShow);
-
-  actionData.random = mergeBoolItem(constants.DEFCONF_RANDOM, iniData.slideshow.random);
 
   actionData.transitionTimeAutoPlay = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_AUTOPLAY, iniData.slideshow.transitionTimeAutoPlay);
   actionData.transitionTimeManual = mergeIntItem(constants.DEFCONF_TRANSITION_TIME_MANUAL, iniData.slideshow.transitionTimeManual);
@@ -186,12 +217,28 @@ export function createSlideshowAction(iniDataIn, context) {
     } else {
       const lastContainerType = valiInt(iniData.slideshow.lastContainerType);
       if (lastContainerType === constants.CONTAINER_AUTOSELECT
-             || lastContainerType === constants.CONTAINER_FOLDER
-                || lastContainerType === constants.CONTAINER_PLAYLIST) {
+        || lastContainerType === constants.CONTAINER_FOLDER
+        || lastContainerType === constants.CONTAINER_PLAYLIST) {
         actionData.lastContainerType = lastContainerType;
         actionData.lastContainer = valiString(iniData.slideshow.lastContainer);
         actionData.lastItem = valiString(iniData.slideshow.lastItem);
       }
+    }
+  }
+
+  if (context.isScreensaver) {
+    if (!actionData.autoPlay) {
+      log.debug(`${_logKey}${func}${_specialSetting} activate "autoplay" when "cli.isScreensaver"`);
+      actionData.autoPlay = true;
+    }
+  } else if (actionData.tempCliOpenContainer) {
+    if (actionData.autoPlay) {
+      log.debug(`${_logKey}${func}${_specialSetting} disable "autoplay" when "cli.open*"`);
+      actionData.autoPlay = false;
+    }
+    if (actionData.random && actionData.tempCliRandom === null) {
+      log.debug(`${_logKey}${func}${_specialSetting} disable "random" when "cli.open*"`);
+      actionData.random = false;
     }
   }
 
