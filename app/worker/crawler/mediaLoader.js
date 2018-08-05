@@ -1,9 +1,11 @@
 import log from 'electron-log';
+import fs from 'fs';
 import path from 'path';
 import * as constants from '../../common/constants';
 import * as fileUtils from '../../common/utils/fileUtils';
 import * as workerActions from '../../common/store/workerActions';
 import * as rendererActions from '../../common/store/rendererActions';
+import * as systemUtils from '../../common/utils/systemUtils';
 import { CrawlerBase } from './crawlerBase';
 import { MediaFilter } from './mediaFilter';
 
@@ -41,7 +43,7 @@ export class MediaLoader extends CrawlerBase {
           if (fileUtils.isDirectory(data.container))
             this.openFolder(data.container, data.selectFile);
           else if (fileUtils.isFile(data.container))
-            this.openPlayList(data.container);
+            this.openPlaylist(data.container);
         } else {
           this.openAutoSelect();
         }
@@ -61,19 +63,119 @@ export class MediaLoader extends CrawlerBase {
 
   // ........................................................
 
-  openPlayList(input) { // eslint-disable-line no-unused-vars
-    const func = '.openPlayList';
-
-    // this.deactivateAutoSelect();
-
-    // TODO implement openPlayList
-    this.logAndShowError(`${_logKey}${func}`, 'not implemented!');
-
+  openPlaylist(input) {
     const p = new Promise(resolve => {
+      this.openPlaylistSync(input);
       resolve();
     });
 
     return p;
+  }
+
+  // ........................................................
+
+  openPlaylistSync(input) {
+    const func = '.openPlaylistSync';
+
+    try {
+      const { container, selectFile } = input;
+      const { storeManager } = this.objects;
+
+      if (!fileUtils.isFile(container)) {
+        const text = `playlist (${container}) is not file - cannot read!`;
+        log.warn(`${_logKey}${func} - ${text}`);
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, text);
+        return;
+      }
+
+      const fileContent = fs.readFileSync(container, 'utf8');
+      const lines = fileContent.split('\n');
+
+      const playlistDir = path.dirname(container);
+      const isWinOs = systemUtils.isWinOs();
+
+      let missingFiles = 0;
+      let countRealLines = 0;
+      const mediaFiles = [];
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const file = MediaLoader.convertPlaylistLine2File(line, playlistDir, isWinOs);
+        if (!file)
+          continue;
+        countRealLines++;
+
+        if (!fileUtils.isFile(file)) {
+          missingFiles++;
+          log.warn(`${_logKey}${func} - playlist (${container}): couldn't load file (${line})!`);
+          continue;
+        }
+
+        mediaFiles.push(file);
+      }
+
+      if (mediaFiles.length <= 0) {
+        log.warn(`${_logKey}${func} - playlist does not contain supported media files (${container})!`);
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, 'The playlist does not contain supported media files!');
+        return false;
+      }
+      if (missingFiles)
+        storeManager.showMessage(constants.MSG_TYPE_ERROR, `${missingFiles} entries of playlist (${countRealLines} lines) couldn't be found!`);
+
+      this.deactivateAutoSelect();
+
+      const mediaItems = this.createItems(mediaFiles);
+      const action = rendererActions.createActionShowFiles(
+        container,
+        constants.CONTAINER_PLAYLIST,
+        mediaItems,
+        selectFile
+      );
+      this.objects.storeManager.dispatchGlobal(action);
+
+      this.addTasksDeliverFileMeta(mediaFiles);
+
+      return true;
+
+    } catch (err) {
+      this.logAndShowError(`${_logKey}${func}`, err);
+    }
+
+    return false;
+  }
+
+  // ........................................................
+
+  // returns ';' for comment
+  static convertPlaylistLine2File(lineIn, playlistDir, isWin) {
+    if (!lineIn)
+      return null;
+
+    const lineEmpty = lineIn.trim();
+    if (!lineEmpty)
+      return null;
+
+    let line = lineIn;
+
+    const firstChar = line.charAt(0);
+    if (firstChar === ';' || firstChar === '#')
+      return null;
+
+    if (isWin)
+      line = line.replace(/\//g, '\\');
+    else
+      line = line.replace(/\\/g, '/');
+    line = line.replace(/\r/g, '');
+
+    let fullPath = null;
+
+    if (firstChar === '.') {
+      fullPath = path.join(playlistDir, line);
+      fullPath = path.normalize(fullPath);
+    } else {
+      fullPath = line;
+    }
+
+    return fullPath;
   }
 
   // ........................................................
@@ -96,24 +198,24 @@ export class MediaLoader extends CrawlerBase {
       const { container, selectFile } = input;
       const { storeManager } = this.objects;
 
-      this.deactivateAutoSelect();
-
       log.debug(`${_logKey}${func} - container=${container}, selectFile=${selectFile}`);
 
       if (!fileUtils.isDirectory(container)) {
         log.error(`${_logKey}${func} - folder does not exist (${container})!`);
         storeManager.showMessage(constants.MSG_TYPE_ERROR, `Folder does not exist (${container})!`);
-        return;
+        return false;
       }
 
       const mediaFiles = [];
       MediaFilter.pushMediaFilesFull(container, mediaFiles);
 
       if (mediaFiles.length <= 0) {
-        log.warn(`${_logKey}${func} - directory does not contain supported media files! ${container}`);
+        log.warn(`${_logKey}${func} - directory does not contain supported media files (${container})!`);
         storeManager.showMessage(constants.MSG_TYPE_ERROR, 'The directory does not contain supported media files!');
-        return;
+        return false;
       }
+
+      this.deactivateAutoSelect();
 
       mediaFiles.sort((file1, file2) => {
         return MediaLoader.sortFilename(file1, file2);
@@ -130,9 +232,13 @@ export class MediaLoader extends CrawlerBase {
 
       this.addTasksDeliverFileMeta(mediaFiles);
 
+      return true;
+
     } catch (err) {
       this.logAndShowError(`${_logKey}${func}`, err);
     }
+
+    return false;
   }
 
   // ........................................................
@@ -168,8 +274,10 @@ export class MediaLoader extends CrawlerBase {
           const container = path.dirname(file);
           this.openFolderSync({ container, selectFile: file });
           return;
+        } else if (MediaFilter.canImportAsPlaylist(file)) {
+          this.openPlaylistSync({ container: file });
+          return;
         }
-        // TODO check playlist
         // do the standard (way including) error messaging
       }
 

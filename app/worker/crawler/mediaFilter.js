@@ -80,9 +80,21 @@ export class MediaFilter {
   // ........................................................
 
   static canImportMediaFile(file) {
-    if (!fileUtils.isFile(file)) return false;
+    if (!fileUtils.isFile(file))
+      return false;
 
     const supportedFormat = MediaFilter.isImageFormatSupported(file);
+
+    return supportedFormat;
+  }
+
+  // ........................................................
+
+  static canImportAsPlaylist(file) {
+    if (!fileUtils.isFile(file))
+      return false;
+
+    const supportedFormat = MediaFilter.isPlaylistFormatSupported(file);
 
     return supportedFormat;
   }
@@ -94,10 +106,19 @@ export class MediaFilter {
 
     const exts = ['.jpg', '.jpeg'];
 
-    const ext = path
-      .extname(file)
-      .trim()
-      .toLowerCase();
+    const ext = path.extname(file).trim().toLowerCase();
+
+    return exts.includes(ext);
+  }
+
+  // ........................................................
+
+  static isPlaylistFormatSupported(file) {
+    if (!file) return false;
+
+    const exts = ['.txt', '.m3u'];
+
+    const ext = path.extname(file).trim().toLowerCase();
 
     return exts.includes(ext);
   }

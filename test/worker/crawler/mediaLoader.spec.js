@@ -3,8 +3,10 @@ import path from "path";
 import * as constants from "../../../app/common/constants";
 import * as stringUtils from "../../../app/common/utils/stringUtils";
 import * as testUtils from "../../common/utils/testUtils";
+import * as fileUtils from "../../../app/common/utils/fileUtils";
 import {DummyTestSystem} from "./dummyTestSystem";
 import {MediaLoader} from "../../../app/worker/crawler/mediaLoader";
+import { isWinOs } from "../../../app/common/utils/systemUtils";
 
 
 // ----------------------------------------------------------------------------------
@@ -129,6 +131,191 @@ describe(_logKey, () => {
     }).then(() => {
 
       return testSystem.shutdown();
+    });
+
+    return p;
+
+  });
+
+  // ........................................................
+
+  it('convertPlaylistLine2File', () => {
+
+    const isWin = isWinOs();
+    let dirPlaylist;
+    let out;
+
+    if (!isWin) {
+      // check linux
+      dirPlaylist = '/home/user/images';
+
+      out = MediaLoader.convertPlaylistLine2File(null, dirPlaylist, isWin);
+      expect(out).toBe(null);
+      out = MediaLoader.convertPlaylistLine2File('', dirPlaylist, isWin);
+      expect(out).toBe(null);
+      out = MediaLoader.convertPlaylistLine2File('   ', dirPlaylist, isWin);
+      expect(out).toBe(null);
+      out = MediaLoader.convertPlaylistLine2File('; ./hgfhg/add.jpg', dirPlaylist, isWin);
+      expect(out).toBe(null);
+      out = MediaLoader.convertPlaylistLine2File('# /hgfhg/add.jpg', dirPlaylist, isWin);
+      expect(out).toBe(null);
+
+      out = MediaLoader.convertPlaylistLine2File('/home/user/123/add.jpg', dirPlaylist, isWin);
+      expect(out).toBe('/home/user/123/add.jpg');
+      out = MediaLoader.convertPlaylistLine2File('./123/add.jpg', dirPlaylist, isWin);
+      expect(out).toBe('/home/user/images/123/add.jpg');
+      out = MediaLoader.convertPlaylistLine2File('.\\123\\add.jpg', dirPlaylist, isWin); // relative windows pathes
+      expect(out).toBe('/home/user/images/123/add.jpg');
+      out = MediaLoader.convertPlaylistLine2File('../add.jpg', dirPlaylist, isWin);
+      expect(out).toBe('/home/user/add.jpg');
+
+    } else {
+      // check windows
+      dirPlaylist = 'd:\\home\\user\\images';
+
+      out = MediaLoader.convertPlaylistLine2File(null, dirPlaylist, isWin);
+      expect(out).toBe(null);
+      out = MediaLoader.convertPlaylistLine2File('', dirPlaylist, isWin);
+      expect(out).toBe(null);
+      out = MediaLoader.convertPlaylistLine2File('   ', dirPlaylist, isWin);
+      expect(out).toBe(null);
+      out = MediaLoader.convertPlaylistLine2File('; .\\hgfhg\\add.jpg', dirPlaylist, isWin);
+      expect(out).toBe(null);
+      out = MediaLoader.convertPlaylistLine2File('# \\hgfhg\\add.jpg', dirPlaylist, isWin);
+      expect(out).toBe(null);
+
+      out = MediaLoader.convertPlaylistLine2File('\\home\\user\\123\\add.jpg', dirPlaylist, isWin);
+      expect(out).toBe('d:\\home\\user\\123\\add.jpg');
+      out = MediaLoader.convertPlaylistLine2File('.\\123\\add.jpg', dirPlaylist, isWin);
+      expect(out).toBe('d:\\home\\user\\images\\123\\add.jpg');
+      out = MediaLoader.convertPlaylistLine2File('./123/add.jpg', dirPlaylist, isWin); // relative linux pathes
+      expect(out).toBe('d:\\home\\user\\images\\123\\add.jpg');
+      out = MediaLoader.convertPlaylistLine2File('..\\add.jpg', dirPlaylist, isWin);
+      expect(out).toBe('d:\\home\\user\\add.jpg');
+    }
+
+  });
+
+  // ........................................................
+
+  it('openPlayListSync', () => {
+
+    const filelist = [];
+
+    function createPlaylistFile(subdir1, subdir2, filename) {
+      let dirRel = '.';
+      let dirAbs = _testDirMedia;
+      if (subdir1) {
+        dirAbs = path.join(dirAbs, subdir1);
+        dirRel += path.sep + subdir1;
+      }
+      if (subdir2) {
+        dirAbs = path.join(dirAbs, subdir2);
+        dirRel += path.sep + subdir2;
+      }
+      fs.mkdirsSync(dirAbs);
+
+      const fullPath = testSystem.saveTestFile(dirAbs, filename, 0);
+      expect(fileUtils.isFile(fullPath)).toBe(true);
+
+      filelist.push({
+        fullPath,
+        dirRel,
+        dirAbs,
+        filename,
+      });
+    }
+
+    function writePlaylist(absolute, file) {
+      expect(fileUtils.isFile(file)).toBe(false);
+      let text = '# comment1\n; comment2\r\n';
+      for (let i = 0; i < filelist.length; i++) {
+        const item = filelist[i];
+        let line = null;
+        if (absolute)
+          line = path.join(item.dirAbs, item.filename);
+        else
+          line = item.dirRel + path.sep + item.filename;
+
+        if (i % 2 === 1)
+          line += '\r\n';
+        else
+          line += '\n';
+
+        text += line;
+      }
+      fs.writeFileSync(file, text, 'utf8');
+      expect(fileUtils.isFile(file)).toBe(true);
+    }
+
+    function checkFiles(actionShow) {
+      for (let i = 0; i < filelist.length; i++) {
+        const testFile = filelist[i].fullPath;
+        let checkCounter = 0;
+
+        for (let k = 0; k < actionShow.payload.items.length; k++) {
+          const actionItem = actionShow.payload.items[k];
+          //console.log('actionItem', actionItem);
+          if (actionItem.file === testFile)
+            checkCounter++;
+        }
+        expect(checkCounter).toBe(1);
+      }
+    }
+    const testSystem = createTestSystemWithMediaDir();
+
+    createPlaylistFile(null, null, 'file1.jpg');
+    createPlaylistFile('dir1', null, 'file2.jpg');
+    createPlaylistFile('dir2', 'dir21', 'file3.jpg');
+    createPlaylistFile('dir2', 'dir22', 'file4.jpg');
+
+    const playlistAbs = path.join(_testDirMedia, 'abs.txt');
+    const playlistRel = path.join(_testDirMedia, 'rel.txt');
+    writePlaylist(true, playlistAbs);
+    writePlaylist(false, playlistRel);
+
+    const p = testSystem.init().then(() => {
+
+      testSystem.storeManager.clearGlobalActions();
+      expect(testSystem.storeManager.data.globalDispatchedActions.length).toBe(0);
+
+      testSystem.mediaLoader.openPlaylistSync({container:playlistAbs });
+
+      const globalActions = testSystem.storeManager.data.globalDispatchedActions;
+      //console.log('globalActions', globalActions);
+      expect(globalActions.length).toBe(filelist.length + 1);
+      const actionShow = testSystem.storeManager.getLastGlobalAction(constants.AR_RENDERER_SHOW_CONTAINER_FILES);
+
+      //console.log('actionShow', actionShow);
+      console.log('actionShow.payload.items)', actionShow.payload.items);
+
+      checkFiles(actionShow);
+
+      return Promise.resolve();
+
+    }).then(() => {
+
+      testSystem.storeManager.clearGlobalActions();
+      expect(testSystem.storeManager.data.globalDispatchedActions.length).toBe(0);
+
+      testSystem.mediaLoader.openPlaylistSync({container:playlistRel });
+
+      const globalActions = testSystem.storeManager.data.globalDispatchedActions;
+      //console.log('globalActions', globalActions);
+      expect(globalActions.length).toBe(filelist.length + 1);
+      const actionShow = testSystem.storeManager.getLastGlobalAction(constants.AR_RENDERER_SHOW_CONTAINER_FILES);
+
+      //console.log('actionShow', actionShow);
+      console.log('actionShow.payload.items)', actionShow.payload.items);
+
+      checkFiles(actionShow);
+
+      return Promise.resolve();
+
+    }).then(() => {
+
+      return testSystem.shutdown();
+
     });
 
     return p;
