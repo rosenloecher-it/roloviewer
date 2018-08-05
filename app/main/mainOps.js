@@ -61,6 +61,7 @@ export function toogleFullscreen() {
     window.setFullScreen(!isFullScreen);
 
     isFullScreen = window.isFullScreen();
+    window.setMenuBarVisibility(!isFullScreen);
 
     const action = actionsMainWindow.createActionSetFullscreen(isFullScreen);
     storeManager.dispatchGlobal(action);
@@ -80,6 +81,8 @@ export function ensureFullscreen(value) {
       window.setFullScreen(value);
 
     isFullScreen = window.isFullScreen();
+    window.setMenuBarVisibility(!isFullScreen);
+
     const action = actionsMainWindow.createActionSetFullscreen(isFullScreen);
     storeManager.dispatchGlobal(action);
   }
