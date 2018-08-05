@@ -184,7 +184,7 @@ describe(_logKey, () => {
       out = MediaLoader.convertPlaylistLine2File('# \\hgfhg\\add.jpg', dirPlaylist, isWin);
       expect(out).toBe(null);
 
-      out = MediaLoader.convertPlaylistLine2File('\\home\\user\\123\\add.jpg', dirPlaylist, isWin);
+      out = MediaLoader.convertPlaylistLine2File('d:\\home\\user\\123\\add.jpg', dirPlaylist, isWin);
       expect(out).toBe('d:\\home\\user\\123\\add.jpg');
       out = MediaLoader.convertPlaylistLine2File('.\\123\\add.jpg', dirPlaylist, isWin);
       expect(out).toBe('d:\\home\\user\\images\\123\\add.jpg');
