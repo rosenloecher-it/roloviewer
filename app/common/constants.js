@@ -3,7 +3,7 @@
 
 //export const DEBUG_ARGS =  [ 'unknownPathToBinary', '--screensaver', '--fullscreen' ] ;
 export const DEBUG_ARGS = ['unknownPathToBinary'];
-export const DEBUG_DEVTOOLS_PROD = true;
+export const DEBUG_DEVTOOLS_PROD = false;
 export const DEBUG_SHOW_WORKER_WINDOW = false;
 export const DEBUG_DONT_SAVE_CONFIG = false;
 
