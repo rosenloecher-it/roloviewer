@@ -6,7 +6,6 @@ import * as constants from "../common/constants";
 import storeManager from './store/mainManager';
 import * as actionsMainWindow from "../common/store/mainWindowActions";
 import * as fileUtils from "../common/utils/fileUtils";
-import { isWinOs } from "../common/utils/systemUtils";
 
 // ----------------------------------------------------------------------------------
 
@@ -112,13 +111,15 @@ export function determineIcon() {
   const func = ".determineIcon";
 
   try {
-    let iconName = '';
-    let iconDir = '';
+    // // not working on windows
+    // let iconName = '';
+    // if (isWinOs())
+    //   iconName = 'icon.ico';
+    // else // linux
+    //   iconName = 'icon.png';
 
-    if (isWinOs())
-      iconName = 'icon.ico';
-    else // linux
-      iconName = 'icon.png';
+    const iconName = 'icon.png';
+    let iconDir = '';
 
     const appName = electron.app.getName();
 
