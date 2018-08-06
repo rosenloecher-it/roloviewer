@@ -17,8 +17,14 @@ const _logKey = "aboutOverlay";
 
 class AboutOverlay extends React.Component {
 
-  onClick() {
-    ops.openUrl(constants.APP_URL);
+  constructor(props) {
+    super(props);
+
+    this.onClose = this.onClose.bind(this);
+    this.onClickOpenHomeUrl = this.onClickOpenHomeUrl.bind(this);
+    this.onKeyDownOpenHomeUrl = this.onKeyDownOpenHomeUrl.bind(this);
+    this.onClickOpenConfigFile = this.onClickOpenConfigFile.bind(this);
+    this.onKeyDownOpenConfigFile = this.onKeyDownOpenConfigFile.bind(this);
   }
 
   onClose() {
@@ -26,9 +32,31 @@ class AboutOverlay extends React.Component {
     storeManager.dispatchGlobal(action);
   }
 
-  onUrlKeyDown(event) {
+  onClickOpenHomeUrl() {
+    ops.openUrl(constants.APP_URL);
+  }
+
+  onKeyDownOpenHomeUrl(event) {
     if(event.keyCode === 13)
-      this.onClick()
+      this.onClickOpenHomeUrl()
+  }
+
+  onClickOpenConfigFile() {
+    ops.openFile(this.props.configFile);
+  }
+
+  onKeyDownOpenConfigFile(event) {
+    if(event.keyCode === 13)
+      this.onClickOpenConfigFile()
+  }
+
+  onClickOpenLogFile() {
+    ops.openFile(this.props.logfile);
+  }
+
+  onKeyDownOpenLogFile(event) {
+    if(event.keyCode === 13)
+      this.onClickOpenLogFile()
   }
 
   render() {
@@ -47,8 +75,8 @@ class AboutOverlay extends React.Component {
               role="link"
               tabIndex={0}
               className="popover-link"
-              onClick={this.onClick}
-              onKeyDown={this.onUrlKeyDown}
+              onClick={this.onClickOpenHomeUrl}
+              onKeyDown={this.onKeyDownOpenHomeUrl}
             >
               {constants.APP_TITLE}
             </a>
@@ -68,8 +96,8 @@ class AboutOverlay extends React.Component {
                     role="link"
                     tabIndex={0}
                     className="popover-link"
-                    onKeyDown={this.onUrlKeyDown}
-                    onClick={this.onClick}
+                    onKeyDown={this.onKeyDownOpenHomeUrl}
+                    onClick={this.onClickOpenHomeUrl}
                   >
                     {constants.APP_URL}
                   </a>
@@ -78,9 +106,37 @@ class AboutOverlay extends React.Component {
               <tr><td>{constants.APP_TITLE} version</td><td>{constants.APP_VERSION}</td></tr>
               <tr><td>electron version</td><td>{this.props.versionElectron}</td></tr>
 
-              <tr><td>Config file</td><td>{this.props.configFile}</td></tr>
+              <tr>
+                <td>Config file</td>
+                <td>
+                  <a
+                    role="link"
+                    tabIndex={0}
+                    className="popover-link"
+                    onKeyDown={this.onKeyDownOpenConfigFile}
+                    onClick={this.onClickOpenConfigFile}
+                  >
+                    {this.props.configFile}
+                  </a>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Log file</td>
+                <td>
+                  <a
+                    role="link"
+                    tabIndex={0}
+                    className="popover-link"
+                    onKeyDown={this.onKeyDownOpenLogFile}
+                    onClick={this.onClickOpenLogFile}
+                  >
+                    {this.props.logfile}
+                  </a>
+                </td>
+              </tr>
+
               <tr><td>Database files</td><td>{databasePath}</td></tr>
-              <tr><td>Log file</td><td>{this.props.logfile}</td></tr>
               <tr><td>Log level</td><td>{this.props.logLevelFile}</td></tr>
 
 

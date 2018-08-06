@@ -22,7 +22,7 @@ export function init() {
 
   } catch (err) {
     log.error(`${_logKey}${func} - exception -`, err);
-    storeManager.showError(`${_logKey}${func} - exception - ${err}`);
+    storeManager.showError(`${_logKey}${func} - ${err}`);
   }
 }
 
@@ -33,7 +33,7 @@ export function shutdown() {
   try {
     ipc.shutdownIpc();
   } catch (err) {
-    log.error(`${_logKey}.shutdown - exception -`, err);
+    log.error(`${_logKey}.shutdown -`, err);
   }
 }
 
@@ -44,7 +44,7 @@ export function toogleFullscreen() {
   try {
     ipc.send(constants.IPC_MAIN, constants.AI_TOOGLE_FULLSCREEN);
   } catch (err) {
-    log.error(`${_logKey}.toogleFullscreen - exception -`, err);
+    log.error(`${_logKey}.toogleFullscreen -`, err);
   }
 }
 
@@ -55,20 +55,37 @@ export function quitScreensaver() {
     ipc.send(constants.IPC_MAIN, constants.AI_QUITTING_SCREENSAVER_MODE);
     log.debug(`${_logKey}.quitScreensaver send`);
   } catch (err) {
-    log.error(`${_logKey}.quitScreensaver - exception -`, err);
+    log.error(`${_logKey}.quitScreensaver -`, err);
   }
 }
 
 // ----------------------------------------------------------------------------------
 
 export function openUrl(url) {
+  const func = '.openUrl';
 
   try {
-    //log.debug(`${_logKey}.openUrl: ${url}`);
+    //log.debug(`${_logKey}${func}: ${url}`);
     remote.shell.openExternal(url);
 
   } catch (err) {
-    log.error(`${_logKey}.openUrl - exception -`, err);
+    log.error(`${_logKey}${func} -`, err);
+  }
+}
+
+// ----------------------------------------------------------------------------------
+
+export function openFile(file) {
+  const func = '.openFile';
+
+  try {
+    log.debug(`${_logKey}${func}: ${file}`);
+    //remote.shell.openExternal(url);
+
+    remote.shell.openItem(file);
+
+  } catch (err) {
+    log.error(`${_logKey}${func} -`, err);
   }
 }
 
