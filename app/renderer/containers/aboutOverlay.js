@@ -121,6 +121,8 @@ class AboutOverlay extends React.Component {
                 </td>
               </tr>
 
+              <tr><td>Database files</td><td>{databasePath}</td></tr>
+
               <tr>
                 <td>Log file</td>
                 <td>
@@ -135,10 +137,7 @@ class AboutOverlay extends React.Component {
                   </a>
                 </td>
               </tr>
-
-              <tr><td>Database files</td><td>{databasePath}</td></tr>
               <tr><td>Log level</td><td>{this.props.logLevel}</td></tr>
-
 
             </tbody>
           </table>
