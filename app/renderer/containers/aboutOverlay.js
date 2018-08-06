@@ -180,7 +180,7 @@ const mapStateToProps = state => ({
   configFile: state.context.configFile,
   databasePath: state.crawler.databasePath,
   logfile: state.system.logfile,
-  logLevelFile: state.system.logLevelFile,
+  logLevel: state.system.logLevel,
   versionElectron: state.context.versionElectron,
 });
 
