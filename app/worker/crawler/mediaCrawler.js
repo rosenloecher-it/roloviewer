@@ -559,8 +559,8 @@ export class MediaCrawler extends CrawlerBase {
       }
 
       // thumble dirs (!!!) so that you don't get the first folder
-      if (this.data.scanActiveSendFirstAvailableFiles)
-        childrenDirs = MediaFilter.tumbleArray(childrenDirs);
+      //if (this.data.scanActiveSendFirstAvailableFiles)
+      childrenDirs = MediaFilter.tumbleArray(childrenDirs);
 
       for (let i = 0; i < childrenDirs.length; i++) {
         const childDir = childrenDirs[i];
