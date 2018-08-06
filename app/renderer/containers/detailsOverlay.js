@@ -73,7 +73,7 @@ class DetailsOverlay extends React.Component {
         tableLines.push(<tr key="autoPlay"><td>{iconRandom} {iconAutoPlay}</td></tr>);
 
       if (props.detailsState !== constants.DETAILS_STATE_OFF && item && item.file) {
-        const numberText = `${props.itemIndex + 1}/${props.items.length}`;
+        const numberText = `${props.itemNumber}/${props.itemCount}`;
 
         let conainterIcon = null;
         switch (props.containerType) {
@@ -156,6 +156,8 @@ const mapStateToProps = state => ({
   detailsShortenText: state.slideshow.detailsShortenText,
   detailsState: state.slideshow.detailsState,
   currentItem: state.status.currentItem,
+  itemNumber: state.renderer.itemIndex + 1 + state.renderer.countRemovedItems,
+  itemCount: state.renderer.items.length + state.renderer.countRemovedItems,
   itemIndex: state.renderer.itemIndex,
   items: state.renderer.items,
   random: state.slideshow.random,

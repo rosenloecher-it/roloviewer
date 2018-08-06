@@ -21,6 +21,7 @@ export class RendererReducer {
     return {
       container: null,
       containerType: null,
+      countRemovedItems: 0,
       cursorHide: false,
       itemIndex: -1,
       items: [],
@@ -121,6 +122,7 @@ export class RendererReducer {
       ...state,
       items: newItems,
       itemIndex: newItemIndex,
+      countRemovedItems: 0,
       container: action.payload.container,
       containerType: action.payload.containerType,
     };
@@ -139,6 +141,7 @@ export class RendererReducer {
         ...state,
         items: action.payload.items,
         itemIndex: 0,
+        countRemovedItems: 0,
         container: null,
         containerType: action.payload.containerType
       };
@@ -159,11 +162,14 @@ export class RendererReducer {
     let newItemIndex = state.itemIndex - shortenItems;
     if (newItemIndex < 0 && newItems.length > 0) newItemIndex = 0;
 
+    const countRemovedItems = state.countRemovedItems + shortenItems;
+
     // add items
     return {
       ...state,
       items: newItems,
       itemIndex: newItemIndex,
+      countRemovedItems,
       container: null,
       containerType: action.payload.containerType
     };

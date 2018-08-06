@@ -128,12 +128,14 @@ describe('goto', () => {
     state = reduceItemsIncKey(reducer, state, 8);
     expect(state.items.length).toBe(8);
     expect(state.itemIndex).toBe(0);
+    expect(state.countRemovedItems).toBe(0);
 
     // changed sourceFolder => reset old items
     state.itemIndex = 6;
     state = reduceItemsIncKey(reducer, state, 8, true);
     expect(state.items.length).toBe(8);
     expect(state.itemIndex).toBe(0);
+    expect(state.countRemovedItems).toBe(0);
 
     // standard add
     state = reduceItemsIncKey(reducer, state, 12);
@@ -148,10 +150,11 @@ describe('goto', () => {
     const expectedTestKey = state.items[lastItemIndex];
 
     state = reduceItemsIncKey(reducer, state, 12);
-    console.log('state', state);
+    //console.log('state', state);
     expect(state.items.length).toBe(expectedMaxCount);
     expect(state.itemIndex).toBeLessThan(lastItemIndex);
     expect(state.items[state.itemIndex]).toBe(expectedTestKey);
+    expect(state.countRemovedItems).toBe(7);
 
     expect(checkIncreasingTestKey(state)).toBe(true);
 
