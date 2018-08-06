@@ -1,5 +1,3 @@
-![License][license-image]
-
 # RoloViewer
 
 ### And yet another image slideshow viewer...
@@ -135,4 +133,3 @@ The code is available at [GitHub][home].
 
 
 [home]: https://github.com/rosenloecher-it/roloviewer
-[license-image]: https://img.shields.io/badge/license-MIT-blue.svg
