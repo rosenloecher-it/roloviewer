@@ -380,7 +380,7 @@ export class MediaCrawler extends CrawlerBase {
       action = workerActions.createActionRemoveDirs(dirs);
       storeManager.dispatchTask(action);
 
-      if (crawlerState.folderSource.length === 0)
+      if (crawlerState.sourceFolders.length === 0)
         log.warn(`${_logKey}${func} - no source folder configured!`);
 
       this.triggerSearchingSourceFolders();
@@ -452,7 +452,7 @@ export class MediaCrawler extends CrawlerBase {
     const { dbWrapper } = instance.objects;
     const { storeManager } = instance.objects;
     const crawlerState = storeManager.crawlerState;
-    const {folderSource, folderBlacklist, folderBlacklistSnippets} = crawlerState;
+    const {sourceFolders, blacklistFolders, blacklistFolderSnippets} = crawlerState;
 
     const maxCheckCount = 20;
     let dirRemove = null;
@@ -467,10 +467,10 @@ export class MediaCrawler extends CrawlerBase {
         break;
       }
 
-      const isFolderInsideSource = MediaFilter.isFolderInside(dir, folderSource);
+      const isFolderInsideSource = MediaFilter.isFolderInside(dir, sourceFolders);
       let isFolderBlacklisted = false;
       if (!isFolderInsideSource)
-        isFolderBlacklisted = MediaFilter.isFolderBlacklisted(dir, folderBlacklist, folderBlacklistSnippets);
+        isFolderBlacklisted = MediaFilter.isFolderBlacklisted(dir, blacklistFolders, blacklistFolderSnippets);
       if (!isFolderInsideSource || isFolderBlacklisted) {
         dirRemove = dir;
         break;
@@ -503,14 +503,14 @@ export class MediaCrawler extends CrawlerBase {
     const { storeManager } = this.objects;
     const crawlerState = storeManager.crawlerState;
 
-    for (let i = 0; i < crawlerState.folderSource.length; i++) {
-      const folderSource = crawlerState.folderSource[i];
-      if (fileUtils.isDirectory(folderSource)) {
-        log.debug(`${_logKey}${func} - queue source folder:`, folderSource);
-        const action = workerActions.createActionSearchForNewDirs(folderSource);
+    for (let i = 0; i < crawlerState.sourceFolders.length; i++) {
+      const sourceFolder = crawlerState.sourceFolders[i];
+      if (fileUtils.isDirectory(sourceFolder)) {
+        log.debug(`${_logKey}${func} - queue source folder:`, sourceFolder);
+        const action = workerActions.createActionSearchForNewDirs(sourceFolder);
         storeManager.dispatchTask(action);
       } else {
-        const text = `source folder doesn't exist or is no valid directory (${folderSource})!`;
+        const text = `source folder doesn't exist or is no valid directory (${sourceFolder})!`;
         log.error(`${_logKey}${func} - ${text}`);
         storeManager.showMessage(constants.MSG_TYPE_ERROR, text);
       }
@@ -530,7 +530,7 @@ export class MediaCrawler extends CrawlerBase {
       const instance = this;
       const { storeManager } = instance.objects;
       const crawlerState = storeManager.crawlerState;
-      const { folderBlacklist, folderBlacklistSnippets } = crawlerState;
+      const { blacklistFolders, blacklistFolderSnippets } = crawlerState;
 
       if (!fileUtils.isDirectory(dir)) {
         log.error(
@@ -547,7 +547,7 @@ export class MediaCrawler extends CrawlerBase {
         const fileLong = path.join(dir, fileShort);
 
         if (fileUtils.isDirectory(fileLong)) {
-          const isFolderBlacklisted = MediaFilter.isFolderBlacklisted(fileLong, folderBlacklist, folderBlacklistSnippets );
+          const isFolderBlacklisted = MediaFilter.isFolderBlacklisted(fileLong, blacklistFolders, blacklistFolderSnippets );
           if (isFolderBlacklisted)
             log.info(`folder blacklisted => skipped: ${fileLong}`);
           else {
@@ -793,7 +793,7 @@ export class MediaCrawler extends CrawlerBase {
     const isFolderBlacklisted = MediaFilter.isFolderBlacklisted(
       folder,
       crawlerState.folderBlacklist,
-      crawlerState.folderBlacklistSnippets
+      crawlerState.blacklistFolderSnippets
     );
     if (isFolderBlacklisted) {
       log.info(`${_logKey}${func} - blacklisted: ${folder}`);
@@ -830,14 +830,8 @@ export class MediaCrawler extends CrawlerBase {
     if (this.data.scanActiveSendFirstAvailableFiles) {
       const crawlerState = this.objects.storeManager.crawlerState;
 
-      log.error(
-        `${_logKey}${func} - missing reset "scanActiveSendFirstAvailableFiles" => no media found in sourceFolders:`,
-        crawlerState.folderSource
-      );
-      this.objects.storeManager.showMessage(
-        constants.MSG_TYPE_ERROR,
-        'Auto-selection failed! No media files found in choosen source folder(s). Please choose an existing or higher-level folder. The crawler drills down autonomously and will find your media files.'
-      );
+      log.error(`${_logKey}${func} - missing reset "scanActiveSendFirstAvailableFiles" => no media found in sourceFolders:`, crawlerState.sourceFolders);
+      this.objects.storeManager.showMessage(constants.MSG_TYPE_ERROR, 'Auto-selection failed! No media files found in choosen source folder(s). Please choose an existing or higher-level folder. The crawler drills down autonomously and will find your media files.');
       this.data.scanActiveSendFirstAvailableFiles = false;
     }
 

@@ -6,8 +6,8 @@ const defaultIniData = {
   crawler: {
     batchCount: '10',
     database: '/home/raul/.config/RoloViewer/crawler.db',
-    folderBlacklistSnippets: [ 'bauen' ],
-    folderSource: [ '/home/data/mymedia/201x/2016' ]
+    blacklistFolderSnippets: [ 'bauen' ],
+    sourceFolders: [ '/home/data/mymedia/201x/2016' ]
   }, mainWindow: {
     x: '785',
     y: '930',
@@ -34,9 +34,8 @@ const defaultIniData = {
     exiftool: '/usr/bin/exiftool',
     lastDialogFolder: '/home/data/projects',
     logfile: null,
-    logLevelConsole: 'silly',
-    logLevelFile: 'silly',
-    powerSaveBlockTime: '30',
+    logLevel: 'silly',
+    powerSaveBlockMinutes: '30',
     mapUrlFormat: '...',
   }
 };

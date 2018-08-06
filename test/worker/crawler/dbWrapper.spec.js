@@ -54,14 +54,14 @@ describe('dbWrapper', () => {
     stateIn.databasePath = _testDir;
 
     // dummy data
-    stateIn.folderBlacklist.push('folderBlacklist1');
-    stateIn.folderBlacklist.push('folderBlacklist2');
-    stateIn.folderBlacklistSnippets.push('folderBlacklistSnippets1');
-    stateIn.folderBlacklistSnippets.push('folderBlacklistSnippets2');
-    stateIn.showRating.push(1);
-    stateIn.showRating.push(2);
-    stateIn.tagBlacklist.push('tagBlacklist1');
-    stateIn.tagBlacklist.push('tagBlacklist2');
+    stateIn.blacklistFolders.push('blacklistFolders1');
+    stateIn.blacklistFolders.push('blacklistFolders2');
+    stateIn.blacklistFolderSnippets.push('blacklistFolderSnippets1');
+    stateIn.blacklistFolderSnippets.push('blacklistFolderSnippets2');
+    stateIn.showRatings.push(1);
+    stateIn.showRatings.push(2);
+    stateIn.blacklistTags.push('blacklistTag1');
+    stateIn.blacklistTags.push('blacklistTag2');
 
     const dbWrapper = new DbWrapper();
     dbWrapper.coupleObjects({storeManager});

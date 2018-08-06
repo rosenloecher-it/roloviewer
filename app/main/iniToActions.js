@@ -95,12 +95,12 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
     iniData.crawler.databasePath);
 
   actionData.batchCount = mergeIntItem(constants.DEFCONF_CRAWLER_BATCHCOUNT, iniData.crawler.batchCount);
-  actionData.showRating = valiRatingArray(iniData.crawler.showRating);
-  actionData.tagShow = valiTagArray(iniData.crawler.tagShow);
-  actionData.tagBlacklist = valiTagArray(iniData.crawler.tagBlacklist);
-  actionData.folderSource = valiFolderArray(iniData.crawler.folderSource);
-  actionData.folderBlacklist = valiFolderArray(iniData.crawler.folderBlacklist);
-  actionData.folderBlacklistSnippets = valiBlacklistSnippets(iniData.crawler.folderBlacklistSnippets);
+  actionData.showRatings = valiRatingArray(iniData.crawler.showRatings);
+  actionData.showTags = valiTagArray(iniData.crawler.showTags);
+  actionData.blacklistTags = valiTagArray(iniData.crawler.blacklistTags);
+  actionData.sourceFolders = valiFolderArray(iniData.crawler.sourceFolders);
+  actionData.blacklistFolders = valiFolderArray(iniData.crawler.blacklistFolders);
+  actionData.blacklistFolderSnippets = valiBlacklistSnippets(iniData.crawler.blacklistFolderSnippets);
   actionData.maxFilesPerFolder = mergeIntItem(constants.DEFCONF_MAX_ITEMS_PER_CONTAINER, iniData.crawler.maxFilesPerFolder);
   actionData.updateDirsAfterMinutes = mergeIntItem(constants.DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES, iniData.crawler.updateDirsAfterMinutes);
 
@@ -108,7 +108,6 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
   actionData.weightingRepeated = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_REPEATED, iniData.crawler.weightingRepeated);
   actionData.weightingSeason = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SEASON, iniData.crawler.weightingSeason);
   actionData.weightingSelPow = mergeIntItem(constants.DEFCONF_CRAWLER_WEIGHTING_SELPOW, iniData.crawler.weightingSelPow);
-
 
   do {
     if (context.tempCliAutoselect !== true)
@@ -118,8 +117,8 @@ export function createCrawlerAction(iniDataIn, context, defaultCrawlerDb) {
     if (!fileUtils.isDirectory(context.tempCliOpenContainer))
       break;
 
-    log.debug(`${_logKey}${func}${_specialSetting} reconfigure "folderSource" via "cli"`);
-    actionData.folderSource = [context.tempCliOpenContainer];
+    log.debug(`${_logKey}${func}${_specialSetting} reconfigure "sourceFolders" via "cli"`);
+    actionData.sourceFolders = [context.tempCliOpenContainer];
 
   } while (false);
 
@@ -260,13 +259,12 @@ export function createSystemAction(iniDataIn, context, defaultLogFile) {
   if (actionData.exiftool === null)
     actionData.exiftool = constants.DEFCONF_EXIFTOOL_INTERN;
 
-  actionData.powerSaveBlockTime = mergeIntItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME, iniData.system.powerSaveBlockTime);
+  actionData.powerSaveBlockMinutes = mergeIntItem(constants.DEFCONF_POWER_SAVE_BLOCK_TIME, iniData.system.powerSaveBlockMinutes);
 
   actionData.lastDialogFolder = valiDir(iniData.system.lastDialogFolder);
 
   const defaulLogLevel = !context.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL;
-  actionData.logLevelFile = mergeConfigItem(defaulLogLevel, valiLogLevel(iniData.system.logLevelFile));
-  actionData.logLevelConsole = mergeConfigItem(defaulLogLevel, valiLogLevel(iniData.system.logLevelConsole));
+  actionData.logLevel = mergeConfigItem(defaulLogLevel, valiLogLevel(iniData.system.logLevel));
 
   actionData.mapUrlFormat = mergeConfigItem(constants.DEFCONF_META2MAPURL_FORMAT,
     valiUrl(iniData.system.mapUrlFormat));

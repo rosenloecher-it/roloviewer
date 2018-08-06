@@ -5,41 +5,41 @@ import * as constants from '../constants';
 
 export const createActionInitReducer = ({
   batchCount,
+  blacklistFolders,
+  blacklistFolderSnippets,
+  blacklistTags,
   databasePath,
-  folderBlacklist,
-  folderBlacklistSnippets,
-  folderSource,
-  showRating,
-  tagBlacklist,
-  tagShow,
+  showRatings,
+  showTags,
+  sourceFolders,
   updateDirsAfterMinutes,
   weightingRating,
   weightingRepeated,
   weightingSeason,
-  weightingSelPow
+  weightingSelPow,
 }) => {
 
-  for (let i = 0; i < folderBlacklist.length; i++)
-    folderBlacklist[i] = path.normalize(folderBlacklist[i]);
-  for (let i = 0; i < folderSource.length; i++)
-    folderSource[i] = path.normalize(folderSource[i]);
+  for (let i = 0; i < blacklistFolders.length; i++)
+    blacklistFolders[i] = path.normalize(blacklistFolders[i]);
+  for (let i = 0; i < sourceFolders.length; i++)
+    sourceFolders[i] = path.normalize(sourceFolders[i]);
 
   return {
     type: constants.AR_CRAWLER_INIT_REDUCER,
     payload: {
       batchCount,
+      blacklistFolders,
+      blacklistFolderSnippets,
+      blacklistTags,
       databasePath,
-      folderBlacklist,
-      folderBlacklistSnippets,
-      folderSource,
-      showRating,
-      tagBlacklist,
-      tagShow,
+      showRatings,
+      showTags,
+      sourceFolders,
       updateDirsAfterMinutes,
       weightingRating,
       weightingRepeated,
       weightingSeason,
-      weightingSelPow
+      weightingSelPow,
     }
   }
 };

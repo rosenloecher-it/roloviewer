@@ -31,18 +31,18 @@ export class CrawlerReducer {
   static defaultState() {
     return {
       batchCount: constants.DEFCONF_CRAWLER_BATCHCOUNT,
+      blacklistFolders: [],
+      blacklistFolderSnippets: [],
+      blacklistTags: [],
       databasePath: null,
-      folderBlacklist: [],
-      folderBlacklistSnippets: [],
-      folderSource: [],
-      showRating: [],
-      tagBlacklist: [],
-      tagShow: [],
+      showRatings: [],
+      showTags: [],
+      sourceFolders: [],
       updateDirsAfterMinutes: constants.DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES,
       weightingRating: constants.DEFCONF_CRAWLER_WEIGHTING_RATING,
       weightingRepeated: constants.DEFCONF_CRAWLER_WEIGHTING_REPEATED,
       weightingSeason: constants.DEFCONF_CRAWLER_WEIGHTING_SEASON,
-      weightingSelPow: constants.DEFCONF_CRAWLER_WEIGHTING_SELPOW
+      weightingSelPow: constants.DEFCONF_CRAWLER_WEIGHTING_SELPOW,
     };
   }
 
@@ -63,7 +63,7 @@ export class CrawlerReducer {
         case constants.AR_CRAWLER_SOURCE_FOLDERS:
           return {
             ...state,
-            folderSource: action.payload || []
+            sourceFolders: action.payload || []
           };
 
         default:
@@ -83,35 +83,35 @@ export class CrawlerReducer {
 
     const {
       batchCount,
+      blacklistFolders,
+      blacklistFolderSnippets,
+      blacklistTags,
       databasePath,
-      folderBlacklist,
-      folderBlacklistSnippets,
-      folderSource,
-      showRating,
-      tagBlacklist,
-      tagShow,
+      showRatings,
+      showTags,
+      sourceFolders,
       updateDirsAfterMinutes,
       weightingRating,
       weightingRepeated,
       weightingSeason,
-      weightingSelPow
+      weightingSelPow,
     } = action.payload;
 
     const newState = {
       ...state,
       batchCount: Math.min(batchCount, 50),
+      blacklistFolders,
+      blacklistFolderSnippets,
+      blacklistTags,
       databasePath,
-      folderBlacklist,
-      folderBlacklistSnippets,
-      folderSource,
-      showRating,
-      tagBlacklist,
-      tagShow,
+      showRatings,
+      showTags,
+      sourceFolders,
       updateDirsAfterMinutes,
       weightingRating,
       weightingRepeated,
       weightingSeason,
-      weightingSelPow
+      weightingSelPow,
     };
 
     //log.debug(`${this._logKey}${func} - out`, action);

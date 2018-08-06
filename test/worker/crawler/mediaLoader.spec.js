@@ -28,7 +28,7 @@ function createTestSystemWithMediaDir(countDirs = 0, countFiles = 0) {
   const state = testSystem.crawlerState;
   state.databasePath = _testDirDb;
   state.batchCount = 3;
-  state.folderSource.push(_testDirMedia);
+  state.sourceFolders.push(_testDirMedia);
 
   testSystem.createSingleDir(_testDirMedia, countDirs, countFiles);
 

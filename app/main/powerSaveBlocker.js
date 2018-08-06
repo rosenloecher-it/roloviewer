@@ -55,7 +55,7 @@ function onBlockStart() {
   try {
     _timerStart = null;
 
-    const time = storeManager.powerSaveBlockTime;
+    const time = storeManager.powerSaveBlockMinutes;
     const timeMilli = time * 60 * 1000;
 
     //start

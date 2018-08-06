@@ -21,9 +21,8 @@ export class SystemReducer {
       exiftool: null,
       lastDialogFolder: null,
       logfile: null,
-      logLevelConsole: 'silly',
-      logLevelFile: 'silly',
-      powerSaveBlockTime: 0,
+      logLevel: 'silly',
+      powerSaveBlockMinutes: constants.DEFCONF_POWER_SAVE_BLOCK_TIME,
     }
   }
 
@@ -62,15 +61,15 @@ export class SystemReducer {
 
     const {
       exiftool, lastDialogFolder,
-      logfile, logLevelConsole, logLevelFile,
-      mapUrlFormat, powerSaveBlockTime
+      logfile, logLevel,
+      mapUrlFormat, powerSaveBlockMinutes
     } = action.payload;
 
     const newState = {
       ...state,
       exiftool, lastDialogFolder,
-      logfile, logLevelConsole, logLevelFile,
-      mapUrlFormat, powerSaveBlockTime
+      logfile, logLevel,
+      mapUrlFormat, powerSaveBlockMinutes
     };
 
     //log.debug(`${this._logKey}${func} - out`, action);

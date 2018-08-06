@@ -137,7 +137,7 @@ class AboutOverlay extends React.Component {
               </tr>
 
               <tr><td>Database files</td><td>{databasePath}</td></tr>
-              <tr><td>Log level</td><td>{this.props.logLevelFile}</td></tr>
+              <tr><td>Log level</td><td>{this.props.logLevel}</td></tr>
 
 
             </tbody>
@@ -160,18 +160,11 @@ class AboutOverlay extends React.Component {
 
 // ----------------------------------------------------------------------------------
 
-/*
-      logLevelFile:
-      logLevelConsole: system.logLevelConsole,
-      logfile:
-
- */
-
 AboutOverlay.propTypes = {
   configFile: PropTypes.string,
   databasePath: PropTypes.string,
   logfile: PropTypes.string,
-  logLevelFile: PropTypes.string,
+  logLevel: PropTypes.string,
   versionElectron: PropTypes.string,
 };
 
@@ -179,7 +172,7 @@ AboutOverlay.defaultProps = {
   configFile: '?',
   databasePath: '?',
   logfile: '?',
-  logLevelFile: '?',
+  logLevel: '?',
   versionElectron: '?.?.?',
 };
 

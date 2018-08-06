@@ -28,7 +28,7 @@ function createTestSystemWithMediaDir(countDirs = 0, countFiles = 0) {
   const state = testSystem.crawlerState;
   state.databasePath = _testDirDb;
   state.batchCount = 3;
-  state.folderSource.push(_testDirMedia);
+  state.sourceFolders.push(_testDirMedia);
 
   testSystem.createSingleDir(_testDirMedia, countDirs, countFiles);
 
@@ -263,7 +263,7 @@ describe(_logKey, () => {
 
     const crawlerState = testSystem.crawlerState;
 
-    crawlerState.tagBlacklist.push('tag1');
+    crawlerState.blacklistTags.push('tag1');
 
     const p = testSystem.init().then(() => {
 
@@ -289,7 +289,7 @@ describe(_logKey, () => {
       expect(stateComposed.rescanAll).toBe(false);
 
       // change setting to see a 'rescanAll === true'
-      crawlerState.tagBlacklist.push('tag2');
+      crawlerState.blacklistTags.push('tag2');
       return testSystem.mediaCrawler.loadState();
 
     }).then((stateComposed) => {
@@ -448,17 +448,17 @@ describe(_logKey, () => {
     expect(compare).toBe(true);
 
     state2 = deepmerge.all([state1, {}]);
-    state2.showRating.push(3);
+    state2.showRatings.push(3);
     compare = MediaCrawler.equalsStateNoRescan(state1, state2);
     expect(compare).toBe(false);
 
     state2 = deepmerge.all([state1, {}]);
-    state2.tagBlacklist.push('tag2');
+    state2.blacklistTags.push('tag2');
     compare = MediaCrawler.equalsStateNoRescan(state1, state2);
     expect(compare).toBe(false);
 
     state2 = deepmerge.all([state1, {}]);
-    state2.folderSource.push('source2');
+    state2.sourceFolders.push('source2');
     compare = MediaCrawler.equalsStateNoRescan(state1, state2);
     expect(compare).toBe(false);
   });

@@ -310,14 +310,13 @@ export class StoreManager {
   get logConfig() {
     const {system} = this.state;
     return {
-      logLevelFile: system.logLevelFile,
-      logLevelConsole: system.logLevelConsole,
+      logLevel: system.logLevel,
       logfile: system.logfile,
     }
   }
 
-  get powerSaveBlockTime() {
-    return this.state.system.powerSaveBlockTime;
+  get powerSaveBlockMinutes() {
+    return this.state.system.powerSaveBlockMinutes;
   }
 
   get meta2MapUrlFormat() {

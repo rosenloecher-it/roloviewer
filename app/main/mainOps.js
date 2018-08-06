@@ -29,12 +29,12 @@ export function configLogger() {
 
   if (logConfig) {
 
-    if (logConfig.logLevelFile)
-      log.transports.console.level = logConfig.logLevelFile;
+    if (logConfig.logLevel)
+      log.transports.console.level = logConfig.logLevel;
 
     if (logConfig.logfile) {
-      if (logConfig.logLevelConsole)
-        log.transports.file.level = logConfig.logLevelConsole;
+      if (logConfig.logLevel)
+        log.transports.file.level = logConfig.logLevel;
 
       const parentDir = path.dirname(logConfig.logfile);
       if (!fs.existsSync(parentDir)) {

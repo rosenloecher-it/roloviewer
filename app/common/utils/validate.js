@@ -58,8 +58,21 @@ export function valiDir(input) {
 
 // -----------------------------------------------------------------------------
 
+export function getDefaultRating() {
+  const defaultRating = [];
+
+  for (let i = 0; i < 6; i++)
+    defaultRating.push(i);
+
+  return defaultRating;
+}
+
+// -----------------------------------------------------------------------------
+
 export function valiRatingArray(input) {
-  if (!Array.isArray(input)) return [];
+
+  if (!Array.isArray(input))
+    return getDefaultRating();
 
   const output = [];
 
@@ -75,8 +88,12 @@ export function valiRatingArray(input) {
     if (value < 0 || value > 5)
       continue;
 
-    if (!output.includes(value)) output.push(value);
+    if (!output.includes(value))
+      output.push(value);
   }
+
+  if (output.length === 0)
+    return getDefaultRating();
 
   return output;
 }
