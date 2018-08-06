@@ -29,6 +29,30 @@
 - (drag&) drop images or directories
 
 
+## Installation
+
+Download binaries from the [release pages][releases].
+
+
+#### Run or compile it by yourself
+
+npm package manager is required.
+
+```bash
+$ git clone --depth=1 https://github.com/rosenloecher-it/roloviewer
+# install prerequisites
+$ npm install
+# start development version
+$ npm run dev
+# start production version
+$ npm start
+# create linux binary
+$ npm run package-linux
+# create windows binary
+$ npm run package-win
+```
+
+
 ## Usage
 
 Most functionality is self explanatory - see menu or the hot key list (F1).
@@ -38,7 +62,7 @@ Some of the configuration has to be written into a file (e.g. filtering by tags 
 There are some commandline switches which overwrite the settings from config file.
 
 
-### Configuration via file
+#### Configuration via file
 
 ```ini
 [crawler]
@@ -89,7 +113,7 @@ mapUrlFormat="http://www.openstreetmap.org/?mlat=$LATI_NUM$>&mlon=$LONG_NUM$&zoo
 Items are case sensitive!
 
 
-### Configuration via command line arguments
+#### Configuration via command line arguments
 
 - --autoselect / -a: Auto-select images (config source in config file)
 - --configfile -c: Explicit config file ${defaultConfigInfo}
@@ -106,10 +130,10 @@ Items are case sensitive!
 
 - Linux / AppImage - suppress questions for integrating into your system:
 
-        ```bash
-        $ mkdir -p $HOME/.local/share/appimagekit/
-        $ touch $HOME/.local/share/appimagekit/no_desktopintegration
-        ```
+    ```bash
+    $ mkdir -p $HOME/.local/share/appimagekit/
+    $ touch $HOME/.local/share/appimagekit/no_desktopintegration
+    ```
 
 
 ## Based on
@@ -133,3 +157,4 @@ The code is available at [GitHub][home].
 
 
 [home]: https://github.com/rosenloecher-it/roloviewer
+[releases]: https://github.com/rosenloecher-it/roloviewer/releases
