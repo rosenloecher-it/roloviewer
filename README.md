@@ -1,2 +1,0 @@
-# roloviewer
-Image slideshow viewer
