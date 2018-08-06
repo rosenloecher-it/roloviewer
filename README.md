@@ -64,6 +64,11 @@ There are some commandline switches which overwrite the settings from config fil
 
 #### Configuration via file
 
+Location:
+- Linux: $HOME/.config/RoloViewer/roloviewer.ini
+- Windows: %APPDATA%\RoloViewer\roloviewer.ini
+- or see in menu help / about
+
 ```ini
 [crawler]
 # source folders (when choosing folder via menu, both entries are overwritten)
@@ -106,7 +111,8 @@ transitionTimeManual=600
 logLevel=debug
 # disable system power saving for x minutes (restored on app exit too)
 powerSaveBlockMinutes=30
-#
+# url template used for open image gps location in browser
+# existing template tokens: $LATI_ABS$, $LATI_NUM$, $LATI_REF$, $LATI_REL$, $LONG_ABS$, $LONG_NUM$, $LONG_REF$, $LONG_REL$
 mapUrlFormat="http://www.openstreetmap.org/?mlat=$LATI_NUM$>&mlon=$LONG_NUM$&zoom=15&layers=M"
 ```
 
@@ -116,10 +122,10 @@ Items are case sensitive!
 #### Configuration via command line arguments
 
 - --autoselect / -a: Auto-select images (config source in config file)
-- --configfile -c: Explicit config file ${defaultConfigInfo}
+- --configfile -c <location>: Explicit config file ${defaultConfigInfo}
 - --configreadonly: Do not wite changes to config file
 - --fullscreen -f: Show fullscreen
-- --help -h: show help message
+- --help -h: show help message and exits
 - --open -o: Open playlist or directory (default: using crawler)
 - --play -p: Auto play items
 - --random -r: random order (implicit in screensaver mode)
