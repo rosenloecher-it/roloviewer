@@ -12,7 +12,7 @@
 - **digital photo frame mode**
     - selects randomly folders and shows a handful pictures
       (so not like the standard digital photo frame, who jumps immediatly to the next folder
-      => minimises headache caused by context jumping...)
+      => minimizes headache caused by context jumping...)
     - filter directories by name snippets (white- and blacklists)
     - filter images by rating or tags (xmp; white- and blacklists)
     - favors images by rating
@@ -24,7 +24,7 @@
 - transitions (at moment only crossfades; more are planed)
 - configuration via file (ini style) and some command line options
 - runs on Linux and Windows
-- screensaver mode: finishs at the first mouse move or key press
+- screensaver mode: exits at the first mouse move or key press
 - able to block the system power saving for some time
 - (drag&) drop images or directories
 
