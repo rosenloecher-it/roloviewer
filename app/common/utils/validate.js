@@ -140,10 +140,8 @@ export function validateBlacklistFolders(blacklistFoldersIn) {
 // ----------------------------------------------------------------------------------
 
 export function valiLogLevel(input) {
-  const defaultLogLevel = 'warn';
-
   if (typeof input !== typeof 'str')
-    return defaultLogLevel;
+    return null;
 
   const logLevels = ['error', 'warn', 'info', 'verbose', 'debug', 'silly'];
 
@@ -152,7 +150,7 @@ export function valiLogLevel(input) {
   if (logLevels.indexOf(output) > -1)
     return output;
 
-  return defaultLogLevel;
+  return null;
 }
 
 // ----------------------------------------------------------------------------------

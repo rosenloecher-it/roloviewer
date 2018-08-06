@@ -60,8 +60,7 @@ export const DEFCONF_CRAWLER_TODAY_SHIFT_SEASON = 10;
 export const DEFCONF_CRAWLER_BATCHCOUNT = 10;
 
 export const DEFCONF_LOG = '.';
-export const DEFCONF_LOGLEVEL_FILE = 'info';
-export const DEFCONF_LOGLEVEL_CONSOLE = 'info';
+export const DEFCONF_LOGLEVEL = 'info';
 
 export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 3;
 

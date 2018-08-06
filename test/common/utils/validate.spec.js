@@ -74,4 +74,26 @@ describe('validate', () => {
 
   });
 
+  
+  it('valiLogLevel', () => {
+
+    let output = null;
+
+    const logLevels = ['error', 'warn', 'info', 'verbose', 'debug', 'silly'];
+
+    output = vali.valiLogLevel(null);
+    expect(output).toBe(null);
+
+    output = vali.valiLogLevel('sadfcascvsadcv');
+    expect(output).toBe(null);
+
+    for (let i = 0; i < logLevels.length; i++) {
+      const logLevel = logLevels[i];
+      output = vali.valiLogLevel(logLevel.toUpperCase());
+      expect(output).toBe(logLevel);
+    }
+
+
+  });
+
 });

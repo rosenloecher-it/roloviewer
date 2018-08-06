@@ -264,11 +264,9 @@ export function createSystemAction(iniDataIn, context, defaultLogFile) {
 
   actionData.lastDialogFolder = valiDir(iniData.system.lastDialogFolder);
 
-  actionData.logLevelFile = mergeConfigItem(!context.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL_CONSOLE,
-                              valiLogLevel(iniData.system.logLevelFile));
-
-  actionData.logLevelConsole = mergeConfigItem(constants.DEFCONF_LOGLEVEL_FILE,
-    valiLogLevel(iniData.system.logLevelConsole));
+  const defaulLogLevel = !context.isProduction ? "debug" : constants.DEFCONF_LOGLEVEL;
+  actionData.logLevelFile = mergeConfigItem(defaulLogLevel, valiLogLevel(iniData.system.logLevelFile));
+  actionData.logLevelConsole = mergeConfigItem(defaulLogLevel, valiLogLevel(iniData.system.logLevelConsole));
 
   actionData.mapUrlFormat = mergeConfigItem(constants.DEFCONF_META2MAPURL_FORMAT,
     valiUrl(iniData.system.mapUrlFormat));
