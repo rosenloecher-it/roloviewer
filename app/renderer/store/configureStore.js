@@ -9,9 +9,9 @@ import rootReducer from "./rendererRootReducer";
 
 const _logKey = "configureRendererStore";
 
-const _history = createHashHistory();
+export const _history = createHashHistory();
 
-const _store = configureStore();
+export const _store = configureStore();
 
 // ----------------------------------------------------------------------------------
 
@@ -80,17 +80,5 @@ function configureStore(initialState?: counterStateType) {
     return null;
   }
 
-};
+}
 
-export default { _store, _history };
-
-
-
-
-
-// // @flow
-// if (process.env.NODE_ENV === 'production') {
-//   module.exports = require('./configureStore.prod'); // eslint-disable-line global-require
-// } else {
-//   module.exports = require('./configureStore.dev'); // eslint-disable-line global-require
-// }
