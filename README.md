@@ -164,3 +164,4 @@ The code is available at [GitHub][home].
 
 [home]: https://github.com/rosenloecher-it/roloviewer
 [releases]: https://github.com/rosenloecher-it/roloviewer/releases
+

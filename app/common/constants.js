@@ -50,9 +50,8 @@ export const DEFCONF_RANDOM = true;
 
 export const DEFCONF_MAX_ITEMS_PER_CONTAINER = 1000;
 export const DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES = 24 * 60;
-export const DEFCONF_CRAWLER_WEIGHTING_RATING = 60;
-export const DEFCONF_CRAWLER_WEIGHTING_REPEATED =
-  DEFCONF_CRAWLER_WEIGHTING_RATING / 4;
+export const DEFCONF_CRAWLER_WEIGHTING_RATING = 200;
+export const DEFCONF_CRAWLER_WEIGHTING_REPEATED = DEFCONF_CRAWLER_WEIGHTING_RATING / 4;
 export const DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE = 182 * 2;
 export const DEFCONF_CRAWLER_WEIGHTING_SEASON = DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE;
 export const DEFCONF_CRAWLER_WEIGHTING_SELPOW = 3;
@@ -72,6 +71,7 @@ export const DEFCONF_EXIFTOOL_DISABLE = '-';
 // --------------------------------------------------------------------------
 
 export const CRAWLER_MAX_WEIGHT = Number.MAX_VALUE;
+export const CRAWLER_NORM_FILE_COUNT = 100;
 
 // --------------------------------------------------------------------------
 // messages

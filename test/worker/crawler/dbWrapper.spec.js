@@ -23,6 +23,9 @@ function createTestDirItem(mediaComposer, countFiles) {
     const item = mediaComposer.createFileItem({
       fileName,
       weight: i, // => re-sort necessary, no extra evaluateFileItem necessary
+      rating: Math.floor(5 * Math.random()),
+      time: Math.floor(Date.now() * Math.random()),
+      lastShown: Math.floor(Date.now() * Math.random()),
     });
 
     dir.fileItems.push(item);
@@ -134,7 +137,10 @@ describe('dbWrapper', () => {
         const docIn = mediaComposer.createDirItem({dir: pathIn });
         docIn.weight = 1000 * Math.random();
         docIn.lastUpdate = Date.now();
+        docIn.lastShown = Date.now();
 
+        promises.push(dbWrapper.saveDir(docIn));
+        // push the same dir 2x and check that no doubles exist
         promises.push(dbWrapper.saveDir(docIn));
       }
 

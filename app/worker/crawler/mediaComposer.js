@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import log from 'electron-log'; // eslint-disable-line no-unused-vars
 import * as constants from "../../common/constants";
 import {CrawlerBase} from "./crawlerBase";
 import {MediaLoader} from "./mediaLoader";
@@ -123,7 +124,7 @@ export class MediaComposer extends CrawlerBase {
   evaluateSeasonWeight(fileItem, testTimeNow = null) {
     const func = '.evaluateFileItem'; // eslint-disable-line no-unused-vars
 
-    if (!fileItem)
+    if (!fileItem || !fileItem.time)
       return 0;
 
     const crawlerState = this.objects.storeManager.crawlerState;
@@ -245,7 +246,8 @@ export class MediaComposer extends CrawlerBase {
 
       const weightFilesAverage = weightSum / scanCount;
 
-      const weightFilesCount = -1.0 / (dirItem.fileItems.length || 1);
+      const fileCountNorm = Math.min(dirItem.fileItems.length, constants.CRAWLER_NORM_FILE_COUNT);
+      const weightFilesCount = -1.0 * fileCountNorm / constants.CRAWLER_NORM_FILE_COUNT;
 
       if (!dirItem.lastShown)
         dirItem.lastShown = DAY0;

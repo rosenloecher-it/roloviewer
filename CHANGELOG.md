@@ -2,4 +2,5 @@
 - pushlished on github
 
 # 0.7.1 (2018-10-14)
-- component update
+- component update (npm outdated)
+- selection algorithm changed

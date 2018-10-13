@@ -310,7 +310,7 @@ export class DbWrapper extends CrawlerBase {
       const maxWeight = constants.CRAWLER_MAX_WEIGHT;
       // {weight: { $lt: constants.CRAWLER_MAX_WEIGHT} }
 
-      instance.dbDir.find({weight: { $lt: maxWeight} }, { dir: 1, weight: 1 }).sort({ weight: 1 }).exec((err, docs) => {
+      instance.dbDir.find({weight: { $lt: maxWeight} }, { dir: 1, lastShown: 1, weight: 1 }).sort({ weight: 1 }).exec((err, docs) => {
         if (err)
           reject(new Error(err));
 

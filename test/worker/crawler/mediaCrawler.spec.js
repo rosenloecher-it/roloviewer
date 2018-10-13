@@ -616,19 +616,22 @@ describe(_logKey, () => {
     const testSystem = createTestSystemWithMediaDir();
     const crawlerState = testSystem.crawlerState;
 
-    crawlerState.batchCount = 3;
+    crawlerState.batchCount = 4;
     crawlerState.weightingRating = 0;
     crawlerState.weightingRepeated = 100;
-    crawlerState.weightingSelPow = 5;
+    crawlerState.weightingSelPow = 4;
+    crawlerState.weightingSeason=500;
+
+    const mapFiles = new Map();
+    const mapDirs = new Map();
 
     const dirWidth = 3;
     const dirDepth = 2;
-    const filesPerDir = 9;
-    const countImageFiles = dirWidth ** dirDepth * filesPerDir;
-    const deliverLoopCount = Math.floor(countImageFiles / crawlerState.batchCount) * 2;
-    const countImageDirsExpected = 9;
+    const countImageDirsExpected = dirWidth ** dirDepth;
+    testSystem.createFileSystemStructureRand(_testDirMedia, dirWidth, dirDepth, 1, crawlerState.batchCount * 5);
 
-    testSystem.createFileSystemStructure(_testDirMedia, dirWidth, dirDepth, filesPerDir);
+    const countImageFiles = testSystem.files.length;
+    const deliverLoopCount = Math.floor(countImageFiles / crawlerState.batchCount) * 3;
 
     const p = testSystem.init().then(() => {
       const action = workerActions.createActionStart();
@@ -683,9 +686,8 @@ describe(_logKey, () => {
 
           const slideshowItem = lastAction.payload.items;
           for (let k = 0; k < slideshowItem.length; k++) {
-            const { file } = slideshowItem[k];
-
-            const p3 = testSystem.mediaCrawler.rateDirByFile(file);
+            const item = slideshowItem[k];
+            const p3 = testSystem.mediaCrawler.rateDirByFile(item.file);
             promisesInner.push(p3);
           }
 
@@ -695,10 +697,6 @@ describe(_logKey, () => {
 
       return p2;
 
-    // }).then(() => {
-    //   deliverLoopCount++;
-    //   return testSystem.mediaCrawler.chooseAndSendFiles();
-
     }).then(() => {
 
       return testSystem.dbWrapper.listDirsWeigthSorted();
@@ -706,9 +704,6 @@ describe(_logKey, () => {
     }).then((dirItems) => {
 
       console.log(`formatDirItemsWeightList:\n${testUtils.formatDirItemsWeightList(dirItems)}`);
-
-      const mapFiles = new Map();
-      const mapDirs = new Map(); // TODO
 
       expect(dirItems.length).toBe(countImageDirsExpected);
 
@@ -750,7 +745,8 @@ describe(_logKey, () => {
       }
 
       let fileHitsSum = 0, fileHitsMin = Number.MAX_VALUE, fileHitsMax = -Number.MAX_VALUE;
-      let fileCountLess1 = 0, fileCountMore1 = 0;
+      let fileCountLess1 = 0, fileCountMore2 = 0;
+      let infoNotUsedFiles = 'File not used:';
 
       const { files } = testSystem;
       for (let i = 0; i < files.length; i++) {
@@ -762,15 +758,22 @@ describe(_logKey, () => {
         if (fileHitsMin > count) fileHitsMin = count;
         if (fileHitsMax < count) fileHitsMax = count;
 
-        if (count === 0) fileCountLess1++;
-        if (count > 1) fileCountMore1++;
+        if (count > 2) fileCountMore2++;
+
+        if (count === 0) {
+          fileCountLess1++;
+
+          const fileItem = DummyTestSystem.readTestFile(file);
+          const date = new Date(fileItem.time).toISOString().slice(0,10);
+          infoNotUsedFiles += `${lineOffset} rating=${fileItem.rating}, date=${date}, file=${file}`;
+        }
       }
+      console.dir(infoNotUsedFiles);
 
       let dirHitsSum = 0, dirHitsMin = Number.MAX_VALUE, dirHitsMax = -Number.MAX_VALUE;
-      let dirCountLess1 = 0, dirCountMore1 = 0;
+      let dirCountLess1 = 0, dirCountMore2 = 0;
 
-      Object.keys(mapDirs).forEach((key) => {
-        const data = mapDirs[key];
+      for (let [ dir, data ] of mapDirs) { // eslint-disable-line no-restricted-syntax, no-unused-vars
         const { count } = data;
 
         dirHitsSum += count;
@@ -778,8 +781,8 @@ describe(_logKey, () => {
         if (dirHitsMax < count) dirHitsMax = count;
 
         if (count === 0) dirCountLess1++;
-        if (count > 1) dirCountMore1++;
-      });
+        if (count > 2) dirCountMore2++;
+      }
 
       let statistics = `${_logKey}${func} - statitics:`;
 
@@ -788,21 +791,22 @@ describe(_logKey, () => {
 
       statistics += `${lineOffset}count created files                     = ${files.length}`;
       statistics += `${lineOffset}count countDeliveredItem (incl doubles) = ${countDeliveredItem}`;
-      statistics += `${lineOffset}count delivered files (no doubles)      = ${mapFiles.length}`;
+      statistics += `${lineOffset}count delivered files (no doubles)      = ${mapFiles.size}`;
+      statistics += `${lineOffset}share delivered files                   = ${Math.floor(100 * mapFiles.size / files.length)}% <measure>`;
 
-      const fileHitsAvg = fileHitsSum / mapFiles.length;
+      const fileHitsAvg = fileHitsSum / mapFiles.size;
       statistics += `${lineOffset}fileHitsAvg     = ${fileHitsAvg}`;
       statistics += `${lineOffset}fileHitsMax     = ${fileHitsMax}`;
       statistics += `${lineOffset}fileHitsMin     = ${fileHitsMin}`;
       statistics += `${lineOffset}fileCountLess1  = ${fileCountLess1}`;
-      statistics += `${lineOffset}fileCountMore1  = ${fileCountMore1}`;
+      statistics += `${lineOffset}fileCountMore2  = ${fileCountMore2}`;
 
-      const dirHitsAvg = dirHitsSum / mapDirs.length;
+      const dirHitsAvg = dirHitsSum / mapDirs.size;
       statistics += `${lineOffset}dirHitsAvg     = ${dirHitsAvg}`;
       statistics += `${lineOffset}dirHitsMax     = ${dirHitsMax}`;
       statistics += `${lineOffset}dirHitsMin     = ${dirHitsMin}`;
       statistics += `${lineOffset}dirCountLess1  = ${dirCountLess1}`;
-      statistics += `${lineOffset}dirCountMore1  = ${dirCountMore1}`;
+      statistics += `${lineOffset}dirCountMore2  = ${dirCountMore2}`;
 
       console.dir(statistics);
 
@@ -810,6 +814,15 @@ describe(_logKey, () => {
 
       expect(fileCountLess1).toBeLessThan(files.length / 4);
       expect(dirCountLess1).toBeLessThan(countImageDirsExpected / 4);
+
+      return testSystem.dbWrapper.countDirs();
+
+    }).then((count) => {
+
+      if (count !== countImageDirsExpected) {
+        console.dir(`dbWrapper.countDirs() != countImageDirsExpected(${countImageDirsExpected})!`);
+        expect(count).toBe(countImageDirsExpected);
+      }
 
       return Promise.resolve();
 

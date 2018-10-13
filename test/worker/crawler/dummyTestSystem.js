@@ -80,6 +80,32 @@ export class DummyTestSystem {
 
   // ........................................................
 
+  createFileSystemStructureRand(basePath, width, depth, fileCountPerFolderMin, fileCountPerFolderMax) {
+    if (depth === 0) {
+      const offset =  Math.floor((fileCountPerFolderMax - fileCountPerFolderMin) * Math.random());
+      this.fillFiles(basePath, fileCountPerFolderMin + offset);
+    }
+
+    if (depth > 0) {
+      for (let w = 0; w < width; w++) {
+        do {
+          const subDirName = stringUtils.randomString(8);
+          const subDir = path.join(basePath, subDirName);
+          if (fs.existsSync(subDir)) continue;
+          this.createTestDir(subDir);
+          this.createFileSystemStructureRand(
+            subDir,
+            width,
+            depth - 1,
+            fileCountPerFolderMin, fileCountPerFolderMax
+          );
+        } while (false);
+      }
+    }
+  }
+
+  // ........................................................
+
   createSingleDir(basePath, countDirs, countFiles) {
     this.fillFiles(basePath, countFiles);
 
@@ -119,7 +145,8 @@ export class DummyTestSystem {
       do {
         const fileName = `${stringUtils.randomString(8)}.${ext}`;
         const filePath = path.join(dir, fileName);
-        if (fs.existsSync(filePath)) continue;
+        if (fs.existsSync(filePath))
+          continue;
 
         const rating = Math.floor(5 * Math.random());
         this.saveTestFile(dir, fileName, rating);
@@ -130,12 +157,16 @@ export class DummyTestSystem {
   // ........................................................
 
   saveTestFile(dir, fileName, rating = 0, tags = null) {
-    if (!tags) tags = [];
+    if (!tags)
+      tags = [];
+
+    const time = Math.floor(Date.now() * Math.random());
 
     const fileItem = this.mediaComposer.createFileItem({
       fileName,
       rating,
-      tags
+      tags,
+      time
     });
 
     const filePath = path.join(dir, fileName);

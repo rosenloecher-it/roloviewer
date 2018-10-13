@@ -25,6 +25,7 @@ export class DummyMetaReader extends CrawlerBase {
 
       meta.rating = fileItem.rating || 0;
       meta.tags = fileItem.tags || [];
+      meta.time = fileItem.time || 0;
 
       resolve(meta);
     });
@@ -42,7 +43,7 @@ export class DummyMetaReader extends CrawlerBase {
       const fileItem = DummyTestSystem.readTestFile(file);
 
       if (fs.existsSync(file))
-        reject(new Error('file does not exist!'));
+        reject(new Error(`file (${file}) does not exist!`));
 
       const splittedPath = path.parse(file);
       const meta = {
@@ -53,6 +54,7 @@ export class DummyMetaReader extends CrawlerBase {
 
       meta.tags = fileItem.rating || 0;
       meta.rating = fileItem.tags || [];
+      meta.time = fileItem.time || 0;
 
       const action = rendererActions.createActionDeliverFileMeta(meta);
       instance.objects.storeManager.dispatchRemote(action, null);

@@ -105,12 +105,25 @@ export class MediaCrawler extends CrawlerBase {
         do {
           const selected = mediaComposer.randomWeighted(dirItems.length);
 
-          selectedDir = dirItems[selected].dir;
+          const selectedDirItem = dirItems[selected];
+          selectedDir = selectedDirItem.dir;
           counterPreventLastProposal++;
 
-          if (dirItems.length < 3 || counterPreventLastProposal >= 3) break;
+          if (dirItems.length < 3 || counterPreventLastProposal >= 3)
+            break;
 
-          if (selectedDir === instance.data.lastAutoSelectedDir) continue;
+          if (selectedDirItem.dir === instance.data.lastAutoSelectedDir)
+            continue;
+
+          if (selectedDirItem.lastShown && dirItems.length > 10) {
+            const diffLastShownMinutes = (Date.now() - selectedDirItem.lastShown) / 1000 / 60;
+            const waitMinutes = Math.min(dirItems.length / 2, 30);
+            if (diffLastShownMinutes < waitMinutes) {
+              //log.debug(`${_logKey}${func} - reselect - dir=${selectedDir} - diffMins=${diffLastShownMinutes}`);
+              continue;
+            }
+          }
+
         } while (false);
 
         instance.data.lastAutoSelectedDir = selectedDir;
