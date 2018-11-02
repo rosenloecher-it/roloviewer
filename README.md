@@ -148,6 +148,7 @@ Items are case sensitive!
 - [chentsulin/electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
 - React
 - Exiftool
+- [nedb](https://github.com/louischatriot/nedb)
 
 
 ## Maintainers

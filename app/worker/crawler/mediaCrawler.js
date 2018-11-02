@@ -11,6 +11,7 @@ import * as rendererActions from '../../common/store/rendererActions';
 import { MediaComposer } from './mediaComposer';
 import { WorkerReducer } from '../../common/store/workerReducer';
 import { MediaFilter } from './mediaFilter';
+import { FifoSelectLimit } from "./fifoSelectLimit";
 
 // ----------------------------------------------------------------------------------
 
@@ -25,7 +26,7 @@ export class MediaCrawler extends CrawlerBase {
 
     this.data = {
       cacheScanFsDirs: new Set(),
-      lastAutoSelectedDir: null,
+      fifoSelectLimit: new FifoSelectLimit(),
       scanActiveSendFirstAvailableFiles: false,
     };
   }
@@ -85,57 +86,50 @@ export class MediaCrawler extends CrawlerBase {
     const { dbWrapper } = instance.objects;
     const { mediaComposer } = instance.objects;
     const { storeManager } = instance.objects;
+    const { fifoSelectLimit } = instance.data;
 
     const p = dbWrapper.listDirsWeigthSorted().then(dirItems => {
 
-        if (0 === dirItems.length) {
-          if (this.data.scanActiveSendFirstAvailableFiles) {
-            log.debug(`${_logKey}${func} - scan active - skip and wait for first delivery`);
-          } else {
-            const text = 'auto-selection failed (no dirs available)!';
-            log.error(`${_logKey}${func} - ${text}`);
-            storeManager.showMessage(constants.MSG_TYPE_ERROR, text);
-          }
-
-          return Promise.resolve(null, true); // dirItem, dontShowErrorWhenNull
+      if (0 === dirItems.length) {
+        if (instance.data.scanActiveSendFirstAvailableFiles) {
+          log.debug(`${_logKey}${func} - scan active - skip and wait for first delivery`);
+        } else {
+          const text = 'auto-selection failed (no dirs available)! Did you select a directory hierarchy which contains images!?';
+          log.error(`${_logKey}${func} - ${text}`);
+          storeManager.showMessage(constants.MSG_TYPE_ERROR, text);
         }
 
-        let selectedDir = null;
-        let counterPreventLastProposal = 0;
-        do {
-          const selected = mediaComposer.randomWeighted(dirItems.length);
+        return Promise.resolve(null, true); // dirItem, dontShowErrorWhenNull
+      }
 
-          const selectedDirItem = dirItems[selected];
-          selectedDir = selectedDirItem.dir;
-          counterPreventLastProposal++;
+      fifoSelectLimit.setSize(Math.min(dirItems.length / 2, constants.DEFCONF_CRAWLER_DIR_REPEAT_LIMIT));
+      fifoSelectLimit.clearCandidates();
 
-          if (dirItems.length < 3 || counterPreventLastProposal >= 3)
-            break;
+      const maxSearchLoop = Math.min(5, dirItems.length);
+      for (let i = 0; i < maxSearchLoop; i++) {
+        const selected = mediaComposer.randomWeighted(dirItems.length);
+        const selectedDirItem = dirItems[selected];
 
-          if (selectedDirItem.dir === instance.data.lastAutoSelectedDir)
-            continue;
+        if (fifoSelectLimit.setAndCheckCandidate(selectedDirItem.dir)) {
+          break;
+        }
+      }
 
-          if (selectedDirItem.lastShown && dirItems.length > 10) {
-            const diffLastShownMinutes = (Date.now() - selectedDirItem.lastShown) / 1000 / 60;
-            const waitMinutes = Math.min(dirItems.length / 2, 30);
-            if (diffLastShownMinutes < waitMinutes) {
-              //log.debug(`${_logKey}${func} - reselect - dir=${selectedDir} - diffMins=${diffLastShownMinutes}`);
-              continue;
-            }
-          }
+      const selectedDir = fifoSelectLimit.getCandidate();
+      if (fifoSelectLimit.isRepeatedCandidate()) {
+        log.debug(`${_logKey}${func} - selectedDir (${selectedDir}) exists in fifo!\n  elements: `, fifoSelectLimit.getElements());
+      }
 
-        } while (false);
+      fifoSelectLimit.add(selectedDir);
 
-        instance.data.lastAutoSelectedDir = selectedDir;
+      return dbWrapper.loadDir(selectedDir);
 
-        return dbWrapper.loadDir(selectedDir);
+    }).then(dirItem => {
+      return Promise.resolve(dirItem, false); // dirItem, dontShowErrorWhenNull
 
-      }).then(dirItem => {
-        return Promise.resolve(dirItem, false); // dirItem, dontShowErrorWhenNull
-
-      }).catch(err => {
-        instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
-      });
+    }).catch(err => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
 
     return p;
   }

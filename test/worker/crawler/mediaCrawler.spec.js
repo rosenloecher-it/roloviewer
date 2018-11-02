@@ -1,6 +1,7 @@
 import path from 'path';
 import deepmerge from 'deepmerge';
 import fs from 'fs';
+import log from 'electron-log';
 import * as constants from '../../../app/common/constants';
 import * as testUtils from '../../common/utils/testUtils';
 import * as stringUtils from '../../../app/common/utils/stringUtils';
@@ -618,12 +619,13 @@ describe(_logKey, () => {
 
     crawlerState.batchCount = 4;
     crawlerState.weightingRating = 0;
-    crawlerState.weightingRepeated = 100;
+    crawlerState.weightingRepeated = 1000;
     crawlerState.weightingSelPow = 4;
-    crawlerState.weightingSeason=500;
+    crawlerState.weightingSeason = 0;
 
     const mapFiles = new Map();
     const mapDirs = new Map();
+    let lastMediaPath;
 
     const dirWidth = 3;
     const dirDepth = 2;
@@ -631,7 +633,7 @@ describe(_logKey, () => {
     testSystem.createFileSystemStructureRand(_testDirMedia, dirWidth, dirDepth, 1, crawlerState.batchCount * 5);
 
     const countImageFiles = testSystem.files.length;
-    const deliverLoopCount = Math.floor(countImageFiles / crawlerState.batchCount) * 3;
+    const deliverLoopCount = Math.floor(countImageFiles / crawlerState.batchCount) * 2;
 
     const p = testSystem.init().then(() => {
       const action = workerActions.createActionStart();
@@ -670,11 +672,13 @@ describe(_logKey, () => {
       for (let i = 0; i < deliverLoopCount; i++) {
         // selections
         p2 = p2.then(() => {
+          //log.info("mediaCrawler.chooseAndSendFiles");
           return testSystem.mediaCrawler.chooseAndSendFiles();
         });
 
         // rateDirByFile
-        p2 = p2.then(() => {
+        //                                          THERE IS NO FUNC!
+        p2 = p2.then(() => { // eslint-disable-line no-loop-func
           const globalActions = testSystem.storeManager.data.globalDispatchedActions;
 
           expect(globalActions.length).toBeGreaterThan(0);
@@ -684,12 +688,25 @@ describe(_logKey, () => {
 
           const promisesInner = [];
 
+          let debugOutput = "mediaCrawler.rateDirByFile:";
+
+          const firstFileFromBatch = lastAction.payload.items[0].file;
+          const currentMediaPath = path.dirname(firstFileFromBatch);
+          if (currentMediaPath === lastMediaPath) {
+            log.error(`lastMediaPath (${lastMediaPath}) should not be repeated immediately (file: ${firstFileFromBatch})!`);
+            expect(currentMediaPath).not.toBe(lastMediaPath);
+          }
+          lastMediaPath = currentMediaPath;
+
           const slideshowItem = lastAction.payload.items;
           for (let k = 0; k < slideshowItem.length; k++) {
             const item = slideshowItem[k];
+            debugOutput += lineOffset + item.file;
             const p3 = testSystem.mediaCrawler.rateDirByFile(item.file);
             promisesInner.push(p3);
           }
+
+          log.info(debugOutput);
 
           return Promise.all(promisesInner);
         });
@@ -703,7 +720,7 @@ describe(_logKey, () => {
 
     }).then((dirItems) => {
 
-      console.log(`formatDirItemsWeightList:\n${testUtils.formatDirItemsWeightList(dirItems)}`);
+      log.info(`formatDirItemsWeightList:\n${testUtils.formatDirItemsWeightList(dirItems)}`);
 
       expect(dirItems.length).toBe(countImageDirsExpected);
 

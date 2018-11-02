@@ -61,7 +61,7 @@ export class MediaComposer extends CrawlerBase {
 
     const doc = {
       id: this.convert2Id(input.fileName),
-      repeated: 0,
+      repeated: input.repeated || 0,
       fileName: input.fileName,
       time: input.time || null,
       rating: input.rating || 0,
@@ -80,14 +80,18 @@ export class MediaComposer extends CrawlerBase {
 
     if (!length)
       return null;
-    if (length === 1)
+    if (length < 2)
       return 0;
 
     const crawlerState = this.objects.storeManager.crawlerState;
     const {weightingSelPow} = crawlerState;
 
-    const maxRandom = length ** weightingSelPow;
-    const selected = Math.floor(length - (maxRandom * Math.random()) ** (1/weightingSelPow));
+    let selPow = weightingSelPow;
+    if (length <= 10 && selPow > 2)
+      selPow = 2;
+
+    const maxRandom = length ** selPow;
+    const selected = Math.floor(length - (maxRandom * Math.random()) ** (1.0/selPow));
 
     return selected;
   }
@@ -159,7 +163,7 @@ export class MediaComposer extends CrawlerBase {
     const repeated = fileItem.repeated || 0;
 
     const weightTime = diffDays;
-    const weightRating = -1 * rating * weightingRating;
+    const weightRating = -1.0 * rating * weightingRating;
     const weightRepeated = repeated * weightingRepeated;
 
     const weightSeason = this.evaluateSeasonWeight(fileItem, testTimeNow);
@@ -225,38 +229,35 @@ export class MediaComposer extends CrawlerBase {
 
     //log.debug(`${_logKey}${func} - in - weight=`, dirItem.weight);
 
-    do {
-      if (!dirItem.fileItems || dirItem.fileItems.length === 0) {
-        dirItem.weight = constants.CRAWLER_MAX_WEIGHT;
-        break;
-      }
+    if (!dirItem.fileItems || dirItem.fileItems.length === 0) {
+      dirItem.weight = constants.CRAWLER_MAX_WEIGHT;
+      return;
+    }
 
-      const crawlerState = this.objects.storeManager.crawlerState;
-      const {batchCount} = crawlerState;
+    const crawlerState = this.objects.storeManager.crawlerState;
+    const {batchCount} = crawlerState;
 
-      dirItem.fileItems.sort((fileItem1, fileItem2) => {
-        return (fileItem1.weight - fileItem2.weight);
-      });
+    dirItem.fileItems.sort((fileItem1, fileItem2) => {
+      return (fileItem1.weight - fileItem2.weight);
+    });
 
-      const scanCount = Math.min(dirItem.fileItems.length, batchCount);
+    const scanCount = Math.min(dirItem.fileItems.length, batchCount);
 
-      let weightSum = 0;
-      for (let i = 0; i < scanCount; i++)
-        weightSum += dirItem.fileItems[i].weight;
+    let weightSum = 0;
+    for (let i = 0; i < scanCount; i++)
+      weightSum += dirItem.fileItems[i].weight;
 
-      const weightFilesAverage = weightSum / scanCount;
+    const weightFilesAverage = weightSum / scanCount;
 
-      const fileCountNorm = Math.min(dirItem.fileItems.length, constants.CRAWLER_NORM_FILE_COUNT);
-      const weightFilesCount = -1.0 * fileCountNorm / constants.CRAWLER_NORM_FILE_COUNT;
+    const fileCountNorm = Math.min(dirItem.fileItems.length, constants.CRAWLER_NORM_FILE_COUNT);
+    const weightFilesCount = -1.0 * fileCountNorm / constants.CRAWLER_NORM_FILE_COUNT;
 
-      if (!dirItem.lastShown)
-        dirItem.lastShown = DAY0;
-      const diffDays = MediaComposer.time2days(dirItem.lastShown - DAY0);
-      const weightTime = diffDays;
+    if (!dirItem.lastShown)
+      dirItem.lastShown = DAY0;
+    const diffDays = MediaComposer.time2days(dirItem.lastShown - DAY0);
+    const weightTime = diffDays;
 
-      dirItem.weight = weightTime + weightFilesAverage + weightFilesCount;
-
-    } while (false);
+    dirItem.weight = weightTime + weightFilesAverage + weightFilesCount;
 
     //log.debug(`${_logKey}${func} - out - weight=`, dirItem.weight);
 

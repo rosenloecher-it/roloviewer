@@ -11,7 +11,7 @@ export const DEBUG_DONT_SAVE_CONFIG = false;
 // app
 
 export const APP_TITLE = 'RoloViewer';
-export const APP_VERSION = '0.7.1';
+export const APP_VERSION = '0.7.2';
 export const APP_URL = 'https://github.com/rosenloecher-it/roloviewer';
 
 export const APP_CREATOR = 'Raul Rosenlöcher';
@@ -52,16 +52,17 @@ export const DEFCONF_MAX_ITEMS_PER_CONTAINER = 1000;
 export const DEFCONF_CRAWLER_UPDATE_DIRS_AFTER_MINUTES = 24 * 60;
 export const DEFCONF_CRAWLER_WEIGHTING_RATING = 200;
 export const DEFCONF_CRAWLER_WEIGHTING_REPEATED = DEFCONF_CRAWLER_WEIGHTING_RATING / 4;
-export const DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE = 182 * 2;
+export const DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE = 162 * 2;
 export const DEFCONF_CRAWLER_WEIGHTING_SEASON = DEFCONF_CRAWLER_WEIGHTING_SEASON_BASE;
 export const DEFCONF_CRAWLER_WEIGHTING_SELPOW = 3;
 export const DEFCONF_CRAWLER_TODAY_SHIFT_SEASON = 10;
 export const DEFCONF_CRAWLER_BATCHCOUNT = 10;
+export const DEFCONF_CRAWLER_DIR_REPEAT_LIMIT = 20;
 
 export const DEFCONF_LOG = '.';
 export const DEFCONF_LOGLEVEL = 'info';
 
-export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 3;
+export const DEFCONF_RENDERER_ITEM_RESERVE = DEFCONF_CRAWLER_BATCHCOUNT - 5;
 
 export const DEFCONF_META2MAPURL_FORMAT = `http://www.openstreetmap.org/?mlat=${LATI_NUM}>&mlon=${LONG_NUM}&zoom=15&layers=M`;
 
