@@ -1,4 +1,5 @@
 import log from 'electron-log';
+import fs from 'fs-extra';
 import Datastore from 'nedb';
 import path from 'path';
 import {CrawlerBase} from "./crawlerBase";
@@ -48,6 +49,12 @@ export class DbWrapper extends CrawlerBase {
       instance.dbDir = new Datastore({ filename: fileDbDir, autoload: true });
       instance.dbState = new Datastore({ filename: fileDbState, autoload: true });
 
+      log.info(`${_logKey}${func} - fileDbDir: ${fileDbDir}`);
+      log.info(`${_logKey}${func} - fileDbState: ${fileDbState}`);
+
+      const fileWriteTest = path.join(databasePath, `${constants.APP_BASENAME}${extra}_writetest${constants.EXT_DATABASE}`);
+      DbWrapper.writeTest(fileWriteTest);
+
       resolve();
 
     }).catch((err) => {
@@ -55,6 +62,21 @@ export class DbWrapper extends CrawlerBase {
     });
 
     return p;
+  }
+
+  // ........................................................
+
+  static writeTest(file) {
+    if (fs.existsSync(file)) {
+      fs.removeSync(file);
+      if (fs.existsSync(file))
+        throw new Error(`cannot delete write-test-file (${file})!`);
+    }
+
+    fs.writeFileSync(file, "write-test", 'utf8');
+    if (!fs.existsSync(file)) {
+      throw new Error(`cannot write test-file (${file})!`);
+    }
   }
 
   // ........................................................
@@ -165,6 +187,7 @@ export class DbWrapper extends CrawlerBase {
         if (numReplaced !== 1)
           reject(new Error(`numReplaced !== 1 (${numReplaced})!`));
 
+        //log.debug(`${_logKey}${func} - ${dirItem.dir}`);
         resolve();
       });
 
