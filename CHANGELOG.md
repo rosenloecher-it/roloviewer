@@ -7,3 +7,6 @@
 
 # 0.7.2 (2018-11-02)
 - selection algorithm changed
+
+# 0.7.3 (...)
+- ...
