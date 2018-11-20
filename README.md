@@ -24,7 +24,7 @@
 - transitions (at moment only crossfades; more are planed)
 - configuration via file (ini style) and some command line options
 - runs on Linux and Windows
-- screensaver mode: exits at the first mouse move or key press
+- screensaver mode: exits at the first mouse move or key press (see [tools/screensaver.sh](https://github.com/rosenloecher-it/roloviewer/blob/master/tools/screensaver.sh))
 - able to block the system power saving for some time
 - (drag&) drop images or directories
 
