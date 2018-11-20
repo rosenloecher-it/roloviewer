@@ -604,6 +604,7 @@ export class MediaCrawler extends CrawlerBase {
 
       if (dirItem) {
         mediaComposer.rateDirByShownFile(dirItem, fileName);
+        log.debug(`${_logKey}${func} - ${file}`);
         return dbWrapper.saveDir(dirItem);
       }
 
