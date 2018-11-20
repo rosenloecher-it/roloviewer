@@ -402,6 +402,9 @@ class Slideshow extends React.Component {
           else
             action = slideshowActions.createActionSetLastItemContainer(props.containerType, props.container, currentItemFile);
           storeManager.dispatchGlobal(action);
+
+          action = workerActions.createActionRateDirByFile(currentItemFile);
+          storeManager.dispatchGlobal(action);
         }
 
         data.lastImageFile = currentItemFile;
