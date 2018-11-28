@@ -11,7 +11,7 @@ function checkRandomWeight(disposer, countTest) {
 
   let sum = 0;
   let max = 0;
-  let min = constants.CRAWLER_MAX_WEIGHT;;
+  let min = constants.CRAWLER_MAX_WEIGHT;
 
   const histogram = [];
   for (let i = 0; i < countTest; i++)
@@ -200,7 +200,7 @@ describe('mediaComposer', () => {
 
   // .......................................................
 
-  it('evaluateFileItem', () => {
+  it('evaluateFileItem(default)', () => {
 
     const storeManager = new TestManager();
     const composer = new MediaComposer();
@@ -227,6 +227,69 @@ describe('mediaComposer', () => {
     composer.evaluateFileItem(item2);
 
     expect(item1.weight).toBeGreaterThan(item2.weight);
+  });
+
+  // .......................................................
+
+  it('evaluateFileItem(filtered)', () => {
+
+    const storeManager = new TestManager();
+    const composer = new MediaComposer();
+    const crawlerState = storeManager.crawlerState;
+
+    composer.coupleObjects({storeManager});
+
+    const tagFound = 'found';
+    const lastShown = new Date().getTime();
+    let item;
+
+    // filter whitelist
+    crawlerState.showRatings = [];
+    crawlerState.showTags = [ tagFound ];
+    crawlerState.blacklistTags = [];
+    item = composer.createFileItem({ fileName: 'item', lastShown, rating: 4, tags: [ 'tag1', tagFound ] });
+    composer.evaluateFileItem(item);
+    expect(item.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
+    item = composer.createFileItem({ fileName: 'item', lastShown, rating: 4, tags: [ 'tag1', 'tag2' ] });
+    composer.evaluateFileItem(item);
+    expect(item.weight).toBe(constants.CRAWLER_MAX_WEIGHT);
+
+    // filter blacklist
+    crawlerState.showRatings = [];
+    crawlerState.showTags = [];
+    crawlerState.blacklistTags = [ tagFound ];
+    item = composer.createFileItem({ fileName: 'item', lastShown, rating: 4, tags: [ 'tag1', tagFound ] });
+    composer.evaluateFileItem(item);
+    expect(item.weight).toBe(constants.CRAWLER_MAX_WEIGHT);
+    item = composer.createFileItem({ fileName: 'item', lastShown, rating: 4, tags: [ 'tag1', 'tag2' ] });
+    composer.evaluateFileItem(item);
+    expect(item.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
+
+    // filter rating
+    crawlerState.showRatings = [0, 2, 3, 4, 5];
+    crawlerState.showTags = [];
+    crawlerState.blacklistTags = [];
+    item = composer.createFileItem({ fileName: 'item', lastShown, rating: 1 });
+    composer.evaluateFileItem(item);
+    expect(item.weight).toBe(constants.CRAWLER_MAX_WEIGHT);
+    item = composer.createFileItem({ fileName: 'item', lastShown, rating: 4 });
+    composer.evaluateFileItem(item);
+    expect(item.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
+
+    // standard
+    crawlerState.showRatings = [0, 1, 2, 3, 4, 5];
+    crawlerState.showTags = [];
+    crawlerState.blacklistTags = [];
+    item = composer.createFileItem({ fileName: 'item', lastShown, rating: 4 });
+    composer.evaluateFileItem(item);
+    expect(item.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
+
+    crawlerState.showRatings = [];
+    crawlerState.showTags = [];
+    crawlerState.blacklistTags = [];
+    item = composer.createFileItem({ fileName: 'item', lastShown, rating: 4 });
+    composer.evaluateFileItem(item);
+    expect(item.weight).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
   });
 
   // .......................................................

@@ -121,6 +121,53 @@ describe('MediaFilter', () => {
     expect(blacklisted).toBe(false);
   });
 
+
+  it('containsTags', () => {
+
+    let result;
+
+    result = MediaFilter.containsTags(['tag1', 'tag2'], ['bLACKList']);
+    expect(result).toBe(false);
+
+    result = MediaFilter.containsTags(['tag1', 'tag2', 'BlackList'], ['bLACKList']);
+    expect(result).toBe(true);
+
+    result = MediaFilter.containsTags(['tag1', 'tag2', 'BlackList'], ['tagX', 'tagY', 'bLACKList']);
+    expect(result).toBe(true);
+
+    result = MediaFilter.containsTags(null, null);
+    expect(result).toBe(false);
+
+    result = MediaFilter.containsTags([], []);
+    expect(result).toBe(false);
+
+    result = MediaFilter.containsTags(['tag'], []);
+    expect(result).toBe(false);
+
+    result = MediaFilter.containsTags([], ['tag']);
+    expect(result).toBe(false);
+  });
+
+
+  it('filterRating', () => {
+
+    let result;
+
+    result = MediaFilter.filterRating(null, 1);
+    expect(result).toBe(false);
+
+    result = MediaFilter.filterRating([], 1);
+    expect(result).toBe(false);
+
+    result = MediaFilter.filterRating([0, 3, 4, 5], 1);
+    expect(result).toBe(true);
+
+    result = MediaFilter.filterRating([0, 3, 4, 5], 5);
+    expect(result).toBe(false);
+
+  });
+
+
   it('isImageFormatSupported', () => {
     expect(MediaFilter.isImageFormatSupported('/ggg/1.jpg')).toBe(true);
     expect(MediaFilter.isImageFormatSupported('/ggg/1.Jpg')).toBe(true);

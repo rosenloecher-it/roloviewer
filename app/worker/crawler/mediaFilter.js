@@ -71,6 +71,51 @@ export class MediaFilter {
 
   // ........................................................
 
+  static containsTags(tagsExisting, tagsWanted) {
+
+    if (!tagsExisting || !tagsWanted)
+      return false;
+    if (tagsExisting.length === 0)
+      return false;
+    if (tagsWanted.length === 0)
+      return false;
+
+    for (let w = 0; w < tagsWanted.length; w++) {
+      if (!tagsWanted[w])
+        continue;
+      const tagWanted = tagsWanted[w].trim().toUpperCase();
+
+      for (let e = 0; e < tagsExisting.length; e++) {
+        if (!tagsExisting[e])
+          continue;
+        const tagExisting = tagsExisting[e].trim().toUpperCase();
+        if (tagWanted === tagExisting)
+          return true;
+      }
+    }
+
+    return false;
+  }
+
+  // ........................................................
+
+  static filterRating(ratings, rating) {
+
+    if (!ratings)
+      return false;
+    if (ratings.length === 0)
+      return false;
+
+    for (let r = 0; r < ratings.length; r++) {
+      if (rating === ratings[r])
+        return false;
+    }
+
+    return true;
+  }
+
+  // ........................................................
+
   static canImportFolder(file) {
     if (!file) return false;
 

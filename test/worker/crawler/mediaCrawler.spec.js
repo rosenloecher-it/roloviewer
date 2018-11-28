@@ -617,6 +617,9 @@ describe(_logKey, () => {
     const testSystem = createTestSystemWithMediaDir();
     const crawlerState = testSystem.crawlerState;
 
+    crawlerState.showRatings = [ 0, 1, 2, 3, 4, 5];
+    crawlerState.blacklistTags = [];
+    crawlerState.showTags = [];
     crawlerState.batchCount = 4;
     crawlerState.weightingRating = 0;
     crawlerState.weightingRepeated = 1000;

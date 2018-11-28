@@ -437,8 +437,7 @@ export class MediaCrawler extends CrawlerBase {
         storeManager.dispatchTask(action);
       }
 
-      if (!rescanAll)
-        log.debug(`${_logKey}${func} - ${dirItems.length} folder queued for update.`);
+      log.debug(`${_logKey}${func} - ${dirItems.length} folder queued for update.`);
 
       return Promise.resolve();
 
@@ -604,7 +603,6 @@ export class MediaCrawler extends CrawlerBase {
 
       if (dirItem) {
         mediaComposer.rateDirByShownFile(dirItem, fileName);
-        log.debug(`${_logKey}${func} - ${file}`);
         return dbWrapper.saveDir(dirItem);
       }
 

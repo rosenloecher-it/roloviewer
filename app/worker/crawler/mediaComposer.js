@@ -4,6 +4,7 @@ import log from 'electron-log'; // eslint-disable-line no-unused-vars
 import * as constants from "../../common/constants";
 import {CrawlerBase} from "./crawlerBase";
 import {MediaLoader} from "./mediaLoader";
+import {MediaFilter} from "./mediaFilter";
 import {isWinOs} from "../../common/utils/systemUtils";
 
 // ----------------------------------------------------------------------------------
@@ -153,22 +154,47 @@ export class MediaComposer extends CrawlerBase {
       return;
 
     const crawlerState = this.objects.storeManager.crawlerState;
-    const { weightingRating, weightingRepeated } = crawlerState;
+    const { weightingRating, weightingRepeated, showRatings, blacklistTags, showTags } = crawlerState;
 
     if (!fileItem.lastShown)
       fileItem.lastShown = DAY0;
-    const diffDays = MediaComposer.time2days(fileItem.lastShown - DAY0);
 
-    const rating = fileItem.rating || 0;
-    const repeated = fileItem.repeated || 0;
+    let filterOut = false;
 
-    const weightTime = diffDays;
-    const weightRating = -1.0 * rating * weightingRating;
-    const weightRepeated = repeated * weightingRepeated;
+    let info = '';
+    if (MediaFilter.filterRating(showRatings, fileItem.rating)) {
+      info = 'rating';
+      filterOut = true;
+    }
+    if (!filterOut && MediaFilter.containsTags(fileItem.tags, blacklistTags)) {
+      info = 'blacklistTags';
+      filterOut = true;
+    }
+    // filter only for tags if at least one tag is defined
+    if (!filterOut && showTags.length > 0 && !MediaFilter.containsTags(fileItem.tags, showTags)) {
+      info = 'whitelistTags';
+      filterOut = true;
+    }
 
-    const weightSeason = this.evaluateSeasonWeight(fileItem, testTimeNow);
+    if (filterOut) {
+      log.debug(`${_logKey}${func} - file filtered: ${info} - ${fileItem.fileName}`);
+      fileItem.weight = constants.CRAWLER_MAX_WEIGHT;
+    }
+    else {
+      const diffDays = MediaComposer.time2days(fileItem.lastShown - DAY0);
 
-    fileItem.weight = weightTime + weightRating + weightRepeated + weightSeason;
+      const rating = fileItem.rating || 0;
+      const repeated = fileItem.repeated || 0;
+
+      const weightTime = diffDays;
+      const weightRating = -1.0 * rating * weightingRating;
+      const weightRepeated = repeated * weightingRepeated;
+
+      const weightSeason = this.evaluateSeasonWeight(fileItem, testTimeNow);
+
+      fileItem.weight = weightTime + weightRating + weightRepeated + weightSeason;
+    }
+
   }
 
   // .......................................................
@@ -209,12 +235,14 @@ export class MediaComposer extends CrawlerBase {
   rateDirByShownFile(dirItem, fileName) {
 
     const fileItem = this.findFileItem(dirItem, fileName);
-    fileItem.lastShown = Date.now();
-    if (!fileItem.repeated)
-      fileItem.repeated = 1;
-    else
-      fileItem.repeated++;
-    this.evaluateFileItem(fileItem);
+    if (fileItem) { // fileItem could be updated and filtered in background
+      fileItem.lastShown = Date.now();
+      if (!fileItem.repeated)
+        fileItem.repeated = 1;
+      else
+        fileItem.repeated++;
+      this.evaluateFileItem(fileItem);
+    }
     dirItem.lastShown = Date.now();
     this.evaluateDir(dirItem);
   }
