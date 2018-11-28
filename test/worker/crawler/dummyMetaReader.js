@@ -52,8 +52,8 @@ export class DummyMetaReader extends CrawlerBase {
         dir: splittedPath.dir,
       };
 
-      meta.tags = fileItem.rating || 0;
-      meta.rating = fileItem.tags || [];
+      meta.tags = fileItem.tags || [];
+      meta.rating = fileItem.rating || 0;
       meta.time = fileItem.time || 0;
 
       const action = rendererActions.createActionDeliverFileMeta(meta);
