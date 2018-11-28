@@ -1,3 +1,4 @@
+import log from "electron-log";
 import path from 'path';
 import fs from 'fs';
 import { isWinOs } from '../../common/utils/systemUtils';
@@ -73,28 +74,35 @@ export class MediaFilter {
 
   static containsTags(tagsExisting, tagsWanted) {
 
-    if (!tagsExisting || !tagsWanted)
-      return false;
-    if (tagsExisting.length === 0)
-      return false;
-    if (tagsWanted.length === 0)
-      return false;
+    try {
+      if (!tagsExisting || !tagsWanted)
+        return false;
+      if (tagsExisting.length === 0)
+        return false;
+      if (tagsWanted.length === 0)
+        return false;
 
-    for (let w = 0; w < tagsWanted.length; w++) {
-      if (!tagsWanted[w])
-        continue;
-      const tagWanted = tagsWanted[w].trim().toUpperCase();
-
-      for (let e = 0; e < tagsExisting.length; e++) {
-        if (!tagsExisting[e])
+      for (let w = 0; w < tagsWanted.length; w++) {
+        if (!tagsWanted[w])
           continue;
-        const tagExisting = tagsExisting[e].trim().toUpperCase();
-        if (tagWanted === tagExisting)
-          return true;
+        const tagWanted = tagsWanted[w].trim().toUpperCase();
+
+        for (let e = 0; e < tagsExisting.length; e++) {
+          if (!tagsExisting[e])
+            continue;
+          const tagExisting = tagsExisting[e].trim().toUpperCase();
+          if (tagWanted === tagExisting)
+            return true;
+        }
       }
+
+      return false;
+    } catch (err) {
+      log.error(`${_logKey}.containsTags -`, err);
+      return false;
     }
 
-    return false;
+    
   }
 
   // ........................................................

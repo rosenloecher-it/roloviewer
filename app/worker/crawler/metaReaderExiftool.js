@@ -243,8 +243,7 @@ export class MetaReaderExiftool extends CrawlerBase {
       dir: splittedPath.dir,
     };
 
-    meta.time = MetaReader.validateExifDate(tags
-      .DateTimeOriginal);
+    meta.time = MetaReader.validateExifDate(tags.DateTimeOriginal);
     if (!meta.time)
       meta.time = MetaReader.validateExifDate(tags.DateCreated);
     if (!meta.time)
@@ -252,8 +251,16 @@ export class MetaReaderExiftool extends CrawlerBase {
     if (!meta.time)
       meta.time = MetaReader.validateExifDate(tags.DateTimeCreated);
 
-    meta.tags = tags.Keywords;
-    meta.rating = tags.Rating;
+    meta.tags = [];
+    if (tags.Keywords) {
+      for (let i = 0; i < tags.Keywords.length; i++) {
+        const tag = tags.Keywords[i];
+        if (tag)
+          meta.tags.push(String(tag))
+      }
+    }
+
+    meta.rating = tags.Rating || 0;
 
     if (prepareOnlyCrawlerTags === false) {
 
