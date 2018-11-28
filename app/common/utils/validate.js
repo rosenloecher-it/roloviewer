@@ -181,7 +181,7 @@ export function valiTagArray(input) {
     const text = valiString(input[i]);
     if (text) {
       const value = text.trim().toLowerCase();
-      if (!output.includes(value))
+      if (value !== '' && !output.includes(value))
         output.push(value);
     }
   }
