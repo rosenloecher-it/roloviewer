@@ -9,6 +9,9 @@
 - selection algorithm changed
 
 # 0.7.3 (2018-11-20)
-- bug fix: data(base) was not written to disc under some circumstances (but tests were working)
+- bugfix: data(base) was not written to disc under some circumstances (but tests were working)
 	- partly rolled back package dependencies
-- bug fix: image status was not written to disc
+- bugfix: image status was not written to disc
+
+# 0.7.4 (2018-11-28)
+- bugfix: rating and tag filtering

@@ -19,7 +19,7 @@
 
 # set USER
 
-ROLO_APP="/home/$USER/bin/roloviewer-0.7.3-x86_64.AppImage"
+ROLO_APP="/home/$USER/bin/roloviewer-0.7.4-x86_64.AppImage"
 
 ROLO_COMMAND="$ROLO_APP --configfile $HOME/.config/RoloViewer/screensaver.ini --fullscreen --play --screensaver"
 # wait ... seconds before start roloviewer
@@ -28,6 +28,7 @@ TIME_WAIT_SECONDS=180
 # just add the app names which should prevent roloviewer to be started (ps | grep)
 CHECK_RUNNING_APP_LIST=(
     "$ROLO_APP"
+    "$0"
     vlc
     smplayer
 )
