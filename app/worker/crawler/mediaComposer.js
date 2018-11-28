@@ -177,7 +177,7 @@ export class MediaComposer extends CrawlerBase {
     }
 
     if (filterOut) {
-      log.debug(`${_logKey}${func} - file filtered: ${info} - ${fileItem.fileName}`);
+      log.info(`don't show file (filtered ${info}): ${fileItem.fileName}`);
       fileItem.weight = constants.CRAWLER_MAX_WEIGHT;
     }
     else {

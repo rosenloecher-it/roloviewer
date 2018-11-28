@@ -274,6 +274,40 @@ export class DbWrapper extends CrawlerBase {
 
   // ........................................................
 
+  countFilesShowable() {
+    const func = '.countFilesShowable';
+
+    const instance = this;
+
+    const p = new Promise((resolve, reject) => {
+
+      instance.dbDir.find({}, { dir: 1, fileItems: 1 }, (err, dirItems) => {
+
+        if (err)
+          reject(new Error(err));
+
+        let count = 0;
+        for (let i = 0; i < dirItems.length; i++) {
+          const dirItem = dirItems[i];
+          for (let k = 0; k < dirItem.fileItems.length; k++) {
+            if (dirItem.fileItems[k].weight < constants.CRAWLER_MAX_WEIGHT)
+              count++;
+          }
+
+        }
+
+        resolve(count);
+      });
+
+    }).catch((err) => {
+      instance.logAndRethrowError(`${_logKey}${func}.promise.catch`, err);
+    });
+
+    return p;
+  }
+
+  // ........................................................
+
   listDirsAll() {
     const func = '.listDirsAll';
 
@@ -305,10 +339,8 @@ export class DbWrapper extends CrawlerBase {
 
     const instance = this;
 
-    const maxWeight = constants.CRAWLER_MAX_WEIGHT;
-
     const p = new Promise((resolve, reject) => {
-      instance.dbDir.count({weight: { $lt: maxWeight} }, (err, count) => {
+      instance.dbDir.count({weight: { $lt: constants.CRAWLER_MAX_WEIGHT} }, (err, count) => {
         if (err)
           reject(new Error(err));
         resolve(count);

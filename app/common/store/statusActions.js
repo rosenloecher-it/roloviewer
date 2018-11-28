@@ -6,9 +6,9 @@ export const createActionRunning = (currentTask, currentDir, remainingDirs) => (
   payload: { currentTask, currentDir, remainingDirs },
 });
 
-export const createActionDb = (countDbDirs, countDbFiles) => ({
+export const createActionDb = (countDbDirsAll, countDbDirsShowable, countDbFilesAll, countDbFilesShowable) => ({
   type: constants.AR_STATUS_DB,
-  payload: { countDbDirs, countDbFiles },
+  payload: { countDbDirsAll, countDbDirsShowable, countDbFilesAll, countDbFilesShowable },
 });
 
 export const createActionNotifyCurrentItem = (currentItem) => ({

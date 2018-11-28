@@ -29,6 +29,12 @@ class StatusOverlay extends React.Component {
 
   // ......................................................
 
+  fono(val) {
+    return ( val === 0 || val ? val : '?' )
+  }
+
+  // ......................................................
+
   render() {
 
     const {props} = this;
@@ -40,12 +46,25 @@ class StatusOverlay extends React.Component {
 
     const tableLines = [];
 
+    let textDirs, textFiles;
+    const countDbDirsAll = this.fono(props.countDbDirsAll);
+    const countDbDirsShowable = this.fono(props.countDbDirsShowable);
+    const countDbFilesAll = this.fono(props.countDbFilesAll);
+    const countDbFilesShowable = this.fono(props.countDbFilesShowable);
+
+    if (countDbDirsShowable !== countDbDirsAll)
+      textDirs = `${countDbDirsShowable} of ${countDbDirsAll}`;
+    else
+      textDirs = `${countDbDirsShowable}`;
+    if (countDbFilesShowable !== countDbFilesAll)
+      textFiles = `${countDbFilesShowable} of ${countDbFilesAll}`;
+    else
+      textFiles = `${countDbFilesShowable}`;
+
     this.pushTableLine(tableLines, 'Crawler status', props.currentTask || '?');
-
     this.pushTableLine(tableLines, 'Remaining folders', props.remainingDirs);
-
-    this.pushTableLine(tableLines, 'Crawled folders', props.countDbDirs);
-    this.pushTableLine(tableLines, 'Crawled files', props.countDbFiles);
+    this.pushTableLine(tableLines, 'Available folders', textDirs);
+    this.pushTableLine(tableLines, 'Available files', textFiles);
 
     //log.debug(`${_logKey}.render - state=${state}, showAll=${showAll}, showPath=${showPath}, itemPath=`, itemPath);
 
@@ -65,8 +84,10 @@ class StatusOverlay extends React.Component {
 // ----------------------------------------------------------------------------------
 
 const mapStateToProps = state => ({
-  countDbDirs: state.status.countDbDirs,
-  countDbFiles: state.status.countDbFiles,
+  countDbDirsAll: state.status.countDbDirsAll,
+  countDbDirsShowable: state.status.countDbDirsShowable,
+  countDbFilesAll: state.status.countDbFilesAll,
+  countDbFilesShowable: state.status.countDbFilesShowable,
   crawlerInfoPosition: state.slideshow.crawlerInfoPosition,
   crawlerInfoShow: state.slideshow.crawlerInfoShow,
   currentDir: state.status.currentDir,

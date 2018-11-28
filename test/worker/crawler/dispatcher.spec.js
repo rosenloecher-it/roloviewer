@@ -115,8 +115,9 @@ describe(_logKey, () => {
       const action = globalActions[0];
       expect(action.type).toBe(constants.AR_STATUS_DB);
 
-      expect(action.payload.countDbDirs).toBe(1);
-      expect(action.payload.countDbFiles).toBe(3);
+      expect(action.payload.countDbDirsShowable).toBe(1);
+      expect(action.payload.countDbFilesAll).toBe(3);
+      expect(action.payload.countDbFilesShowable).toBe(3);
 
       return Promise.resolve();
 

@@ -427,16 +427,23 @@ export class Dispatcher extends CrawlerBase {
     if (!data.statusExistDataDb) return Promise.resolve();
     data.statusExistDataDb = false;
 
-    let countDbDirs = null;
+    let countDbDirsAll, countDbDirsShowable, countDbFilesShowable;
 
-    const p = dbWrapper.countDirs().then((count) => {
+    const p = dbWrapper.countDirsShowable().then((count) => {
+      countDbDirsShowable = count;
 
-      countDbDirs = count;
+      return dbWrapper.countDirs();
+    }).then((count) => {
+      countDbDirsAll = count;
+
+      return dbWrapper.countFilesShowable();
+    }).then((count) => {
+      countDbFilesShowable = count;
+
       return dbWrapper.countFiles();
+    }).then((countDbFilesAll) => {
 
-    }).then((countDbFiles) => {
-
-      const action = statusActions.createActionDb(countDbDirs, countDbFiles);
+      const action = statusActions.createActionDb(countDbDirsAll, countDbDirsShowable, countDbFilesAll, countDbFilesShowable);
       storeManager.dispatchTask(action);
 
       return Promise.resolve();

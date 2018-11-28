@@ -18,12 +18,14 @@ export class StatusReducer {
 
   static defaultState() {
     return {
-      countDbDirs: null,
-      countDbFiles: null,
+      countDbDirsAll: null,
+      countDbDirsShowable: null,
+      countDbFilesAll: null,
+      countDbFilesShowable: null,
       currentDir: null,
+      currentItem: null,
       currentTask: null,
       remainingDirs: null,
-      currentItem: null,
     }
   }
 
@@ -47,10 +49,10 @@ export class StatusReducer {
         }
 
         case constants.AR_STATUS_DB: {
-          const {countDbDirs, countDbFiles} = action.payload;
+          const {countDbDirsShowable, countDbDirsAll, countDbFilesShowable, countDbFilesAll} = action.payload;
           return {
             ...state,
-            countDbDirs, countDbFiles
+            countDbDirsShowable, countDbDirsAll, countDbFilesShowable, countDbFilesAll
           };
         }
 
