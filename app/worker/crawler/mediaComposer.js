@@ -147,7 +147,7 @@ export class MediaComposer extends CrawlerBase {
 
   // ........................................................
 
-  evaluateFileItem(fileItem, testTimeNow = null) {
+  evaluateFileItem(fileItem, dir = '') {
     const func = '.evaluateFileItem'; // eslint-disable-line no-unused-vars
 
     if (!fileItem)
@@ -177,7 +177,7 @@ export class MediaComposer extends CrawlerBase {
     }
 
     if (filterOut) {
-      log.info(`don't show file (filtered ${info}): ${fileItem.fileName}`);
+      log.info(`suppress file (${info}): ${dir}/${fileItem.fileName}`);
       fileItem.weight = constants.CRAWLER_MAX_WEIGHT;
     }
     else {
@@ -190,7 +190,7 @@ export class MediaComposer extends CrawlerBase {
       const weightRating = -1.0 * rating * weightingRating;
       const weightRepeated = repeated * weightingRepeated;
 
-      const weightSeason = this.evaluateSeasonWeight(fileItem, testTimeNow);
+      const weightSeason = this.evaluateSeasonWeight(fileItem);
 
       fileItem.weight = weightTime + weightRating + weightRepeated + weightSeason;
     }
@@ -204,7 +204,7 @@ export class MediaComposer extends CrawlerBase {
 
     const fileItem = this.findFileItem(dirItem, fileName);
     if (fileItem) {
-      this.evaluateFileItem(fileItem);
+      this.evaluateFileItem(fileItem, dirItem.dir);
       return;
     }
 
@@ -227,7 +227,7 @@ export class MediaComposer extends CrawlerBase {
     fileItem.rating = meta.rating || 0;
     fileItem.tags = meta.tags || [];
 
-    this.evaluateFileItem(fileItem);
+    this.evaluateFileItem(fileItem, dirItem.dir);
   }
 
   // ........................................................
@@ -241,7 +241,7 @@ export class MediaComposer extends CrawlerBase {
         fileItem.repeated = 1;
       else
         fileItem.repeated++;
-      this.evaluateFileItem(fileItem);
+      this.evaluateFileItem(fileItem, dirItem.dir);
     }
     dirItem.lastShown = Date.now();
     this.evaluateDir(dirItem);
@@ -301,7 +301,7 @@ export class MediaComposer extends CrawlerBase {
 
     for (let i = 0; i < dirItem.fileItems.length; i++) {
       const fileItem = dirItem.fileItems[i];
-      this.evaluateFileItem(fileItem);
+      this.evaluateFileItem(fileItem, dirItem.dir);
     }
 
     this.evaluateDir(dirItem);
