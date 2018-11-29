@@ -140,7 +140,7 @@ export function goBack() {
 }
 // ----------------------------------------------------------------------------------
 
-export function goNext() {
+export function goNext(triggeredByAutoplay = false) {
   const func = '.goNext';
 
   try {
@@ -163,7 +163,7 @@ export function goNext() {
       }
     }
 
-    storeManager.dispatchGlobal(rendererActions.createActionGoNext());
+    storeManager.dispatchGlobal(rendererActions.createActionGoNext(triggeredByAutoplay));
 
   } catch (err) {
     log.error(`${_logKey}${func} -`, err);

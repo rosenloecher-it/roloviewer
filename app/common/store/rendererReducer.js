@@ -25,7 +25,8 @@ export class RendererReducer {
       cursorHide: false,
       itemIndex: -1,
       items: [],
-      maxItemsPerContainer: constants.DEFCONF_MAX_ITEMS_PER_CONTAINER
+      maxItemsPerContainer: constants.DEFCONF_MAX_ITEMS_PER_CONTAINER,
+      triggeredByAutoplay: false
     };
   }
 
@@ -43,11 +44,11 @@ export class RendererReducer {
         case constants.AR_RENDERER_GO_BACK:
           return this.goTo(state, state.itemIndex - 1);
         case constants.AR_RENDERER_GO_NEXT:
-          return this.goTo(state, state.itemIndex + 1);
+          return this.goTo(state, state.itemIndex + 1, action.payload); // triggeredByAutoplay == action.payload
         case constants.AR_RENDERER_GO_RANDOM:
           return this.goRandom(state, action);
         case constants.AR_RENDERER_GO_NOWHERE:
-          return { ...state, itemIndex: -1 };
+          return { ...state, itemIndex: -1, triggeredByAutoplay: false };
         case constants.AR_RENDERER_GO_JUMP:
           return this.goJump(state, action);
         case constants.AR_RENDERER_GO_PAGE:
@@ -125,6 +126,7 @@ export class RendererReducer {
       countRemovedItems: 0,
       container: action.payload.container,
       containerType: action.payload.containerType,
+      triggeredByAutoplay: false
     };
   }
 
@@ -143,7 +145,8 @@ export class RendererReducer {
         itemIndex: 0,
         countRemovedItems: 0,
         container: null,
-        containerType: action.payload.containerType
+        containerType: action.payload.containerType,
+        triggeredByAutoplay: false
       };
     }
 
@@ -171,7 +174,8 @@ export class RendererReducer {
       itemIndex: newItemIndex,
       countRemovedItems,
       container: null,
-      containerType: action.payload.containerType
+      containerType: action.payload.containerType,
+      triggeredByAutoplay: false
     };
 
     //log.debug(`${_logKey}${func} (replace) - ${action.payload.items.length} items`);
@@ -179,7 +183,7 @@ export class RendererReducer {
 
   // .....................................................
 
-  goTo(state, newIndexIn) {
+  goTo(state, newIndexIn, triggeredByAutoplay = false) {
     const oldIndex = state.itemIndex;
     let newIndex = newIndexIn;
 
@@ -198,13 +202,14 @@ export class RendererReducer {
 
     return {
       ...state,
-      itemIndex: newIndex
+      itemIndex: newIndex,
+      triggeredByAutoplay
     };
   }
 
   // .....................................................
 
-  goRandom(state) {
+  goRandom(state, action) {
 
     if (state.items.length < 2)
       return state;
@@ -219,7 +224,8 @@ export class RendererReducer {
 
     return {
       ...state,
-      itemIndex: newIndex
+      itemIndex: newIndex,
+      triggeredByAutoplay: !!action.payload
     };
   }
 

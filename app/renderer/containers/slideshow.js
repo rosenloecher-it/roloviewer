@@ -125,8 +125,8 @@ class Slideshow extends React.Component {
 
   // .......................................................
 
-  goNext() {
-    ops.goNext();
+  goNext(triggeredByAutoplay = false) {
+    ops.goNext(triggeredByAutoplay);
   }
 
   // .......................................................
@@ -297,12 +297,12 @@ class Slideshow extends React.Component {
     try {
       // log.debug(`${_logKey}${func}`);
       if (this.props.containerType === constants.CONTAINER_AUTOSELECT)
-        this.goNext();
+        this.goNext(true);
       else {
         if (this.props.random)
-          this.dispatchGotoAction(rendererActions.createActionGoRandom());
+          this.dispatchGotoAction(rendererActions.createActionGoRandom(true));
         else
-          this.goNext();
+          this.goNext(true);
       }
     } catch (err) {
       log.error(`${_logKey}${func} -`, err);
@@ -504,6 +504,7 @@ const mapStateToProps = state => ({
   random: state.slideshow.random,
   transitionTimeAutoPlay: state.slideshow.transitionTimeAutoPlay,
   transitionTimeManual: state.slideshow.transitionTimeManual,
+  triggeredByAutoplay: state.renderer.triggeredByAutoplay,
 });
 
 export default connect( mapStateToProps )(Slideshow);

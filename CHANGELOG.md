@@ -15,3 +15,5 @@
 
 # 0.7.4 (2018-11-28)
 - bugfix: rating and tag filtering
+- transition time depend now on trigger (manual or autoplay)
+  (before: long transition always when autoplay was active)

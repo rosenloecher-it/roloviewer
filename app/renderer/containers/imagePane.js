@@ -189,13 +189,14 @@ class ImagePane extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  combinedAutoPlay: state.slideshow.autoPlay || state.context.isScreensaver,
+  combinedAutoPlay: state.renderer.triggeredByAutoplay || state.context.isScreensaver,
   cursorHide: state.renderer.cursorHide,
   isScreensaver: state.context.isScreensaver,
   itemIndex: state.renderer.itemIndex,
   items: state.renderer.items,
   transitionTimeAutoPlay: state.slideshow.transitionTimeAutoPlay,
   transitionTimeManual: state.slideshow.transitionTimeManual,
+  triggeredByAutoplay: state.renderer.triggeredByAutoplay,
 });
 
 export default connect( mapStateToProps )(ImagePane);

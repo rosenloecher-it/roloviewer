@@ -45,9 +45,18 @@ export const createActionDeliverFileMeta = (meta) => ({
   payload: { meta }
 });
 
-export const createActionGoNext = () => ({ type: constants.AR_RENDERER_GO_NEXT });
+export const createActionGoNext = (triggeredByAutoplay = false) => ({
+  type: constants.AR_RENDERER_GO_NEXT,
+  payload: triggeredByAutoplay
+});
+
 export const createActionGoBack = () => ({ type: constants.AR_RENDERER_GO_BACK });
-export const createActionGoRandom = () => ({ type: constants.AR_RENDERER_GO_RANDOM });
+
+export const createActionGoRandom = (triggeredByAutoplay = false) => ({
+  type: constants.AR_RENDERER_GO_RANDOM,
+  payload: triggeredByAutoplay
+});
+
 export const createActionGoNoWhere = () => ({ type: constants.AR_RENDERER_GO_NOWHERE });
 
 export const createActionJump = (jumpWidth) => ({
