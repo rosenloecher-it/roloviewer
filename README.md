@@ -21,7 +21,7 @@
     - open image location in browser (if any; predefined is openstreetmap)
 - supports ICC color profiles
 - fullscreen modus available
-- transitions (at moment only crossfades; more are planed)
+- transitions (at moment only crossfades)
 - configuration via file (ini style) and some command line options
 - runs on Linux and Windows
 - screensaver mode: exits at the first mouse move or key press (see [tools/screensaver.sh](https://github.com/rosenloecher-it/roloviewer/blob/master/tools/screensaver.sh))
