@@ -114,6 +114,9 @@ export class MediaFilter {
     if (ratings.length === 0)
       return false;
 
+    if (!rating)
+      rating = 0;
+
     for (let r = 0; r < ratings.length; r++) {
       if (rating === ratings[r])
         return false;
