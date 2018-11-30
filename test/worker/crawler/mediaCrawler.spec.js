@@ -287,9 +287,9 @@ describe(_logKey, () => {
     }).then((stateComposed) => {
 
       expect(testSystem.storeManager.countTypeTasks(constants.AR_WORKER_UPDATE_DIR)).toBe(1);
-      expect(stateComposed.rescanAll).toBe(false);
+      expect(stateComposed.configChanged).toBe(false);
 
-      // change setting to see a 'rescanAll === true'
+      // change setting to see a 'configChanged === true'
       crawlerState.blacklistTags.push('tag2');
       return testSystem.mediaCrawler.loadState();
 
@@ -297,7 +297,7 @@ describe(_logKey, () => {
 
       // old task have to get deleted before filling the new ones (from db)
       expect(testSystem.storeManager.countTypeTasks(constants.AR_WORKER_UPDATE_DIR)).toBe(1);
-      expect(stateComposed.rescanAll).toBe(true);
+      expect(stateComposed.configChanged).toBe(true);
 
       return Promise.resolve();
 
@@ -350,14 +350,14 @@ describe(_logKey, () => {
       count = testSystem.storeManager.countTasks();
       expect(count).toBe(0);
 
-      return testSystem.mediaCrawler.prepareDirsForUpdate({rescanAll: false});
+      return testSystem.mediaCrawler.prepareDirsForUpdate({configChanged: false});
 
     }).then(() => {
 
       count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_UPDATE_DIR);
       expect(count).toBe(countOld);
 
-      return testSystem.mediaCrawler.prepareDirsForUpdate({rescanAll: true});
+      return testSystem.mediaCrawler.prepareDirsForUpdate({configChanged: true});
 
     }).then(() => {
 
@@ -412,14 +412,14 @@ describe(_logKey, () => {
       count = testSystem.storeManager.countTasks();
       expect(count).toBe(0);
 
-      return testSystem.mediaCrawler.prepareDirsForUpdate({rescanAll: false});
+      return testSystem.mediaCrawler.prepareDirsForUpdate({configChanged: false});
 
     }).then(() => {
 
       count = testSystem.storeManager.countTypeTasks(constants.AR_WORKER_UPDATE_DIR);
       expect(count).toBe(countOld);
 
-      return testSystem.mediaCrawler.prepareDirsForUpdate({rescanAll: true});
+      return testSystem.mediaCrawler.prepareDirsForUpdate({configChanged: true});
 
     }).then(() => {
 

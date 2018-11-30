@@ -62,11 +62,11 @@ export const createActionOpenDropped = files => ({
   taskId: getNextTaskId()
 });
 
-export const createActionAutoSelect = (rescanAll = false) => ({
+export const createActionAutoSelect = (configChanged = false) => ({
   type: constants.AR_WORKER_AUTO_SELECT,
   payload: {
     containerType: constants.CONTAINER_AUTOSELECT,
-    rescanAll
+    configChanged
   },
   taskId: getNextTaskId()
 });
@@ -104,9 +104,9 @@ export const createActionStart = (
     createActionRemoveDirs
     createActionUpdateDir
 */
-export const createActionPrepareDirsForUpdate = (rescanAll = false) => ({
+export const createActionPrepareDirsForUpdate = (configChanged = false) => ({
   type: constants.AR_WORKER_PREPARE_DIRS_FOR_UPDATE,
-  payload: { rescanAll },
+  payload: { configChanged },
   taskId: getNextTaskId()
 });
 
@@ -159,11 +159,11 @@ export const createActionUpdateDirFiles = (folder, fileNames) => ({
  scan dir; remove non existing files and add new ones
  triggers createActionUpdateDirFiles
 */
-export const createActionUpdateDir = (dir, rescanAll = false) => ({
+export const createActionUpdateDir = (dir, configChanged = false) => ({
   type: constants.AR_WORKER_UPDATE_DIR,
   payload: {
     dir,
-    rescanAll
+    configChanged
   },
   taskId: getNextTaskId()
 });

@@ -62,11 +62,11 @@ export class MediaCrawler extends CrawlerBase {
     const func = '.autoSelectFiles';
 
     try {
-      let rescanAll = false;
-      if (input.rescanAll !== null && input.rescanAll !== undefined)
-        rescanAll = input.rescanAll;
+      let configChanged = false;
+      if (input.configChanged !== null && input.configChanged !== undefined)
+        configChanged = input.configChanged;
 
-      if (rescanAll === true)
+      if (configChanged === true)
         return this.rescanAllAndAutoSelect();
 
       return this.chooseAndSendFiles();
@@ -266,11 +266,11 @@ export class MediaCrawler extends CrawlerBase {
 
     const p = dbWrapper.loadState().then((stateComposed) => {
 
-      let rescanAll = false;
+      let configChanged = false;
 
       if (!MediaCrawler.equalsStateNoRescan(crawlerStateCurrent, stateComposed.lastConfig)) {
         log.info(`db config changed => restart crawle`);
-        rescanAll = true;
+        configChanged = true;
       }
 
       if (stateComposed.lastUpdateDirs) {
@@ -281,12 +281,12 @@ export class MediaCrawler extends CrawlerBase {
 
         const {lastUpdateDirs} = stateComposed;
         for (let i = 0; i < lastUpdateDirs.length; i++) {
-          action = workerActions.createActionUpdateDir(lastUpdateDirs[i], rescanAll);
+          action = workerActions.createActionUpdateDir(lastUpdateDirs[i], configChanged);
           storeManager.dispatchTask(action);
         }
       }
 
-      return Promise.resolve({ rescanAll });
+      return Promise.resolve({ configChanged });
     });
 
     return p;
@@ -355,7 +355,7 @@ export class MediaCrawler extends CrawlerBase {
 
       let action = null;
 
-      action = workerActions.createActionPrepareDirsForUpdate(argsLoadState.rescanAll);
+      action = workerActions.createActionPrepareDirsForUpdate(argsLoadState.configChanged);
       storeManager.dispatchTask(action);
 
       return dbWrapper.countDirsShowable();
@@ -403,7 +403,7 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  prepareDirsForUpdate({ rescanAll }) {
+  prepareDirsForUpdate({ configChanged }) {
     // createActionPrepareDirsForUpdate / AR_WORKER_PREPARE_DIRS_FOR_UPDATE
     const func = '.prepareDirsForUpdate';
 
@@ -414,7 +414,7 @@ export class MediaCrawler extends CrawlerBase {
 
     let p = null;
 
-    if (rescanAll)
+    if (configChanged)
       p = dbWrapper.listDirsAll();
     else
       p = dbWrapper.listDirsToUpdate(crawlerState.updateDirsAfterMinutes);
@@ -423,7 +423,7 @@ export class MediaCrawler extends CrawlerBase {
 
       let action = null;
 
-      if (rescanAll) {
+      if (configChanged) {
         // reset old tasks
         action = workerActions.createActionRemoveTaskTypes(constants.AR_WORKER_UPDATE_DIRFILES);
         storeManager.dispatchTask(action);
@@ -433,7 +433,7 @@ export class MediaCrawler extends CrawlerBase {
 
       for (let i = 0; i < dirItems.length; i++) {
         const dirItem = dirItems[i];
-        action = workerActions.createActionUpdateDir(dirItem.dir, rescanAll);
+        action = workerActions.createActionUpdateDir(dirItem.dir, configChanged);
         storeManager.dispatchTask(action);
       }
 
@@ -710,7 +710,7 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  checkAndHandleChangedFileItems(dirItem, fileNamesFs, rescanAll = false) {
+  checkAndHandleChangedFileItems(dirItem, fileNamesFs, configChanged = false) {
     const func = '.checkAndHandleChangedFileItems';
 
     let doFileItemsSave = false;
@@ -783,8 +783,8 @@ export class MediaCrawler extends CrawlerBase {
     }
     else {
       // recalculate items without loading from disc
-      if (rescanAll) {
-        log.debug(`${_logKey}${func} - force evaluation (rescanAll): ${dirItem.dir}`);
+      if (configChanged) {
+        log.debug(`${_logKey}${func} - force evaluation (configChanged): ${dirItem.dir}`);
         this.objects.mediaComposer.evaluate(dirItem);
         doFileItemsSave = true;
       }
@@ -799,7 +799,7 @@ export class MediaCrawler extends CrawlerBase {
     // AR_WORKER_UPDATE_DIR
     const func = '.updateDir';
 
-    const { dir, rescanAll } = payload;
+    const { dir, configChanged } = payload;
 
     //log.debug(`${_logKey}${func} - in: ${folder}`);
 
@@ -835,7 +835,7 @@ export class MediaCrawler extends CrawlerBase {
 
       //log.debug(`${_logKey}${func} - dirItem:`, dirItem);
 
-      if (instance.checkAndHandleChangedFileItems(dirItem, children, rescanAll))
+      if (instance.checkAndHandleChangedFileItems(dirItem, children, configChanged))
         return dbWrapper.saveDir(dirItem);
 
       return Promise.resolve();
