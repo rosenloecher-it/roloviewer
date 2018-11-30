@@ -11,7 +11,7 @@ export const DEBUG_DONT_SAVE_CONFIG = false;
 // app
 
 export const APP_TITLE = 'RoloViewer';
-export const APP_VERSION = '0.7.4';
+export const APP_VERSION = '1.0.0';
 export const APP_URL = 'https://github.com/rosenloecher-it/roloviewer';
 
 export const APP_CREATOR = 'Raul Rosenlöcher';
@@ -44,7 +44,6 @@ export const DEFCONF_TRANSITION_TIME_AUTOPLAY = 4000;
 export const DEFCONF_TRANSITION_TIME_MANUAL = 600;
 export const DEFCONF_TIMER = 9000;
 export const DEFCONF_POWER_SAVE_BLOCK_TIME = 30;
-export const DEFCONF_PATH_SHORTEN_ELEMENTS = 4;
 export const DEFCONF_DETAILS_TEXT_SHORTEN = 50;
 export const DEFCONF_RANDOM = true;
 

@@ -19,7 +19,7 @@
 
 # set USER
 
-ROLO_APP="/home/$USER/bin/roloviewer-0.7.4-x86_64.AppImage"
+ROLO_APP="/home/$USER/bin/roloviewer-1.0.0-x86_64.AppImage"
 
 ROLO_COMMAND="$ROLO_APP --configfile $HOME/.config/RoloViewer/screensaver.ini --fullscreen --play --screensaver"
 # wait ... seconds before start roloviewer

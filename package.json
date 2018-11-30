@@ -1,7 +1,7 @@
 {
   "name": "roloviewer",
   "productName": "RoloViewer",
-  "version": "0.7.4",
+  "version": "1.0.0",
   "description": "Image slideshow viewer",
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
