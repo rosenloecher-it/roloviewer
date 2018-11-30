@@ -128,7 +128,9 @@ export const createActionRemoveDirs = dirs => ({
 */
 export const createActionSearchForNewDirs = dir => ({
   type: constants.AR_WORKER_SEARCH_FOR_NEW_DIRS,
-  payload: dir,
+  payload: {
+    dir
+  },
   taskId: getNextTaskId()
 });
 
@@ -157,9 +159,12 @@ export const createActionUpdateDirFiles = (folder, fileNames) => ({
  scan dir; remove non existing files and add new ones
  triggers createActionUpdateDirFiles
 */
-export const createActionUpdateDir = dir => ({
+export const createActionUpdateDir = (dir, rescanAll = false) => ({
   type: constants.AR_WORKER_UPDATE_DIR,
-  payload: dir,
+  payload: {
+    dir,
+    rescanAll
+  },
   taskId: getNextTaskId()
 });
 

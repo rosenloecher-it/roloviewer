@@ -163,7 +163,7 @@ export class MediaComposer extends CrawlerBase {
 
     let info = '';
     if (MediaFilter.filterRating(showRatings, fileItem.rating)) {
-      info = 'rating';
+      info = `rating-${fileItem.rating}`;
       filterOut = true;
     }
     if (!filterOut && MediaFilter.containsTags(fileItem.tags, blacklistTags)) {

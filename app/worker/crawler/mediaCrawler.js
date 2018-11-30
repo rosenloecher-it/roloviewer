@@ -281,7 +281,7 @@ export class MediaCrawler extends CrawlerBase {
 
         const {lastUpdateDirs} = stateComposed;
         for (let i = 0; i < lastUpdateDirs.length; i++) {
-          action = workerActions.createActionUpdateDir(lastUpdateDirs[i]);
+          action = workerActions.createActionUpdateDir(lastUpdateDirs[i], rescanAll);
           storeManager.dispatchTask(action);
         }
       }
@@ -433,7 +433,7 @@ export class MediaCrawler extends CrawlerBase {
 
       for (let i = 0; i < dirItems.length; i++) {
         const dirItem = dirItems[i];
-        action = workerActions.createActionUpdateDir(dirItem.dir);
+        action = workerActions.createActionUpdateDir(dirItem.dir, rescanAll);
         storeManager.dispatchTask(action);
       }
 
@@ -528,9 +528,11 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  searchForNewDirs(dir) {
+  searchForNewDirs(payload) {
     // AR_WORKER_SEARCH_FOR_NEW_DIRS
     const func = '.searchForNewDirs';
+
+    const { dir } = payload;
 
     try {
       const instance = this;
@@ -619,7 +621,7 @@ export class MediaCrawler extends CrawlerBase {
   // .......................................................
 
   updateDirFiles(payload) {
-    // AR_WORKER_UPDATE_DIRFILES - only updates or add files - no remove!
+    // AR_WORKER_UPDATE_DIRFILES - createActionUpdateDirFiles - only updates or add files - no remove!
     const func = '.updateDirFiles';
 
     const { folder, fileNames } = payload;
@@ -697,7 +699,18 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  checkAndHandleChangedFileItems(dirItem, fileNamesFs) {
+  static shouldSeasonBeRecaluclated(weightingSeason, dirItem) {
+    if (weightingSeason > 1) {
+      const seasonShift = constants.DEFCONF_CRAWLER_TODAY_SHIFT_SEASON * 24 * 60 * 60 * 1000;
+      const minUpdateTime = new Date().getTime() - seasonShift;
+      return (dirItem.lastUpdate < minUpdateTime)
+    } else
+      return false;
+  }
+
+  // .......................................................
+
+  checkAndHandleChangedFileItems(dirItem, fileNamesFs, rescanAll = false) {
     const func = '.checkAndHandleChangedFileItems';
 
     let doFileItemsSave = false;
@@ -742,14 +755,10 @@ export class MediaCrawler extends CrawlerBase {
       doFileItemsSave = true;
     });
 
-    // updating seasonWeight
-    if (crawlerState.weightingSeason <= 0.5 || doFileItemsSave) {
-      const seasonShift = constants.DEFCONF_CRAWLER_TODAY_SHIFT_SEASON * 24 * 60 * 60 * 1000;
-      const minUpdateTime = new Date().getTime() - seasonShift;
-      if (dirItem.lastUpdate >= minUpdateTime) {
-        log.debug(`${_logKey}${func} - force evaluation: ${dirItem.dir}`);
-        doFileItemsSave = true;
-      }
+    // updating seasonWeight - file has to be reloaded because lastUpdate must be set!
+    if (!doFileItemsSave && MediaCrawler.shouldSeasonBeRecaluclated(crawlerState.weightingSeason, dirItem)) {
+      log.debug(`${_logKey}${func} - force reloading (season): ${dirItem.dir}`);
+      doFileItemsSave = true;
     }
 
     if (doFileItemsSave) {
@@ -765,10 +774,19 @@ export class MediaCrawler extends CrawlerBase {
           actionItems.push(itemUpdate[i]);
           if (actionItems.length === 10 || i === itemUpdate.length - 1) {
             const action = workerActions.createActionUpdateDirFiles(dirItem.dir, actionItems);
+            // => AR_WORKER_UPDATE_DIRFILES => updateDirFiles(payload)
             this.objects.storeManager.dispatchTask(action);
             actionItems = [];
           }
         }
+      }
+    }
+    else {
+      // recalculate items without loading from disc
+      if (rescanAll) {
+        log.debug(`${_logKey}${func} - force evaluation (rescanAll): ${dirItem.dir}`);
+        this.objects.mediaComposer.evaluate(dirItem);
+        doFileItemsSave = true;
       }
     }
 
@@ -777,13 +795,15 @@ export class MediaCrawler extends CrawlerBase {
 
   // .......................................................
 
-  updateDir(folder) {
+  updateDir(payload) {
     // AR_WORKER_UPDATE_DIR
     const func = '.updateDir';
 
+    const { dir, rescanAll } = payload;
+
     //log.debug(`${_logKey}${func} - in: ${folder}`);
 
-    if (!folder)
+    if (!dir)
       return Promise.resolve();
 
     const instance = this;
@@ -792,30 +812,30 @@ export class MediaCrawler extends CrawlerBase {
     const { storeManager } = instance.objects;
     const crawlerState = storeManager.crawlerState;
 
-    if (!fileUtils.isDirectory(folder)) {
-      log.info(`${_logKey}${func} - no dir: ${folder}`);
+    if (!fileUtils.isDirectory(dir)) {
+      log.info(`${_logKey}${func} - no dir: ${dir}`);
       return Promise.resolve();
     }
     const isFolderBlacklisted = MediaFilter.isFolderBlacklisted(
-      folder,
+      dir,
       crawlerState.folderBlacklist,
       crawlerState.blacklistFolderSnippets
     );
     if (isFolderBlacklisted) {
-      log.info(`${_logKey}${func} - blacklisted: ${folder}`);
+      log.info(`${_logKey}${func} - blacklisted: ${dir}`);
       return Promise.resolve();
     }
 
-    const children = MediaFilter.listMediaFilesShort(folder);
+    const children = MediaFilter.listMediaFilesShort(dir);
 
-    const p = dbWrapper.loadDir(folder).then((dirItem) => {
+    const p = dbWrapper.loadDir(dir).then((dirItem) => {
 
       if (!dirItem)
-        dirItem = mediaComposer.createDirItem({dir: folder});
+        dirItem = mediaComposer.createDirItem({dir});
 
       //log.debug(`${_logKey}${func} - dirItem:`, dirItem);
 
-      if (instance.checkAndHandleChangedFileItems(dirItem, children))
+      if (instance.checkAndHandleChangedFileItems(dirItem, children, rescanAll))
         return dbWrapper.saveDir(dirItem);
 
       return Promise.resolve();

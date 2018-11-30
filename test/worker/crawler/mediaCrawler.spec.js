@@ -517,8 +517,8 @@ describe(_logKey, () => {
         const task = tasks[i];
         if (task.type === constants.AR_WORKER_SEARCH_FOR_NEW_DIRS) countActionScanFsDir++;
         if (task.type === constants.AR_WORKER_UPDATE_DIR) countActionUpdateDir++;
-        if (task.payload === dirPath1) countDir1++;
-        if (task.payload === dirPath2) countDir2++;
+        if (task.payload.dir === dirPath1) countDir1++;
+        if (task.payload.dir === dirPath2) countDir2++;
       }
 
       //console.log('tasks', tasks);
@@ -857,4 +857,34 @@ describe(_logKey, () => {
   });
 
   // ........................................................
+
+  it('shouldSeasonBeRecaluclated', () => {
+    let out;
+    let weightingSeason = constants.DEFCONF_CRAWLER_WEIGHTING_SEASON;
+
+    const testSystem = new DummyTestSystem();
+    const dirItem = testSystem.mediaComposer.createDirItem({dir: 'noname'});
+    dirItem.lastUpdate = new Date().getTime();
+
+    out = MediaCrawler.shouldSeasonBeRecaluclated(weightingSeason, dirItem)
+    expect(out).toBe(false);
+
+    const diffTime = 5 * 60 * 1000; // 5 min - manual debugging has to take more time!
+
+    dirItem.lastUpdate = new Date().getTime() - constants.DEFCONF_CRAWLER_TODAY_SHIFT_SEASON * 24 * 60 * 60 * 1000 + diffTime;
+    //console.dir(new Date(dirItem.lastUpdate).toLocaleString());
+    out = MediaCrawler.shouldSeasonBeRecaluclated(weightingSeason, dirItem)
+    expect(out).toBe(false);
+
+    dirItem.lastUpdate = new Date().getTime() - constants.DEFCONF_CRAWLER_TODAY_SHIFT_SEASON * 24 * 60 * 60 * 1000 - diffTime;
+    //console.dir(new Date(dirItem.lastUpdate).toLocaleString());
+    out = MediaCrawler.shouldSeasonBeRecaluclated(weightingSeason, dirItem)
+    expect(out).toBe(true);
+
+    weightingSeason = 0;
+    out = MediaCrawler.shouldSeasonBeRecaluclated(weightingSeason, dirItem)
+    expect(out).toBe(false);
+
+  });
+
 });
