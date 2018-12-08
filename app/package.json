@@ -1,7 +1,7 @@
 {
   "name": "roloviewer",
   "productName": "RoloViewer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Image slideshow viewer",
   "main": "./dist/main.prod.js",
   "author": {

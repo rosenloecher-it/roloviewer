@@ -11,7 +11,7 @@ export const DEBUG_DONT_SAVE_CONFIG = false;
 // app
 
 export const APP_TITLE = 'RoloViewer';
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = '1.0.1';
 export const APP_URL = 'https://github.com/rosenloecher-it/roloviewer';
 
 export const APP_CREATOR = 'Raul Rosenlöcher';
