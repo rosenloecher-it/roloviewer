@@ -608,7 +608,7 @@ export class MediaCrawler extends CrawlerBase {
         return dbWrapper.saveDir(dirItem);
       }
 
-      log.error(`${_logKey}${func}.promise - cannot find parent for item (${file})!`);
+      log.info(`${_logKey}${func}.promise - cannot find parent for item (${file})!`);
       return Promise.resolve();
 
     }).catch((err) => {
