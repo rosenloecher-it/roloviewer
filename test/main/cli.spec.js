@@ -1,11 +1,13 @@
+import fs from "fs";
+import path from "path";
 import Cli from "../../app/main/cli";
+
 
 describe('cli', () => {
 
   it('all args', () => {
 
     const app = '/path/binary';
-    const pathOpen = __dirname; // has to exist no changes
     const pathConfFile = __filename; // has to exist no changes
 
 
@@ -52,14 +54,6 @@ describe('cli', () => {
     output = cli.parseArray(args);
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
 
-    compare = { open: pathOpen, exitCode: null };
-    args = [ app, '--open', pathOpen ];
-    output = cli.parseArray(args);
-    expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
-    args = [ app, '-o', pathOpen ];
-    output = cli.parseArray(args);
-    expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
-
     compare = { screensaver: true, exitCode: null };
     args = [ app, '--screensaver' ];
     output = cli.parseArray(args);
@@ -71,6 +65,44 @@ describe('cli', () => {
     // console.log("cli output:", output);
 
     expect(cli.shouldExit()).toBe(false);
+
+  });
+
+  it('open', () => {
+    //const testFile = path.join(__dirname, );
+
+    let args = null;
+    let output = null;
+    let compare = null;
+
+    const pathImageFile = path.join(process.cwd(), 'test', 'worker', 'crawler', 'testImage1-Nikon-D7100-Lightroom.jpg');
+    output = fs.lstatSync(pathImageFile).isFile();
+    expect(output).toBe(true);
+
+
+    const cli = new Cli();
+
+    const app = '/path/binary';
+
+    // open file
+    compare = { open: pathImageFile, exitCode: null };
+    args = [ app, '--open', pathImageFile ];
+    output = cli.parseArray(args);
+    expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
+    args = [ app, '-o', pathImageFile ];
+    output = cli.parseArray(args);
+    expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
+
+    // open dir
+    const pathDir = __dirname; // has to exist no changes
+
+    compare = { open: pathDir, exitCode: null };
+    args = [ app, '--open', pathDir ];
+    output = cli.parseArray(args);
+    expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
+    args = [ app, '-o', pathDir ];
+    output = cli.parseArray(args);
+    expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
 
   });
 

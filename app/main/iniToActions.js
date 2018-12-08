@@ -1,5 +1,6 @@
 import fs from 'fs';
 import log from 'electron-log';
+import path from "path";
 import { app } from "electron";
 import * as actionsContext from '../common/store/contextActions';
 import * as actionsCrawler from '../common/store/crawlerActions';
@@ -24,6 +25,8 @@ import {
   valiUrl,
   valiDir
 } from '../common/utils/validate';
+
+import { MediaFilter } from "../worker/crawler/mediaFilter";
 
 // ----------------------------------------------------------------------------------
 
@@ -202,11 +205,24 @@ export function createSlideshowAction(iniDataIn, context) {
     actionData.lastItem = null;
   } else {
     if (context.tempCliOpenContainer) {
-      if (fs.existsSync(actionData.tempCliOpenContainer)) {
-        const isDir = fileUtils.isDirectory(context.tempCliOpenContainer);
-        actionData.lastContainerType = isDir ? constants.CONTAINER_FOLDER : constants.CONTAINER_PLAYLIST;
+      const isDir = fileUtils.isDirectory(context.tempCliOpenContainer);
+      const isFile = fileUtils.isFile(context.tempCliOpenContainer);
+      if (isDir) {
+        actionData.lastContainerType = constants.CONTAINER_FOLDER;
         actionData.lastContainer = context.tempCliOpenContainer;
         actionData.lastItem = null;
+      } else if (isFile) {
+        const isImage = MediaFilter.isImageFormatSupported(context.tempCliOpenContainer);
+        if (isImage) {
+          actionData.lastItem = context.tempCliOpenContainer;
+          // second
+          actionData.lastContainerType = constants.CONTAINER_FOLDER;
+          actionData.lastContainer = path.dirname(context.tempCliOpenContainer);
+        } else {
+          actionData.lastContainerType = constants.CONTAINER_PLAYLIST;
+          actionData.lastContainer = context.tempCliOpenContainer;
+          actionData.lastItem = null;
+        }
       } else {
         log.info(`${_logKey}.createSlideshowAction - last file/dir doesn't exist (${context.tempCliOpenContainer})!`);
         actionData.lastContainerType = null;

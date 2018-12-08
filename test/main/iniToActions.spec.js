@@ -1,4 +1,8 @@
+import path from "path";
+import fs from "fs";
+import * as constants from "../../app/common/constants";
 import * as iniToActions from "../../app/main/iniToActions";
+import {ContextReducer} from "../../app/common/store/contextReducer";
 
 // ----------------------------------------------------------------------------------
 
@@ -74,7 +78,33 @@ describe('iniToActions', () => {
 
     expect(action.payload.lastDialogFolder).toBe(defaultIniData.system.lastDialogFolder);
 
+  });
 
+  it('createSlideshowActionOpen', () => {
+
+    const pathImageFile = path.join(process.cwd(), 'test', 'worker', 'crawler', 'testImage1-Nikon-D7100-Lightroom.jpg');
+    expect(fs.lstatSync(pathImageFile).isFile()).toBe(true);
+    const pathImageDir = path.dirname(pathImageFile);
+    expect(fs.lstatSync(pathImageDir).isDirectory()).toBe(true);
+
+    let action;
+    const context = ContextReducer.defaultState();
+    const iniData = { slideshow: {} }
+
+    // let cliData = { open: pathImageFile };
+    // action = iniToActions.createContextAction(appContext, cliData, pathDefaultConfigFile);
+
+    context.tempCliOpenContainer = pathImageFile;
+    action = iniToActions.createSlideshowAction(iniData, context);
+    expect(action.payload.lastContainerType).toBe(constants.CONTAINER_FOLDER);
+    expect(action.payload.lastContainer).toBe(pathImageDir);
+    expect(action.payload.lastItem).toBe(pathImageFile)
+
+    context.tempCliOpenContainer = pathImageDir;
+    action = iniToActions.createSlideshowAction(iniData, context);
+    expect(action.payload.lastContainerType).toBe(constants.CONTAINER_FOLDER);
+    expect(action.payload.lastContainer).toBe(pathImageDir);
+    expect(action.payload.lastItem).toBe(null)
 
   });
 
