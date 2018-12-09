@@ -86,6 +86,14 @@ describe('cli', () => {
 
     // open file
     compare = { open: pathImageFile, exitCode: null };
+    args = [ app, pathImageFile ];
+    output = cli.parseArray(args);
+    expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
+    args = [ app, '-o', pathImageFile ];
+    output = cli.parseArray(args);
+    expect(JSON.stringify(output)).toBe(JSON.stringify(compare));
+
+    compare = { open: pathImageFile, exitCode: null };
     args = [ app, '--open', pathImageFile ];
     output = cli.parseArray(args);
     expect(JSON.stringify(output)).toBe(JSON.stringify(compare));

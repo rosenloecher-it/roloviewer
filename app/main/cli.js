@@ -2,6 +2,7 @@ import argly from 'argly';
 import log from 'electron-log';
 import * as constants from '../common/constants';
 import * as fileUtils from '../common/utils/fileUtils';
+import { MediaFilter } from "../worker/crawler/mediaFilter";
 
 // ----------------------------------------------------------------------------------
 
@@ -132,7 +133,22 @@ export default class Cli {
 
       const argsForParser = Cli.prepareArgsForParser(args);
 
-      this.data.result = this.parser.parse(argsForParser);
+      let openSingleArgDirectly = null;
+
+      if (argsForParser && argsForParser.length === 1) {
+        const arg0 = argsForParser[0]
+        const isDir = fileUtils.isDirectory(arg0);
+        const isFile = fileUtils.isFile(arg0);
+        const isImage = MediaFilter.isImageFormatSupported(arg0);
+        if (isDir || isFile && isImage)
+          openSingleArgDirectly = arg0;
+      }
+
+      if (openSingleArgDirectly)
+        this.data.result = { open: openSingleArgDirectly }
+      else
+        this.data.result = this.parser.parse(argsForParser);
+
       if (this.data.result) {
         this.data.result.exitCode = this.data.exitCode;
       } else
