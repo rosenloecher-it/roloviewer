@@ -119,25 +119,43 @@ export function determineIcon() {
     //   iconName = 'icon.png';
 
     const iconName = 'icon.png';
-    let iconDir = '';
+    const notFoundLocations = [];
+    let iconPath = null;
 
-    const appName = electron.app.getName();
-
-    if (appName === 'Electron') {
-      iconDir = path.join(__dirname, '..', 'resources');
-    } else {
+    if (!iconPath) {
       // app is packed as asar
       const exePath = app.getPath('exe');
       const appPath = path.dirname(exePath);
-      iconDir = path.join(appPath, 'resources/app.asar/resources');
+      const iconPathTemp = path.join(appPath, 'resources/app.asar/resources', iconName);
+      if (fileUtils.isFile(iconPathTemp))
+        iconPath = iconPathTemp;
+      else
+        notFoundLocations.push(iconPathTemp)
     }
 
-    const iconPath = path.join(iconDir, iconName);
-    if (!fileUtils.isFile(iconPath))
-      throw new Error(`"${iconPath}" doesn't exist!`);
+    if (!iconPath) {
+      // app is packed as asar
+      const exePath = app.getPath('exe');
+      const appPath = path.dirname(exePath);
+      const iconPathTemp = path.join(appPath, 'resources/resources', iconName);
+      if (fileUtils.isFile(iconPathTemp))
+        iconPath = iconPathTemp;
+      else
+        notFoundLocations.push(iconPathTemp)
+    }
+
+    if (!iconPath) {
+      const iconPathTemp = path.join(path.join(__dirname, '..', 'resources'), iconName);
+      if (fileUtils.isFile(iconPathTemp))
+        iconPath = iconPathTemp;
+      else
+        notFoundLocations.push(iconPathTemp)
+    }
+
+    if (!iconPath)
+      throw new Error(`"icon not found! `, notFoundLocations);
 
     log.debug(`${_logKey}${func} - use icon path:`, iconPath);
-
     return iconPath;
 
   } catch (err) {

@@ -43,6 +43,9 @@
   "build": {
     "productName": "RoloViewer",
     "appId": "com.rosenloecher-it.roloviewer",
+    "extraResources": [
+      "resources/*"
+    ],
     "files": [
       "dist/",
       "node_modules/",
@@ -51,9 +54,8 @@
       "dist/main.prod.js",
       "dist/main.prod.js.map",
       "package.json",
-      "resources/icon.icns",
-      "resources/icon.ico",
-      "resources/icon.png"
+      "resources/icon.*",
+      "build/icon.*"
     ],
     "dmg": {
       "contents": [
@@ -81,8 +83,8 @@
         "AppImage"
       ],
       "category": "Graphics",
+      "mimeTypes": ["image/jpeg", "inode/directory"],
       "asarUnpack": "./node_modules/exiftool-vendored.pl/**",
-      "icon": "resources/icon.png",
       "description": "Image slideshow viewer",
       "synopsis": "Image slideshow viewer"
     },
