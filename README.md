@@ -26,7 +26,7 @@
 - runs on Linux and Windows
 - screensaver mode: exits at the first mouse move or key press (see [tools/screensaver.sh](https://github.com/rosenloecher-it/roloviewer/blob/master/tools/screensaver.sh))
 - able to block the system power saving for some time
-- (drag&) drop images or directories
+- drag&drop images or directories (you can also drop several dirs at once => temporary playlist)
 
 
 ## Installation
