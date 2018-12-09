@@ -21,5 +21,6 @@
 # 1.0.0 (2018-11-30)
 - improved database updated after config changed (filter)
 
-# 1.0.1
-todo
+# 1.0.1 (2ß18-12-09)
+- linux desktop integration: add mimetypes [ jpg, directories ]
+- bugfix: open file via command line
