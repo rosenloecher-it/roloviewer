@@ -34,7 +34,6 @@ export function shortenString(inputText, maxLength) {
 // ----------------------------------------------------------------------------------
 
 export function shortenPath(inputText, maxLength) {
-  // TODO make intelligent cut
   return shortenString(inputText, maxLength);
 }
 

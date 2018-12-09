@@ -111,8 +111,6 @@ function checkRandomSelectFilesFromDir(composer, countFiles, countSelectDemanded
   //console.log('selections =',selections);
 
   expect(max).toBeLessThan(constants.CRAWLER_MAX_WEIGHT);
-  //expect(min).toBeGreaterThanOrEqual(0); TODO
-
   expect(averageNorm).toBeGreaterThan(0);
 
   if (selections.length >= 8 && selections.length > 2 * countSelectDemanded) {

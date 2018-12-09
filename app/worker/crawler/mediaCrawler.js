@@ -325,8 +325,6 @@ export class MediaCrawler extends CrawlerBase {
 
       this.triggerSearchingSourceFolders();
 
-      // TODO delete only not needed dirs
-
       return dbWrapper.clearDbDir();
 
     }).catch((err) => {

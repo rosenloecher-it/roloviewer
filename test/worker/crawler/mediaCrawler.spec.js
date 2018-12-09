@@ -851,8 +851,6 @@ describe(_logKey, () => {
       return testSystem.shutdown();
     });
 
-    // TODO too much variation: some files gets hit 6 other 0 !? => punish via lastShown as array...
-
     return p;
   });
 
