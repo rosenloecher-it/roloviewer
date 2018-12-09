@@ -244,8 +244,22 @@ export function openItemDirectory() {
 export function autoSelect() {
   log.debug(`${_logKey}.autoSelect`);
 
-  const action = workerActions.createActionAutoSelect();
-  storeManager.dispatchGlobal(action);
+  let doOpenNew = false;
+  const state = storeManager.state;
+
+  if (!state || !state.crawler || !state.crawler.sourceFolders) {
+    doOpenNew = true;
+  } else {
+    if (0 >= state.crawler.sourceFolders.length)
+      doOpenNew = true;
+  }
+
+  if (doOpenNew)
+    this.openAutoSelectDirectory()
+  else {
+    const action = workerActions.createActionAutoSelect();
+    storeManager.dispatchGlobal(action);
+  }
 }
 
 // ----------------------------------------------------------------------------------

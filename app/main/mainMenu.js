@@ -27,11 +27,11 @@ export function createMenu() {
         click: () => { ops.openPlayList() }
       },
       {
-        label: 'Open auto-select directory',
+        label: 'Open new auto-select directory',
         click: () => { ops.openAutoSelectDirectory() }
       },
       {
-        label: 'Auto-select',
+        label: 'Auto-select (last used directory)',
         accelerator: 'F7',
         click: () => { ops.autoSelect() }
       },
