@@ -1,4 +1,6 @@
-# RoloViewer
+# RoloViewer (discontinued)
+
+**Discontinued**: I still like that app, but I gave up in the face of the dependency hell. Electron and React should not be used on base on a boiler plate template... 
 
 ### And yet another image slideshow viewer...
 
